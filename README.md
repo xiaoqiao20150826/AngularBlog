@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 # NodeBlog-goal
  - 개인 블로그를 만든다.
@@ -34,3 +35,7 @@ Created with [Nodeclipse](https://github.com/Nodeclipse/nodeclipse-1)
  ([Eclipse Marketplace](http://marketplace.eclipse.org/content/nodeclipse), [site](http://www.nodeclipse.org))   
 
 Nodeclipse is free open-source project that grows with your contributions.
+=======
+NodeBlog
+========
+>>>>>>> 232d7a149d3d1d41885c90345e934d7e61bad22d
