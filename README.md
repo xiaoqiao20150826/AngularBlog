@@ -1,6 +1,14 @@
 
+# NodeBlog-goal
+ - 개인 블로그를 만든다.
+ - git 연습.
+ - node.js 연습.
+ - 영어 연습.
+ - 기타...
 
-# NodeBlog
+# Work-history
+1. make UI of blog by bootstrap
+2. 
 
 
 
@@ -9,8 +17,16 @@
 
 
 ## Developing
+--------
+[development environment]
+server : node.js
+webapp-framwork : express(view: ejs)
+webapp-test framwork : vows
+database : mongoDB
+IDE : nodeclipse
 
-
+UI : BootStrap
+-------
 
 ### Tools
 
