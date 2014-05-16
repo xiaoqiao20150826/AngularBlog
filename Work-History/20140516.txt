@@ -1,0 +1,20 @@
+------------------------
+# 현재 완료된 것.
+
+- node.js설치, nodeclipse로 express 템플릿 프로젝트 생성하여 hellow express(유사한 메시지) 확인.
+- github 저장소 만들고 커밋함.
+
+----------------------------------------
+# 작업 이력
+
+[DO]:UI를 만들기 위해 부트스트랩 getting started 학습한다.
+{
+	[DO]:static resources(img, js 등)을 바인딩 하기 위한 router 설정이 필요하다.(ex. 스프링의 /resources/** )
+	{
+		[DO]:express의 라우팅 api를 찾아보고 기본적인 URL 라우팅 설정을 한다.(ex.restful URL)
+		{
+			
+		}
+   
+	}
+}

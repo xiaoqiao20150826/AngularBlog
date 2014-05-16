@@ -1,41 +1,19 @@
-<<<<<<< HEAD
-
-# NodeBlog-goal
- - 개인 블로그를 만든다.
+# 목적
+ - 개인 블로그를 만든다. 서비스를 배포한다.
  - git 연습.
  - node.js 연습.
  - 영어 연습.
  - 기타...
 
-# Work-history
-1. make UI of blog by bootstrap
-2. 
+# 작업 이력
+./Work-History 디렉토리에 기록한다. 
 
 
-
-## Usage
-
-
-
-## Developing
---------
-[development environment]
+## Development Environment
 server : node.js
 webapp-framwork : express(view: ejs)
-webapp-test framwork : vows
-database : mongoDB
+database : mongoDB  
 IDE : nodeclipse
-
 UI : BootStrap
+Test framwork : vows // 미정
 -------
-
-### Tools
-
-Created with [Nodeclipse](https://github.com/Nodeclipse/nodeclipse-1)
- ([Eclipse Marketplace](http://marketplace.eclipse.org/content/nodeclipse), [site](http://www.nodeclipse.org))   
-
-Nodeclipse is free open-source project that grows with your contributions.
-=======
-NodeBlog
-========
->>>>>>> 232d7a149d3d1d41885c90345e934d7e61bad22d
