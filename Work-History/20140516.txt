@@ -13,7 +13,8 @@
 	{
 		[DO]:express의 라우팅 api를 찾아보고 기본적인 URL 라우팅 설정을 한다.(ex.restful URL)
 		{
-			
+			[tyr]: app.use(express.static(....)) 이게 안되었다가. 조금 건드리니 된다.??
+			[catch]: 방식은 다르지않는데 deveplope 모드였나? app.set(...) 이 위치때문에 그런지 확인해봐야함.
 		}
    
 	}
