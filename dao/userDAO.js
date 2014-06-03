@@ -8,35 +8,35 @@ var User = require('../domain/User.js'),
 
 var userSchema = new Schema(User.getSchema());
 ////////////////////
-var userDAO = module.exports = mongoose.model('User', userSchema);
+var userDAO = module.exports = {};
+
+userDAO._db = mongoose.model('User', userSchema);
+
 //---------static 이지만 싱글톤객체의 함수라고 생각하면 됨.
 userDAO.removeAll = function (cb) {
-	  this.remove({},cb);
+	  this._db.remove({},cb);
 };
 userDAO.findAll = function (cb) {
-	  this.find({},cb);
+	  this._db.find({},cb);
 };
 userDAO.create = function(users, cb) {
-//	if(!(users instanceof Array)) throw 'users는 배열'
 	var usersData = [];
+	if(!(users instanceof Array)) {users = [users]; };
+	
 	for(var i in users) {
-		var userData = users[i].getUserData();
-		usersData.push(userData);
+		var user = users[i];
+		usersData.push(user.getUserData());
 	};
-	this.create(usersData, cb);
+	
+	this._db.create(usersData, cb);
+};
+
+userDAO.findOne = function (loginUser, cb) {
+	this._db.findOne(loginUser.getOauthId(), cb);
+};
+userDAO.findById = function (id, cb) {
+	this._db.findOne({oauthId : id}, cb);
 };
 
 
-//////////////
-
-//---------instace
-//animalSchema.methods.findSimilarTypes = function (cb) {
-//	  return this.model('Animal').find({ type: this.type }, cb);
-//	}
-
-
-///////////////////////////////////
-
-User.prototype.findById = function (id, cb) {
-	this.model('UserModel').find({ oauthId: id }, cb);
-};
+///////////		helper		//////////////////////////////////

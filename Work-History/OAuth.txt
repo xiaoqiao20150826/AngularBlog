@@ -1,0 +1,48 @@
+
+# 무엇.
+ ## passportjs 사용한 소셜 인증
+ - facebook, twitter, github, google, linkedin 
+
+ ## 사용할 데이터
+ - 기본정보 + email + photo
+
+# 환경
+ - 플랫폼: window7, eclipse(nodeclipse-plugin)
+ - 서버 : nodejs, mongo
+
+ ## 의존성 (package.json에 추가되어있다)
+   - express +  passportjs( + 각전략) + ejs( + ejs-locals) + mongoose
+
+# 설정시 발생한 문제. 
+
+  ## [facebook]
+ 1) [facebook app 등록하기]
+   - 페이스북 개발자 페이지에서 appdomains을 설정해주기 위해서 웹사이트를 먼저작성해야한다. 그래야 통과.
+ 2) [로컬호스트를 사용하기 위해.] 
+    - localhost , 127.0.0.1사용할 수 없다. 그러므로 dns에 새로운 로컬주소를 만든다.
+        ;이때, C:\Windows\System32\drivers\etc\hosts 파일이 두개다. .text가 아니라 다른 것을 변경해줘야한다. 등록된것 확인은 ipconfig /displaydns
+ 3) [scope]와 profileFields를 적절히 설정해줘야 원하는 정보를 얻어올 수 있다.
+
+ ## [twitter]
+  - dev.twitter 로그인시 아이디는 @...를 제외해야 한다.
+  - 서비스에 app를 등록해서 소비자 키/ 비번 을 받아야한다.   
+  - 500 Error: Failed to find request token in session
+     ; apps.twitter.com에 등록한 어플리케이션에서 Callback URL 밑의  Allow this application to be used to Sign in with Twitter이 체크되어 있어야 한다.
+
+ ## [github] 
+  - 가이드 따라하되 scope 설정할 것.
+
+ ## [google]
+   - oauth2 가이드 따라하되 scope 설정할 것.
+
+ ## [linkedin]
+    - oauth2 가이드 따라하되 scope 설정할 것.
+    - 500 Error: Failed to find request token in session
+       ; 서버와 링크드인에 등록한 callback url을 일치시켜야한다.
+    - state가 get요청에서 직접적으로 필요하다. 
+
+===========================================================================
+
+# 이제 서로 다른 profile 데이터를 일치시켜야함.  = id, name, photo, email
+
+=================================

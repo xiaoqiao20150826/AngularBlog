@@ -8,12 +8,12 @@
 // ///////////////////////////////////////
 //------------1. 정의
 var myPassport = (function() {
-	var CLASS = 'class',
+	var CLASS = 'Class',
 		PARAM = 'param';
 	
 	var passport = require('passport');
 	var config = require('./oauth-config.js');
-	var authService = require('../../services/authService.js');
+	var userService = require('../../services/userService.js');
 	// /////////////////////////////////
 	return {
 		init : function() {
@@ -23,38 +23,37 @@ var myPassport = (function() {
 				var Class = aSocialConfig[CLASS];
 				var param = aSocialConfig[PARAM];
 
-				var aStrategy = new Class(param, this.verifyCallBack);
+				var aStrategy = new Class(param, this.authCallBack);
 				passport.use(aStrategy);
 			};
 			//직렬화 설정
 			passport.serializeUser(this.serializeUser);
 			passport.deserializeUser(this.deserializeUser);			
 			return passport;			
-		},///////////인증관련
-		verifyCallBack : function(accessToken, refreshToken, profile, done) {
-			for(var key in profile) {
-				var data = profile[key];
-				console.log(key + ' = ' + data);
+		},///////////유저를 저장(세션,db) 후 콜백url 리다이렉트
+		authCallBack : function(accessToken, refreshToken, profile, done) {
+			//1. user가 있는지 찾아보고 없으면 만듬.
+			userService.findOrCreateUser(profile, authByUser);
+			//2. 그 결과(user)를 세션에 저장하고 콜백url을 리다이렉트한다.
+			function authByUser(user) { 
+				done(null, user);
 			}
-			////////////////
-			authService.verify(profile, done);
 		},
 		deserializeUser : function (oauthId, done) {
 			// 세션에서 oauthId 가져옴
 				console.log('deserializeUser: ' + oauthId);
 				done(null, oauthId);
 		},
-		serializeUser : function (oauthId, done) {
+		serializeUser : function (userData, done) {
 			// 세션에 userId저장
-				console.log('serializeUser: ' + oauthId);
-				done(null, oauthId);
+				console.log('serializeUser: ' + userData.oauthId);
+				done(null, userData.oauthId);
 		}
 	};
 })();
 
 //----------------------------- 2.실행
-var passport = myPassport.init();
-module.exports = passport; 
+module.exports = myPassport.init();
 //------------------------------3. 주석
 ////////////////////////////////////////
 // ----------------serializeUser, deserializeUser

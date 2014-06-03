@@ -27,8 +27,7 @@ http.createServer(app).listen(app.get('port'), function(){
 //  mapping url to ejs
 function routeUrlToAnyResponse(app) {
 	var routeManager = require('./routes/routeManager.js');
-	//외부에서 사용되는 자원설정 + 동적자원 매핑
-	app.set('passport',passport);
+	//동적자원 매핑
 	routeManager.mapUrlToResponse(app);
 	//정적자원 매핑
 	app.use('/resources',express.static(path.join(__dirname, '/resources')));
@@ -36,8 +35,10 @@ function routeUrlToAnyResponse(app) {
 
 // 포트 + 뷰 엔진설정 
 function setAllEnvironments(app) {
-	var ejsEngine = require('ejs-locals');
 	app.set('port', process.env.PORT || 3000);
+	app.set('passport',passport);
+	
+	var ejsEngine = require('ejs-locals');
 	app.set('views', __dirname + '/views');
 	app.set('view engine', 'ejs');
 	app.engine('ejs',ejsEngine);

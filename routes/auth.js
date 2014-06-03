@@ -1,4 +1,4 @@
-var User = require('../model/user.js');
+var userDAO = require('../dao/userDAO.js');
 
 // 차후확장..
 var auth = module.exports = {
@@ -14,21 +14,17 @@ var auth = module.exports = {
 		app.get('/auth/github',passport.authenticate('github'));
 		app.get('/auth/github/callback', passport.authenticate('github'), this.commonCallBack);
 		//google
-		app.get('/auth/google',passport.authenticate('google', {scope: 'https://www.googleapis.com/auth/plus.login'}));
+		app.get('/auth/google',passport.authenticate('google'));
 		app.get('/auth/google/callback', passport.authenticate('google'), this.commonCallBack);
 		//linkedin
-		app.get('/auth/linkedin',passport.authenticate('linkedin'));
+		app.get('/auth/linkedin',passport.authenticate('linkedin',{ state: 'SOME STATE' }));
 		app.get('/auth/linkedin/callback', passport.authenticate('linkedin'), this.commonCallBack);
 	},
 	commonCallBack : function (req, res) {
 			  var oauthID = req.session.passport.user;
-			  console.debug('oauthID(userId)_inSession : '+ oauthID);
-			  User.findById(oauthID, function(err, user) {
-				    if(err) { 
-				      console.log(err); 
-				    } else {
-				      res.send(user);
-				    }
+			  console.log('oauthId_inSession : '+ oauthID);
+			  userDAO.findById(oauthID, function(err, userData) {
+				      res.send(userData);
 			  });
 	}
 ////////////////////////////
