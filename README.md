@@ -3,14 +3,14 @@
  - 원하는 기능을 추가한다.
 
 # 작업 이력
-./Work-History 디렉토리에 기록한다. 
+./Work-History  수행한 작업 기록 폴더. 
 
 
 ## Development Environment
 - server : node.js
-- webapp-framwork : express(view: ejs)
+- webapp-framework : express(view: ejs)
 - database : mongoDB  
 - IDE : eclipse( nodeclipse plug-in)
 - UI : BootStrap
-- Test framwork : vows // 미정
+- Test framework : vows // 미정
 

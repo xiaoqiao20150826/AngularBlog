@@ -1,6 +1,7 @@
+<% layout('../mainLayout.ejs') %>
 <meta charset="utf-8">
 
-<!----------- 댓글 리스트  -->
+<!----------- 글 리스트  -->
 <!-- Nested media object -->
 <div class="media">
 	<a class="pull-left" href="#"> 
@@ -25,30 +26,3 @@
 	</div>
 </div>
 
-<!----------- 댓글 달기  -->
-
-
-<hr>
-<form method="post" action="">
-	<div class="comment">
-		<h4>댓글 달기</h4>
-		<div class="input-prepend">
-			<span class="add-on"> <label for="name"></label><i
-				class="icon-user"></i>
-			</span> <input type="text" name="name" value="" id="name" placeholder="이름"
-				class=" ">
-		</div>
-		<div class="input-prepend">
-			<span class="add-on"> <label for="homepage"></label><i
-				class="icon-home"></i>
-			</span> <input type="text" name="homepage" value="http://" id="homepage"
-				class=" ">
-		</div>
-		<p class="comment-add">
-			<textarea class="textarea" placeholder="댓글을 입력하세요..."></textarea>
-		</p>
-		<p class="button">
-			<input type="submit" value="댓글 달기" class="btn btn-inverse">
-		</p>
-	</div>
-</form>

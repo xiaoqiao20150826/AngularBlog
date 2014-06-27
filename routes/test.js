@@ -7,6 +7,7 @@ var test = module.exports = {
 		app.get('/comments', this.comments);
 		app.get('/test', this.test, function() {
 			console.log('next() test');
+		app.get('./test2',this.test2);
 		});
 	},
 	// //////////////////////////
@@ -22,5 +23,8 @@ var test = module.exports = {
 	},
 	comments : function(req, res, next) {
 		res.render('./test/comments.ejs');
+	},
+	test2 : function(req, res) {
+		res.render('./test/test2.ejs');
 	}
 };

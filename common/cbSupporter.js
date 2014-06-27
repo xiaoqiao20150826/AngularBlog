@@ -1,5 +1,7 @@
 /**
+ * #삭제예정.
  *  콜백전달할때 if-else문 때문에 지저분해져서 만듬.
+
  *  1) err면 throw err
  *  2) data가 있으면 hitCb 호출
  *  3) data가 없으면 failCb 호출
