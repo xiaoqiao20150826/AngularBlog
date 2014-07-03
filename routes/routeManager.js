@@ -12,7 +12,8 @@ var routes = [
               require('./test.js')
               ];
 
-//2. 각 route에 url연결 책임을 위임.
+//2. 각 route에 서버의 url과 route 연결 책임을 위임.
+//모든 route는 mapUrlToResponse 함수를 가진다.
 var routeManager = module.exports =  {
 		mapUrlToResponse : function (app) {
 			for(var i=0, max = routes.length; i<max; ++i) {

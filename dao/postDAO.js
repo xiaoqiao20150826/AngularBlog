@@ -31,34 +31,39 @@ var postDAO = module.exports = {};
  * 
  * */
 /* remove */
-postDAO.removeOne = function (post, cb) {
-	var cb = cb || null;
+postDAO.removeOne = function (doneOrErrFn, post) {
 	var query = {num: post.num};
-	_db.remove(query,cb);
+	_remove(query, H.getCallbackTemplate(doneOrErrFn))
 };
-postDAO.removeAll = function (done) {
-	Q.all([H.nfcall([_seq,_seq.remove]), H.nfcall([_db,_db.remove],{})])
-	.then(done)
-	.fail(function(err){if(err)throw err;});
+postDAO.removeAll = function (doneOrErrFn) {
+	var done = doneOrErrFn.done;
+	var errFn = doneOrErrFn.ErrFn || H.defaultCatch;   
+	
+	return Q.all([H.call4promise([_seq,_seq.remove]), H.call4promise([_remove],{})])
+			.then(done)
+			.catch(errFn);
 };
+function _remove(doneOrErrFn, query) {
+	_db.remove(query, H.getCallbackTemplate(doneOrErrFn));
+}
 /* find */
-postDAO.find = function (done,where,select) {
+postDAO.find = function (doneOrErrFn,where,select) {
 	var where = where || {}
 		,select = select || {}
-		,callback = H.doneOrErr(done);
+		,callback = H.getCallbackTemplate(doneOrErrFn);
 	  _db.find(where,select).exec(callback);
 };
-postDAO.findByNum = function (done, num) {
+postDAO.findByNum = function (doneOrErrFn, num) {
 	var where = {'num': num}
 		,select = select || {}
-		,callback = H.doneOrErr(done);
+		,callback = H.getCallbackTemplate(doneOrErrFn);
 	_db.findOne(where,select).exec(callback);
 };
-postDAO.findByRange = function (done, start,end) {
+postDAO.findByRange = function (doneOrErrFn, start,end) {
 	var where = {}
 		,select = {}
 		,orderBy = { 'num' : 1 }
-		,callback = H.doneOrErr(done);
+		,callback = H.getCallbackTemplate(doneOrErrFn);
 	var startNum = start - 1; // 배열스타일의 인덱스라 실제 개수와 일치시키기위해 -1 한다.
 	var limitNum = end- startNum;
 	if(startNum < 0) startNum = 0;
@@ -66,53 +71,51 @@ postDAO.findByRange = function (done, start,end) {
 	_db.find(where,select).sort(orderBy).skip(startNum).limit(limitNum).exec(callback);
 };
 /* insert */
-postDAO.insertOne = function(done, post) {
-	H.call4done([_seq, _seq.getNext])
-	 .then(function __work1(data) {
-			console.log('d',data);
-			if(!(H.exist(data.seq))) throw 'fail to get next seq';
-			post.setNum(data.seq);
-			console.log('s22');
-			return H.nfcall(_create, post);
-		})
-	 .then(function() {
-		 console.log('s33322');
-		 done();
-	 })
-	 .catch(H.defaultErr);
+postDAO.insertOne = function(doneOrErrFn, post) {
+	var done = doneOrErrFn.done;
+	var errFn = doneOrErrFn.errFn || H.defaultCatch;
 	
-	
+	return H.call4promise([_seq, _seq.getNext])
+	 		.then(function __work1(data) {
+				if(!(H.exist(data.seq))) throw new Error('fail to get next seq').stack;
+				post.setNum(data.seq);
+				return H.call4promise(_create, post);
+	 		 })
+	 		.then(done)
+	 		.catch(errFn);
 };
-function _create(callback, data) {
-	_db.create(data,callback)// exec없음.
+
+function _create(doneOrErrFn, data) {
+	 var callback = H.getCallbackTemplate(doneOrErrFn);
+	_db.create(data, callback);
 }
 /* update */
 //TODO: 업데이트할 데이터에 post를 통채로 주므로 업데이트 하지말아야할 데이터는 잘 걸러서 줘야한다. 
-postDAO.update = function(done, post) {
+postDAO.update = function(doneOrErrFn, post) {
 	var where = {num : post.num}
 		,data = post;
-	if(!(H.exist(post.num))) throw 'num은 필수';
-	_update(done, where, data);
+	if(!(H.exist(post.num))) throw new Error('num은 필수').stack;
+	_update(doneOrErrFn, where, data);
 };
-postDAO.updateReadCount = function(done, num) {
+postDAO.updateReadCount = function(doneOrErrFn, num) {
 	var where = {num : num}
 		,data = {$inc:{readCount:1}};
-	_update(done, where, data);
+	_update(doneOrErrFn, where, data);
 };
 // private
-function _update(done, where, data, config) {
-	if(!(H.exist(done))) throw 'done need';
+function _update(doneOrErrFn, where, data, config) {
+	if(!(H.exist(doneOrErrFn))) throw new Error('done need').stack;
 	//TODO: writeConcern 는 무엇을 위한 설정일까. //매치되는 doc없으면 새로 생성안해.//매치되는 doc 모두 업데이트
 	var config = config || {upsert: false , multi:true}
-		,callback = H.doneOrErr(done);
+		,callback = H.getCallbackTemplate(doneOrErrFn);
 	_db.update(where, data, config).exec(callback);
 }
 
 /* etc..count */
 //where는 검색 조건을 구할 경우 필요.
-postDAO.getCount = function (done, where) {
+postDAO.getCount = function (doneOrErrFn, where) {
 	var where = where || {}
-		,callback = H.doneOrErr(done);
+		,callback = H.getCallbackTemplate(doneOrErrFn);
 	_db.find(where).count().exec(callback);
 }
 
@@ -138,7 +141,7 @@ function getSchema() {
 //	
 //	for(var i in posts) {
 //		var post = posts[i];
-//		_seq.getNum(H.doneOrNext(done, next));
+//		_seq.getNum(H.doneOrNext(doneOrErrFn, next));
 //		function done(data) {
 //			post.setNum(data.seq);
 //		}

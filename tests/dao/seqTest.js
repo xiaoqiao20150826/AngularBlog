@@ -4,9 +4,9 @@ var should = require('should');
 
 var _ = require('underscore')
   , async = require('async')
-  , H = require('../common/helper.js')
+  , H = require('../../common/helper.js')
   , q = require('q');
-var	Sequence = require('../dao/Sequence.js');
+var	Sequence = require('../../dao/Sequence.js');
 
 describe('mongoDb 연동 a postDAO ', function() {
 	var _id = 'testCol'
@@ -29,11 +29,11 @@ describe('mongoDb 연동 a postDAO ', function() {
             };
 		});
 		it('여러번 호출시 값 일치하는지 확인',function (asyncDone) {
-			H.asyncLoop([1,1,1,1] , [_seq,_seq.getNext], done)
-				function done(errs, results) {
+			H.asyncLoop([1,1,1,1] , [_seq,_seq.getNext], endDone, asyncDone)
+				function endDone(err, results) {
 	  				var seqObj = results.pop();
 	  				should.equal(seqObj.seq, 4);
-	  				asyncDone();
+	  				asyncDone(err);
 				}
 		});
 	});

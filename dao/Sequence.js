@@ -21,26 +21,32 @@ var Sequence = module.exports = function(_id) {
 
 // instance method
 	
-Sequence.prototype.create = function(done) {
-	_db.create({_id:this._id, seq:0},H.doneOrErr(done, function(err) {
-		//TODO: 중복처리 해야한다.
-	}));
+Sequence.prototype.create = function(doneOrErrFn) {
+	var doc = {_id:this._id, seq:0}
+	  , doneOrErrFn = doneOrErrFn || function emptyDon() {}; //하는 일이 없다.
+	  
+	_db.create(doc, H.getCallbackTemplate(doneOrErrFn , errFn));
+	 //TODO: 현재 중복에러무시.
+	function errFn(err) { 
+		console.log(err);
+		console.log(err.match('duplicate'))
+	}
 };
-Sequence.prototype.getNext = function (done, incNum) {
+Sequence.prototype.getNext = function (doneOrErrFn, incNum) {
 	var _incNum = incNum || 1;
 	
 	var conditions ={_id : this._id} //무엇을 수정할것인가
 	  , update = {$inc:{seq: _incNum}} //어떻게 수정할것인가
 	  , options = {'new': true,upsert: true} //new t:수정된값 , f: 원래값
-	  , callback = H.doneOrErr(done, function(err) {
+	  , callback = H.getCallbackTemplate(doneOrErrFn, function(err) {
 		  console.log('findOneAndUpdate ', err);
 	  })
 	_db.findOneAndUpdate(conditions,update,options, callback);
 };
-Sequence.prototype.remove = function(done) {
-		_db.remove({_id:this._id},H.doneOrErr(done, function(err) {
-			console.log('remove', err);
-		})); 
+Sequence.prototype.remove = function(doneOrErrFn) {
+	_db.remove({_id:this._id}, H.getCallbackTemplate(doneOrErrFn, function(err) {
+		console.log('seq : remove :', err);
+	})); 
 };
 // 보조
 Sequence.prototype.getId = function () {
