@@ -6,12 +6,9 @@
  ## 사용할 데이터
  - 기본정보 + email + photo
 
-# 환경
- - 플랫폼: window7, eclipse(nodeclipse-plugin)
- - 서버 : nodejs, mongo
 
  ## 의존성 (package.json에 추가되어있다)
-   - express +  passportjs( + 각전략) + ejs( + ejs-locals) + mongoose
+   - express(+session) +  passportjs( + 각 호스트의 전략) +  mongodb + mongoose
 
 # 설정시 발생한 문제. 
 
