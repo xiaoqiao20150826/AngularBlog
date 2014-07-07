@@ -17,6 +17,7 @@ var Post = module.exports = function () {
 	this.title = '';
 	this.content = '';
 	this.userId = '';
+	this.created = Date.now();
 };
 
 /* static method */

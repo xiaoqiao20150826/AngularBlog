@@ -64,6 +64,15 @@ describe('underscore', function() {
 				should.equal(_.isObject(fn), true);
 				should.equal(_.isFunction(obj), false);
 				
+			});
+			it('#union', function () {
+				var a = {a:1};
+				var b = {b:1};
+				var c = [4,5];
+				var d = [6,2]
+				should.equal(_.union(a,b,c,d).length, 6)
+			})
+			it('temp', function () {
 			})
 		})
 	});

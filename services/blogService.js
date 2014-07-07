@@ -16,9 +16,9 @@ var blogService = module.exports = {};
 
 /* functions */
 // pageNum에 해당하는 블로그 데이터를 가져온다.
-blogService.datasOfPageNum = function (doneOrErrFn, curPageNum) {
-	var done = doneOrErrFn.done;
-	var errFn = doneOrErrFn.errFn || H.defaultCatch;
+blogService.datasOfPageNum = function (done, curPageNum) {
+	var dataFn = done.getDataFn();
+	var errFn = done.getErrFn();
 	var result = {}; 	//data 를 모으고.
 	
 	return H.call4promise([_postDAO, _postDAO.getCount])
@@ -40,14 +40,14 @@ blogService.datasOfPageNum = function (doneOrErrFn, curPageNum) {
 	}
 	function work3(answerCount) {
 		result.answerCount = answerCount;
-		done(result);
+		dataFn(result);
 	}
 };
 
 //postNum에 해당하는 블로그 데이터를 가져온다.
-blogService.datasOfPostNum = function (doneOrErrFn, postNum) {
-	var done = doneOrErrFn.done;
-	var errFn = doneOrErrFn.errFn || H.defaultCatch;
+blogService.datasOfPostNum = function (done, postNum) {
+	var dataFn = done.getDataFn();
+	var errFn = done.getErrFn()
 	
 	Q.all([  H.call4promise(_postDAO.findByNum, postNum)
 	       , H.call4promise(_answerDAO.findByPostNum, postNum)
@@ -59,6 +59,6 @@ blogService.datasOfPostNum = function (doneOrErrFn, postNum) {
 		var result = {};
 		result.post = datas.shift();
 		result.answers = datas.shift();
-		done(result);
+		dataFn(result);
 	}
 }

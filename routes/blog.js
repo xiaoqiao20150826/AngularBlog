@@ -15,8 +15,8 @@ var blog = module.exports = {
 	list : function(req, res) {
 		var page = req.query.page;
 		if(!(H.exist(page))) page = MAIN_PAGE_INDEX;
-		var datas = _service.getDatasAt(page);
-		res.render('./blog/list.ejs', datas );
+		var datas = _service.datasOfPageNum(page);
+		res.render('./blog/list.ejs', {datas: datas});
 	},
 	detail : function(req,res) {
 		res.render('./blog/detail.ejs');

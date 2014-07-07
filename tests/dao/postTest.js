@@ -27,7 +27,7 @@ describe('aPostDAO', function() {
 		
 	});
 	after(function(nextCase) {
-		postDAO.removeAll(H.doneOrErrFn(function() {
+		postDAO.removeAll(new H.Done(function() {
 						mongoose.disconnect(function(a,b) {
 //							console.log('after',a,b);
 							nextCase();
@@ -39,8 +39,8 @@ describe('aPostDAO', function() {
 	});
 	describe('#insertOne()', function() {
 		it('should insert a post.',function (nextCase) {
-			postDAO.insertOne(H.doneOrErrFn(done, _testCatch1(nextCase)), _posts[3]);
-			function done(model) {
+			postDAO.insertOne(new H.Done(dataFn, _testCatch1(nextCase)), _posts[3]);
+			function dataFn(model) {
 				var expectedPost = Post.createBy(model);
 					_equals(expectedPost,_posts[3]);
 					nextCase();
@@ -49,8 +49,8 @@ describe('aPostDAO', function() {
 	});
 	describe('#find()',function() {
 		it('should take all posts', function (nextCase) {
-			postDAO.find(done, {});
-			function done(models) {
+			postDAO.find(new H.Done(dataFn, _testCatch1(nextCase)), {});
+			function dataFn(models) {
 				var e_posts =  Post.createBy(models)
 				_equals(e_posts,_posts.slice(0, e_posts.length));
 				nextCase();
@@ -58,8 +58,8 @@ describe('aPostDAO', function() {
 		});
 		it('should take a post', function (nextCase) {
 			var num = 2;
-			postDAO.findByNum(done, num);
-			function done(model) {
+			postDAO.findByNum(new H.Done(dataFn, _testCatch1(nextCase)), num);
+			function dataFn(model) {
 				var e_post = Post.createBy(model);
 				var a_post = _posts[num-1];
 				_equals(a_post, e_post);
@@ -69,8 +69,8 @@ describe('aPostDAO', function() {
 		it('should take posts by range', function (nextCase) {
 			var start = 4
 				,end= 6;
-			postDAO.findByRange(done, start,end);
-			function done(models) {
+			postDAO.findByRange(new H.Done(dataFn, _testCatch1(nextCase)), start,end);
+			function dataFn(models) {
 				var e_posts = Post.createBy(models);
 				var a_posts = _posts.slice(start-1,end);
 				_equals(a_posts,e_posts);
@@ -80,8 +80,8 @@ describe('aPostDAO', function() {
 	});
 	describe('#count', function() {
 		it('should take count of all posts', function(nextCase) {
-			postDAO.getCount(done);
-			function done(model) {
+			postDAO.getCount(new H.Done(dataFn, _testCatch1(nextCase)));
+			function dataFn(model) {
 				var a_count = _posts.length +1;
 				var e_count = model;
 				should.exist(model);
@@ -91,8 +91,8 @@ describe('aPostDAO', function() {
 		});
 		it('should take count with where', function(nextCase) {
 			var where = {title:/title/};
-			postDAO.getCount(done);
-			function done(model) {
+			postDAO.getCount(new H.Done(dataFn, _testCatch1(nextCase)));
+			function dataFn(model) {
 				var a_count = _posts.length +1;
 				var e_count = model;
 				should.exist(model);
@@ -109,11 +109,11 @@ describe('aPostDAO', function() {
 			a_post.title = 'title_update';
 			a_post.content = 'content_update';
 			
-			postDAO.update(done, a_post);
-			function done(bool) {
+			postDAO.update(new H.Done(dataFn, _testCatch1(nextCase)), a_post);
+			function dataFn(bool) {
 				should.equal(bool, success);
-				postDAO.findByNum(done2, num);
-				function done2(model) {
+				postDAO.findByNum(new H.Done(dataFn2, _testCatch1(nextCase)), num);
+				function dataFn2(model) {
 					var e_post = Post.createBy(model);
 					_equals(a_post, e_post);
 					nextCase();
@@ -124,10 +124,10 @@ describe('aPostDAO', function() {
 				var num = 2, success = 1
 					,testArray = [num, num, num, num]
 					,a_count=testArray.length;
-				H.asyncLoop(testArray,postDAO.updateReadCount, done);
-				function done() {
-					postDAO.findByNum(done2, num);
-					function done2(model) {
+				H.asyncLoop(testArray,postDAO.updateReadCount, new H.Done(dataFn, _testCatch1(nextCase)) );
+				function dataFn() {
+					postDAO.findByNum(new H.Done(dataFn2, _testCatch1(nextCase)), num);
+					function dataFn2(model) {
 						var e_post = Post.createBy(model);
 						should.equal(a_count, e_post.readCount);
 						nextCase();
@@ -149,8 +149,8 @@ function _createTempPosts() {
 	return posts = testHelper.createObjsByType(Type, count, keys4tempValue);
 }
 function _insertTestData(nextCase) {
-	H.asyncLoop(_createTempPosts(), [postDAO, postDAO.insertOne], nextCaseDone, _testCatch1(nextCase));
-	function nextCaseDone(err, datas) {
+	H.asyncLoop(_createTempPosts(), [postDAO, postDAO.insertOne], new H.Done(dataFn, _testCatch1(nextCase)) );
+	function dataFn(datas) {
 		nextCase();
 	}
 	

@@ -23,7 +23,7 @@ var auth = module.exports = {
 	commonCallBack : function (req, res) {
 			  var oauthID = req.session.passport.user;
 			  console.log('oauthId_inSession : '+ oauthID);
-			  userDAO.findById(oauthID, function(err, userData) {
+			  userDAO.findById(oauthID, function(userData) {
 				      res.send(userData);
 			  });
 	}

@@ -30,8 +30,8 @@ describe('blogService', function () {
 	});
 	after(function(nextCase) {
 		var errFn = H.testCatch1(nextCase);
-		Q.all([postDAO.removeAll(H.doneOrErrFn(function() {}, errFn))
-			 , answerDAO.removeAll(H.doneOrErrFn(function() {}, errFn))
+		Q.all([postDAO.removeAll(new H.Done(function() {}, errFn))
+			 , answerDAO.removeAll(new H.Done(function() {}, errFn))
 			 ])
 		.then(function() {
 			mongoose.disconnect(function(d) {
@@ -44,11 +44,12 @@ describe('blogService', function () {
 	describe('#datasOfPageNum', function() {
 		it('should take datas', function (nextCase) {
 			var curPageNum = 1;
-			var doneOrErrFn = H.doneOrErrFn(done, H.testCatch1(nextCase));
+			var done = new H.Done(dataFn, H.testCatch1(nextCase));
 			
-			blogService.datasOfPageNum(doneOrErrFn, curPageNum);
+			blogService.datasOfPageNum(done, curPageNum);
 			
-			function done(datas) {
+			function dataFn(datas) {
+				console.log(datas);
 				var answerCount = datas.answerCount.shift(); //현재 한개밖에 안나옴.
 				
 				should.equal(datas.pageCount, 11); //post가 101개 row는 10개씩 총 11개
@@ -62,11 +63,11 @@ describe('blogService', function () {
 	describe('#datasOfPostNum', function() {
 		it('should take post and answers', function (nextCase) {
 			var postNum = 2;
-			var doneOrErrFn = H.doneOrErrFn(done, H.testCatch1(nextCase));
+			var done = new H.Done(dataFn, H.testCatch1(nextCase));
 			
-			blogService.datasOfPostNum(doneOrErrFn, postNum);
+			blogService.datasOfPostNum(done, postNum);
 				
-			function done(datas) {
+			function dataFn(datas) {
 				var e_post = datas.post;
 				var e_answers = datas.answers;
 				should.exist(e_post);
@@ -88,16 +89,16 @@ function _equals(expectedPosts, actualsPosts) {
 function _insertTestData(nextCase) {
 	var errFn = H.testCatch1(nextCase);
 	
-	H.asyncLoop(_createTempPosts(), [postDAO, postDAO.insertOne], nextDone, errFn);
-	function nextDone(err, datas) {
+	H.asyncLoop(_createTempPosts(), [postDAO, postDAO.insertOne], new H.Done(nextDataFn, errFn));
+	function nextDataFn(datas) {
 		var post = Post.createBy({num:_postNum, title:'title', content:'content'});
 		var answers = _createAnswers(post.num);
 		
-		postDAO.insertOne(H.doneOrErrFn(nextDone2, errFn) , post);
-		function nextDone2(d) {
+		postDAO.insertOne(new H.Done(nextDataFn2, errFn) , post);
+		function nextDataFn2(d) {
 			
-			H.asyncLoop(answers, [answerDAO, answerDAO.insertOne], endDone, errFn);
-				function endDone(err, datas) {
+			H.asyncLoop(answers, [answerDAO, answerDAO.insertOne], new H.Done(endDataFn, errFn));
+				function endDataFn(datas) {
 					nextCase();
 				}
 		}

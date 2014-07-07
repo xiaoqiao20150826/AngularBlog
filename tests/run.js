@@ -8,17 +8,21 @@
 
 var testSuites = [
                     './testHelperTest.js'
+                  , './underscoreTest.js'
                   
                   , './common/asyncSuporterTest.js'
                   , './common/pagerTest.js'
+                  , './common/doneTest.js'
                   , './common/utilTest.js'
                   
                   , './dao/seqTest.js'
                   , './dao/postTest.js'
 				  , './dao/answerTest.js'
-//				  , './blogServiceTest.js'
+				  , './dao/userTest.js'
+				  
+				  , './service/blogServiceTest.js'
 	             ]; 
-//TODO: 나중에는 모카에서 제공하는 방법을...(지정된 폴더 실행 같은.)
+//TODO: 나중에는 모카에서 제공하는 방법을 사용하자(지정된 폴더 실행 같은.)
 (function() {
 	for(var i in testSuites) {
 		var val = testSuites[i];

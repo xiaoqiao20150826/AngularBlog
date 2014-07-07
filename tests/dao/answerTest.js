@@ -29,8 +29,8 @@ describe('aAnswerDAO', function() {
 	});
 	after(function(nextCase) {
 		var errFn = H.testCatch1(nextCase);
-		Q.all([postDAO.removeAll(H.doneOrErrFn(function() {}, errFn))
-			 , answerDAO.removeAll(H.doneOrErrFn(function() {}, errFn))
+		Q.all([postDAO.removeAll(new H.Done(function() {}, errFn))
+			 , answerDAO.removeAll(new H.Done(function() {}, errFn))
 			 ])
 		.then(function() {
 			mongoose.disconnect(function(d) {
@@ -45,8 +45,8 @@ describe('aAnswerDAO', function() {
 	});
 	describe('#insertOne()', function() {
 		it('should insert a answer.',function () {
-			answerDAO.insertOne(done, _answers[3]);
-			function done(data) {
+			answerDAO.insertOne(new H.Done(dataFn), _answers[3]);
+			function dataFn(data) {
 				var expectedanswer = data;
 				_equals(expectedanswer,_answers[3]);
 				nextCase();
@@ -55,8 +55,8 @@ describe('aAnswerDAO', function() {
 	});
 	describe('#find()',function() {
 		it('should take all answers', function (nextCase) {
-			answerDAO.find(done, {});
-			function done(models) {
+			answerDAO.find(new H.Done(dataFn, {}));
+			function dataFn(models) {
 				var e_answers =  Answer.createBy(models);
 				_equals(e_answers, _answers);
 				nextCase();
@@ -64,8 +64,8 @@ describe('aAnswerDAO', function() {
 		});
 		it('should take a answer', function (nextCase) {
 			var num = 2;
-			answerDAO.findByNum(done, num);
-			function done(model) {
+			answerDAO.findByNum(new H.Done(dataFn), num);
+			function dataFn(model) {
 				var e_answer = Answer.createBy(model);
 				var a_answer = _answers[num-1];
 				_equals(a_answer, e_answer);
@@ -76,8 +76,8 @@ describe('aAnswerDAO', function() {
 			var start = 4
 				,end = 6;
 			
-			answerDAO.findByRange(done,_postNum, start,end);
-			function done(models) {
+			answerDAO.findByRange(new H.Done(dataFn), _postNum, start,end);
+			function dataFn(models) {
 				var e_answers = Answer.createBy(models);
 				var a_answers = _answers.slice(start-1,end);
 				_equals(a_answers,e_answers);
@@ -87,8 +87,8 @@ describe('aAnswerDAO', function() {
 	});
 	describe('#count', function() {
 		it('should take count of all answers', function(nextCase) {
-			answerDAO.getCount(done);
-			function done(model) {
+			answerDAO.getCount(new H.Done(dataFn));
+			function dataFn(model) {
 				var a_count = _answers.length +1;
 				var e_count = model;
 				should.exist(model);
@@ -98,8 +98,8 @@ describe('aAnswerDAO', function() {
 		});
 		it('should take count with where', function(nextCase) {
 			var where = {title:/title/};
-			answerDAO.getCount(done);
-			function done(model) {
+			answerDAO.getCount(new H.Done(dataFn));
+			function dataFn(model) {
 				var a_count = _answers.length +1;
 				var e_count = model;
 				should.exist(model);
@@ -115,11 +115,11 @@ describe('aAnswerDAO', function() {
 			a_answer.num = num;
 			a_answer.content = 'content_update';
 			
-			answerDAO.update(done, a_answer);
-			function done(bool) {
+			answerDAO.update(new H.Done(dataFn), a_answer);
+			function dataFn(bool) {
 				should.equal(bool, success);
-				answerDAO.findByNum(done2, num);
-				function done2(model) {
+				answerDAO.findByNum(new H.Done(dataFn2), num);
+				function dataFn2(model) {
 					var e_answer = Answer.createBy(model);
 					_equals(a_answer, e_answer);
 					nextCase();
@@ -130,10 +130,10 @@ describe('aAnswerDAO', function() {
 			var num = 2, success = 1
 				,testArray = [num, num, num, num]
 				,a_count=testArray.length;
-			H.asyncLoop(testArray,answerDAO.incVote, done);
-			function done() {
-				answerDAO.findByNum(done2, num);
-				function done2(model) {
+			H.asyncLoop(testArray,answerDAO.incVote, new H.Done(dataFn));
+			function dataFn() {
+				answerDAO.findByNum(new H.Done(dataFn2), num);
+				function dataFn2(model) {
 					var e_answer = Answer.createBy(model);
 					should.equal(a_count, e_answer.vote);
 					nextCase();
@@ -148,8 +148,8 @@ describe('aAnswerDAO', function() {
 			_insertTestData2(postNum, next, nextCase) 
 			
 			function next(err, datas) {
-				answerDAO.getCountsByPosts(done, posts);
-				function done(result) {
+				answerDAO.getCountsByPosts(new H.Done(dataFn), posts);
+				function dataFn(result) {
 					var r1 = result.shift();
 					var r2 = result.shift();
 					should.equal(r1._id, _postNum);
@@ -178,16 +178,19 @@ function _createAnswers(postNum) {
 function _insertTestData(nextCase) {
 	_insertTestData2(_postNum,nextCase, nextCase) 
 };
+
+//#getCountsByPosts에서 실험용으로 한번만 사용하기 위함.
+//post1, answer10이었던 것을 post2, answer20 개로 만들기 위한것.
 function _insertTestData2(postNum, done, nextCase) {
 	var post = Post.createBy({num:postNum, title:'title', content:'content'});
 	var answers = _createAnswers(post.num);
 	var errFn = H.testCatch1(nextCase);
 	
-	postDAO.insertOne(H.doneOrErrFn(next, errFn) , post);
+	postDAO.insertOne(new H.Done(next, errFn) , post);
 	
 	function next(d) {
-		H.asyncLoop(answers, [answerDAO, answerDAO.insertOne], endDone, errFn);
-			function endDone(err, datas) {
+		H.asyncLoop(answers, [answerDAO, answerDAO.insertOne], new H.Done(endDataFn, errFn));
+			function endDataFn(datas) {
 				done();
 			}
 	}

@@ -28,47 +28,47 @@ var answerDAO = module.exports = {};
  */
 
 /* remove */
-function _remove(doneOrErrFn, where) {
+function _remove(done, where) {
 	var where = where || {}
-	  , callback = H.getCallbackTemplate(doneOrErrFn);
+	  , callback = done.getCallback();
 	  
 	_db.remove(where, callback);
 };
-answerDAO.removeOne = function (doneOrErrFn, answer) {
+answerDAO.removeOne = function (done, answer) {
 	var where = {num: answer.num}
 	
-	_remove(doneOrErrFn, where);
+	_remove(done, where);
 };
-answerDAO.removeAll = function (doneOrErrFn) {
-	var done = doneOrErrFn.done
-	  , errFn = doneOrErrFn.errFn || H.defaultCatch;
+answerDAO.removeAll = function (done) {
+	var dataFn = done.getDataFn()
+	  , errFn = done.getErrFn();
 	
 	return Q.all([H.call4promise([_seq,_seq.remove]), H.call4promise(_remove, {})])
-	 		.then(done)
+	 		.then(dataFn)
 	 		.catch(errFn);
 };
 /* find */
-answerDAO.find = function (doneOrErrFn,where,select) {
+answerDAO.find = function (done,where,select) {
 	var where = where || {}
 		,select = select || {}
-		,callback = H.getCallbackTemplate(doneOrErrFn);
+		,callback = done.getCallback();
 	  _db.find(where,select).exec(callback);
 };
-answerDAO.findByPostNum = function(doneOrErrFn, postNum) {
+answerDAO.findByPostNum = function(done, postNum) {
 	var where = {postNum: postNum};
-	answerDAO.find(doneOrErrFn, where);
+	answerDAO.find(done, where);
 };
-answerDAO.findByNum = function (doneOrErrFn, num) {
+answerDAO.findByNum = function (done, num) {
 	var where = {'num': num}
 		,select = select || {}
-		,callback = H.getCallbackTemplate(doneOrErrFn);
+		,callback = done.getCallback();
 	_db.findOne(where,select).exec(callback);
 };
-answerDAO.findByRange = function (doneOrErrFn, postNum, start,end) {
+answerDAO.findByRange = function (done, postNum, start,end) {
 	var where = {postNum:postNum}
 		,select = {}
 		,orderBy = { 'num' : 1 }
-		,callback = H.getCallbackTemplate(doneOrErrFn);
+		,callback = done.getCallback();
 	var startNum = start - 1; // 배열스타일의 인덱스라 실제 개수와 일치시키기위해 -1 한다.
 	var limitNum = end-start;
 	if(startNum < 0) startNum = 0;
@@ -76,53 +76,53 @@ answerDAO.findByRange = function (doneOrErrFn, postNum, start,end) {
 	_db.find(where,select).sort(orderBy).skip(startNum).limit(limitNum).exec(callback);
 };
 /* insert */
-answerDAO.insertOne = function(doneOrErrFn, answer) {
-	var done = doneOrErrFn.done
-	  , errFn = doneOrErrFn.errFn || H.defaultCatch;
+answerDAO.insertOne = function(done, answer) {
+	var dataFn = done.getDataFn()
+	  , errFn = done.getErrFn();
 	
 	return H.call4promise([_seq,_seq.getNext])
 			.then(function(data) {
 				answer.num = data.seq;
 				return H.call4promise(_create, answer);
 			})
-			.then(done)
+			.then(dataFn)
 			.catch(errFn);
 };
-function _create(doneOrErrFn, data) {
-	_db.create(data, H.getCallbackTemplate(doneOrErrFn)); // exec없음.
+function _create(done, data) {
+	_db.create(data, done.getCallback()); // exec없음.
 }
 /* update */
 //TODO: 업데이트할 데이터에 Answer를 통채로 주므로 업데이트 하지말아야할 데이터는 잘 걸러서 줘야한다. 
-answerDAO.update = function(doneOrErrFn, answer) {
+answerDAO.update = function(done, answer) {
 	if(!(H.exist(answer.num))) throw 'num은 필수';
 	var where = {num : answer.num}
 		,data = answer;
-	_update(doneOrErrFn, where, data);
+	_update(done, where, data);
 };
-answerDAO.incVote = function(doneOrErrFn, num) {
+answerDAO.incVote = function(done, num) {
 	var where = {num : num}
 		,data = {$inc:{vote:1}};
-	_update(doneOrErrFn, where, data);
+	_update(done, where, data);
 };
 // private
-function _update(doneOrErrFn, where, data, config) {
-	if(!(H.exist(doneOrErrFn))) throw 'done need';
+function _update(done, where, data, config) {
+	if(!(H.exist(done))) throw 'done need';
 	//TODO: writeConcern 는 무엇을 위한 설정일까. //매치되는 doc없으면 새로 생성안해.//매치되는 doc 모두 업데이트
 	var config = config || {upsert: false , multi:true}
-		,callback = H.getCallbackTemplate(doneOrErrFn);
+		,callback = done.getCallback();
 	_db.update(where, data, config).exec(callback);
 }
 
 /* etc..count */
 //where는 검색 조건을 구할 경우 필요.
-answerDAO.getCount = function (doneOrErrFn, where) {
+answerDAO.getCount = function (done, where) {
 	var where = where || {}
-		,callback = H.getCallbackTemplate(doneOrErrFn);
+		,callback = done.getCallback();
 	_db.find(where).count().exec(callback);
 }
 // mongoose에 group함수는 안되서 aggregate로 변경. 
 // [] 전달시 파이프라인 사용이다.
-answerDAO.getCountsByPosts = function (doneOrErrFn, posts) {
+answerDAO.getCountsByPosts = function (done, posts) {
 	var postNums = [];
 	for(var i in posts) { postNums.push(posts[i].num); }
 	
@@ -132,7 +132,7 @@ answerDAO.getCountsByPosts = function (doneOrErrFn, posts) {
 	
 	
 	_db.aggregate([match, group, sort])
-	   .exec(H.getCallbackTemplate(doneOrErrFn));
+	   .exec(done.getCallback());
 };
 
 

@@ -47,7 +47,7 @@ var U = module.exports = {
 
 			function __createOne(source) {
 				var target = U.cloneAboutTargetKeys(new targetType(), source)
-				eachWrap(target);	// 추가해야할 기본설정.
+				if(eachWrap) eachWrap(target, source);	// 추가해야할 기본설정.
 				return target;
 			}
 		}

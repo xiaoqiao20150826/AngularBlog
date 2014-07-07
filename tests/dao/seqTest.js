@@ -15,13 +15,13 @@ describe('mongoDb 연동 a postDAO ', function() {
 		mongoose.connect('mongodb://localhost/test',asyncDone)
 	});
 	after(function(asyncDone) {
-		_seq.remove(function () {
+		_seq.remove(new H.Done(function () {
 			mongoose.disconnect(asyncDone);
-		});
+		}));
 	});
 	describe('#new Sequence()', function() {
 		it('should create default Seq',function (asyncDone) {
-            _seq.create(done);
+            _seq.create(new H.Done(done));
             function done(data) {
   				id = data._id;
 				_id.should.equal(id);
@@ -29,11 +29,11 @@ describe('mongoDb 연동 a postDAO ', function() {
             };
 		});
 		it('여러번 호출시 값 일치하는지 확인',function (asyncDone) {
-			H.asyncLoop([1,1,1,1] , [_seq,_seq.getNext], endDone, asyncDone)
-				function endDone(err, results) {
+			H.asyncLoop([1,1,1,1] , [_seq,_seq.getNext], new H.Done(endDone, asyncDone))
+				function endDone(results) {
 	  				var seqObj = results.pop();
 	  				should.equal(seqObj.seq, 4);
-	  				asyncDone(err);
+	  				asyncDone();
 				}
 		});
 	});

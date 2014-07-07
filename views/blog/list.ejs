@@ -1,6 +1,11 @@
 <% layout('../mainLayout.ejs') %>
 <meta charset="utf-8">
 
+<ul>
+<% for(var key in datas) {%>
+   <li><%= datas[key] %></li>
+<% } %>
+</ul>9
 <!----------- 글 리스트  -->
 <!-- Nested media object -->
 <div class="media">

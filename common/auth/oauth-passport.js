@@ -13,7 +13,7 @@ var myPassport = (function() {
 	
 	var passport = require('passport');
 	var config = require('./oauth-config.js');
-	var userService = require('../../services/userService.js');
+	var userService = require('../../services/oauthService.js');
 	// /////////////////////////////////
 	return {
 		init : function() {
@@ -31,12 +31,12 @@ var myPassport = (function() {
 			passport.deserializeUser(this.deserializeUser);			
 			return passport;			
 		},///////////유저를 저장(세션,db) 후 콜백url 리다이렉트
-		authCallBack : function(accessToken, refreshToken, profile, done) {
+		authCallBack : function(accessToken, refreshToken, profile, next) {
 			//1. user가 있는지 찾아보고 없으면 만듬.
-			userService.findOrCreateUser(profile, authByUser);
+			userService.findOrCreateUser(done, profile);
 			//2. 그 결과(user)를 세션에 저장하고 콜백url을 리다이렉트한다.
-			function authByUser(user) { 
-				done(null, user);
+			function done(user) { 
+				next(null, user);
 			}
 		},
 		deserializeUser : function (oauthId, done) {
