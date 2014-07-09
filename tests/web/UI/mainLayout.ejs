@@ -14,31 +14,33 @@
     <link href="/resources/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/resources/lib/bootstrap/dist/css/bootstrap-social.css" rel="stylesheet">
     <link href="/resources/lib/fontAwesome/css/font-awesome.min.css" rel="stylesheet">
-
+    <style type="text/css"> 
+		div {background-color: grey}  
+	</style> 
     <!-- Custom styles for this template -->
     <link href="/resources/css/layout.css" rel="stylesheet">
   </head>
 
   <body>
 	<!--   	nav-bar -->
-    <div class="container  col-lg-12">
+    <div class="container">
   		<% include ./common/nav.ejs  %>
     </div>
 	<!--  else  --> 	
-    <div class="container  col-lg-12">
+    <div class="container">
     	<div class="row">
 	    	<!-- center -->
 			<div class="col-lg-8">
 				<%- body %>
 			</div>
 			<!-- sidebar -->
-			<div class="col-lg-4 hidden-xs hidden-sm">
+			<div class="col-lg-8 hidden-xs">
 				<% include ./common/sidebar.ejs %>
 			</div>
 	   	</div>
     </div><!--/.container-->
     
-    <div class="container  col-lg-12">
+    <div class="container">
 	    <!-- footer -->
 	    <hr>
    		<% include ./common/footer.ejs %>    
