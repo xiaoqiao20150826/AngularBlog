@@ -12,7 +12,7 @@ var	H = require('../testhelper.js')
   , User = require('../../domain/User.js');
 
 // test데이터를 삽입하고, eqaul비교 때 사용할 user의 프로퍼티 이름..
-var keys4tempValue = ['_id','name','photo','email'];
+var _keys4tempValue = ['_id','password','name','photo','email'];
 
 //-------------------------------
 describe('userDAO', function() {
@@ -74,11 +74,11 @@ describe('userDAO', function() {
 			}
 		});
 	});
-	describe('$findOrCreate', function() {
+	describe('$findOrCreateByUser', function() {
 		it('should take count with where', function(nextCase) {
 			var passportData = {id : 'id999' , name : 'name999', photo : 'photo999', email : 'email', provider : 'provider'}
 			var a_user = User.createBy(passportData);
-			userDAO.findOrCreate(new H.Done(dataFn, H.testCatch1(nextCase)), a_user);
+			userDAO.findOrCreateByUser(new H.Done(dataFn, H.testCatch1(nextCase)), a_user);
 			function dataFn(model) {
 				var e_user = User.createBy(model);
 				_equals(a_user, e_user);
@@ -117,17 +117,53 @@ describe('userDAO', function() {
 			}
 		});
 	});
+	
+	describe('#findByUser', function () {
+		it('should return user', function (nextTest) {
+			var user = _users[3];
+			userDAO.findByUser(new H.Done(dataFn, nextTest), user);
+			function dataFn(loginUser) {
+//				console.log(loginUser.constructor.name)
+//				console.log(typeof loginUser)
+//				console.log(loginUser instanceof User)
+				_equals(loginUser, user);
+				nextTest();
+			}
+		})
+		it('should return err message about pw ', function (nextTest) {
+			var user = _users[3];
+			user.password = 'nnnnn';
+			userDAO.findByUser(new H.Done(dataFn, nextTest), user);
+			function dataFn(msg) {
+//				console.log(msg);
+				should.equal(_.isString(msg), true);
+				nextTest();
+			}
+		})
+		it('should return err message about id', function (nextTest) {
+			var user = _users[3];
+			user._id = 'id123';
+			userDAO.findByUser(new H.Done(dataFn, nextTest), user);
+			function dataFn(msg) {
+//				console.log(msg);
+				should.equal(_.isString(msg), true);
+				nextTest();
+			}
+		})
+		
+	})
 });
 ////////==== helper =====/////////
 //현재는 title, content만 비교함.
-function _equals(expectedusers, actualsusers) {
+function _equals(expectedusers, actualsusers, keys4tempValue) {
+	keys4tempValue = keys4tempValue || ['_id','name','photo','email'];
 	H.deepEqualsByKeys(expectedusers, actualsusers, keys4tempValue);
 };
 
 function _createTempUsers() {
 	var Type = User
 	  , count = 10;
-	return users = H.createObjsByType(Type, count, keys4tempValue);
+	return users = H.createObjsByType(Type, count, _keys4tempValue);
 }
 function _insertTestData(nextCase) {
 	H.asyncLoop(_createTempUsers(), [userDAO, userDAO.insertOne], new H.Done(nextDataFn, H.testCatch1(nextCase)));

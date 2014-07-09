@@ -30,41 +30,43 @@ describe('underscore', function() {
 			})
 		});
 		//장황스럽지만.. 타입이 아닌 값만 비교하면서 깊은 비교를 한다.(내가원하던)
-		describe('#isEqual(a,b)',function() {
-			it('should equal a,b about Object,Array', function() {
-				var a = [1,2,3]
-				  , b = [1,2,3];
-				var a2 = [ [1,2,3],[1,[1,2,3],2,3],  1,2,3]
-				  , b2 = [ [1,2,3],[1,[1,2,3],2,3],  1,2,3];
-				var aa = {a:1, b:2, c:3}
-				  , bb = {a:1, b:2, c:3};
-				var aa2 = {a:[1,[1,2,3],2,3], b:a2, c:3}
-				  , bb2 = {a:[1,[1,2,3],2,3], b:b2, c:3};
-				
-				('s'===new String('s')).should.be.false;  // 이건 타입비교하는데
-				_.isEqual('s',new String('s')).should.be.true;  // 타입비교안하네. 값만!
-				
-				_.isEqual(a,b).should.be.true;
-				_.isEqual(a2,b2).should.be.true;
-				_.isEqual(aa,bb).should.be.true;
-				_.isEqual(aa2,bb2).should.be.true; //b가 다름. 참조도 같지 않아도 되네.
-				_.isEqual([ [1,2,3],[1,[1,2,3],2,3],  1,2,3]
-				        , [ [1,2,3],[1,[1,{},3],2,3],  1,2,3]).should.be.false;
-				_.isEqual([1,2,3],[1,1,3]).should.be.false;
-				_.isEqual({a:1, b:2, d:3},{a:1, b:2, c:3}).should.be.false;
-				_.isEqual({a:[1,[1,2,3],2,3], b:a2, c:3}
-				        , {a:[1,[1,2,3],2,3], b:bb, c:3}).should.be.false;
+		describe('#isXXX fn' , function() {
+			describe('#isEqual(a,b)',function() {
+				it('should equal a,b about Object,Array', function() {
+					var a = [1,2,3]
+					  , b = [1,2,3];
+					var a2 = [ [1,2,3],[1,[1,2,3],2,3],  1,2,3]
+					  , b2 = [ [1,2,3],[1,[1,2,3],2,3],  1,2,3];
+					var aa = {a:1, b:2, c:3}
+					  , bb = {a:1, b:2, c:3};
+					var aa2 = {a:[1,[1,2,3],2,3], b:a2, c:3}
+					  , bb2 = {a:[1,[1,2,3],2,3], b:b2, c:3};
+					
+					('s'===new String('s')).should.be.false;  // 이건 타입비교하는데
+					_.isEqual('s',new String('s')).should.be.true;  // 타입비교안하네. 값만!
+					
+					_.isEqual(a,b).should.be.true;
+					_.isEqual(a2,b2).should.be.true;
+					_.isEqual(aa,bb).should.be.true;
+					_.isEqual(aa2,bb2).should.be.true; //b가 다름. 참조도 같지 않아도 되네.
+					_.isEqual([ [1,2,3],[1,[1,2,3],2,3],  1,2,3]
+					        , [ [1,2,3],[1,[1,{},3],2,3],  1,2,3]).should.be.false;
+					_.isEqual([1,2,3],[1,1,3]).should.be.false;
+					_.isEqual({a:1, b:2, d:3},{a:1, b:2, c:3}).should.be.false;
+					_.isEqual({a:[1,[1,2,3],2,3], b:a2, c:3}
+					        , {a:[1,[1,2,3],2,3], b:bb, c:3}).should.be.false;
+				});
+				//함수는 object이지만, object는 함수가 아니다.
+				it('#isObject should not return ture with function', function () {
+					function  fn () {};
+					var obj = {}
+					should.equal(_.isObject(fn), true);
+					should.equal(_.isFunction(obj), false);
+				});
 			});
-		});
-		describe('#isXXX', function () {
-			//함수는 object이지만, object는 함수가 아니다.
-			it('#isObject should not return ture with function', function () {
-				function  fn () {};
-				var obj = {}
-				should.equal(_.isObject(fn), true);
-				should.equal(_.isFunction(obj), false);
-				
-			});
+
+		})
+		describe('#etc', function () {
 			it('#union', function () {
 				var a = {a:1};
 				var b = {b:1};
@@ -74,6 +76,7 @@ describe('underscore', function() {
 			})
 			it('temp', function () {
 			})
+			
 		})
 	});
 });  

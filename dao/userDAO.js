@@ -45,21 +45,68 @@ userDAO.find = function (done,where,select) {
 		,callback = done.getCallback();
 	  _db.find(where,select).exec(callback);
 };
+
 userDAO.findById = function (done, id) {
 	var where = {'_id': id}
 		,select = select || {}
 		,callback = done.getCallback();
+		
 	_db.findOne(where,select).exec(callback);
+};
+
+userDAO.findByUser = function (done, loginUser) {
+	var loginId = loginUser.getId()
+	  , loginPw = loginUser.getPassword();
+	var dataFn = done.getDataFn()
+	  , errFn = done.getErrFn() || function() {};// 에러무시.
+	
+	if(!(H.exist([loginId,loginPw]))) return dataFn('loging user need id and pw');
+	
+	H.call4promise(userDAO.findById, loginId)
+	 .then(function(data) {
+		 if(!(H.exist(data))) {
+			 return dataFn('not found by id : ' +loginId);
+		 } 
+		 
+		 var user = User.createBy(data)
+		   , pw = user.getPassword();
+		 
+		 if(!(loginPw == pw)) 
+			 return dataFn('pw is fail');
+		 else
+			 dataFn(user);
+	 }) 
+	 .catch(errFn);
+}
+
+userDAO.findOrCreateByUser = function (done, loginUser) {
+	var dataFn = done.getDataFn()
+	  , errFn = done.getErrFn();
+	
+	H.call4promise(userDAO.findById, loginUser.getId())
+	 .then(function (data) {
+		 if(!(H.exist(data)) ) { return userDAO.insertOne(done, loginUser); }
+		 
+		 var user = User.createBy(data);
+		 dataFn(user);
+	 })
+	 .catch(errFn);
 };
 /* insert */
 userDAO.insertOne = function(done, user) {
-	var dataFn  = done.getDataFn();
-	var errFn = done.getErrFn() || function () {
-		//TODO : 중복된키 처리해야하는데.
+	var dataFn = done.getDataFn()
+	  , errFn = done.getErrFn();
+	
+	H.call4promise([_create], user)
+	 .then(function(data) {
+		 var user = User.createBy(data);
+		 dataFn(user);
+	 })
+	 .catch(errFn);
+	
+	function _create(done, user) {
+		_db.create(user, done.getCallback());
 	}
-
-	var callback = done.getCallback();
-	_db.create(user, callback);
 };
 /* update */
 //TODO: 업데이트할 데이터에 User를 통채로 주므로 업데이트 하지말아야할 데이터는 잘 걸러서 줘야한다. 
@@ -85,17 +132,7 @@ userDAO.getCount = function (done, where) {
 		,callback = done.getCallback();
 	_db.find(where).count().exec(callback);
 }
-userDAO.findOrCreate = function (endDone, user) {
-	var errFn = endDone.getErrFn();
-	
-	userDAO.findById(new H.Done(dataFn1, errFn), user.id);
-	function dataFn1(data) {
-		if((H.exist(data))) 
-			return done(data);
-		else 
-			return userDAO.insertOne(endDone, user) 
-	}
-};
+
 
 
 /* helper */		

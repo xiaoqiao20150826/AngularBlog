@@ -3,7 +3,7 @@
 var H = require('../common/helper.js');
 
 //////////////////
-var Answer = module.exports = function () {
+var Answer = module.exports = function Answer() {
 	var o = Answer.getSchema();
 	for(var key in o) {
 		this[key] = null;

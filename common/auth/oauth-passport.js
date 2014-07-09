@@ -5,6 +5,11 @@
  *-1. 객체정의문   2. 초기화 실행문. 3. 주석
  */
 
+var H = require('../helper.js')
+  , Done = H.Done;
+
+var User = require('../../domain/User.js')
+  , userDAO = require('../../dao/userDAO.js');
 // ///////////////////////////////////////
 //------------1. 정의
 var myPassport = (function() {
@@ -13,7 +18,6 @@ var myPassport = (function() {
 	
 	var passport = require('passport');
 	var config = require('./oauth-config.js');
-	var userService = require('../../services/oauthService.js');
 	// /////////////////////////////////
 	return {
 		init : function() {
@@ -27,28 +31,45 @@ var myPassport = (function() {
 				passport.use(aStrategy);
 			};
 			//직렬화 설정
-			passport.serializeUser(this.serializeUser);
-			passport.deserializeUser(this.deserializeUser);			
+			passport.serializeUser(this.serializeUserId);
+			passport.deserializeUser(this.deserializeUserId);			
 			return passport;			
-		},///////////유저를 저장(세션,db) 후 콜백url 리다이렉트
+		},
+		//소셜 서비스의 콜백의 첫번째.
+		///////////유저를 저장(db와 세션) 후 로긴체크.
 		authCallBack : function(accessToken, refreshToken, profile, next) {
-			//1. user가 있는지 찾아보고 없으면 만듬.
-			userService.findOrCreateUser(done, profile);
-			//2. 그 결과(user)를 세션에 저장하고 콜백url을 리다이렉트한다.
-			function done(user) { 
-				next(null, user);
-			}
+
+			var loginUser = User.createBy(profile); //profile해석은 User에게 맡긴다.
+			
+			console.log('authcallback: ');
+			
+			//1. user가 db에 이미 있는지 찾아보고 없으면 만듬.
+			//2. next역할 : 그 결과(user)를 세션에 저장하고 콜백url을 리다이렉트한다.
+			var errFn = next;
+			userDAO.findOrCreateByUser(new Done(next, errFn, Done.ASYNC), loginUser);
 		},
-		deserializeUser : function (oauthId, done) {
-			// 세션에서 oauthId 가져옴
-				console.log('deserializeUser: ' + oauthId);
-				done(null, oauthId);
-		},
-		serializeUser : function (userData, done) {
+		
+		//소셜서비스콜백 작업중.
+		//세션에 인증아이디를 직렬화하여 저장한다.(즉 직렬화된 값이 저장됨)
+		serializeUserId : function (user, next) {
 			// 세션에 userId저장
-				console.log('serializeUser: ' + userData.oauthId);
-				done(null, userData.oauthId);
-		}
+				console.log('serializeUser: ');
+				for(var key in user) {
+					console.log(key +' L '+ user[key]);
+				}
+				next(null, user.getId());
+		},
+		//세션에서 직렬화된 값을 가져올 때 사용. passport가 필요시 사용..
+		deserializeUserId : function (id, next) {
+			// 세션에서 oauthId 가져옴
+			
+				console.log('deserializeUser: ');
+				for(var key in id) {
+					console.log(key +' L '+ id[key]);
+				}
+				next(null, id);
+		},
+		
 	};
 })();
 

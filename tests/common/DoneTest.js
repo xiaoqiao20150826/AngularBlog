@@ -1,57 +1,88 @@
-/**
- * What이 Done클래스인데. 바꾸기 이전이름이라 이렇게 됨.
- */
 var should = require('should')
   , _ = require('underscore');
 
 var H = require('../testHelper.js')
-  , What = H.Done;
+  , Done = H.Done;
+
+///////////////생성관련
+describe('Done', function () {
+	var fn;
+	before(function() {
+		fn = function () {};	
+	}) 
+	describe('# new ()', function () {
+		it('param2', function () {
+			
+			var done1 = new Done(fn,fn,Done.NOMAL);
+			var done2 = new Done(fn,fn,Done.ASYNC);
+			var done3 = new Done(fn);
+			
+			var done4 = new Done(fn,Done.NOMAL);
+			var done5 = new Done(fn,Done.ASYNC);
+			
+			_test(done1, Done.NOMAL);
+			_test(done2, Done.ASYNC);
+			_test(done3, Done.NOMAL);
+			_test(done4, Done.NOMAL);
+			_test(done5, Done.ASYNC);
+			function _test(done, type) {
+				should.equal(H.exist(done.getErrFn()), true);
+				if(done.getErrFn().name) {
+					should.equal(done.getErrFn().name, '_defaultErrFn');
+				}
+				should.equal(done.getTemplateType(), type)
+			};
+		})
+		
+	})
+})
 
 
-describe('some', function () {
+/////////////////// 호출관련
+describe('Done', function () {
 	describe('사용자 함수 내부에서 nomalTemplate호출시', function () {
 		describe('$dataFn 관련', function () {
 			it('여기서 전달한 dataFn이 호출됨.', function (nextTest) {
 				var dataFn = assertedDataFn1(nextTest,'여기1');
 				var errFn = assertedErrFn1(nextTest);
-				(function (what) {
-					rawData(what.getCallback())
-				})(new What(dataFn, errFn))
+				(function (done) {
+					rawData(done.getCallback())
+				})(new Done(dataFn, errFn))
 			})
 			it('여기서 전달한 dataFn이 호출됨.', function (nextTest) {
 				var dataFn = assertedDataFn1(nextTest,'여기1');
 				var errFn = assertedErrFn1(nextTest);
-				(function (what) {
-					rawDataIsNull(what.getCallback())
-				})(new What(dataFn, errFn))
+				(function (done) {
+					rawDataIsNull(done.getCallback())
+				})(new Done(dataFn, errFn))
 			})
 		})
 		describe('$errFn관련', function () {
 			it('여기서 전달한 errFn을 호출', function (nextTest) {
 				var dataFn = assertedDataFn1(nextTest);
 				var errFn = assertedErrFn1(nextTest,'여기2');
-				(function (what) {
-					rawErr(what.getCallback())
-				})(new What(dataFn, errFn))
+				(function (done) {
+					rawErr(done.getCallback())
+				})(new Done(dataFn, errFn))
 			})
 			it('내부의 errFn을 호출 후 외부의 errFn을 호출한다', function (nextTest) {
 				var dataFn = assertedDataFn1(nextTest);
 				var errFn = assertedErrFn1(nextTest,'외부3');
-				(function (what) {
+				(function (done) {
 					var errFn = assertedErrFn1(null, '내부3');
-					what.addErrFn(errFn)
-					rawErr(what.getCallback())
-				})(new What(dataFn, errFn))
+					done.addErrFn(errFn)
+					rawErr(done.getCallback())
+				})(new Done(dataFn, errFn))
 			})
-			it('내부의 errFn을 호출 후 what의 기본 errFn을 호출.', function (nextTest) {
+			it('내부의 errFn을 호출 후 done의 기본 errFn을 호출.', function (nextTest) {
 				var dataFn = assertedDataFn1(nextTest);
-				(function (what) {
+				(function (done) {
 					var errFn = assertedErrFn1(nextTest, '내부4');
-					what.addErrFn(errFn);
+					done.addErrFn(errFn);
 					//TODO: 비동기 예외인데. 어찌 확인 해야할지 모르겠네. 일단 동작은 원하는것처럼됨.
-//					rawErr(what.getCallback());
+//					rawErr(done.getCallback());
 					nextTest();
-				})(new What(dataFn))
+				})(new Done(dataFn))
 			})
 			describe('asyncLoop, promise4call 관련', function () {
 				var callRawData, callAsyncLoop;
@@ -61,19 +92,19 @@ describe('some', function () {
 					callAsyncLoop = _callAsyncLoop;
 					callPromise = _callPromise;
 					
-					function _callRawErr(what, arg1, arg2) {
-						rawErr(what.getCallback(), arg1, arg2);	
+					function _callRawErr(done, arg1, arg2) {
+						rawErr(done.getCallback(), arg1, arg2);	
 					}
-					function _callRawData(what, arg1, arg2) {
-						rawData(what.getCallback(), arg1, arg2);	
+					function _callRawData(done, arg1, arg2) {
+						rawData(done.getCallback(), arg1, arg2);	
 					}
-					function _callAsyncLoop(what, args) {
-						H.asyncLoop(args, callRawData, what);
+					function _callAsyncLoop(done, args) {
+						H.asyncLoop(args, callRawData, done);
 					}
 
-					function _callPromise(what, args) {
-						var dataFn = what.getDataFn();
-						var errFn = what.getErrFn();
+					function _callPromise(done, args) {
+						var dataFn = done.getDataFn();
+						var errFn = done.getErrFn();
 						return H.call4promise(callRawData, 'data111')
 								 	.then(function(data) {
 								 		return H.call4promise(callRawData, data+ 'data222');
@@ -93,7 +124,7 @@ describe('some', function () {
 					it('rawData를 여러번 호출하기 ', function(nextTest) {
 						var errFn = assertedErrFn1(nextTest,'외부5');
 						var args = [[{a:1},2,3], [2], 34, 5];
-						callAsyncLoop(new What(dataFn, errFn), args);
+						callAsyncLoop(new Done(dataFn, errFn), args);
 						function dataFn(datas) {
 							should.equal(datas.length, args.length)
 							nextTest();
@@ -103,7 +134,7 @@ describe('some', function () {
 //					it('위의 asyncLoop를 사용하는 함수를 asyncLoop로 호출하기', function (nextTest) {
 //						var errFn = assertedErrFn1(nextTest,'외부5');
 //						var args = [[{a:1},2,3], [2], 34, 5,[[{a:1},2,3], [2], 34, 5]];
-//						What.asyncLoop(args, callAsyncLoop, new What(dataFn, errFn));
+//						done.asyncLoop(args, callAsyncLoop, new Done(dataFn, errFn));
 //						function dataFn(datas) {
 //							console.log(datas);
 //							should.equal(datas.length, args.length)
@@ -114,7 +145,7 @@ describe('some', function () {
 						it('then 체인.', function (nextTest) {
 							var dataFn = assertedDataFn1(nextTest,'p1');
 							var errFn = assertedErrFn1(nextTest,'p1');
-							callPromise(new What(dataFn, errFn))
+							callPromise(new Done(dataFn, errFn))
 						})
 						it('then체인 중 예외처리', function(nextTest) {
 							var dataFn = assertedDataFn1(nextTest,'p2');
@@ -136,7 +167,7 @@ describe('some', function () {
 							var dataFn = assertedDataFn1(nextTest,'p3');
 							var errFn = assertedErrFn1(nextTest,'p3');
 							//이건 dataFn이 호출되면 then호출되고 errFn이 호출되면 catch가 호출됨
-							H.call4promise(callPromise,new What(dataFn, errFn), 'data1')
+							H.call4promise(callPromise,new Done(dataFn, errFn), 'data1')
 							 	.then(function(data) {
 							 		return H.call4promise(callRawData, data+ 'data222');
 							 	})
@@ -150,8 +181,8 @@ describe('some', function () {
 						})
 						it('promise사용하는 함수를 asyncLoop로 호출시키기', function (nextTest) {
 							var errFn = assertedErrFn1(nextTest,'p5');
-							var what = new What(dataFn, errFn)
-							H.asyncLoop([1,1,1,2,1], callPromise, what);
+							var done = new Done(dataFn, errFn)
+							H.asyncLoop([1,1,1,2,1], callPromise, done);
 							function dataFn(datas) {
 //								console.log('datas ',datas);
 								should.equal(datas.length, 5)

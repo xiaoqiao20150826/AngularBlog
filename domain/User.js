@@ -3,7 +3,7 @@
 var H = require('../common/helper.js');
 
 //////////////////
-var User = module.exports = function () {
+var User = module.exports = function User() {
 	var o = User.getSchema();
 	for(var key in o) {
 		this[key] = null;
@@ -15,10 +15,11 @@ var User = module.exports = function () {
 // 생성자
 /* 생성자 */
 User.createBy= function(model) {
-	// 외부(트위터 등)의 정보라면
+	// 외부(트위터 등)의 정보라면 password는 저장되지 않는다.
 	if(H.exist(model.provider)) {
 		var user = new User();
 		user._id = model.id +'-' +  model.provider;
+		user.password = model.password || model.pw;
 		user.name =  model.displayName || model.name;
 		user.photo = model.photo || model._json.avatar_url ||
 						 model._json.picture || model._json.pictureUrl || oneOfMany(model.photos);
@@ -37,6 +38,7 @@ User.createBy= function(model) {
 User.getSchema = function () {
 	return {
         '_id' : String,
+        'password' : String,
         'name' : String,
         'photo' : String,
         'email' : String,
@@ -44,5 +46,10 @@ User.getSchema = function () {
 		};
 };
 /* instance method */
-
+User.prototype.getPassword = function () {
+	return this.password;
+}
+User.prototype.getId = function () {
+	return this._id;
+}
 /* helper */

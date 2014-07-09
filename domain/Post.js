@@ -8,7 +8,7 @@ var H = require('../common/helper.js')
   , MAXROWSIZE_OF_ONEPAGE = 5;
 
 //////////////////
-var Post = module.exports = function () {
+var Post = module.exports = function Post() {
 	this.num = 0;
 	this.created = Date.now();
 	this.readCount = 0;
