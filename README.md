@@ -26,6 +26,13 @@
     +) 인증에 대한 콜백 주소 및 바인딩 된 서비스.
       -  authCallback 함수 참고 (위치 : ./common/auth/oauth-passport.js )
       -  파일 참고 (위치 : ./routes/auth.js)
+
+    +) profile to user 
+      - ./domain/User.js  
+        ; .createBy(profile) 여기에 방법을 모아둠.
+    +) db에 저장 및 가져오기..
+      - ./DAO/userDAO
+
   /////////// OAuth 연관된 것 관련 끝
 
  6) mongodb 실행. (실행방법은 mongodb 가이드 참고.)

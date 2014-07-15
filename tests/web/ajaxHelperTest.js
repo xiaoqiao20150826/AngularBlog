@@ -5,7 +5,7 @@
 var request = require('supertest');
 var H = require('../testHelper.js');
 
-describe('request', function () {
+describe('ajaxHelper', function () {
 	var agent, app;
 	before(function() {
 		process.env.NODE_ENV = 'test';

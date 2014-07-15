@@ -29,10 +29,9 @@ var answerDAO = module.exports = {};
 
 /* remove */
 function _remove(done, where) {
-	var where = where || {}
-	  , callback = done.getCallback();
-	  
-	_db.remove(where, callback);
+	var where = where || {};
+	
+	_db.remove(where, done.getCallback());
 };
 answerDAO.removeOne = function (done, answer) {
 	var where = {num: answer.num}
@@ -40,6 +39,7 @@ answerDAO.removeOne = function (done, answer) {
 	_remove(done, where);
 };
 answerDAO.removeAll = function (done) {
+	done.hook4dataFn(Answer.createBy);
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();
 	
@@ -49,6 +49,7 @@ answerDAO.removeAll = function (done) {
 };
 /* find */
 answerDAO.find = function (done,where,select) {
+	done.hook4dataFn(Answer.createBy);
 	var where = where || {}
 		,select = select || {}
 		,callback = done.getCallback();
@@ -59,12 +60,14 @@ answerDAO.findByPostNum = function(done, postNum) {
 	answerDAO.find(done, where);
 };
 answerDAO.findByNum = function (done, num) {
+	done.hook4dataFn(Answer.createBy);
 	var where = {'num': num}
 		,select = select || {}
 		,callback = done.getCallback();
 	_db.findOne(where,select).exec(callback);
 };
 answerDAO.findByRange = function (done, postNum, start,end) {
+	done.hook4dataFn(Answer.createBy);
 	var where = {postNum:postNum}
 		,select = {}
 		,orderBy = { 'num' : 1 }
@@ -89,6 +92,7 @@ answerDAO.insertOne = function(done, answer) {
 			.catch(errFn);
 };
 function _create(done, data) {
+	done.hook4dataFn(Answer.createBy);
 	_db.create(data, done.getCallback()); // exec없음.
 }
 /* update */
@@ -120,8 +124,9 @@ answerDAO.getCount = function (done, where) {
 		,callback = done.getCallback();
 	_db.find(where).count().exec(callback);
 }
-// mongoose에 group함수는 안되서 aggregate로 변경. 
-// [] 전달시 파이프라인 사용이다.
+//   mongoose에 group함수는 안되서 aggregate로 변경. 
+//   [] 전달시 파이프라인 사용이다.
+// @return : {_id:'', count:0}; 
 answerDAO.getCountsByPosts = function (done, posts) {
 	var postNums = [];
 	for(var i in posts) { postNums.push(posts[i].num); }

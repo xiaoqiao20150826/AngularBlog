@@ -17,16 +17,16 @@ var _keys4tempValue = ['_id','password','name','photo','email'];
 //-------------------------------
 describe('userDAO', function() {
 	var _users;
-	before(function(nextCase) {
+	before(function(nextTest) {
 		mongoose.connect('mongodb://localhost/test',function() {
-			_insertTestData(nextCase);
+			_insertTestData(nextTest);
 		});
 		
 	});
-	after(function(nextCase) {
+	after(function(nextTest) {
 		userDAO.removeAll(new H.Done(function() {
 						mongoose.disconnect(function() {
-							nextCase();
+							nextTest();
 						})
 		}));
 	});
@@ -44,50 +44,58 @@ describe('userDAO', function() {
 		})
 	});
 	describe('#insertOne()', function() {
-		it('should insert a user.',function (nextCase) {
+		it('should insert a user.',function (nextTest) {
 			var passportData = {id : 'id' , name : 'name', photo : 'photo', email : 'email', provider : 'provider'}
 			var a_user = User.createBy(passportData);
-			userDAO.insertOne(new H.Done(dataFn, H.testCatch1(nextCase)), a_user);
+			userDAO.insertOne(new H.Done(dataFn, H.testCatch1(nextTest)), a_user);
 			function dataFn(model) {
 				var expecteduser = User.createBy(model);
 					_equals(expecteduser, a_user);
-					nextCase();
+					nextTest();
 			};
 		});
 	});
 	describe('#find()',function() {
-		it('should take all users', function (nextCase) {
+		it('should take all users', function (nextTest) {
 			userDAO.find(new H.Done(dataFn), {});
 			function dataFn(models) {
 				var e_users = User.createBy(models)
 				_equals(e_users,_users.slice(0, e_users.length));
-				nextCase();
+				nextTest();
 			}
 		});
-		it('should take a user', function (nextCase) {
+		it('should take users by ids', function (nextTest) {
+			var userIds = ['_id1','_id6'];
+			userDAO.findByIds(new H.Done(dataFn), userIds);
+			function dataFn(models) {
+				should.equal(2, models.length)
+				nextTest();
+			}
+		})
+		it('should take a user', function (nextTest) {
 			var a_user = _users[2];
-			userDAO.findById(new H.Done(dataFn, H.testCatch1(nextCase)), a_user._id);
+			userDAO.findById(new H.Done(dataFn, H.testCatch1(nextTest)), a_user._id);
 			function dataFn(model) {
 				var e_user = User.createBy(model);
 				_equals(a_user, e_user);
-				nextCase();
+				nextTest();
 			}
 		});
 	});
 	describe('$findOrCreateByUser', function() {
-		it('should take count with where', function(nextCase) {
+		it('should take count with where', function(nextTest) {
 			var passportData = {id : 'id999' , name : 'name999', photo : 'photo999', email : 'email', provider : 'provider'}
 			var a_user = User.createBy(passportData);
-			userDAO.findOrCreateByUser(new H.Done(dataFn, H.testCatch1(nextCase)), a_user);
+			userDAO.findOrCreateByUser(new H.Done(dataFn, H.testCatch1(nextTest)), a_user);
 			function dataFn(model) {
 				var e_user = User.createBy(model);
 				_equals(a_user, e_user);
-				nextCase();
+				nextTest();
 			}
 		});
 	});
 	describe('$getCount', function() {
-		it('should take count with where', function(nextCase) {
+		it('should take count with where', function(nextTest) {
 			var where = {};
 			userDAO.getCount(new H.Done(dataFn), where);
 			function dataFn(model) {
@@ -95,12 +103,12 @@ describe('userDAO', function() {
 				var e_count = model;
 				should.exist(model);
 				should.equal(a_count,e_count);
-				nextCase();
+				nextTest();
 			}
 		});
 	});
 	describe('#update', function() {
-		it('should update',function(nextCase) {
+		it('should update',function(nextTest) {
 			var num = 3 , success = 1
 			 	,a_user = _users[num-1];
 			a_user.email = 'update_email';
@@ -112,46 +120,47 @@ describe('userDAO', function() {
 				function dataFn2(model) {
 					var e_user = User.createBy(model);
 					_equals(a_user, e_user);
-					nextCase();
+					nextTest();
 				}
 			}
 		});
 	});
 	
-	describe('#findByUser', function () {
-		it('should return user', function (nextTest) {
-			var user = _users[3];
-			userDAO.findByUser(new H.Done(dataFn, nextTest), user);
-			function dataFn(loginUser) {
-//				console.log(loginUser.constructor.name)
-//				console.log(typeof loginUser)
-//				console.log(loginUser instanceof User)
-				_equals(loginUser, user);
-				nextTest();
-			}
-		})
-		it('should return err message about pw ', function (nextTest) {
-			var user = _users[3];
-			user.password = 'nnnnn';
-			userDAO.findByUser(new H.Done(dataFn, nextTest), user);
-			function dataFn(msg) {
-//				console.log(msg);
-				should.equal(_.isString(msg), true);
-				nextTest();
-			}
-		})
-		it('should return err message about id', function (nextTest) {
-			var user = _users[3];
-			user._id = 'id123';
-			userDAO.findByUser(new H.Done(dataFn, nextTest), user);
-			function dataFn(msg) {
-//				console.log(msg);
-				should.equal(_.isString(msg), true);
-				nextTest();
-			}
-		})
-		
-	})
+	//TODO:비밀번호 필요할때 다시볼것.
+//	describe('#findByUser', function () {
+//		it('should return user', function (nextTest) {
+//			var user = _users[3];
+//			userDAO.findByUser(new H.Done(dataFn, nextTest), user);
+//			function dataFn(loginUser) {
+////				console.log(loginUser.constructor.name)
+////				console.log(typeof loginUser)
+////				console.log(loginUser instanceof User)
+//				_equals(loginUser, user);
+//				nextTest();
+//			}
+//		})
+//		it('should return err message about pw ', function (nextTest) {
+//			var user = _users[3];
+//			user.password = 'nnnnn';
+//			userDAO.findByUser(new H.Done(dataFn, nextTest), user);
+//			function dataFn(msg) {
+////				console.log(msg);
+//				should.equal(_.isString(msg), true);
+//				nextTest();
+//			}
+//		})
+//		it('should return err message about id', function (nextTest) {
+//			var user = _users[3];
+//			user._id = 'id123';
+//			userDAO.findByUser(new H.Done(dataFn, nextTest), user);
+//			function dataFn(msg) {
+////				console.log(msg);
+//				should.equal(_.isString(msg), true);
+//				nextTest();
+//			}
+//		})
+//	})
+	
 });
 ////////==== helper =====/////////
 //현재는 title, content만 비교함.
@@ -165,9 +174,9 @@ function _createTempUsers() {
 	  , count = 10;
 	return users = H.createObjsByType(Type, count, _keys4tempValue);
 }
-function _insertTestData(nextCase) {
-	H.asyncLoop(_createTempUsers(), [userDAO, userDAO.insertOne], new H.Done(nextDataFn, H.testCatch1(nextCase)));
+function _insertTestData(nextTest) {
+	H.asyncLoop(_createTempUsers(), [userDAO, userDAO.insertOne], new H.Done(nextDataFn, H.testCatch1(nextTest)));
 	function nextDataFn(err, datas) {
-		nextCase();
+		nextTest();
 	}
 };

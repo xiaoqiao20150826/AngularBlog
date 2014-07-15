@@ -38,10 +38,10 @@ var myPassport = (function() {
 		//소셜 서비스의 콜백의 첫번째.
 		///////////유저를 저장(db와 세션) 후 로긴체크.
 		authCallBack : function(accessToken, refreshToken, profile, next) {
-
+			console.log('profile' + JSON.stringify(profile));
 			var loginUser = User.createBy(profile); //profile해석은 User에게 맡긴다.
 			
-			console.log('authcallback: ');
+			console.log('profile to user: ' + JSON.stringify(loginUser));
 			
 			//1. user가 db에 이미 있는지 찾아보고 없으면 만듬.
 			//2. next역할 : 그 결과(user)를 세션에 저장하고 콜백url을 리다이렉트한다.
@@ -53,20 +53,13 @@ var myPassport = (function() {
 		//세션에 인증아이디를 직렬화하여 저장한다.(즉 직렬화된 값이 저장됨)
 		serializeUserId : function (user, next) {
 			// 세션에 userId저장
-				console.log('serializeUser: ');
-				for(var key in user) {
-					console.log(key +' L '+ user[key]);
-				}
+//				console.log('serializeUser: '+JSON.stringify(user));
 				next(null, user.getId());
 		},
 		//세션에서 직렬화된 값을 가져올 때 사용. passport가 필요시 사용..
 		deserializeUserId : function (id, next) {
 			// 세션에서 oauthId 가져옴
-			
-				console.log('deserializeUser: ');
-				for(var key in id) {
-					console.log(key +' L '+ id[key]);
-				}
+//				console.log('deserializeUser: '+JSON.stringify(id));
 				next(null, id);
 		},
 		

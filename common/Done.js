@@ -54,7 +54,7 @@ Done.prototype.addErrFn = function (newErrFn) {
 		newErrFn(err);
 		prevErrFn(err);
 	}
-}
+} 
 // set
 Done.prototype.setErrFn = function (newErrFn) {
 	this._errFn = newErrFn;
@@ -80,9 +80,37 @@ Done.prototype.getDataFn = function () {
 	
 	
 };
+/*//////////////이거 이상해. async때문에 복잡해지고있어.
+ * # 역할
+ *   - dataFn의 before 함수를 추가한다.
+ * # 주의
+ *  - getCallback, getDataFn을 사용하기 전에 수행해야 적용된다.
+ *  
+ *  ;; 현재 하나의 파람만 받지만 확장가능하쥐..
+ */ 
+Done.prototype.hook4dataFn = function (before, after) {
+	before = before || _.identity;
+	after = after || _.identity;
+	var center = this._dataFn;
+	
+	if(this._templateType == _ASYNC)
+		this._dataFn = _async;
+	else 
+		this._dataFn = _nomal;
+			
+	function _nomal(model) {
+		after(center(before(model)));
+	}
+	function _async(err, model) {
+		var result = before(model);
+		center(null, result);
+	}
+}
+
 //private 
 /////////////////////////////////////////////////
 function _defaultErrFn(err) {
+	console.trace(err);
 	throw new Error('default : '+err).stack;
 }
 

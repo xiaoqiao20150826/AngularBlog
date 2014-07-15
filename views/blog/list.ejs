@@ -1,29 +1,41 @@
-<% layout('../mainLayout.ejs') %>
-<meta charset="utf-8">
+<div class="col-lg-8" id="center_frame">
+	<meta charset="utf-8">
+	<!----------- 글 리스트  -->
+	<!-- Nested media object -->
+	<%
+		var pager = blog.getPager()
+		  , post4Webs = blog.getPost4Webs();
+	%>
+	
+	<%
+		
+		for(var post4Web in post4Webs) {
+			var post = post4Web.getPost()
+			  , user = post4Web.getUser()
+			  , answerCount = post4Web.getAnswerCount();
+			  
+	%>
 
-
-<!----------- 글 리스트  -->
-<!-- Nested media object -->
-<div class="media">
-	<a class="pull-left" href="#"> 
-		<img class="media-object" src="http://placehold.it/64x64">
-	</a>
-	<div class="media-body">
-		<span class="name"><a href="#">방문자</a></span>
-		<span class="date">2013/01/13 22:27</span>
-		<a href="#" class="pull-right" rel="tooltip" data-placement="top" data-original-title="삭제">
-			<i class="glyphicon glyphicon-remove"></i>
+	<div class="row">
+		
+		<a class="pull-left" href="#"> 
+			<img src='<%=user.photo %>' class="img-circle" alt='img' style="width:20px">
 		</a>
-		<a type="button" data-toggle="collapse" data-target="#demo2" class="pull-right" rel="tooltip" data-placement="top" data-original-title="댓글 달기">
-			<i class="glyphicon glyphicon-edit"></i>
-		</a>
-		<p>Cras sit amet nibh libero, in gravida nulla. Nulla vel metus
-			scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in
-			vulputate at, tempus viverra turpis.
-		</p>
-		<div id="demo2" class="collapse">
-			<textarea type="text" class="" rows="3" placeholder="댓글을 입력하세요."></textarea>
+		<div class="media-body">
+			<span class="name"><a href="#"><%=user.name %></a></span>
+			<span class="date"><%=post.created %></span>
+			<p>Cras sit amet nibh libero, in gravida nulla. Nulla vel metus
+				scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in
+				vulputate at, tempus viverra turpis.
+			</p>
 		</div>
+	</div>	
+	<%					
+		}
+	%>
+	<div class="row">
+		<a class="btn btn-defulat span2" id='insert'>입력</a>
+		<a class="btn btn-defulat span2">삭제</a>
+		<a class="btn btn-defulat span2">수정</a>
 	</div>
 </div>
-

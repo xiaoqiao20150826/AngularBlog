@@ -19,65 +19,99 @@ var should = require('should')
 
 
 var keys4tempValue = ['content'];
-var _postNum = 2;
-var postCount = 100; // answer만들면서 1개 플러스 됨
+var __postNum = 2;
+var postCount = 10; // answer만들면서 1개 플러스 됨
 var answerCount = 20;
 describe('blogService', function () {
-	before(function(nextCase) {
+	before(function(nextTest) {
 		mongoose.connect('mongodb://localhost/test',function() {
-			_insertTestData(nextCase);
+			_insertTestData(nextTest);
 		});
 	});
-	after(function(nextCase) {
-		var errFn = H.testCatch1(nextCase);
+	after(function(nextTest) {
+		var errFn = H.testCatch1(nextTest);
 		Q.all([postDAO.removeAll(new H.Done(function() {}, errFn))
 			 , answerDAO.removeAll(new H.Done(function() {}, errFn))
 			 ])
 		.then(function() {
 			mongoose.disconnect(function(d) {
-//				console.log('after--------',d);
-				nextCase();
+				nextTest();
 			});
 		})
 		.catch(errFn);
 	});
 	describe('#datasOfPageNum', function() {
-		it('should take datas', function (nextCase) {
+		it('should take datas', function (nextTest) {
 			var curPageNum = 1;
-			var done = new H.Done(dataFn, H.testCatch1(nextCase));
+			var done = new H.Done(dataFn, H.testCatch1(nextTest));
 			
 			blogService.datasOfPageNum(done, curPageNum);
 			
-			function dataFn(datas) {
-				console.log(datas);
-				var answerCount = datas.answerCount.shift(); //현재 한개밖에 안나옴.
+			function dataFn(blog) {
+				var pager = blog.getPager();
+				should.equal(pager.getPageCount(), 2); //post가 11개 row는 10개씩 총 2개
 				
-				should.equal(datas.pageCount, 11); //post가 101개 row는 10개씩 총 11개
-				should.equal(datas.posts.pop().num, 10); //1-10 ...31-40 
-				should.equal(answerCount._id, _postNum);
-				should.equal(answerCount.count, 20);
-				nextCase();
+				var post4Webs = blog.getPost4Webs()
+				  , post4Web = post4Webs[1]
+				  , post =  post4Web.getPost()
+				  , answerCount = post4Web.getAnswerCount()
+				  , user = post4Web.getUser();
+				
+				should.equal(user.name, 'annoymous');
+				should.equal(post.title, 'title2');
+				should.equal(answerCount, 20);
+				nextTest();
 			}
 		});
 	});
 	describe('#datasOfPostNum', function() {
-		it('should take post and answers', function (nextCase) {
+		it('should take post and answers', function (nextTest) {
 			var postNum = 2;
-			var done = new H.Done(dataFn, H.testCatch1(nextCase));
+			var done = new H.Done(dataFn, H.testCatch1(nextTest));
 			
 			blogService.datasOfPostNum(done, postNum);
 				
-			function dataFn(datas) {
-				var e_post = datas.post;
-				var e_answers = datas.answers;
-				should.exist(e_post);
-				should.exist(e_answers);
-				should.equal(e_post.num, postNum);
-				should.equal(e_answers.length, 20);
-				nextCase();
+			function dataFn(blog) {
+				var post4Webs = blog.getPost4Webs()
+				  , post4Web = post4Webs.pop()
+				  , post =  post4Web.getPost()
+				  , answerCount = post4Web.getAnswerCount()
+				  , answers = post4Web.getAnswers()
+				  , user = post4Web.getUser();
+				should.equal(user, null);
+				should.equal(post.title, 'title2');
+				should.equal(answerCount, 20);
+				should.equal(answers.length, 20); //TODO: 답변에서도 유저정보를 뽑아야하는데....
+				nextTest();
 			}
 		});
 	});
+	describe('$getBlogBy', function( ) {
+		it('should take blog object by pageNum and id', function (nextTest) {
+			var errFn = H.testCatch1(nextTest);
+			var pageNum = 1;
+			var id = 'weg'; // 테스트 데이터가 없어..
+			blogService.getBlogBy(new H.Done(dataFn, errFn), pageNum, id);
+			
+			function dataFn(blog) {
+				var pager = blog.getPager();
+				should.equal(pager.getPageCount(), 2); //post가 11개 row는 10개씩 총 2개
+				
+				var post4Webs = blog.getPost4Webs()
+				  , post4Web = post4Webs[1]
+				  , post =  post4Web.getPost()
+				  , answerCount = post4Web.getAnswerCount()
+				  , user = post4Web.getUser();
+				
+				should.equal(user.name, 'annoymous');
+				should.equal(post.title, 'title2');
+				should.equal(answerCount, 20);
+				should.equal(blog.loginUser , null) //null...현재 데이터가 없어서..
+				nextTest();
+			}
+				
+		})
+	})
 	
 });
 
@@ -86,20 +120,20 @@ function _equals(expectedPosts, actualsPosts) {
 	H.deepEqualsByKeys(expectedPosts, actualsPosts, keys4tempValue);
 };
 ///////////////////answerTest, postTest 에서 그대로 가져옴.
-function _insertTestData(nextCase) {
-	var errFn = H.testCatch1(nextCase);
+function _insertTestData(nextTest) {
+	var errFn = H.testCatch1(nextTest);
 	
 	H.asyncLoop(_createTempPosts(), [postDAO, postDAO.insertOne], new H.Done(nextDataFn, errFn));
 	function nextDataFn(datas) {
-		var post = Post.createBy({num:_postNum, title:'title', content:'content'});
-		var answers = _createAnswers(post.num);
-		
+		var post = Post.createBy({num:__postNum, title:'title', content:'content'});
 		postDAO.insertOne(new H.Done(nextDataFn2, errFn) , post);
+		
 		function nextDataFn2(d) {
-			
+			var answers = _createAnswers(__postNum);
 			H.asyncLoop(answers, [answerDAO, answerDAO.insertOne], new H.Done(endDataFn, errFn));
+			
 				function endDataFn(datas) {
-					nextCase();
+					nextTest();
 				}
 		}
 	}

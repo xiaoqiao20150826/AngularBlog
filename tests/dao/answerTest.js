@@ -44,7 +44,7 @@ describe('aAnswerDAO', function() {
 		_answers = _createAnswers(_postNum); //testcase마다 같은 테스트데이터
 	});
 	describe('#insertOne()', function() {
-		it('should insert a answer.',function () {
+		it('should insert a answer.',function (nextCase) {
 			answerDAO.insertOne(new H.Done(dataFn), _answers[3]);
 			function dataFn(data) {
 				var expectedanswer = data;
@@ -159,6 +159,15 @@ describe('aAnswerDAO', function() {
 					nextCase();
 				}
 			}
+		});
+		it('should take [] Of answers By empty posts', function(nextCase) {
+			var posts = [];
+			answerDAO.getCountsByPosts(new H.Done(dataFn), posts);
+			function dataFn(result) {
+				should.deepEqual(result,[]);
+				nextCase();
+			}
+			
 		});
 	});
 });

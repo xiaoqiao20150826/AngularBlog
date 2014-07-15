@@ -38,7 +38,7 @@ var U = module.exports = {
 		// targetType : Type
 		// sources : [sourceInstance1, sourceInstance2  ....]
 		// eachWrap : typeInstance에 대해 추가할 행동.
-		,createTargetFromSources : function _create(targetType, sources, eachWrap) {
+		,createTargetFromSources : function _create(targetType, sources, afterHook4EachClone) {
 			if(!(sources instanceof Array)) {return __createOne(sources); }
 			
 			return _.map(sources, function(sources) {
@@ -47,7 +47,7 @@ var U = module.exports = {
 
 			function __createOne(source) {
 				var target = U.cloneAboutTargetKeys(new targetType(), source)
-				if(eachWrap) eachWrap(target, source);	// 추가해야할 기본설정.
+				if(afterHook4EachClone) afterHook4EachClone(target, source);	// 추가해야할 기본설정.
 				return target;
 			}
 		}
@@ -56,9 +56,11 @@ var U = module.exports = {
 		// sideEffect function. 
 		,cloneAboutTargetKeys : function (target, source) {
 			for(var key in target) { 
-				var value = source[key];
-				if(U.exist(value)) {
-					target[key] = U.deepClone(value);
+				if(target.hasOwnProperty(key)) {
+					var value = source[key];
+					if(U.exist(value)) {
+						target[key] = U.deepClone(value);
+					}
 				}
 			}
 			return target;

@@ -133,10 +133,9 @@ describe('aPostDAO', function() {
 						nextCase();
 					}
 				}
-			});
 		});
-	
 	});
+});
 ////////==== helper =====/////////
 //현재는 title, content만 비교함.
 function _equals(expectedPosts, actualsPosts) {

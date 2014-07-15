@@ -19,13 +19,31 @@ describe('asyncSuporter', function () {
 		});
 		it('should catch err with call4promise', function (asyncDone) {
 			asyncSuporter.call4promise(throwErr)
-			 .then(function(data) {
-				 should.fail('must dont run');
-			 })
-			 .catch(function(err) {
-				 should.exist(err);
-				 asyncDone();
-			 });
+			.then(function(data) {
+				should.fail('must dont run');
+			})
+			.catch(function(err) {
+				should.exist(err);
+				asyncDone();
+			});
+		});
+		//then에서 프로마이즈를 리턴하지 않는다면 성공한
+		it('성공한 then은 다음것도 계속 호출될 것이다. ', function (asyncDone) {
+			asyncSuporter.call4promise(returnData)
+			.then(function(data) {})
+			.then(function(data) {})
+			.then(function(data) {})
+			.then(function(data) {asyncDone() })//
+		});
+		it('중간에 호출을 끊고 싶어. ', function (asyncDone) {
+			asyncSuporter.call4promise(returnData)
+			.then(function(data) {return null})
+			.then(function(data) {
+				if(data == undefined) {asyncDone();}
+				else console.log('2222')
+			})
+			.then(function(data) {assert.fail()})
+			.then(function(data) {})//
 		});
 		it('should catch err with call4promise2', function (asyncDone) {
 			asyncSuporter.call4promise(returnData)

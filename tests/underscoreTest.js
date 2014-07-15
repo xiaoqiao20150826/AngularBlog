@@ -74,9 +74,29 @@ describe('underscore', function() {
 				var d = [6,2]
 				should.equal(_.union(a,b,c,d).length, 6)
 			})
-			it('temp', function () {
+			it('#isEmpty', function () {
+				var  k = {
+						  "datas": {
+							    "pageCount": 0,
+							    "posts": [],
+							    "answerCount": []
+							  },
+							  "loginUser": null
+							};
+				should.equal(false, _.isEmpty(k));
 			})
 			
+			it('temp',function() {
+				var  k = {
+						  "datas": {
+							    "pageCount": 0,
+							    "posts": [],
+							    "answerCount": []
+							  },
+							  "loginUser": null
+							};
+				console.log(JSON.stringify(k));
+			})
 		})
 	});
 });  

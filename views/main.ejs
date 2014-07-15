@@ -29,13 +29,9 @@
     <div class="container  col-lg-12">
     	<div class="row">
 	    	<!-- center -->
-			<div class="col-lg-8">
-				<%- body %>
-			</div>
+			<% include ./blog/list.ejs %>
 			<!-- sidebar -->
-			<div class="col-lg-4 hidden-xs hidden-sm">
-				<% include ./common/sidebar.ejs %>
-			</div>
+			<% include ./common/sidebar.ejs %>
 	   	</div>
     </div><!--/.container-->
     
@@ -51,8 +47,8 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="/resources/lib/jquery-2.0.0.min.js"></script>
     <script src="/resources/lib/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script src="/resources/js/layout.js"></script>
+    <script src="/resources/js/main.js"></script>
   </body>
 </html>

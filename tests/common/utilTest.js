@@ -44,6 +44,32 @@ describe('util', function () {
 			U.cloneFnOfObject.bind(null,source3, target).should.throw();
 		})
 	})
+	describe('#createTargetFromSources', function () {
+		var TempType;
+		var source;
+		before(function() {
+			TempType = function TempType() {
+				this.a = null;
+				this.b = '';
+				this.c = 0;
+				this.d = false;
+				this.e = undefined; //객체생성시. 있는 속성으로 보는데
+				this.ee; 			//이건 없는샘 치는군.
+			}
+			TempType.f = function f() {};
+			TempType.prototype.g = function g() {};
+			
+			source = {a:1,b:2,c:3,d:4,e:7,f:8,g:8,notA:1,notB:2};
+		})
+		it('타겟이 가지고 있는(hasOwnProperty)에 대한 타입에 해당하는 값만 복사되야한다.', function () {
+			var a_temp = new TempType()
+			var e_temp = U.createTargetFromSources(TempType, source);
+			should.deepEqual(_.keys(a_temp), _.keys(e_temp))
+			should.equal(e_temp.f, undefined);
+			should.exist(e_temp.g)
+			should.equal(e_temp.hasOwnProperty('g'),false)
+		})
+	})
 	
 	
 	

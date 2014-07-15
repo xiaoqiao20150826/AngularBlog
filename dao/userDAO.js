@@ -40,13 +40,20 @@ function _remove(done, where) {
 }
 /* find */
 userDAO.find = function (done,where,select) {
+	done.hook4dataFn(User.createBy);
 	var where = where || {}
 		,select = select || {}
 		,callback = done.getCallback();
 	  _db.find(where,select).exec(callback);
 };
-
+userDAO.findByIds = function (done, ids) {
+	var where = {'_id': {$in : ids}}
+		,select = select || {};
+		
+	userDAO.find(done, where, select)
+}
 userDAO.findById = function (done, id) {
+	done.hook4dataFn(User.createBy);
 	var where = {'_id': id}
 		,select = select || {}
 		,callback = done.getCallback();
@@ -54,6 +61,7 @@ userDAO.findById = function (done, id) {
 	_db.findOne(where,select).exec(callback);
 };
 
+// TODO:현재사용안함 비밀번호 필요시 다시볼것
 userDAO.findByUser = function (done, loginUser) {
 	var loginId = loginUser.getId()
 	  , loginPw = loginUser.getPassword();
@@ -80,6 +88,7 @@ userDAO.findByUser = function (done, loginUser) {
 }
 
 userDAO.findOrCreateByUser = function (done, loginUser) {
+	done.hook4dataFn(User.createBy);
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();
 	
@@ -88,12 +97,14 @@ userDAO.findOrCreateByUser = function (done, loginUser) {
 		 if(!(H.exist(data)) ) { return userDAO.insertOne(done, loginUser); }
 		 
 		 var user = User.createBy(data);
+		 console.log('db user ;'+ JSON.stringify(user));
 		 dataFn(user);
 	 })
 	 .catch(errFn);
 };
 /* insert */
 userDAO.insertOne = function(done, user) {
+	done.hook4dataFn(User.createBy);
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();
 	
