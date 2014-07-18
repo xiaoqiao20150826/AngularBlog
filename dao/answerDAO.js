@@ -51,9 +51,10 @@ answerDAO.removeAll = function (done) {
 answerDAO.find = function (done,where,select) {
 	done.hook4dataFn(Answer.createBy);
 	var where = where || {}
-		,select = select || {}
-		,callback = done.getCallback();
-	  _db.find(where,select).exec(callback);
+	  , select = select || {}
+	  , orderBy = { 'num' : -1 }
+	  , callback = done.getCallback();
+	  _db.find(where,select).sort(orderBy).exec(callback);
 };
 answerDAO.findByPostNum = function(done, postNum) {
 	var where = {postNum: postNum};

@@ -70,6 +70,13 @@ describe('util', function () {
 			should.equal(e_temp.hasOwnProperty('g'),false)
 		})
 	})
+	describe('#pushInMidOfStr', function () {
+		var str = 'sssewg.txt'
+		  , pushData = '23'
+		  , mid = '.';
+		var result = U.pushInMidOfStr(str,pushData, mid);
+		should.equal(result, 'sssewg23.txt');
+	})
 	
 	
 	

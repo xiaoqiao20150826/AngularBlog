@@ -7,6 +7,7 @@
 //1. route 파일을 모두 가져와서 배열에 담는다.
 var routes = [
               require('./blog.js'),
+              require('./board.js'),
               require('./user.js'),
               require('./auth.js'),
               require('./test.js')

@@ -71,7 +71,7 @@ describe('underscore', function() {
 				var a = {a:1};
 				var b = {b:1};
 				var c = [4,5];
-				var d = [6,2]
+				var d = [6,2];
 				should.equal(_.union(a,b,c,d).length, 6)
 			})
 			it('#isEmpty', function () {
@@ -85,7 +85,9 @@ describe('underscore', function() {
 							};
 				should.equal(false, _.isEmpty(k));
 			})
-			
+			it('#compact', function() {
+				should.deepEqual([1,{a:1}, true], _.compact([1,{a:1},null,'',false, true]))
+			})
 			it('temp',function() {
 				var  k = {
 						  "datas": {
@@ -95,7 +97,7 @@ describe('underscore', function() {
 							  },
 							  "loginUser": null
 							};
-				console.log(JSON.stringify(k));
+//				console.log(JSON.stringify(k));
 			})
 		})
 	});

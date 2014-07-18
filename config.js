@@ -1,5 +1,5 @@
 /*
- * config
+ * config 공통으로 사용되는 환경설정.
  * 
  */
 
@@ -15,27 +15,24 @@
  *    - 직접 변경하려면 process.env.NODE_ENV 값을 express초기화 전에 변경하면 된다.
  */
 
-// 설정 구분자.
+
+var config = module.exports = {};
+//공통 설정.
+config.port = 3000;
+config.rootDir = __dirname;
+config.imgDir = __dirname + '\\resources\\img';
+
+//모드에 따라 달라지는 설정.
 var DEVELOPMENT = 'development'
   , TEST = 'test';
 
-// 설정
-var developmentConfig = {
-		db : 'mongodb://localhost/nodeblog'
-		, port : 3000 		
-};
-
-
-var testConfig = {
-		db : 'mongodb://localhost/test'
-		, port : 3000 		
-};
-
-// 구분하여 올바른 설정을 전달해준다.
-module.exports = (function () {
-	var env = process.env.NODE_ENV || DEVELOPMENT;
-	if(env == DEVELOPMENT) return developmentConfig;
-	if(env == TEST) return testConfig;
-	return {};
+(function () {
+	config.mode = process.env.NODE_ENV || DEVELOPMENT;
+	console.log(config.mode+ ' mode');
+	if(config.mode == DEVELOPMENT) {
+		config.db = 'mongodb://localhost/nodeblog'
+	} else if(config.mode == TEST) {
+		config.db = 'mongodb://localhost/test';
+	}
 })()
-module.exports.development = DEVELOPMENT;
+

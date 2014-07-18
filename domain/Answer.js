@@ -28,7 +28,7 @@ Answer.getSchema = function () {
         'vote' : Number,
         'image' : String,
         'content' : String,
-        'userID' : String,
+        'userId' : String,
         'postNum' : Number
 		};
 };

@@ -31,9 +31,13 @@ var postDAO = module.exports = {};
  * 
  * */
 /* remove */
+postDAO.removeByPostNum = function (done, postNum) {
+	var query = {num: postNum};
+	_remove(done, query);
+};
 postDAO.removeOne = function (done, post) {
 	var query = {num: post.num};
-	_remove(query, done.getCallback())
+	_remove(done, query);
 };
 postDAO.removeAll = function (done) {
 	var dataFn = done.getDataFn()
@@ -44,6 +48,7 @@ postDAO.removeAll = function (done) {
 			.catch(errFn);
 };
 function _remove(done, query) {
+	console.log(query);
 	_db.remove(query, done.getCallback());
 }
 /* find */
@@ -130,9 +135,9 @@ function getSchema() {
         'created' : Date,
         'readCount' : Number,
         'vote' : Number,
-        'images' : String,
+        'filePaths' : String,
         'title' : String,
         'content' : String,
-        'userID' : String  // 참조
+        'userId' : String  // 참조
 		};
 };

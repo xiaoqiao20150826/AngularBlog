@@ -86,6 +86,20 @@ describe('asyncSuporter', function () {
 			}
 		});
 	})
+//	fsHelper.copyNoDuplicate 의 재귀함수를 추상화할수있다면...
+//	describe('#asyncWile' , function() {
+//		it('should run', function (asyncDone) {
+//			asyncSuporter.asyncWhile(returnData, endCondition, new Done(endDone, asyncDone))
+//			function endDone() {
+//				console.log('end',arguments);
+//				asyncDone();
+//			}
+//			function endCondition(data) {
+//				if(data == 10) return true;
+//				else false;
+//			}
+//		});
+//	})
 });
 
 /* asyncFns for test using asyncSuporter.getCallbackTemplate */

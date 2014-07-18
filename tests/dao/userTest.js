@@ -18,6 +18,7 @@ var _keys4tempValue = ['_id','password','name','photo','email'];
 describe('userDAO', function() {
 	var _users;
 	before(function(nextTest) {
+		//로그인한 정보가 지워지기 원하지 않아서 이것만 테스트 디비로.
 		mongoose.connect('mongodb://localhost/test',function() {
 			_insertTestData(nextTest);
 		});

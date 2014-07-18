@@ -56,9 +56,8 @@ describe('aAnswerDAO', function() {
 	describe('#find()',function() {
 		it('should take all answers', function (nextCase) {
 			answerDAO.find(new H.Done(dataFn, {}));
-			function dataFn(models) {
-				var e_answers =  Answer.createBy(models);
-				_equals(e_answers, _answers);
+			function dataFn(answers) {
+				should.equal(answers.length, 11)
 				nextCase();
 			}
 		});

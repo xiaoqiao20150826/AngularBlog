@@ -13,6 +13,16 @@ footer {
   padding: 30px 0;
 }
 
+
+/* Main marketing message and sign up button */
+.jumbotron {
+  text-align: center;
+  background-color: transparent;
+  magin : 0; padding : 0;
+}
+.board-row {
+  border: thin solid blue;
+}
 /*
  * ´ñ±Û °ü·Ã
  * -----------------------------------------------

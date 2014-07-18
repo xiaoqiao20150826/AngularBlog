@@ -1,6 +1,7 @@
 /**
  * 통합테스트라서... post,answer의 테스트데이터에 의존한다.
  * posts 1~10, answers 1~10
+ * 차라리 boardServiceTest처럼 수동으로 알아보게 테스트를 넣는것이 나았다.
  */
 
 var should = require('should')
@@ -15,8 +16,6 @@ var should = require('should')
 	,Post = require('../../domain/Post.js')
 	,Answer = require('../../domain/Answer.js')
 	,blogService = require('../../services/blogService.js');
-
-
 
 var keys4tempValue = ['content'];
 var __postNum = 2;
@@ -40,73 +39,20 @@ describe('blogService', function () {
 		})
 		.catch(errFn);
 	});
-	describe('#datasOfPageNum', function() {
-		it('should take datas', function (nextTest) {
-			var curPageNum = 1;
-			var done = new H.Done(dataFn, H.testCatch1(nextTest));
-			
-			blogService.datasOfPageNum(done, curPageNum);
-			
-			function dataFn(blog) {
-				var pager = blog.getPager();
-				should.equal(pager.getPageCount(), 2); //post가 11개 row는 10개씩 총 2개
-				
-				var post4Webs = blog.getPost4Webs()
-				  , post4Web = post4Webs[1]
-				  , post =  post4Web.getPost()
-				  , answerCount = post4Web.getAnswerCount()
-				  , user = post4Web.getUser();
-				
-				should.equal(user.name, 'annoymous');
-				should.equal(post.title, 'title2');
-				should.equal(answerCount, 20);
-				nextTest();
-			}
-		});
-	});
-	describe('#datasOfPostNum', function() {
-		it('should take post and answers', function (nextTest) {
-			var postNum = 2;
-			var done = new H.Done(dataFn, H.testCatch1(nextTest));
-			
-			blogService.datasOfPostNum(done, postNum);
-				
-			function dataFn(blog) {
-				var post4Webs = blog.getPost4Webs()
-				  , post4Web = post4Webs.pop()
-				  , post =  post4Web.getPost()
-				  , answerCount = post4Web.getAnswerCount()
-				  , answers = post4Web.getAnswers()
-				  , user = post4Web.getUser();
-				should.equal(user, null);
-				should.equal(post.title, 'title2');
-				should.equal(answerCount, 20);
-				should.equal(answers.length, 20); //TODO: 답변에서도 유저정보를 뽑아야하는데....
-				nextTest();
-			}
-		});
-	});
 	describe('$getBlogBy', function( ) {
 		it('should take blog object by pageNum and id', function (nextTest) {
 			var errFn = H.testCatch1(nextTest);
 			var pageNum = 1;
-			var id = 'weg'; // 테스트 데이터가 없어..
+			var id = 'emptyUser';
 			blogService.getBlogBy(new H.Done(dataFn, errFn), pageNum, id);
 			
 			function dataFn(blog) {
-				var pager = blog.getPager();
-				should.equal(pager.getPageCount(), 2); //post가 11개 row는 10개씩 총 2개
-				
-				var post4Webs = blog.getPost4Webs()
-				  , post4Web = post4Webs[1]
-				  , post =  post4Web.getPost()
-				  , answerCount = post4Web.getAnswerCount()
-				  , user = post4Web.getUser();
-				
-				should.equal(user.name, 'annoymous');
-				should.equal(post.title, 'title2');
-				should.equal(answerCount, 20);
 				should.equal(blog.loginUser , null) //null...현재 데이터가 없어서..
+				var board = blog.board
+				  , pager = board.pager
+				  , post4web = board.posts4web;
+				should.equal(pager.allRowCount, 11);
+				should.equal(post4web[1].answerCount, 20);
 				nextTest();
 			}
 				

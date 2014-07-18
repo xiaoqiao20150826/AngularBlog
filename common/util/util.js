@@ -81,6 +81,12 @@ var U = module.exports = {
 			}
 			return target;
 		}
+		,pushInMidOfStr : function (source, pushData, mid) {
+			var midIndex = source.lastIndexOf(mid)
+			  , leftStr = source.slice(0, midIndex)
+			  , rightStr = source.slice(midIndex, source.length);
+			return leftStr + pushData + rightStr;
+		}
 		
 };
 

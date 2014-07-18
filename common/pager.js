@@ -3,7 +3,7 @@
  */
 var Pager = module.exports = function (allRowCount, maxRowCountOfApage) {
 	this.allRowCount = allRowCount;
-	this.maxRowCountOfApage = maxRowCountOfApage || 10;// default value
+	this.maxRowCountOfApage = maxRowCountOfApage || 5;// default value
 };
 //set
 Pager.prototype.setMaxRowCountOfApage = function (num) {

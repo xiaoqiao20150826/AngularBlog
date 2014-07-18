@@ -13,10 +13,10 @@ var Post = module.exports = function Post() {
 	this.num = 0;
 	this.readCount = 0;
 	this.vote = 0;
-	this.images = null;
+	this.filePaths = null;
 	this.title = '';
 	this.content = '';
-	this.userId = '';
+	this.userId = C.ANNOYMOUS_ID;
 	this.created = Date.now();
 };
 
@@ -24,9 +24,7 @@ var Post = module.exports = function Post() {
 
 /* 생성자 */
 Post.createBy= function(model) {
-	return H.createTargetFromSources(Post, model, function(post) {
-		if(!(H.exist(post.userId)) || post.userId == '') post.userId = C.ANNOYMOUS_ID;
-	});
+	return H.createTargetFromSources(Post, model);
 };
 
 Post.getUserIds = function (posts) {
@@ -53,4 +51,7 @@ Post.prototype.getUserId = function () {
 //set
 Post.prototype.setNum = function (num) {
 	this.num = num;
+};
+Post.prototype.addFilePaths = function (paths) {
+	this.filePaths = _.compact(_.union(this.filePaths, paths));
 };

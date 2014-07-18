@@ -26,6 +26,9 @@ app.configure(function () {
 	app.use(passport.session());
 	//////////////////////////
 	app.use(app.router);
+	
+	//config를 app를 통해 접근하기 위한 설정
+	app.set('config', _config);
 })
 
 //2. url과 route를 연결해준다. 
@@ -47,7 +50,7 @@ app.configure(function () {
 });
 
 //4. 개발모드일 경우만 에러 핸들러 추가.
-app.configure(_config.development, function () {
+app.configure(_config.mode, function () {
 	app.use(express.errorHandler());
 })
 

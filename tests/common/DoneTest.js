@@ -147,6 +147,36 @@ describe('Done', function () {
 							var errFn = assertedErrFn1(nextTest,'p1');
 							callPromise(new Done(dataFn, errFn))
 						})
+						it('then 체인은 연속으로 호출된다..', function (nextTest) {
+							var dataFn = assertedDataFn1(nextTest,'p1');
+							var errFn = assertedErrFn1(nextTest,'p1');
+							H.call4promise(callRawData, 'data')
+						 	 .then(function(data) {
+						 		return 1;
+						 	 })
+						 	 .then(function(data) {
+						 		return data + 2
+						 	 })
+						 	 .then(function(data) {
+						 		return data + 3
+						 	 })
+						 	 .then(function(data) {
+						 		should.equal(data,6);
+						 		nextTest();
+						 	 })
+						})
+						it('then 체인을 중간에 멈춘다.', function (nextTest) {
+							var dataFn = assertedDataFn1(nextTest,'p1');
+							var errFn = assertedErrFn1(nextTest,'p1');
+							var promise = H.call4promise(callRawData, 'data')
+						 	  .then(function(data) {
+						 		  if(data) promise.then(next)
+						 		  else throw '호출되지 않는다.';
+						 	  });
+							function next() {
+								nextTest();
+							}
+						})
 						it('then체인 중 예외처리', function(nextTest) {
 							var dataFn = assertedDataFn1(nextTest,'p2');
 							var errFn = assertedErrFn1(nextTest,'p2');

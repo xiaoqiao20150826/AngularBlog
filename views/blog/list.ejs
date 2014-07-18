@@ -3,39 +3,56 @@
 	<!----------- 글 리스트  -->
 	<!-- Nested media object -->
 	<%
-		var pager = blog.getPager()
-		  , post4Webs = blog.getPost4Webs();
+		var pager = board.pager
+		  , pageCount = pager.getPageCount()
+		  , posts4web = board.posts4web;
 	%>
-	
+	<div class="row   col-sm-10  col-sm-offset-1 " style="padding: 0 0 10px 0">
+		<a class="btn btn-default span2  pull-right" id='insert'>입력</a>
+	</div>	
 	<%
-		
-		for(var post4Web in post4Webs) {
-			var post = post4Web.getPost()
-			  , user = post4Web.getUser()
-			  , answerCount = post4Web.getAnswerCount();
-			  
+		for(var i in posts4web) {
+			var post4web = posts4web[i];
+			var post = post4web.post
+			  , user = post4web.user
+			  , answerCount = post4web.answerCount;
+			
 	%>
-
-	<div class="row">
-		
-		<a class="pull-left" href="#"> 
-			<img src='<%=user.photo %>' class="img-circle" alt='img' style="width:20px">
-		</a>
-		<div class="media-body">
-			<span class="name"><a href="#"><%=user.name %></a></span>
-			<span class="date"><%=post.created %></span>
-			<p>Cras sit amet nibh libero, in gravida nulla. Nulla vel metus
-				scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in
-				vulputate at, tempus viverra turpis.
-			</p>
+	<div class="row  col-sm-10  col-sm-offset-1 board-row">
+		<div class=" col-sm-1" style="padding:0 15px 0 0">
+			<div class="">  View</div>
+			<div class="col-sm-offset-2"><%= post.readCount%></div>
+			<div>  Answer</div>
+			<div class="col-sm-offset-2"><%= answerCount%></div>
+		</div>
+		<div class="col-sm-11 " >
+			<div class="row">
+				<a class="detail" href="#"  data-postnum="<%=post.num%>"> 
+					<H2><%=post.title %></H2>
+				</a>
+			</div>
+			<div class="media-body  pull-right">
+				<img src='<%=user.photo %>' class="img-circle" alt='img' style="width:20px">
+				<span class="name"><a href="#"><%=user.name %></a></span>
+				<span class="date"><%=post.created %></span>
+			</div>
 		</div>
 	</div>	
 	<%					
 		}
 	%>
-	<div class="row">
-		<a class="btn btn-defulat span2" id='insert'>입력</a>
-		<a class="btn btn-defulat span2">삭제</a>
-		<a class="btn btn-defulat span2">수정</a>
+	<div class='row jumbotron'>
+		<ul class="pagination">
+			<li><a href="#">&laquo;</a></li>
+		<%
+		  for(var i=1, max=pageCount+1 ; i < max; ++i) {
+		%>
+		  		<li><a href="#" class="boardList"><%= i %></a></li>
+		<%
+		  } 
+		%>
+			<li><a href="#">&raquo;</a></li>  
+		</ul>
 	</div>
 </div>
+<script src="/resources/js/board/list.js"></script>
