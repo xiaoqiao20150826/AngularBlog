@@ -38,7 +38,6 @@ testHelper.createObjs = function(obj, count, keys4tempValue) {
 testHelper.testCatch1 = function (nextCase) {
 	return function (err) {
 		console.log(err);
-		console.trace(err);
 		nextCase(err)
 		
 	}

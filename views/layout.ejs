@@ -18,14 +18,13 @@
     <!-- Custom styles for this template -->
     <link href="/resources/css/layout.css" rel="stylesheet">
     <link href="/resources/css/signin.css" rel="stylesheet">
-    
+    <%-stylesheets%>
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="/resources/lib/jquery-2.0.0.min.js"></script>
     <script src="/resources/lib/bootstrap/dist/js/bootstrap.min.js"></script>
     
-    <script src="/resources/js/helper.js"></script>
   </head>
 
   <body>
@@ -37,7 +36,7 @@
     <div class="container  col-lg-12">
     	<div class="row">
 	    	<!-- center -->
-			<% include ./blog/list.ejs %>
+			<%- body -%>
 			<!-- sidebar -->
 			<% include ./common/sidebar.ejs %>
 	   	</div>
@@ -52,5 +51,9 @@
     
     <!-- signin hidden-->
 	<% include ./blog/signin.ejs  %>
+	
+	<!-- 	user scripts -->
+	<script src="/resources/js/helper.js"></script>
+	<%-scripts%>
   </body>
 </html>

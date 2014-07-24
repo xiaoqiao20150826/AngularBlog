@@ -1,0 +1,39 @@
+<meta charset="utf-8">
+
+<!----------- 댓글 달기  -->
+<div id = "insert-answer-div">
+<hr>
+			<%
+				if(loginUser) {
+			%>
+			
+<form action="/answer" method="post" enctype="multipart/form-data" name="write-comment" class="form-horizontal"  role="form">
+	<div class="media">
+		<div class="media-object">
+			<a href="#"><%=loginUser.name %></a>
+		</div>
+		<div class="media-object pull-left">
+			<div><img src='<%=loginUser.photo %>' alt='img' style="width:70px;padding:10px 0 0 0"></div>
+		</div>
+		<div class="media-body">
+			<textarea name="content" placeholder="content" style="height:100px"></textarea>
+		</div>
+		<div class="media-body">
+			<button class="col-sm-offset-5 btn btn-warn">submit</button>	
+		</div>
+	</div>
+	<input name="userId" value="<%=loginUser._id %>" style="display:none">
+	<input name="postNum" value="<%=post.num %>" style="display:none">
+	<input class="answerNum" name="answerNum"  style="display:none">
+</form>
+			
+			
+			<%
+			    }
+				else {
+			%>
+			<button class="col-xs-12 col-sm-4 col-sm-offset-5 navbar-btn btn btn-success pull-right" data-toggle="modal" data-target=".bs-modal-login">Sign in to reply</button>
+			<%	
+				}
+			%>
+</div>

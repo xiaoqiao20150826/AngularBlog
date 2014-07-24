@@ -77,7 +77,34 @@ describe('util', function () {
 		var result = U.pushInMidOfStr(str,pushData, mid);
 		should.equal(result, 'sssewg23.txt');
 	})
-	
+	describe('데이터 일관성을 위한 것',function(){
+		it('source와 target의 특정키 값을 비교하여 일치하면 타겟에 할당한다', function() {
+			var posts = [{num:1, userId:'ggg'}, {num:2, userId:'ggg'}, {num:3, userId:'xxx'}];
+			var users = [{_id:'ggg', name:'ggg'}, {_id:'xxx',name:'xxx'}];
+			
+			var realPosts = U.joinSourcesIntoTagerts(users, posts, 'user' , function(s, t) {
+				if(s._id == t.userId) 
+					return s;
+				else 
+					return false;
+			});
+ 			should.deepEqual(realPosts.pop().user, users[1]); 
+			
+		})
+		it('source와 target의 특정키 값을 비교하여 일치한 리스트를 타겟에 할당한다', function() {
+			var posts = [{num:1, userId:'ggg'}, {num:2, userId:'ggg'}, {num:3, userId:'xxx'}];
+			var users = [{_id:'ggg', name:'ggg'}, {_id:'ggg',name:'xxx'}];
+			
+			var realPosts = U.joinSourcesIntoTagertsWithList(users, posts, 'users' , function(s, t) {
+				if(s._id == t.userId) 
+					return s;
+				else 
+					return false;
+			});
+			
+			should.deepEqual(realPosts.shift().users, users);
+		})
+	})
 	
 	
 	//TODO:보류!

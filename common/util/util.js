@@ -87,6 +87,39 @@ var U = module.exports = {
 			  , rightStr = source.slice(midIndex, source.length);
 			return leftStr + pushData + rightStr;
 		}
+		//join a to b 같은 것으로 이름 변경고려.
+//		,joinSourcesIntoTagertsWithList : function (sources, targets, realKey, getRealData) {
+//			if(getRealData == null) getRealData = _getRealData;
+//			for(var i in targets) {
+//				var target = targets[i];
+//				var realDatas = [];
+//				for(var j in sources) {
+//					var source = sources[j];
+//					var realData = getRealData(source, target);
+//					if(realData) realDatas.push(realData);
+//				}
+//				
+//				target[realKey] = realDatas;
+//			}
+//			return targets;
+//		}
+		,joinSourcesIntoTagertsWithList : function (sources, targets, realKey, getRealData, initSourceValue) {
+			initSourceValue = initSourceValue || []
+			return _template4join2(initSourceValue, function(left, right) {
+				left.push(right);
+				return left;
+			})
+			.apply(null, _.toArray(arguments))
+			
+		}
+		,joinSourcesIntoTagerts : function (sources, targets, realKey, getRealData, initSourceValue) {
+			if(!(U.exist(initSourceValue))) initSourceValue = null; 
+			
+			return _template4join2(initSourceValue, function(left, right) {
+				return right;
+			})
+			.apply(null, _.toArray(arguments)) 
+		}
 		
 };
 
@@ -94,10 +127,28 @@ var U = module.exports = {
  * private functions
  */
 function _existOne(o) {
-	if(o != null && o != undefined) return true;
+	if(o != null || o != undefined) return true;
 	else return false;
 };
-
+function _template4join2(initResult, howToInsertInToResult) {
+	return function(sources, targets, key, getSourceToJoin) {
+		_.each(targets, function(target, i) {
+			var result = _.clone(initResult);
+			var bVal;
+			for(j in sources) {
+				source = sources[j];
+				var source4join = getSourceToJoin(source, target);
+				if(source4join) {
+					result = howToInsertInToResult(result, source4join);
+				}
+			}
+			// source를 모두 result로 모았으면 target에 join시켜.
+			target[key] = result;
+		});
+		
+		return targets;
+	}
+}
 //clone
 function _deepClone(obj) {
 	// Handle the 3 simple types, and null or undefined

@@ -1,17 +1,22 @@
+<% layout('../layout.ejs') -%>
 <div class="col-lg-7" id="center_frame" style="margin:0 0 0 20px">
 <meta charset="utf-8">
 
 <!-- blog insert form -->
- <form action="/board" method="post" enctype="multipart/form-data" name="writeForm" class="form-horizontal"  role="form">
+<%
+	var loginUser = blog.loginUser;
+%>
+
+ <form action="/blog" method="post" enctype="multipart/form-data" name="writeForm" class="form-horizontal"  role="form">
    <div class="form-group">
       <label class="col-sm-2 control-label">
          Id
       </label>
       <div class="col-sm-10">
          <input name="userId" type="text" 
-         value="<%= loginId%>" style="display:none">
+         value="<%= loginUser._id%>" style="display:none">
          <input class="form-control" type="text" 
-            value="<%= loginId%>" disabled>
+            value="<%= loginUser._id%>" disabled>
       </div>
    </div>
    <div class="form-group">

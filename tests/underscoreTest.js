@@ -66,6 +66,17 @@ describe('underscore', function() {
 			});
 
 		})
+		describe('$정렬', function() {
+			it('#sortBy should reverse array element', function() {
+				var list =  [{a:1},{a:2},{a:3}];
+				var a_list = [{a:3},{a:2},{a:1}];
+				
+				var e_list = _.sortBy(list, function(o) {
+					return -o.a;
+				});
+				should.deepEqual(e_list, a_list);
+			})
+		})
 		describe('#etc', function () {
 			it('#union', function () {
 				var a = {a:1};
@@ -73,6 +84,7 @@ describe('underscore', function() {
 				var c = [4,5];
 				var d = [6,2];
 				should.equal(_.union(a,b,c,d).length, 6)
+				should.deepEqual(_.compact(_.union(null,'sss')), ['sss'])
 			})
 			it('#isEmpty', function () {
 				var  k = {
@@ -84,6 +96,15 @@ describe('underscore', function() {
 							  "loginUser": null
 							};
 				should.equal(false, _.isEmpty(k));
+				should.equal(true, _.isEmpty({}));
+				should.equal(true, _.isEmpty(''));
+				should.equal(false, _.isEmpty('ee'));
+//				should.equal(true, _.isEmpty(0));
+//				should.equal(true, _.isEmpty(1));   //숫자는 이상하게나오네
+//				should.equal(true, _.isEmpty(-1));
+//				should.equal(true, _.isEmpty(11));
+				should.equal(true, _.isEmpty(""));
+				should.equal(true, _.isEmpty([]));
 			})
 			it('#compact', function() {
 				should.deepEqual([1,{a:1}, true], _.compact([1,{a:1},null,'',false, true]))
@@ -100,5 +121,6 @@ describe('underscore', function() {
 //				console.log(JSON.stringify(k));
 			})
 		})
+		
 	});
 });  

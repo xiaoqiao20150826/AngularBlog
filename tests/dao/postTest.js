@@ -73,7 +73,7 @@ describe('aPostDAO', function() {
 			function dataFn(models) {
 				var e_posts = Post.createBy(models);
 				var a_posts = _posts.slice(start-1,end);
-				_equals(a_posts,e_posts);
+				_equals(a_posts.pop(),e_posts.pop());
 				nextCase();
 			}
 		});

@@ -3,21 +3,24 @@
 (function($, H) {
 	//모두 뷰를 위한것.
 	var DELETE_BTN_ID = '#post_delete'
+	
 	var deleteBtn = {
 			init : function () {
 				$(DELETE_BTN_ID).click(this.deleteAndRedirect);
 			},
 			deleteAndRedirect : function (e) {
 				var dataset = this.dataset;
-				H.ajaxCall("get","/board/delete?postNum="+dataset.postnum, function(html) {
+				H.ajaxCall("delete","/blog/delete?postNum="+dataset.postnum
+											 + "&filepath="+dataset.filepath
+						 , function(html) {
 					console.log(dataset.postnum);
-					return H.get$CenterFrame().replaceWith(html);
+					return;
 				});
 			}
 			
 	};
 	/// 실행
-	deleteBtn.init();
+//	deleteBtn.init();
 	//helper
 })($, __H);
 

@@ -1,22 +1,30 @@
+<% layout('../layout.ejs') -%>
+<% script('/resources/js/board/list.js')  -%>
 <div class="col-lg-8" id="center_frame">
 	<meta charset="utf-8">
 	<!----------- 글 리스트  -->
 	<!-- Nested media object -->
 	<%
-		var pager = board.pager
+		var loginUser = blog.loginUser;
+		var pager = blog.pager
 		  , pageCount = pager.getPageCount()
-		  , posts4web = board.posts4web;
+		  , posts = blog.posts;
 	%>
-	<div class="row   col-sm-10  col-sm-offset-1 " style="padding: 0 0 10px 0">
-		<a class="btn btn-default span2  pull-right" id='insert'>입력</a>
-	</div>	
+	<% 
+		if(loginUser) {
+	%>
+		<div class="row   col-sm-10  col-sm-offset-1 " style="padding: 0 0 10px 0">
+			<a class="btn btn-default span2  pull-right" href="/blog/new">입력</a>
+		</div>
+	<%	
+		}
+	%>
 	<%
-		for(var i in posts4web) {
-			var post4web = posts4web[i];
-			var post = post4web.post
-			  , user = post4web.user
-			  , answerCount = post4web.answerCount;
-			
+		for(var i in posts) {
+			var post = posts[i]
+			  , user = post.user
+			  , answerCount = post.answerCount;
+			  
 	%>
 	<div class="row  col-sm-10  col-sm-offset-1 board-row">
 		<div class=" col-sm-1" style="padding:0 15px 0 0">
@@ -27,7 +35,7 @@
 		</div>
 		<div class="col-sm-11 " >
 			<div class="row">
-				<a class="detail" href="#"  data-postnum="<%=post.num%>"> 
+				<a href="/blog/<%=post.num%>/<%=post.title%>"> 
 					<H2><%=post.title %></H2>
 				</a>
 			</div>
@@ -43,16 +51,16 @@
 	%>
 	<div class='row jumbotron'>
 		<ul class="pagination">
-			<li><a href="#">&laquo;</a></li>
+			<li><a href="/blog?pageNum=1">&laquo;</a></li>
 		<%
 		  for(var i=1, max=pageCount+1 ; i < max; ++i) {
 		%>
-		  		<li><a href="#" class="boardList"><%= i %></a></li>
+		  		<li><a href = "/blog?pageNum=<%= i %>"><%= i %></a></li>
 		<%
 		  } 
 		%>
-			<li><a href="#">&raquo;</a></li>  
+			<li><a href="/blog?pageNum=<%= pageCount %>">&raquo;</a></li>  
 		</ul>
 	</div>
 </div>
-<script src="/resources/js/board/list.js"></script>
+

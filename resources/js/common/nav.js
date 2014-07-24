@@ -20,6 +20,6 @@
 				}
 		}
 	
-	boardBtn.init();
+//	boardBtn.init();
 	$('[data-toggle="tooltip"]').tooltip();
 })($, __H)

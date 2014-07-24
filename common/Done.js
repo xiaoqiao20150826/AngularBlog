@@ -110,8 +110,7 @@ Done.prototype.hook4dataFn = function (before, after) {
 //private 
 /////////////////////////////////////////////////
 function _defaultErrFn(err) {
-	console.trace(err);
-	throw new Error('default : '+err).stack;
+	throw new Error('default : ',err);
 }
 
 /*

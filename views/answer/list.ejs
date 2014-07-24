@@ -1,0 +1,31 @@
+<meta charset="utf-8">
+<% script('/resources/js/answer/answer.js')  -%>
+<!----------- 댓글 리스트  -->
+<!-- part4list를 위해서  두번째 for문에서 answer, user를 재사용했다. -->
+	<%
+		var answers = post.answers;
+		
+		for(var i in answers) {
+			var answer = answers[i]
+			  , user = answer.user
+			  , embeddedAnswers = answer.answers;
+	%>
+		<% include ./part4list.ejs %>
+	<%
+			if(embeddedAnswers) {
+				for(var j in embeddedAnswers) {
+					answer = embeddedAnswers[j];
+					user = answer.user;
+	%>
+		<div class=col-sm-offset-1>
+			<% include ./part4list.ejs %>
+		</div>		
+	<%				
+				}
+			}
+		}
+	%>
+
+<!----------- 댓글 달기  -->
+
+<% include ./insert.ejs %>

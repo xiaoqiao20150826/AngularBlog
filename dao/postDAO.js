@@ -70,7 +70,7 @@ postDAO.findByRange = function (done, start,end) {
 	done.hook4dataFn(Post.createBy);
 	var where = {}
 		,select = {}
-		,orderBy = { 'num' : 1 }
+		,orderBy = { 'num' : -1 }
 		,callback = done.getCallback();
 	var startNum = start - 1; // 배열스타일의 인덱스라 실제 개수와 일치시키기위해 -1 한다.
 	var limitNum = end- startNum;

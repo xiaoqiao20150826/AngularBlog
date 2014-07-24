@@ -22,7 +22,7 @@ var testSuites = [
 				  , './dao/userTest.js'
 				  
 				  , './service/blogServiceTest.js'
-				  , './service/boardServiceTest.js'
+				  , './service/answerServiceTest.js'
 	             ]; 
 //TODO: 나중에는 모카에서 제공하는 방법을 사용하자(지정된 폴더 실행 같은.)
 (function() {

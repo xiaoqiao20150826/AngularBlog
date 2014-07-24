@@ -18,13 +18,19 @@ var Post = module.exports = function Post() {
 	this.content = '';
 	this.userId = C.ANNOYMOUS_ID;
 	this.created = Date.now();
+	
+	////web용 데이터
+	this.answerCount = 0;
 };
 
 /* static method */
 
 /* 생성자 */
 Post.createBy= function(model) {
-	return H.createTargetFromSources(Post, model);
+	if(model == null) 
+		return new Post();
+	else
+		return H.createTargetFromSources(Post, model);
 };
 
 Post.getUserIds = function (posts) {
@@ -38,6 +44,20 @@ Post.getUserIds = function (posts) {
 	}
 	return result;
 }
+// 이름이...
+// 참조를 이용하여 실제 데이터를 할당한다.
+Post.setUserByReal = function(posts, users) {
+	H.joinSourcesIntoTagerts(users, posts, 'user' , function(user, post) {
+		if(user._id == post.userId) 
+			return user;
+	});
+}
+Post.setAnswerCountByReal = function(posts, answerCounts) {
+	H.joinSourcesIntoTagerts(answerCounts, posts, 'answerCount' , function(answerCount, post) {
+		if(answerCount._id == post.num) 
+			return answerCount.count;
+	}, 0);
+}
 
 /* instance method */
 //get
@@ -47,11 +67,33 @@ Post.prototype.getNum = function () {
 Post.prototype.getUserId = function () {
 	return this.userId;
 };
+Post.prototype.getFileName = function () {
+	var filePath = this.filePaths;
+	if(this.hasFile())
+		return filePath.slice(filePath.lastIndexOf('\\')+1);
+	else
+		return null;
+}
+Post.prototype.hasFile = function () {
+	if(this.filePaths)
+		return true
+	else
+		return false;
+}
 
 //set
 Post.prototype.setNum = function (num) {
 	this.num = num;
 };
-Post.prototype.addFilePaths = function (paths) {
-	this.filePaths = _.compact(_.union(this.filePaths, paths));
+Post.prototype.setUser = function (user) {
+	this.user = user;
 };
+Post.prototype.setAnswers = function (answers) {
+	this.answers = answers || [];
+	this.answerCount = answers.length;
+};
+Post.prototype.addFilePath = function (path) {
+	if(this.filePaths == null) this.filePaths = []; 
+	this.filePaths = _.union(this.filePaths, path);
+};
+

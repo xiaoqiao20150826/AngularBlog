@@ -41,12 +41,12 @@ app.configure(function () {
 
 //3. 뷰 엔진설정
 app.configure(function () {
-//	var ejsEngine = require('ejs-locals');
+	var ejsEngine = require('ejs-locals');
 	 
 	app.set('views', __dirname + '/views');
 	app.set('view engine', 'ejs');
 	app.set('view options', { layout:false, root: __dirname + '/main' } );
-//	app.engine('ejs',ejsEngine);
+	app.engine('ejs',ejsEngine);
 });
 
 //4. 개발모드일 경우만 에러 핸들러 추가.

@@ -1,0 +1,27 @@
+<hr>
+<div class="media">	
+	<a class="pull-left" href="#"> 
+		<img class="media-object" src="<%= user.photo %>" style="width:60px">
+	</a>
+	<div class="media-body">
+		<span class="name"><a href="#"><%= user.name %></a></span>
+		<span class="date"><%= answer.created %></span>
+	
+	<%	
+		if(loginUser && (loginUser._id == user._id)) {
+	%>	
+		<a href="#" class="pull-right">
+			<i class="glyphicon glyphicon-remove"></i>
+		</a>
+	<% } %>	
+	<% if(answer.deep < 2) { 
+	%>	
+		<a type="button" href='javascript:' class="pull-right embedded-answer" >
+			<i class="glyphicon glyphicon-edit"></i>
+		</a>
+	<% }%>
+		<p><%= answer.content %></p>
+		
+		<div class="embedded-answer-div" data-answernum ="<%= answer.num%>" ></div>
+	</div>
+</div>

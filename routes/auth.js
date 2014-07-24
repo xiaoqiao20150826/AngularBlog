@@ -32,7 +32,7 @@ auth.mapUrlToResponse = function(app) {
 	//logout
 	app.get('/logout', this.logout);
 };
-	//세션에 저장된 id를 이용해서 로그인 되었는지 체크한다.
+//세션에 저장된 id를 이용해서 로그인 되었는지 체크한다.
 auth.goHome = function (req, res) {
 	res.redirect('/');
 };

@@ -5,7 +5,7 @@ var _ = require('underscore');
 var H = require('../common/helper.js')
   , fsHelper = require('../common/fsHelper.js')
   , boardService = require('../services/boardService')
-  , postDAO = require('../dao/postDAO');
+  , blogService = require('../services/blogService');
 
 
 var MAIN_PAGE_INDEX = 1;
@@ -20,6 +20,7 @@ var board = module.exports = {
 		app.get('/board/new', this.insertView); 
 		app.get('/board/delete', this.delete);
 		app.post('/board', this.insert);
+		app.post('/answer', this.insertAnswer);
 		
 		//config 가져오기
 		_config = app.get('config');
@@ -27,14 +28,15 @@ var board = module.exports = {
 	
 	detail : function(req, res) {
 		var postNum = req.query.postNum;
-		console.log(postNum);
-		boardService.getPost4WebByPostNum(new H.Done(dataFn, catch1(res)), postNum);
-		function dataFn(post4web) {
-			res.render('./blog/detail.ejs',{post4web: post4web});
+		var loginedId = req.session.passport.user;
+		
+		blogService.getBlogOfDetail(new H.Done(dataFn, catch1(res)), postNum, loginedId);
+		function dataFn(blog) {
+			res.render('./blog/detail.ejs',{blog: blog});
 		}
 	},
 	list : function(req,res) {
-		var pageNum = req.query.page;
+		var pageNum = req.query.pageNum;
 		if(!(H.exist(pageNum))) pageNum = MAIN_PAGE_INDEX;
 		boardService.getBoardByPageNum(new H.Done(dataFn, catch1(res)), pageNum);
 		
@@ -58,9 +60,21 @@ var board = module.exports = {
 			 res.redirect('/') 
 		 }
 	},
+	insertAnswer : function(req, res) {
+		var answerData = req.body;
+		
+		boardService.insertAnswer(new H.Done(dataFn, catch1(res)), answerData);
+		function dataFn(answer) {
+			console.log(answer);
+			res.redirect('/board/detail?postNum='+answer.postNum);
+		}
+	},
 	delete : function (req, res) {
+		//TODO: 로그인한 유저와 일치한지 체크할것. 
 		var postNum = req.query.postNum;
-		postDAO.removeByPostNum(new Done(dataFn, catch1(res)), postNum);
+		var filepath = req.query.filepath;
+		boardService.deleteBy(new Done(dataFn, catch1(res)), postNum, filepath);
+		
 		function dataFn() {
 			 res.redirect('/board') 
 		 }
@@ -70,6 +84,6 @@ var board = module.exports = {
 //test
 function catch1(res) {
 	return function(err) {
-		res.send(new Error('err : '+err).stack)
+		res.send(new Error(err))
 	}
 }
