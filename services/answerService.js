@@ -22,7 +22,7 @@ var answerService = module.exports = {};
 /* functions */
 
 //answerNum에 해당하는 블로그 데이터를 가져온다.
-answerService.getRealAnswers = function (done, postNum) {
+answerService.getJoinedAnswers = function (done, postNum) {
 	var dataFn = done.getDataFn()
 	, errFn = done.getErrFn();
 	
@@ -52,45 +52,13 @@ answerService.getRealAnswers = function (done, postNum) {
 	 		.catch(errFn);
 }
 
-answerService.insertAnswerWithIncresedDeep = function(done, answerData) {
-	var answer = Answer.createBy(answerData);
-	answer.deep = answer.deep+1;
-	console.log(answer);
+answerService.insertAnswer = function(done, answer) {
+	
 	answerDAO.insertOne(done, answer);
 };
-answerService.insertAnswer = function(done, answerData) {
-	var answer = Answer.createBy(answerData);
-	answerDAO.insertOne(done, answer);
-};
-//answerService.insertanswerWithFile = function(done, answerData, file) {
-//	var dataFn = done.getDataFn()
-//	  , errFn = done.getErrFn();
-//	
-//	var answer = answer.createBy(answerData);
-//	
-//	var promise = null;
-//	if(_existFile(file)) {
-//		var urls = _getToAndFromUrls(file, config.imgDir);
-//		promise = H.call4promise(fsHelper.copyNoDuplicate, urls.from , urls.to)
-//				   .then(function(savedFileUrl) {
-//					   answer.addFilePath(savedFileUrl);
-//				    })
-//				   .catch(errFn);
-//	};
-//	
-//	// 이 구조. 다시 나오면 고민좀 해봐야겠다.
-//	nextFn(promise);
-//	
-//	function nextFn(promise) {
-//		if(promise == null) __fn();
-//		else promise.then(__fn);
-//		
-//		function __fn() {
-//			H.call4promise(answerDAO.insertOne ,answer)
-//			 .then(dataFn).catch(errFn);
-//		}
-//	}
-//}
+answerService.deleteAnswer = function(done, num) {
+	answerDAO.removeAllOfNum(done, num);
+}
 //answerService.deleteanswerAndFile = function (done, answerNum, filepath) {
 //	var dataFn = done.getDataFn()
 //	  , errFn = done.getErrFn();

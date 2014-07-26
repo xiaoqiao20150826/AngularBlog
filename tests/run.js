@@ -20,6 +20,9 @@ var testSuites = [
                   , './dao/postTest.js'
 				  , './dao/answerTest.js'
 				  , './dao/userTest.js'
+
+				  , './routes/common/checkerTest.js'
+				  , './routes/common/reqParserTest.js'
 				  
 				  , './service/blogServiceTest.js'
 				  , './service/answerServiceTest.js'

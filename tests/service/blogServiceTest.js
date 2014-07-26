@@ -46,10 +46,10 @@ describe('blogService', function () {
 			}
 		});
 	})
-	describe('#getRealPost', function( ) {
+	describe('#getJoinedPost', function( ) {
 		it('should take realPost by postNum', function (nextTest) {
 			var errFn = H.testCatch1(nextTest);
-			blogService.getRealPost(new H.Done(dataFn, errFn), post.num);
+			blogService.getJoinedPost(new H.Done(dataFn, errFn), post.num);
 			
 			function dataFn(e_post) {
 				should.equal(e_post.num, post.num);
@@ -60,7 +60,7 @@ describe('blogService', function () {
 		})
 		it('should take emptyPost by wrong postNum', function (nextTest) {
 			var errFn = H.testCatch1(nextTest);
-			blogService.getRealPost(new H.Done(dataFn, errFn), 4);
+			blogService.getJoinedPost(new H.Done(dataFn, errFn), 4);
 			function dataFn(e_post) {
 				should.equal(e_post.num, new Post().num);
 				nextTest();
@@ -94,13 +94,13 @@ describe('blogService', function () {
 			}
 		})
 	})
-	describe('#deletePostAndFile', function() {
+	describe('#deletePostOrFile', function() {
 		it('should delete post with null filepath', function(nextTest) {
 			var errFn = H.testCatch1(nextTest)
 			  , done = new H.Done(dataFn, errFn);
 			var filepath = null
 			  , postNum = post.num;
-			blogService.deletePostAndFile(done, postNum , filepath);
+			blogService.deletePostOrFile(done, postNum , filepath);
 			function dataFn() {
 				//이곳까지와서 nextTest()만 호출하면됨.
 				console.log('without')
@@ -111,7 +111,7 @@ describe('blogService', function () {
 			var errFn = H.testCatch1(nextTest)
 			, done = new H.Done(dataFn, errFn);
 			//위에서 삽입했던 데이터 재활용..겸 삭제
-			blogService.deletePostAndFile(done, _postWithFile4Test.num , _postWithFile4Test.filePaths);
+			blogService.deletePostOrFile(done, _postWithFile4Test.num , _postWithFile4Test.filePaths);
 			function dataFn() {
 				//이곳까지와서 nextTest()만 호출하면됨.
 				console.log('with')

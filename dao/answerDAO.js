@@ -35,7 +35,12 @@ function _remove(done, where) {
 };
 answerDAO.removeOne = function (done, answer) {
 	var where = {num: answer.num}
-	
+	_remove(done, where);
+};
+
+//댓글의 댓글까지 삭제.
+answerDAO.removeAllOfNum = function (done, num) {
+	var where = {$or : [{num: num}, {answerNum: num} ]}
 	_remove(done, where);
 };
 answerDAO.removeAll = function (done) {

@@ -6,9 +6,9 @@
 	<!-- blog detail -->
 	<%  
 		var loginUser = blog.loginUser;
-		var post = blog.post;
-		var user = post.user;
-		var answerCount = post.answerCount; 
+		var post = blog.post
+		  , user = post.user;
+		  
 	%>
 	<article class="row">
 		<div class="span8">
@@ -52,7 +52,7 @@
 					<p>
 					<div class="row-fluid">
 						<a class="btn btn-default span2  pull-right"
-							href = "/blog/delete?postNum=<%=post.num %>&filepath=<%= post.filePaths ? post.filePaths: '' %>">
+							href = "/blog/delete?postNum=<%=post.num %>&filepath=<%= post.filePaths ? post.filePaths: '' %>&userId=<%=post.userId%>">
 							delete
 						</a>
 						<a class="btn btn-default span2  pull-right" id='insert'>edit</a>

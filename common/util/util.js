@@ -29,7 +29,7 @@ var U = module.exports = {
 			return ab;
 		}
 		////////////////  2. 복사관련
-		// _.clone가 object clone시 hasOwnProperty체크를 안해서 __proto 링크의 프로퍼티까지 복사해버린다. 
+		// hasOwnProperty체크 하여 __proto는 제외시킴 
 		// 깊은 복사
 		,deepClone : function (obj) {
 			return _deepClone(obj);
@@ -76,10 +76,30 @@ var U = module.exports = {
 				if((source.hasOwnProperty(key)) 
 				&& (_.isFunction(fn))
 				&& (key.charAt(0) != '_')) {
+					
 					target[key] = fn;
 				};
 			}
 			return target;
+		}
+		//ojbects를 병합하되 얕은 병합. 
+		,lightMerge : function (objects , isCondition) {
+			isCondition = isCondition || function() {return true};
+			var result = {};
+			
+			for(var i in objects) {
+				var o = objects[i];
+				if(!(_.isObject(o))) throw 'element must be instance of Object';
+				// TODO: 중복되는 키는?? 현재는 나중것이 덮어씀.
+				for(var key in o) {
+					var value = o[key];
+					if(o.hasOwnProperty(key)
+					&& this.exist(value)
+					&& isCondition(value, key, o))
+						result[key] = value;
+				}
+			}
+			return result;
 		}
 		,pushInMidOfStr : function (source, pushData, mid) {
 			var midIndex = source.lastIndexOf(mid)

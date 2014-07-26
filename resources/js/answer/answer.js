@@ -12,16 +12,20 @@
 				$(EMBEDDED_ANSWER_BTN).click(this.toggleEmbeddedAnswerDiv);
 			},
 			toggleEmbeddedAnswerDiv : function (e) {
+//				var $embeddedAnswerDiv = $(this).siblings().last()
+				var $embeddedAnswerDiv = $(this).parent().find(EMBEDDED_ANSWER_DIV)
+				  , answerNum = $embeddedAnswerDiv.data().answernum;
 				
-				var $target = $(this).siblings().last()
-				  , answerNum = $target.data().answernum;
-				
-				if(H.isEmptyChildren($target)) {
-					$target.html('');
+				if(H.isEmptyChildren($embeddedAnswerDiv)) {
+					$embeddedAnswerDiv.html('');
 				} else {
-					$target.html($insertAnswerHtml);
-					var $AnswerNumInput = $target.find('.answerNum');
-					$AnswerNumInput.attr('value', answerNum);
+					$embeddedAnswerDiv.html($insertAnswerHtml);
+					var $answerNumInput = $embeddedAnswerDiv.find('.answerNum')
+					  , $answerDeepInput = $embeddedAnswerDiv.find('.answerDeep');
+					
+					$answerNumInput.attr('value', answerNum);
+					var deep = $answerDeepInput.attr('value');
+					$answerDeepInput.attr('value', ++deep); //현재값 가져와서 1플러스
 				}
 			}
 	};

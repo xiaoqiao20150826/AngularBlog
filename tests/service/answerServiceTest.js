@@ -27,10 +27,10 @@ describe('answerService', function () {
 	after(function(nextTest) {
 		_deleteAllTestData(nextTest)
 	});
-	describe('#getRealAnswers', function( ) {
+	describe('#getJoinedAnswers', function( ) {
 		it('should take realAnswers by postNum', function (nextTest) {
 			var errFn = H.testCatch1(nextTest);
-			answerService.getRealAnswers(new H.Done(dataFn, errFn), postNum);
+			answerService.getJoinedAnswers(new H.Done(dataFn, errFn), postNum);
 			
 			function dataFn(e_answers) {
 				var e_answer = e_answers.pop();
@@ -43,7 +43,7 @@ describe('answerService', function () {
 		})
 		it('should take emptyanswer by wrong answerNum', function (nextTest) {
 			var errFn = H.testCatch1(nextTest);
-			answerService.getRealAnswers(new H.Done(dataFn, errFn), 7);
+			answerService.getJoinedAnswers(new H.Done(dataFn, errFn), 7);
 			function dataFn(e_answers) {
 				should.equal(e_answers.length,0);
 				nextTest();

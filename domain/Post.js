@@ -44,6 +44,7 @@ Post.getUserIds = function (posts) {
 	}
 	return result;
 }
+
 // 이름이...
 // 참조를 이용하여 실제 데이터를 할당한다.
 Post.setUserByReal = function(posts, users) {
@@ -58,7 +59,6 @@ Post.setAnswerCountByReal = function(posts, answerCounts) {
 			return answerCount.count;
 	}, 0);
 }
-
 /* instance method */
 //get
 Post.prototype.getNum = function () {
@@ -74,12 +74,7 @@ Post.prototype.getFileName = function () {
 	else
 		return null;
 }
-Post.prototype.hasFile = function () {
-	if(this.filePaths)
-		return true
-	else
-		return false;
-}
+
 
 //set
 Post.prototype.setNum = function (num) {
@@ -96,4 +91,14 @@ Post.prototype.addFilePath = function (path) {
 	if(this.filePaths == null) this.filePaths = []; 
 	this.filePaths = _.union(this.filePaths, path);
 };
-
+// etc
+Post.prototype.hasFile = function () {
+	if(this.filePaths)
+		return true
+	else
+		return false;
+}
+Post.prototype.isEmpty = function() {
+	if(this.num == 0) return true
+	else return false;
+}

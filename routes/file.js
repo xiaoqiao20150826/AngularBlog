@@ -10,7 +10,6 @@ var file = module.exports = {
 	},
 	downloadByClient : function(req, res) {
 		var filepath = req.query.filepath;
-		console.log(filepath);
 		res.download(filepath);
 	}
 };

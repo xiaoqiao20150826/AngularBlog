@@ -3,6 +3,9 @@
 var _ = require('underscore');
 
 var H = require('../common/helper.js')
+  , checker = require('./common/checker.js')
+  , reqParser = require('./common/reqParser.js')
+  , Done = H.Done
   , Answer = require('../domain/Answer.js')
   , answerService = require('../services/answerService.js');
 
@@ -12,33 +15,45 @@ var blog = module.exports = {
 	mapUrlToResponse : function(app) {
 		//temp..rest로변경해야함.
 		app.post('/answer', this.insert);
+		app.get('/answer/delete', this.delete);
 		
 		//config 가져오기
 		_config = app.get('config');
-	},	
-	
-	insert : function(req, res) {
-		var answerData = req.body
-		  , postNum = answerData.postNum
-		  , answerNum = answerData.answerNum;
+	}	
+    , insert : function(req, res) {
+		var rawData = reqParser.getRawData(req)
+		  , answer = Answer.createBy(rawData);
+		if(checker.isNotAuthorizedAbout(req)) return _redirectCurrentPost(rawData, res);
 		
-		//TODO: 현재 deep 값을 받아오지 않는다. 2단 코멘트만 하는중.
-		console.log('answerNum', answerNum, isFirstLevelAnswer(answerNum));
-		if(isFirstLevelAnswer(answerNum)) 
-			return answerService.insertAnswer(new H.Done(dataFn, catch1(res)), answerData);
-		else
-			return answerService.insertAnswerWithIncresedDeep(new H.Done(dataFn, catch1(res)), answerData);
+		return answerService.insertAnswer(new H.Done(dataFn, catch1(res)), answer);
 		
-		function dataFn(answer) {
-			res.redirect('/blog/'+postNum);
+		function dataFn() {
+			_redirectCurrentPost(rawData, res)
 		}
 	}
+    , delete : function(req, res) {
+    	var rawData = reqParser.getRawData(req)
+    	  , num = rawData.num;
+    	
+    	if(checker.isNotAuthorizedAbout(req)) return _redirectCurrentPost(rawData, res)
+    	
+    	answerService.deleteAnswer(new Done(dataFn, catch1(res)), num); 
+    	function dataFn() {
+    		_redirectCurrentPost(rawData, res)
+    	}
+    }
+    
+    
 };
-function isFirstLevelAnswer(answerNum) {
-	if(!(answerNum > 0)) return true
-	else return false; 
-}
 /*    helper   */
+
+function _redirectCurrentPost(rawData, res) {
+	var postNum = rawData.postNum || null;
+	
+	if(postNum) return res.redirect('/blog/'+postNum);
+	else return res.redirect('/')
+}
+
 function catch1(res) {
 	return function(err) {
 		res.send(new Error('err : '+err).stack)

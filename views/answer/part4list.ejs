@@ -10,7 +10,7 @@
 	<%	
 		if(loginUser && (loginUser._id == user._id)) {
 	%>	
-		<a href="#" class="pull-right">
+		<a href="/answer/delete?num=<%=answer.num %>&postNum=<%=answer.postNum %>&userId=<%=answer.userId%>" class="pull-right">
 			<i class="glyphicon glyphicon-remove"></i>
 		</a>
 	<% } %>	

@@ -19,6 +19,7 @@ var postDAO = require('../dao/postDAO.js')
    ,Pager = require('../common/Pager.js');
 
 
+
 /* define  */
 var blogService = module.exports = {};
 
@@ -26,8 +27,8 @@ var blogService = module.exports = {};
 
 // pageNum에 해당하는 블로그 데이터를 가져온다.
 blogService.getPostsAndPager = function (done, curPageNum) {
-	var dataFn = done.getDataFn();
-	var errFn = done.getErrFn();
+	var dataFn = done.getDataFn()
+	  , errFn = done.getErrFn();
 	
 	var result = {};
 	
@@ -55,7 +56,7 @@ blogService.getPostsAndPager = function (done, curPageNum) {
 };
 
 //postNum에 해당하는 블로그 데이터를 가져온다.
-blogService.getRealPost = function (done, postNum) {
+blogService.getJoinedPost = function (done, postNum) {
 	var dataFn = done.getDataFn()
 	, errFn = done.getErrFn();
 	
@@ -67,7 +68,7 @@ blogService.getRealPost = function (done, postNum) {
      })
 	 .then(function (user) {
 		_post.setUser(user);
-		return H.call4promise(answerService.getRealAnswers, postNum)
+		return H.call4promise(answerService.getJoinedAnswers, postNum)
 	})
 	.then(function (answers) {
 		_post.setAnswers(answers);
@@ -76,11 +77,9 @@ blogService.getRealPost = function (done, postNum) {
 	.catch(errFn);
 }
 
-blogService.insertPostWithFile = function(done, postData, file) {
+blogService.insertPostWithFile = function(done, post, file) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();
-	
-	var post = Post.createBy(postData);
 	
 	var promise = null;
 	if(_existFile(file)) {
@@ -105,7 +104,7 @@ blogService.insertPostWithFile = function(done, postData, file) {
 		}
 	}
 }
-blogService.deletePostAndFile = function (done, postNum, filepath) {
+blogService.deletePostOrFile = function (done, postNum, filepath) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();
 	
