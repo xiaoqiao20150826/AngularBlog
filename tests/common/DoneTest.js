@@ -56,6 +56,7 @@ describe('Done', function () {
 					rawDataIsNull(done.getCallback())
 				})(new Done(dataFn, errFn))
 			})
+			
 		})
 		describe('$errFn관련', function () {
 			it('여기서 전달한 errFn을 호출', function (nextTest) {
@@ -168,11 +169,29 @@ describe('Done', function () {
 						it('then 체인을 중간에 멈춘다.', function (nextTest) {
 							var dataFn = assertedDataFn1(nextTest,'p1');
 							var errFn = assertedErrFn1(nextTest,'p1');
-							var promise = H.call4promise(callRawData, 'data')
+							var returnArg = {a:2,b:4}
+							function callRawData(done, flag) {
+								if(flag) {
+									done.return(returnArg);
+								} else {
+									console.log('이 아래는 호출안됨..');
+									rawData(done.getCallback(), 'wefwef');
+								}
+							};
+							H.call4promise(callRawData,true)
 						 	  .then(function(data) {
-						 		  if(data) promise.then(next)
-						 		  else throw '호출되지 않는다.';
+						 		  should.equal(returnArg, data);
+						 		  nextTest();
 						 	  });
+						})
+						it('then 체인을 중간에 멈춘다.', function (nextTest) {
+							var dataFn = assertedDataFn1(nextTest,'p1');
+							var errFn = assertedErrFn1(nextTest,'p1');
+							var promise = H.call4promise(callRawData, 'data')
+							.then(function(data) {
+								if(data) promise.then(next)
+								else throw '호출되지 않는다.';
+							});
 							function next() {
 								nextTest();
 							}
@@ -223,7 +242,6 @@ describe('Done', function () {
 				});
 			})
 		})
-		
 		
 	})
 })

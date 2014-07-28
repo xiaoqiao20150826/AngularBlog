@@ -51,3 +51,18 @@ fsHelper.exists = function(done, fileUrl) {
 fsHelper.delete = function(done, fileUrl) {
 	fs.unlink(fileUrl, done.getCallback());
 }
+
+///
+fsHelper.getToAndFromFileUrl = function _getToAndFromUrls(fromFile, imgDir) {
+	var fileName = fromFile.name
+	  , fromFileUrl = fromFile.path //임시저장된 파일위치
+	  , toFileUrl = imgDir + '\\' + fileName;
+	  
+	return {to : toFileUrl, from : fromFileUrl };
+}
+fsHelper.existFile = function _existFile(file) {
+	if(file.size != 0 )
+		return true;
+	else
+		return false;
+} 

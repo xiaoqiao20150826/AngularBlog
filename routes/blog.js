@@ -5,7 +5,7 @@ var _ = require('underscore');
 var H = require('../common/helper.js')
   , reqParser = require('./common/reqParser.js')
   , checker = require('./common/checker.js')
-  , fsHelper = require('../common/fsHelper.js')
+  , Cookie = require('./common/Cookie.js')
   , Post = require('../domain/Post.js')
   , blogService = require('../services/blogService');
 
@@ -25,11 +25,12 @@ var blog = module.exports = {
 		
 		app.get('/blog/:postNum(\\d+)', this.detailView);
 		app.get('/blog/:postNum(\\d+)/:title', this.detailView);
+		
+		app.post('/ajax/increaseVote', this.increaseVote)
+		
+		//err
 		app.get('/blog/:stringParam(\\w+)', this.errPage);
 		app.get('/blog/:stringParam(\\w+)/:sfwef', this.errPage);
-		
-		
-		
 		//config 가져오기
 		_config = app.get('config');
 	},	
@@ -63,20 +64,21 @@ var blog = module.exports = {
 	detailView : function(req, res) {
 		var rawData = reqParser.getRawData(req)
 		  , postNum = rawData.postNum
-		  , loginUser = reqParser.getLoginUser(req);
+		  , loginUser = reqParser.getLoginUser(req)
+		  , cookie = new Cookie(req, res);
+		var errFn = catch1(res);
 		
-		req.header
-		
-		var test = [11,22,333,4444,555];
-		res.cookie('test', test);
-		
-		blogService.getJoinedPost(new H.Done(dataFn, catch1(res)), postNum);
-		function dataFn(joinedPost) {
-			if(joinedPost.isEmpty()) return res.redirect('/blog'); 
-			
-			var blog = {loginUser : loginUser, post : joinedPost}
-			res.render('./blog/detail.ejs',{blog : blog});
-		}
+		H.call4promise(blogService.increaseReadCount, postNum, cookie)
+		 .then(function() {
+			 blogService.getJoinedPost(new H.Done(dataFn, errFn), postNum);
+				function dataFn(joinedPost) {
+					if(joinedPost.isEmpty()) return res.redirect('/blog'); 
+					
+					var blog = {loginUser : loginUser, post : joinedPost}
+					res.render('./blog/detail.ejs',{blog : blog});
+				}
+		 })
+		 .catch(errFn);
 	},
 	insertPost : function(req,res) {
 		var rawData = reqParser.getRawData(req)
@@ -104,6 +106,25 @@ var blog = module.exports = {
 			res.redirect('/');
 		 }
 	},
+	increaseVote : function (req, res) {
+		var rawData = reqParser.getRawData(req)
+		  , postNum = rawData.postNum
+		  , loginUser = reqParser.getLoginUser(req)
+		  , userId = loginUser._id;
+		
+		
+		if(checker.isNotAuthorizedAbout(req)) return _redirectCurrentPost(rawData, res);
+		
+		blogService.increaseVote(new Done(dataFn, catch1(res)), postNum, userId);
+		function dataFn(isSuccess) {
+			//TODO: 성공 실패를 어떤 데이터를 보내야 할까.
+			if(isSuccess != -1)
+				res.send('sucess');
+			else
+				res.send('before you voted');
+		 }
+	},
+	
 	errPage : function(req, res) {
 		var rawData = reqParser.getRawData(req)
 		res.send('not bind url : ',"not bind url" +JSON.stringify(rawData));

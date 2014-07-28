@@ -24,7 +24,7 @@ var postDAO = require('../dao/postDAO.js')
 var blogService = module.exports = {};
 
 /* functions */
-
+var POST_COOKIE = 'postNums';
 // pageNum에 해당하는 블로그 데이터를 가져온다.
 blogService.getPostsAndPager = function (done, curPageNum) {
 	var dataFn = done.getDataFn()
@@ -82,8 +82,8 @@ blogService.insertPostWithFile = function(done, post, file) {
 	  , errFn = done.getErrFn();
 	
 	var promise = null;
-	if(_existFile(file)) {
-		var urls = _getToAndFromUrls(file, config.imgDir);
+	if(fsHelper.existFile(file)) {
+		var urls = fsHelper.getToAndFromFileUrl(file, config.imgDir);
 		promise = H.call4promise(fsHelper.copyNoDuplicate, urls.from , urls.to)
 				   .then(function(savedFileUrl) {
 					   post.addFilePath(savedFileUrl);
@@ -118,17 +118,24 @@ blogService.deletePostOrFile = function (done, postNum, filepath) {
 	 .catch(errFn);
 }
 
-//기능(나중에 옮길지도)
-function _getToAndFromUrls(fromFile, imgDir) {
-	var fileName = fromFile.name
-	  , fromFileUrl = fromFile.path //임시저장된 파일위치
-	  , toFileUrl = imgDir + '\\' + fileName;
-	  
-	return {to : toFileUrl, from : fromFileUrl };
+blogService.increaseReadCount = function(done, postNum, cookie) {
+	if(cookie.isContains(POST_COOKIE, postNum)) {
+		done.return();
+	} else {
+		cookie.set(POST_COOKIE, postNum);
+		postDAO.updateReadCount(done, postNum);
+	}
 }
-function _existFile(file) {
-	if(file.size != 0 )
-		return true;
-	else
-		return false;
-} 
+blogService.increaseVote = function(done, postNum, userId) {
+	var errFn = done.getErrFn();
+	var where = {num:postNum, votedUserIds:userId};
+	H.call4promise(postDAO.findOne, where)
+	 .then(function(post) {
+		 var failIncreaseVote = -1; //넌 이미 투표했다
+		 if(!(post.isEmpty())) return done.return(failIncreaseVote);
+		 
+		 postDAO.updateVoteAndVotedUserId(done, postNum, userId)
+	 })
+	 .catch(errFn);
+}
+

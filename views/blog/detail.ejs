@@ -38,8 +38,21 @@
 						</div>
 					</div>
 				</footer>
-			<% } %>	
+			<% } %>
 				<footer class="span8">
+			<%
+				if(loginUser) {
+			%>
+					<p>
+						<div class=" col-sm-offset-5">
+							
+							<a id="post_increase_vote" data-userId="<%=loginUser._id%>" data-postNum="<%=post.num %>" data-votecount="<%=post.vote%>" class="btn btn-default btn-xs">
+						    	★ Vote  <%=post.vote%>
+							</a>
+						</div>
+							
+					</p>
+			<% } %>
 					<p>
 						<img src='<%=user.photo %>' class="img-circle" alt='img'
 							style="width: 20px"> by <a href="#"><%= user.name%></a> | <i

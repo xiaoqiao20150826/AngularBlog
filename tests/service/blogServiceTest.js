@@ -103,7 +103,7 @@ describe('blogService', function () {
 			blogService.deletePostOrFile(done, postNum , filepath);
 			function dataFn() {
 				//이곳까지와서 nextTest()만 호출하면됨.
-				console.log('without')
+//				console.log('without')
 				nextTest();
 			}
 		})
@@ -114,8 +114,32 @@ describe('blogService', function () {
 			blogService.deletePostOrFile(done, _postWithFile4Test.num , _postWithFile4Test.filePaths);
 			function dataFn() {
 				//이곳까지와서 nextTest()만 호출하면됨.
-				console.log('with')
+//				console.log('with')
 				nextTest();
+			}
+		})
+	})
+	describe('#update', function () {
+		it('should success increaseVote', function (nextTest) {
+			var errFn = H.testCatch1(nextTest)
+			  , done = new H.Done(dataFn, errFn);
+			var postNum = 1;
+			var userId = 'AAA';
+			blogService.increaseVote(done, postNum, userId);
+			function dataFn(success) {
+				should.equal(success,1)
+				nextTest()
+			}
+		})
+		it('should fail increaseVote ', function (nextTest) {
+			var errFn = H.testCatch1(nextTest)
+			  , done = new H.Done(dataFn, errFn);
+			var postNum = 1;
+			var userId = 'AAA';
+			blogService.increaseVote(done, postNum, userId);
+			function dataFn(success) {
+				should.equal(success,-1)
+				nextTest()
 			}
 		})
 	})

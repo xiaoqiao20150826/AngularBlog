@@ -14,10 +14,11 @@
 		return $(CENTER_FRAME_ID);
 	};
 	
-	H.ajaxCall = function ajaxCall(type, url, dataFn) {
+	H.ajaxCall = function ajaxCall(dataFn, type, url, data) {
 		$.ajax({
 			type: type,
-			url: url
+			url: url,
+			data: data
 		})
 		.done(dataFn);
 	}

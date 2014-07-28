@@ -23,6 +23,7 @@ var testSuites = [
 
 				  , './routes/common/checkerTest.js'
 				  , './routes/common/reqParserTest.js'
+				  , './routes/common/cookieTest.js'
 				  
 				  , './service/blogServiceTest.js'
 				  , './service/answerServiceTest.js'

@@ -16,6 +16,10 @@ var U = module.exports = {
 				return true;
 			}
 		}
+		,notExist : function(o) {
+			return !this.exist(o);
+		}
+
 		//자바스크립트 파라미터는 지역 변수이다. 즉. 이렇게는 바꿀수가없다.
   		//그래서 배열을 이용하기로 결정. 인덱스로 직접 접근한다...위험해보여. 
 		,swap : function(ab,mustSwap) {
@@ -107,22 +111,8 @@ var U = module.exports = {
 			  , rightStr = source.slice(midIndex, source.length);
 			return leftStr + pushData + rightStr;
 		}
-		//join a to b 같은 것으로 이름 변경고려.
-//		,joinSourcesIntoTagertsWithList : function (sources, targets, realKey, getRealData) {
-//			if(getRealData == null) getRealData = _getRealData;
-//			for(var i in targets) {
-//				var target = targets[i];
-//				var realDatas = [];
-//				for(var j in sources) {
-//					var source = sources[j];
-//					var realData = getRealData(source, target);
-//					if(realData) realDatas.push(realData);
-//				}
-//				
-//				target[realKey] = realDatas;
-//			}
-//			return targets;
-//		}
+		//TODO: 변경 고려 initSourceValue, realKey 를 합쳐서
+		//      initObjectToJoin = {realKey : initSourceValue}
 		,joinSourcesIntoTagertsWithList : function (sources, targets, realKey, getRealData, initSourceValue) {
 			initSourceValue = initSourceValue || []
 			return _template4join2(initSourceValue, function(left, right) {

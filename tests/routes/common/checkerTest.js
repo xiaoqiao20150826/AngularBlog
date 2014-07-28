@@ -11,6 +11,7 @@ describe('checker', function() {
 			  , method : 'get'  
 			  , query : reqUserId
 			  , body : reqUserId
+			  , params : reqUserId
 	  };	
 	
 	

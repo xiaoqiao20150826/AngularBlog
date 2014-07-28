@@ -45,6 +45,11 @@ Done.prototype.getCallback = function () {
 	if(this._templateType == _NOMAL) return _nomalTemplate2(this._errFn, this._dataFn);
 	if(this._templateType == _ASYNC) return _asyncTemplate2(this._errFn, this._dataFn);
 }
+// 에러는 아니고 정상동작으로 리턴하여 다음 동작을 수행함.
+Done.prototype.return = function () {
+    var dataFn = this.getDataFn();
+    dataFn.apply(null, arguments);
+}
 //TODO: 이상해이상해.
 // 연속호출. 새것 호출 후 이전 것 호출
 Done.prototype.addErrFn = function (newErrFn) {
@@ -77,7 +82,6 @@ Done.prototype.getDataFn = function () {
 		return _asyncDataFn1(this._dataFn); 
 	else 
 		return this._dataFn;
-	
 	
 };
 /*//////////////이거 이상해. async때문에 복잡해지고있어.

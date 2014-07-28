@@ -18,20 +18,22 @@
 //				});
 //			},
 			getInsertView : function () {
-				H.ajaxCall("get","/board/new", function(html) {
+				H.ajaxCall(dataFn, "get","/board/new")
+				function dataFn(html) {
 					if(html.match(/div/) == null) 
 						return alert(html);
 					else
 						return H.get$CenterFrame().replaceWith(html);
-				});
+				};
 			},
 			//버블링으로 이벤트 받음.
 			getDetailView : function (e) {
 				var dataset = this.dataset;
-				H.ajaxCall("get","/board/detail?postNum="+dataset.postnum, function(html) {
+				H.ajaxCall(dataFn, "get","/board/detail?postNum="+dataset.postnum);
+				function dataFn(html) {
 					console.log(html)
 					return H.get$CenterFrame().replaceWith(html);
-				});
+				}
 			}
 			
 	};

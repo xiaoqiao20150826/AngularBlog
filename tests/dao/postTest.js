@@ -125,14 +125,27 @@ describe('aPostDAO', function() {
 					,testArray = [num, num, num, num]
 					,a_count=testArray.length;
 				H.asyncLoop(testArray,postDAO.updateReadCount, new H.Done(dataFn, _testCatch1(nextCase)) );
-				function dataFn() {
+				function dataFn(bool) {
 					postDAO.findByNum(new H.Done(dataFn2, _testCatch1(nextCase)), num);
 					function dataFn2(model) {
-						var e_post = Post.createBy(model);
-						should.equal(a_count, e_post.readCount);
+						should.equal(a_count, model.readCount);
 						nextCase();
 					}
 				}
+		});
+		it('should updateVoteAndVotedUserId', function(nextCase) {
+			var num = 2, userId = 'aaa', success = 1
+			var errFn =  _testCatch1(nextCase);
+			postDAO.updateVoteAndVotedUserId(new H.Done(dataFn, errFn), num, userId);
+			function dataFn(bool) {
+				should.equal(bool, success)
+				postDAO.findByNum(new H.Done(dataFn2, errFn), num);
+				function dataFn2(post) {
+					should.equal(post.vote, 1)
+					should.deepEqual(post.votedUserIds, [userId])
+					nextCase();
+				}
+			}
 		});
 	});
 });
@@ -145,7 +158,8 @@ function _equals(expectedPosts, actualsPosts) {
 function _createTempPosts() {
 	var Type = Post
 	  , count = 10;
-	return posts = testHelper.createObjsByType(Type, count, keys4tempValue);
+	posts = testHelper.createObjsByType(Type, count, keys4tempValue);
+	return posts;
 }
 function _insertTestData(nextCase) {
 	H.asyncLoop(_createTempPosts(), [postDAO, postDAO.insertOne], new H.Done(dataFn, _testCatch1(nextCase)) );

@@ -13,6 +13,7 @@ var Post = module.exports = function Post() {
 	this.num = 0;
 	this.readCount = 0;
 	this.vote = 0;
+	this.votedUserIds = [];
 	this.filePaths = null;
 	this.title = '';
 	this.content = '';

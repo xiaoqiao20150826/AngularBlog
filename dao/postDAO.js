@@ -60,10 +60,14 @@ postDAO.find = function (done,where,select) {
 	  _db.find(where,select).exec(callback);
 };
 postDAO.findByNum = function (done, num) {
+	var where = {'num': num};
+	postDAO.findOne(done, where)
+};
+postDAO.findOne = function (done, where, select) {
 	done.hook4dataFn(Post.createBy);
-	var where = {'num': num}
-		,select = select || {}
-		,callback = done.getCallback();
+	var where = where || {}
+	   ,select = select || {}
+	   ,callback = done.getCallback();
 	_db.findOne(where,select).exec(callback);
 };
 postDAO.findByRange = function (done, start,end) {
@@ -109,6 +113,16 @@ postDAO.updateReadCount = function(done, num) {
 		,data = {$inc:{readCount:1}};
 	_update(done, where, data);
 };
+postDAO.updateVoteAndVotedUserId = function(done, num, userId) {
+	var where = {num : num}
+	var data ={ $inc:{ vote:1}
+			    , $addToSet: { votedUserIds : userId }
+				};
+	_update(done, where, data);
+};
+
+
+
 // private
 function _update(done, where, data, config) {
 	if(!(H.exist(done))) throw new Error('done need').stack;
@@ -135,9 +149,24 @@ function getSchema() {
         'created' : Date,
         'readCount' : Number,
         'vote' : Number,
+        'votedUserIds' : Array,
         'filePaths' : String,
         'title' : String,
         'content' : String,
         'userId' : String  // 참조
 		};
 };
+
+//있으면 업데이트가 아니라, 없으면 업데이트인데..조건을 잘못줌.
+// 비슷한 쿼리할때 사용하자.
+////실패시 빈 post 객체 반환
+//postDAO.findPostOrUpdateVoteAndVotedUserId = function(done, num, userId) {
+//done.hook4dataFn(Post.createBy);
+////var where = { num : num }
+//var where = { num : num, votedUserIds : userId }
+//var update ={ $inc:{ vote:1}
+//			, $addToSet: { votedUserIds : userId }
+//			};
+//var options =  {upsert: false , multi:true}
+//_db.findOneAndUpdate(where, update, options, done.getCallback());
+//};

@@ -13,16 +13,6 @@ describe('Express', function () {
   before(function setup() {
     var app = express()
     app.use(express.cookieParser());
-    app.get('/set', function (req, res) {
-    	req.headers.cookie = {test: [1,2,'333','44']}
-    	console.log('req.headers);.cookie  ', req.headers.cookie);
-    	res.send(req.headers.cookie)
-    })
-    app.get('/', function (req, res) {
-    	console.log('req.headers);.cookie  ', req.headers.cookie);
-    	res.send(req.headers.cookie)
-    })
-    
     server = http.createServer(app).listen(3333);
     
     agent =  request(app);
@@ -33,16 +23,14 @@ describe('Express', function () {
   })
 
   it('should set cookies', function (nextTest) {
+	app.get('/cookie', function (req, res) {
+		var temp = 
+		req.headers.cookie
+	    	res.send(req.headers.cookie)
+	})	  
+	  
     agent
-    .get('/set')
-    .end(function(err,res) {
-    	console.log('클라 ',res.body);
-    	nextTest();
-    })
-  })
-  it('should get cookies', function (nextTest) {
-    request(server)
-    .get('/')
+    .get('/cookie')
     .end(function(err,res) {
     	console.log('클라 ',res.body);
     	nextTest();
