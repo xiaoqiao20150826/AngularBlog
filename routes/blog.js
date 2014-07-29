@@ -10,7 +10,9 @@ var H = require('../common/helper.js')
   , blogService = require('../services/blogService');
 
 var _config;
-var FIRST_PAGE_NUM = 1;
+var FIRST_PAGE_NUM = 1
+  , SORTER_NEWEST = 'newest';
+
 var blog = module.exports = {
 /* 클라이언트의 요청을 컨트롤러에 전달한다.*/
 	mapUrlToResponse : function(app) {
@@ -40,15 +42,19 @@ var blog = module.exports = {
 	listView : function(req, res) {
 		var rawData = reqParser.getRawData(req)
 		  , pageNum = rawData.pageNum
+		  , sorter = rawData.sorter
 		  , loginUser = reqParser.getLoginUser(req);
 		
 		if(!(H.exist(pageNum))) pageNum = FIRST_PAGE_NUM;
+		if(!(H.exist(sorter))) sorter = SORTER_NEWEST;
 		
-		blogService.getPostsAndPager(new H.Done(dataFn, catch1(res)), pageNum)
+		blogService.getPostsAndPager(new H.Done(dataFn, catch1(res)), pageNum, sorter)
 		function dataFn(result) {
 			var blog = {posts : result.posts
 					  , pager : result.pager
-					  , loginUser : loginUser };
+					  , loginUser : loginUser 
+					  , sorter : sorter
+					  };
 			res.render('./blog/list.ejs', {blog : blog});
 		}
 	},
@@ -83,7 +89,7 @@ var blog = module.exports = {
 	insertPost : function(req,res) {
 		var rawData = reqParser.getRawData(req)
 		  , post = Post.createBy(rawData)
-		  , file = _.toArray(req.files).pop(); //TODO: 현재하나뿐. 파일업로드 안해도 빈거들어감
+		  , file = _.first(_.toArray(req.files));//TODO: 현재하나뿐. 파일업로드 안해도 빈거들어감
 		
 		if(checker.isNotAuthorizedAbout(req)) return _redirectCurrentPost(rawData, res)
 		

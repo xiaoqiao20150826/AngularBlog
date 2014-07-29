@@ -5,7 +5,6 @@ var should = require('should')
   , Q = require('q');
 
 var H = require('../testHelper.js')
-  , fsHelper = require('../../common/fsHelper.js');
 
 var answer = require('../../domain/answer.js')
   , Answer= require('../../domain/Answer.js')
@@ -148,10 +147,6 @@ function _createAndInsertTestData(nextTest) {
 			  , answerDAO.insertOne(done, answer4)
 			  , userDAO.insertOne(done, user)
 		])
-//		 .then(function() {
-//			var dataInFile = '2222lmfelwm3ㅎㅈㄷㅎㄷㅈㅎ w3 3g';
-//			return H.call4promise(fsHelper.create, testFileUrl, dataInFile);
-//		 })
 		 .then(function(url) {
 			 testFileUrl = url;
 			 nextTest();
@@ -172,8 +167,5 @@ function _deleteAllTestData(nextTest) {
 				nextTest();
 			});
 	})
-//	.then(function() {
-//		return H.call4promise(fsHelper.delete, testFileUrl);
-//	})
 	.catch(errFn);
 }

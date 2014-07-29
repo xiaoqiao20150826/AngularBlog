@@ -105,7 +105,13 @@ describe('util', function () {
 			should.deepEqual(realPosts.shift().users, users);
 		})
 	})
-	
+	describe('string parsing', function () {
+		it('should transform title of post to "aaa-bbb-cc"', function () {
+			var str = '    a b      c    d   ';
+			str = str.trim().replace(/\s+/g, '-');
+			should.equal(str, 'a-b-c-d')
+		})
+	})
 	
 	//TODO:보류!
 //	describe('#deepSearch(list, predicate(val) return T/F,  [context]', function() {

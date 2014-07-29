@@ -45,7 +45,6 @@ Post.getUserIds = function (posts) {
 	}
 	return result;
 }
-
 // 이름이...
 // 참조를 이용하여 실제 데이터를 할당한다.
 Post.setUserByReal = function(posts, users) {
@@ -62,6 +61,9 @@ Post.setAnswerCountByReal = function(posts, answerCounts) {
 }
 /* instance method */
 //get
+Post.prototype.getTitle4Url = function () {
+	return this.title.trim().replace(/\s+/g, '-');
+};
 Post.prototype.getNum = function () {
 	return this.num;
 };

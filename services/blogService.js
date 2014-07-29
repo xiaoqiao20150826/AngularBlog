@@ -5,7 +5,8 @@
 /* 초기화 및 의존성, 클래스 변수 */
 var Q = require('q');
 var H = require('../common/helper.js')
-  , fsHelper = require('../common/fsHelper.js')
+  , path = require('path')
+  , localFile = require('../common/localFile.js')
   , config = require('../config.js');
 
 var Post = require('../domain/Post.js')
@@ -26,7 +27,7 @@ var blogService = module.exports = {};
 /* functions */
 var POST_COOKIE = 'postNums';
 // pageNum에 해당하는 블로그 데이터를 가져온다.
-blogService.getPostsAndPager = function (done, curPageNum) {
+blogService.getPostsAndPager = function (done, curPageNum, sorter) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();
 	
@@ -37,7 +38,7 @@ blogService.getPostsAndPager = function (done, curPageNum) {
 		    	var pager = new Pager(allRowCount)
 		    	  , rowNums = pager.getStartAndEndRowNumBy(curPageNum);
 		    	result.pager = pager;
-		    	return H.call4promise([postDAO.findByRange], rowNums.start, rowNums.end);
+		    	return H.call4promise([postDAO.findByRange], rowNums.start, rowNums.end, sorter);
 		   })
 		   .then(function (posts) {
 				result.posts = posts;
@@ -76,22 +77,22 @@ blogService.getJoinedPost = function (done, postNum) {
 	})
 	.catch(errFn);
 }
-
+//이 구조. 너무 장황해
 blogService.insertPostWithFile = function(done, post, file) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();
 	
+	var imgDir =config.imgDir + '\\' + post.userId;
 	var promise = null;
-	if(fsHelper.existFile(file)) {
-		var urls = fsHelper.getToAndFromFileUrl(file, config.imgDir);
-		promise = H.call4promise(fsHelper.copyNoDuplicate, urls.from , urls.to)
+	
+	if(localFile.existFile(file)) {
+		var urls = localFile.getToAndFromFileUrl(file, imgDir);
+		promise = H.call4promise(localFile.copyNoDuplicate, urls.from , urls.to)
 				   .then(function(savedFileUrl) {
 					   post.addFilePath(savedFileUrl);
 				    })
 				   .catch(errFn);
 	};
-	
-	// 이 구조. 다시 나오면 고민좀 해봐야겠다.
 	nextFn(promise);
 	
 	function nextFn(promise) {
@@ -110,7 +111,13 @@ blogService.deletePostOrFile = function (done, postNum, filepath) {
 	
 	H.call4promise(postDAO.removeByPostNum, postNum)
 	 .then(function() {
-		 if(H.exist(filepath)) return H.call4promise(fsHelper.delete, filepath); 
+		 if(H.exist(filepath)) {
+			 H.call4promise(localFile.delete, filepath)
+			  .then(function() {
+				  return H.call4promise(localFile.deleteFolder, path.dirname(filepath));
+				  //TODO: 사실 파일있는지  확인하고 폴더를 지워야하는데. 에러가 안나니 넘어감. exists처럼 err없이 t/f만 반환하나보다. 
+			  })
+		 }
 	 })
 	 .then(function() { //성공실패 모두. undefined반환..
 		 dataFn();

@@ -6,7 +6,6 @@
 var Q = require('q')
   , _ = require('underscore');
 var H = require('../common/helper.js')
-  , fsHelper = require('../common/fsHelper.js')
   , config = require('../config.js');
 
 var Answer = require('../domain/Answer.js')
@@ -59,34 +58,3 @@ answerService.insertAnswer = function(done, answer) {
 answerService.deleteAnswer = function(done, num) {
 	answerDAO.removeAllOfNum(done, num);
 }
-//answerService.deleteanswerAndFile = function (done, answerNum, filepath) {
-//	var dataFn = done.getDataFn()
-//	  , errFn = done.getErrFn();
-//	
-//	H.call4promise(answerDAO.removeByanswerNum, answerNum)
-//	 .then(function() {
-//		 if(filepath) 
-//			 return H.call4promise(fsHelper.delete, filepath) 
-//		 else
-//			 return;
-//	 })
-//	 .then(function() {
-//		 dataFn();
-//	 })
-//	 .catch(errFn);
-//}
-//
-////기능(나중에 옮길지도)
-//function _getToAndFromUrls(fromFile, imgDir) {
-//	var fileName = fromFile.name
-//	  , fromFileUrl = fromFile.path //임시저장된 파일위치
-//	  , toFileUrl = imgDir + '\\' + fileName;
-//	  
-//	return {to : toFileUrl, from : fromFileUrl };
-//}
-//function _existFile(file) {
-//	if(file.size != 0 )
-//		return true;
-//	else
-//		return false;
-//} 

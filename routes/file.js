@@ -2,7 +2,7 @@
  * 
  */
 
-var fsHelper = require('../common/fsHelper');
+var localFile = require('../common/localFile');
 
 var file = module.exports = {
 	mapUrlToResponse : function(app) {

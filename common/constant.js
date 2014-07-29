@@ -5,6 +5,6 @@
 var constant = module.exports = {};
 
 // 리터럴
-constant.ANNOYMOUS_ID = 'annoymous';  //post에 할당하는 이름인데...
+constant.ANNOYMOUS_ID = 'annoymous';  //User,Post에서사용되기는하는데..
 
 // 상수객체

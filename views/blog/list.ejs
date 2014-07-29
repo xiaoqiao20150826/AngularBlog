@@ -10,20 +10,31 @@
 		  , pageCount = pager.getPageCount()
 		  , posts = blog.posts;
 	%>
-	<% 
-		if(loginUser) {
-	%>
-		<div class="row   col-sm-10  col-sm-offset-1 " style="padding: 0 0 10px 0">
-			<a class="btn btn-default span2  pull-right" href="/blog/new">입력</a>
+	
+	<!-- taps -->
+	<ul class="nav nav-tabs col-sm-10  col-sm-offset-1" role="tablist">
+  		<li class="active"><a href="#">newest</a></li>
+  		<li><a href="/blog?sorter=oldest">oldest</a></li>
+ 		<li><a href="/blog?sorter=view">view</a></li>
+ 		<li><a href="/blog?sorter=vote">vote</a></li>
+ 		<li><a href="/blog?sorter=oldest">answer</a></li>
+ 		<% 
+			if(loginUser) {
+		%>
+		<div>
+			<a class="btn btn-default pull-right" href="/blog/new">입력</a>
 		</div>
-	<%	
-		}
-	%>
+		<%	
+			}
+		%>
+	</ul>
+	
+	
+	<!-- list  -->
 	<%
 		for(var i in posts) {
 			var post = posts[i]
 			  , user = post.user;
-			  
 	%>
 	<div class="row  col-sm-10  col-sm-offset-1 board-row">
 		<div class=" col-sm-2" style="padding:9px 0">
@@ -33,14 +44,14 @@
 		</div>
 		<div class="col-sm-10 " >
 			<div class="row">
-				<a href="/blog/<%=post.num%>/<%=post.title%>"> 
+				<a href="/blog/<%=post.num%>/<%=post.getTitle4Url()%>"> 
 					<H2><%=post.title %></H2>
 				</a>
 			</div>
 			<div class="media-body  pull-right">
 				<img src='<%=user.photo %>' class="img-circle" alt='img' style="width:20px">
 				<span class="name"><a href="#"><%=user.name %></a></span>
-				<span class="date"><%=post.created %></span>
+				<span class="date"><%=post.created.toLocaleDateString() %></span>
 			</div>
 		</div>
 	</div>	
@@ -49,15 +60,16 @@
 	%>
 	<div class='row jumbotron'>
 		<ul class="pagination">
-			<li><a href="/blog?pageNum=1">&laquo;</a></li>
+			<li><a href="/blog?pageNum=1&sorter=<%=sorter %>">&laquo;</a></li>
 		<%
+		  var sorter = blog.sorter;
 		  for(var i=1, max=pageCount+1 ; i < max; ++i) {
 		%>
-		  		<li><a href = "/blog?pageNum=<%= i %>"><%= i %></a></li>
+		  		<li><a href = "/blog?pageNum=<%= i %>&sorter=<%=sorter %>"><%= i %></a></li>
 		<%
 		  } 
 		%>
-			<li><a href="/blog?pageNum=<%= pageCount %>">&raquo;</a></li>  
+			<li><a href="/blog?pageNum=<%= pageCount %>&sorter=<%=sorter %>">&raquo;</a></li>  
 		</ul>
 	</div>
 </div>

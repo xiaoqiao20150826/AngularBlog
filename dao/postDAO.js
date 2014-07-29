@@ -48,7 +48,6 @@ postDAO.removeAll = function (done) {
 			.catch(errFn);
 };
 function _remove(done, query) {
-	console.log(query);
 	_db.remove(query, done.getCallback());
 }
 /* find */
@@ -70,17 +69,30 @@ postDAO.findOne = function (done, where, select) {
 	   ,callback = done.getCallback();
 	_db.findOne(where,select).exec(callback);
 };
-postDAO.findByRange = function (done, start,end) {
+postDAO.findByRange = function (done, start, end, sorter) {
 	done.hook4dataFn(Post.createBy);
 	var where = {}
 		,select = {}
-		,orderBy = { 'num' : -1 }
+		,sorter = _getSorter(sorter)
 		,callback = done.getCallback();
 	var startNum = start - 1; // 배열스타일의 인덱스라 실제 개수와 일치시키기위해 -1 한다.
 	var limitNum = end- startNum;
 	if(startNum < 0) startNum = 0;
- 	_db.find(where,select).sort(orderBy).skip(startNum).limit(limitNum).exec(callback);
+ 	_db.find(where,select).sort(sorter).skip(startNum).limit(limitNum).exec(callback);
 };
+function _getSorter(sorterStr) {
+	var sorters = {
+					oldest : {num:1 }
+				  , newest : {num:-1 }
+				  , view : {readCount : -1 }
+				  , vote : {vote: -1}	
+				  };
+	var sorter = null;
+	
+	sorter = sorters[sorterStr];
+	if(!sorter) sorter = sorters['newest'];
+	return sorter;
+}
 /* insert */
 postDAO.insertOne = function(done, post) {
 	var dataFn = done.getDataFn()

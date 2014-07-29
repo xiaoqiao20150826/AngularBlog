@@ -9,11 +9,12 @@
 var testSuites = [
                     './testHelperTest.js'
                   , './underscoreTest.js'
-                  , './fsHelperTest.js'
+                  , './pathTest.js'
                   
+                  , './common/localFileTest.js'
                   , './common/asyncSuporterTest.js'
                   , './common/pagerTest.js'
-                  , './common/doneTest.js'
+                  , './common/DoneTest.js'
                   , './common/utilTest.js'
                   
                   , './dao/seqTest.js'

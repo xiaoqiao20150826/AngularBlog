@@ -2,10 +2,11 @@
 
 var mongoose = require('mongoose');
 var should = require('should')
+  , path = require('path')
   , Q = require('q');
 
 var H = require('../testHelper.js')
-  , fsHelper = require('../../common/fsHelper.js');
+  , localFile = require('../../common/localFile.js');
 
 var Post = require('../../domain/Post.js')
   , Answer= require('../../domain/Answer.js')
@@ -17,7 +18,9 @@ var blogService = require('../../services/blogService.js');
 
 // 테스트를 위한 참조, 입력한 데이터에 대한.  
 var userId, postNum, post, user, answer1, answer2;
-var testFileUrl = __dirname + '\\\\test.txt';
+
+var testFileName = 'test.txt'
+  , testFileUrl = __dirname + '\\' + testFileName;
 //
 var _postWithFile4Test;
 
@@ -83,13 +86,13 @@ describe('blogService', function () {
 			var errFn = H.testCatch1(nextTest)
 			  , done = new H.Done(dataFn, errFn);
 			
-			var file = {size:2, name:'test254111.txt', path:testFileUrl};
+			var file = {size:2, name:testFileName, path:testFileUrl};
 			blogService.insertPostWithFile(done, post, file);
 			function dataFn(post) {
 				_postWithFile4Test = post;
 				var filepath = post.filePaths;
-				var fileName = filepath.slice(filepath.lastIndexOf('\\'))
-				should.equal(fileName, '\\test254111.txt');
+				var fileName = path.basename(filepath)
+				should.equal(fileName, 'test.txt');
 				nextTest();
 			}
 		})
@@ -183,7 +186,7 @@ function _createAndInsertTestData(nextTest) {
 		])
 		 .then(function() {
 			var dataInFile = '2222lmfelwm3ㅎㅈㄷㅎㄷㅈㅎ w3 3g';
-			return H.call4promise(fsHelper.create, testFileUrl, dataInFile);
+			return H.call4promise(localFile.create, testFileUrl, dataInFile);
 		 })
 		 .then(function(url) {
 			 testFileUrl = url;
@@ -200,7 +203,7 @@ function _deleteAllTestData(nextTest) {
 		 , userDAO.removeAll(done)
 	])
 	.then(function() {
-		return H.call4promise(fsHelper.delete, testFileUrl);
+		return H.call4promise(localFile.delete, testFileUrl);
 	})
 	.then(function() {
 			mongoose.disconnect(function(d) {

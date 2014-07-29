@@ -50,6 +50,10 @@ Done.prototype.return = function () {
     var dataFn = this.getDataFn();
     dataFn.apply(null, arguments);
 }
+Done.prototype.next = function () { //이름이
+	var dataFn = this.getDataFn();
+	dataFn.apply(null, arguments);
+}
 //TODO: 이상해이상해.
 // 연속호출. 새것 호출 후 이전 것 호출
 Done.prototype.addErrFn = function (newErrFn) {
