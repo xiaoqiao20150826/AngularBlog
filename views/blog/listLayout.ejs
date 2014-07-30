@@ -1,0 +1,34 @@
+<% layout('../layout.ejs') -%>
+
+
+
+<!-- taps -->
+<meta charset="utf-8">
+<div class="col-lg-8">
+	<%
+		var loginUser = blog.loginUser;
+	%>
+	
+	<ul class="nav nav-tabs col-sm-10  col-sm-offset-1" role="tablist">
+  		<li class="blogTap active"><a href='javascript:'>newest</a></li>
+  		<li class="blogTap"><a href='javascript:'>oldest</a></li>
+ 		<li class="blogTap"><a href='javascript:'>view</a></li>
+ 		<li class="blogTap"><a href='javascript:'>vote</a></li>
+ 		<li class="blogTap"><a href='javascript:'>answer</a></li>
+ 		<% 
+			if(loginUser) {
+		%>
+		<div>
+			<a class="btn btn-default pull-right" href="/blog/new">입력</a>
+		</div>
+		<%	
+			}
+		%>
+	</ul>
+</div>
+<% script('/resources/js/board/tabs.js')  -%>
+	
+	<!-- list (inclue pager  -->	
+<% include ./list.ejs %>
+<% script('/resources/js/board/pager.js')  -%>
+

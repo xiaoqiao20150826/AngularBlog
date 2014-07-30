@@ -19,9 +19,8 @@ var Post = module.exports = function Post() {
 	this.content = '';
 	this.userId = C.ANNOYMOUS_ID;
 	this.created = Date.now();
-	
-	////web용 데이터
 	this.answerCount = 0;
+	
 };
 
 /* static method */
@@ -53,6 +52,8 @@ Post.setUserByReal = function(posts, users) {
 			return user;
 	});
 }
+
+//to deprease
 Post.setAnswerCountByReal = function(posts, answerCounts) {
 	H.joinSourcesIntoTagerts(answerCounts, posts, 'answerCount' , function(answerCount, post) {
 		if(answerCount._id == post.num) 

@@ -12,6 +12,7 @@ var Answer = require('../domain/Answer.js')
   , User = require('../domain/User.js')
 
 var answerDAO = require('../dao/answerDAO.js')
+  , postDAO = require('../dao/postDAO.js')
   , userDAO = require('../dao/userDAO.js');
 
 
@@ -50,11 +51,26 @@ answerService.getJoinedAnswers = function (done, postNum) {
 			})
 	 		.catch(errFn);
 }
-
+//to deprease
 answerService.insertAnswer = function(done, answer) {
-	
 	answerDAO.insertOne(done, answer);
 };
-answerService.deleteAnswer = function(done, num) {
-	answerDAO.removeAllOfNum(done, num);
+
+// 주의 post의 answerCount를 증가시키는 것.
+answerService.insertAndIncreaseCount = function(done, answer) {
+	var dataFn = done.getDataFn()
+	  , errFn = done.getErrFn();
+	var postNum = answer.postNum;
+	
+	Q.all([H.call4promise(answerDAO.insertOne, answer)
+	     , H.call4promise(postDAO.increaseAnswerCount, postNum)
+    ])
+     .then(function(args){
+    	 var insertedAnswer = _.first(args);
+    	 dataFn(insertedAnswer);
+     })
+     .catch(errFn);
+};
+answerService.deleteAnswer = function(done, answerNum) {
+	answerDAO.removeAllOfNum(done, answerNum);
 }

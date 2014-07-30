@@ -86,6 +86,7 @@ function _getSorter(sorterStr) {
 				  , newest : {num:-1 }
 				  , view : {readCount : -1 }
 				  , vote : {vote: -1}	
+				  , answer : {answerCount: -1}	
 				  };
 	var sorter = null;
 	
@@ -125,6 +126,7 @@ postDAO.updateReadCount = function(done, num) {
 		,data = {$inc:{readCount:1}};
 	_update(done, where, data);
 };
+
 postDAO.updateVoteAndVotedUserId = function(done, num, userId) {
 	var where = {num : num}
 	var data ={ $inc:{ vote:1}
@@ -133,8 +135,21 @@ postDAO.updateVoteAndVotedUserId = function(done, num, userId) {
 	_update(done, where, data);
 };
 
+postDAO.increaseAnswerCount = function(done, num) {
+	var where = {num : num}
+	,data = {$inc:{answerCount:1}};
+	_update(done, where, data);
+};
+postDAO.decreaseAnswerCount = function(done, num, answerCount) {
+	var minusAnswerCount = _minusNumber(answerCount);
+	var where = {num : num}
+	,data = {$inc:{answerCount:minusAnswerCount}};
+	_update(done, where, data);
+};
 
-
+function _minusNumber(number) {
+	if(number > 0) return number * -1; 
+}
 // private
 function _update(done, where, data, config) {
 	if(!(H.exist(done))) throw new Error('done need').stack;
@@ -152,7 +167,26 @@ postDAO.getCount = function (done, where) {
 	_db.find(where).count().exec(callback);
 }
 
-
+postDAO.findAllByDate = function (done, userId) {
+	
+	var project = {$project : { _id:0
+							  , y:{$year:'$created'}
+							  , m:{$month:'$created'}
+							  , d:{$dayOfMonth:'$created'}
+							  , userId:'$userId'
+	                          , post:'$$ROOT' 
+	                          } 
+				  }
+	  , match = { $match : {userId: userId}} //이건 봐서...빼던가 하던가.
+	  , group = { $group : { _id:{ year:'$y', month: '$m', dayOfMonth :'$d' }
+						   , count:{ $sum :1 }
+						   , posts:{ $push : '$post'}
+	  					   }
+				 }
+	  , sort = { $sort : {'_id.year' : -1, '_id.month' : -1, '_id.dayOfMonth' : -1 }}
+	  , callback = done.getCallback();
+	_db.aggregate([project, match, group, sort], callback);
+}
 
 /* helper */		
 function getSchema() {
@@ -160,6 +194,7 @@ function getSchema() {
         'num' : Number,
         'created' : Date,
         'readCount' : Number,
+        'answerCount' : Number,
         'vote' : Number,
         'votedUserIds' : Array,
         'filePaths' : String,
@@ -169,8 +204,8 @@ function getSchema() {
 		};
 };
 
-//있으면 업데이트가 아니라, 없으면 업데이트인데..조건을 잘못줌.
 // 비슷한 쿼리할때 사용하자.
+//있으면 업데이트가 아니라, 없으면 업데이트인데..조건을 잘못줌.
 ////실패시 빈 post 객체 반환
 //postDAO.findPostOrUpdateVoteAndVotedUserId = function(done, num, userId) {
 //done.hook4dataFn(Post.createBy);

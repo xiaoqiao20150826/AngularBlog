@@ -17,8 +17,8 @@ var blog = module.exports = {
 /* 클라이언트의 요청을 컨트롤러에 전달한다.*/
 	mapUrlToResponse : function(app) {
 		//TODO: 순서 주의. 두번째 arg가 string을 먼저 구분한뒤 숫자형을 받아야함..
-		app.get('/', this.listView);
-		app.get('/blog', this.listView);
+		app.get('/', this.listLayoutView);
+		app.get('/blog', this.listLayoutView);
 		app.post('/blog', this.insertPost);
 		app.get('/test', _test);
 		
@@ -29,6 +29,7 @@ var blog = module.exports = {
 		app.get('/blog/:postNum(\\d+)/:title', this.detailView);
 		
 		app.post('/ajax/increaseVote', this.increaseVote)
+		app.post('/ajax/blogListView', this.listView)
 		
 		//err
 		app.get('/blog/:stringParam(\\w+)', this.errPage);
@@ -39,7 +40,15 @@ var blog = module.exports = {
 	
 /* 요청에 대한 서비스를 제공하고 응답한다. */
 	//게시판 정보, 로그인 체크 및 유저정보 제공.
-	listView : function(req, res) {
+	listLayoutView : function(req, res) {
+		var toRenderView = './blog/listLayout.ejs'
+			blog._getBlogListAndRenderTo(req, res, toRenderView)
+	},
+	listView : function (req, res) {
+		var toRenderView = './blog/list.ejs'
+			blog._getBlogListAndRenderTo(req, res, toRenderView)
+	},
+	_getBlogListAndRenderTo : function (req, res, toRenderView) {
 		var rawData = reqParser.getRawData(req)
 		  , pageNum = rawData.pageNum
 		  , sorter = rawData.sorter
@@ -55,7 +64,7 @@ var blog = module.exports = {
 					  , loginUser : loginUser 
 					  , sorter : sorter
 					  };
-			res.render('./blog/list.ejs', {blog : blog});
+			res.render(toRenderView, {blog : blog});
 		}
 	},
 	insertView : function(req,res) {

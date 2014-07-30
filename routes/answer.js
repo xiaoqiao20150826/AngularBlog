@@ -25,7 +25,7 @@ var blog = module.exports = {
 		  , answer = Answer.createBy(rawData);
 		if(checker.isNotAuthorizedAbout(req)) return _redirectCurrentPost(rawData, res);
 		
-		return answerService.insertAnswer(new H.Done(dataFn, catch1(res)), answer);
+		return answerService.insertAndIncreaseCount(new H.Done(dataFn, catch1(res)), answer);
 		
 		function dataFn() {
 			_redirectCurrentPost(rawData, res)

@@ -14,7 +14,7 @@ var Post = require('../../domain/Post.js')
 var postDAO = require('../../dao/postDAO.js')
   , answerDAO = require('../../dao/answerDAO.js')
   , userDAO = require('../../dao/userDAO.js');
-var blogService = require('../../services/blogService.js');
+var blogService = require('../../services/blogService.js')
 
 // 테스트를 위한 참조, 입력한 데이터에 대한.  
 var userId, postNum, post, user, answer1, answer2;
@@ -44,7 +44,6 @@ describe('blogService', function () {
 				should.equal(post.content, e_post.content)
 				should.equal(null, e_post.answers)
 				should.equal(user._id , e_post.user._id)
-				should.equal(2, e_post.answerCount)
 				nextTest();
 			}
 		});

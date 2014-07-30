@@ -1,34 +1,13 @@
-<% layout('../layout.ejs') -%>
-<% script('/resources/js/board/list.js')  -%>
-<div class="col-lg-8" id="center_frame">
+
+<div class="col-lg-8" id="blogListFrame">
 	<meta charset="utf-8">
 	<!----------- 글 리스트  -->
 	<!-- Nested media object -->
 	<%
-		var loginUser = blog.loginUser;
 		var pager = blog.pager
 		  , pageCount = pager.getPageCount()
 		  , posts = blog.posts;
 	%>
-	
-	<!-- taps -->
-	<ul class="nav nav-tabs col-sm-10  col-sm-offset-1" role="tablist">
-  		<li class="active"><a href="#">newest</a></li>
-  		<li><a href="/blog?sorter=oldest">oldest</a></li>
- 		<li><a href="/blog?sorter=view">view</a></li>
- 		<li><a href="/blog?sorter=vote">vote</a></li>
- 		<li><a href="/blog?sorter=oldest">answer</a></li>
- 		<% 
-			if(loginUser) {
-		%>
-		<div>
-			<a class="btn btn-default pull-right" href="/blog/new">입력</a>
-		</div>
-		<%	
-			}
-		%>
-	</ul>
-	
 	
 	<!-- list  -->
 	<%
@@ -58,19 +37,28 @@
 	<%					
 		}
 	%>
+	
+	
+	<!--pager  -->
+	
+	<%		
+		var sorter = blog.sorter;
+	%>
 	<div class='row jumbotron'>
 		<ul class="pagination">
-			<li><a href="/blog?pageNum=1&sorter=<%=sorter %>">&laquo;</a></li>
+			<li class="blogPager" data-sorter="<%=sorter%>" data-pagenum="<%=1%>" ><a href='javascript:'>&laquo;</a></li>
 		<%
-		  var sorter = blog.sorter;
+		  
 		  for(var i=1, max=pageCount+1 ; i < max; ++i) {
 		%>
-		  		<li><a href = "/blog?pageNum=<%= i %>&sorter=<%=sorter %>"><%= i %></a></li>
+		  		<li class="blogPager"  data-sorter="<%=sorter%>" data-pagenum="<%=i%>"><a href='javascript:'><%= i %></a></li>
 		<%
 		  } 
 		%>
-			<li><a href="/blog?pageNum=<%= pageCount %>&sorter=<%=sorter %>">&raquo;</a></li>  
+			<li class="blogPager"  data-sorter="<%=sorter%>" data-pagenum="<%=pageCount%>"><a href='javascript:'>&raquo;</a></li>  
 		</ul>
 	</div>
+	
+	<!--end pager   -->
 </div>
 

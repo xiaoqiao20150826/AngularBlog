@@ -47,10 +47,6 @@ blogService.getPostsAndPager = function (done, curPageNum, sorter) {
 			})
 		   .then(function (users) {
 				Post.setUserByReal(result.posts, users);
-				return H.call4promise([answerDAO.getCountsByPosts], result.posts)
-			})
-		   .then(function (answerCounts) { 
-				Post.setAnswerCountByReal(result.posts, answerCounts);
 				dataFn(result);
 			})
 		   .catch(errFn);
