@@ -24,6 +24,7 @@ var blog = module.exports = {
 		
 		app.get('/blog/new', this.insertView);
 		app.get('/blog/delete', this.deletePostOrFile);
+		app.get('/blog/history', this.historyView);
 		
 		app.get('/blog/:postNum(\\d+)', this.detailView);
 		app.get('/blog/:postNum(\\d+)/:title', this.detailView);
@@ -127,7 +128,6 @@ var blog = module.exports = {
 		  , loginUser = reqParser.getLoginUser(req)
 		  , userId = loginUser._id;
 		
-		
 		if(checker.isNotAuthorizedAbout(req)) return _redirectCurrentPost(rawData, res);
 		
 		blogService.increaseVote(new Done(dataFn, catch1(res)), postNum, userId);
@@ -137,6 +137,16 @@ var blog = module.exports = {
 				res.send('sucess');
 			else
 				res.send('before you voted');
+		 }
+	},
+	historyView : function (req, res) {
+		blogService.findGroupedPostsByDate(new Done(dataFn, catch1(res)));
+		function dataFn(groupedPostsByDate) {
+			var blog = { groupedPostsByDate : groupedPostsByDate 
+					   , _ : _
+					   , H : H
+					   }
+				res.render('./blog/history.ejs',{blog : blog});
 		 }
 	},
 	

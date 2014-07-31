@@ -66,3 +66,11 @@ var server = http.createServer(app).listen(_config.port, function() {
 //5. 테스트를 위해 export.
 module.exports = app;
 module.exports.server = server;
+
+// 임시] 
+app.get('/close',function () {
+	  mongoose.connection.close(function () {
+		      console.log('Mongoose default connection disconnected through app termination');
+		      process.exit(0);
+	  });
+})

@@ -167,26 +167,68 @@ postDAO.getCount = function (done, where) {
 	_db.find(where).count().exec(callback);
 }
 
-postDAO.findAllByDate = function (done, userId) {
-	
+postDAO.findGroupedPostsByDate = function (done) {
+	done.hook4dataFn(_reGroup);
 	var project = {$project : { _id:0
 							  , y:{$year:'$created'}
 							  , m:{$month:'$created'}
 							  , d:{$dayOfMonth:'$created'}
-							  , userId:'$userId'
 	                          , post:'$$ROOT' 
 	                          } 
 				  }
-	  , match = { $match : {userId: userId}} //이건 봐서...빼던가 하던가.
+//	  , match = { $match : {'post.userId': userId}} //이건 봐서...빼던가 하던가.
 	  , group = { $group : { _id:{ year:'$y', month: '$m', dayOfMonth :'$d' }
 						   , count:{ $sum :1 }
 						   , posts:{ $push : '$post'}
 	  					   }
 				 }
-	  , sort = { $sort : {'_id.year' : -1, '_id.month' : -1, '_id.dayOfMonth' : -1 }}
+//	  , sort = { $sort : {'_id.year' : -1, '_id.month' : -1, '_id.dayOfMonth' : -1 }}
 	  , callback = done.getCallback();
-	_db.aggregate([project, match, group, sort], callback);
+	_db.aggregate([project, group], callback);
+//	_db.aggregate([project, match, group, sort], callback);
 }
+// findGroupedPostsByDate에서 가져온 데이터를 다시 그룹화함.
+// array는 sort할수있지만 map으로 사용하는 object는 sort안됨.
+//  - 그래서 오름차순임. 1,2,3...
+function _reGroup(model) {
+	//reduce말고 each하되 공통 저장소사용해도 됨.
+		return _.reduce(model, function(memo, o){
+			var count = o.count
+			  , date = o._id
+			  , year = date.year
+			  , month = date.month
+			  , day = date.dayOfMonth
+			  , posts = _.sortBy(Post.createBy(o.posts), function(post) {
+				 return post.num * -1; 
+			  });
+			
+			_sumCount(memo,'count', count);
+			
+			var yearCounts = _getObject(memo, year);
+			_sumCount(yearCounts,'count', count);
+			
+			var monthCounts = _getObject(yearCounts, month);
+			_sumCount(monthCounts, 'count', count);
+			
+			var dayCounts = _getObject(monthCounts, day);
+			_sumCount(dayCounts, 'count', count);
+			dayCounts['posts']= posts;
+			
+			function _sumCount(o, key, count) {
+				var prevSum = _getValue(o, key);
+				o[key] = prevSum + count;
+			}
+			function _getValue(o, key) {
+				o[key] = o[key] || 0
+				return o[key];
+			}
+			function _getObject(o, key) {
+				o[key] = o[key] || {}
+				return o[key];
+			}
+			return memo; 
+		}, {});
+	}
 
 /* helper */		
 function getSchema() {
@@ -203,17 +245,3 @@ function getSchema() {
         'userId' : String  // 참조
 		};
 };
-
-// 비슷한 쿼리할때 사용하자.
-//있으면 업데이트가 아니라, 없으면 업데이트인데..조건을 잘못줌.
-////실패시 빈 post 객체 반환
-//postDAO.findPostOrUpdateVoteAndVotedUserId = function(done, num, userId) {
-//done.hook4dataFn(Post.createBy);
-////var where = { num : num }
-//var where = { num : num, votedUserIds : userId }
-//var update ={ $inc:{ vote:1}
-//			, $addToSet: { votedUserIds : userId }
-//			};
-//var options =  {upsert: false , multi:true}
-//_db.findOneAndUpdate(where, update, options, done.getCallback());
-//};

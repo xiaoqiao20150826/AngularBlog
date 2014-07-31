@@ -112,6 +112,15 @@ describe('util', function () {
 			should.equal(str, 'a-b-c-d')
 		})
 	})
+	describe('object using like map', function () {
+		it('should get value and remove pair', function () {
+			var o = { a: 1, b: {c:[],d:{}}}
+			var key = 'b';
+			var value = U.getAndRemove(o,key)
+			should.deepEqual(value, {c:[],d:{}});
+			should.equal(_.keys(o).length, 1) 
+		})
+	})
 	
 	//TODO:보류!
 //	describe('#deepSearch(list, predicate(val) return T/F,  [context]', function() {

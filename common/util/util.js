@@ -131,6 +131,13 @@ var U = module.exports = {
 			.apply(null, _.toArray(arguments)) 
 		}
 		
+		,getAndRemove : function (o, key) {
+			var value = o[key];
+//			o[key] = undefined;
+			delete o[key]; //for-in 에서도 안나오게 하기위해. 
+			return value;
+		}
+		
 };
 
 /** 

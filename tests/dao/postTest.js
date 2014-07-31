@@ -37,16 +37,6 @@ describe('aPostDAO', function() {
 	beforeEach(function() {
 		_posts = _createTempPosts();
 	});
-	describe('#insertOne()', function() {
-		it('should insert a post.',function (nextTest) {
-			postDAO.insertOne(new H.Done(dataFn, _testCatch1(nextTest)), _posts[3]);
-			function dataFn(model) {
-				var expectedPost = Post.createBy(model);
-					_equals(expectedPost,_posts[3]);
-					nextTest();
-			};
-		});
-	});
 	describe('#find()',function() {
 		it('should take all posts', function (nextTest) {
 			postDAO.find(new H.Done(dataFn, _testCatch1(nextTest)), {});
@@ -72,10 +62,35 @@ describe('aPostDAO', function() {
 			postDAO.findByRange(new H.Done(dataFn, _testCatch1(nextTest)), start,end);
 			function dataFn(models) {
 				var e_posts = Post.createBy(models);
-				var a_posts = _posts.slice(start-1,end);
-				_equals(a_posts.pop(),e_posts.pop());
+				var a_posts = _posts.slice(start,end+1);
+				_equals(a_posts[a_posts.length-1],e_posts[0]);
 				nextTest();
 			}
+		});
+		
+		it('should find all posts By date', function (nextTest) {
+			var errFn = _testCatch1(nextTest);
+			var userId = 'annoymous';
+			postDAO.findGroupedPostsByDate(new H.Done(dataFn, errFn), userId)
+			function dataFn(GroupedPostsByDate) {
+//				console.log(GroupedPostsByDate);
+				should.equal(GroupedPostsByDate['2014']['7']['31'].count, 2)
+				should.equal(GroupedPostsByDate['2014']['6'].count, 1)
+				should.equal(GroupedPostsByDate['2013'].count, 5)
+				should.equal(GroupedPostsByDate.count,10)
+				nextTest();
+			};
+		})
+	});
+	
+	describe('#insertOne()', function() {
+		it('should insert a post.',function (nextTest) {
+			postDAO.insertOne(new H.Done(dataFn, _testCatch1(nextTest)), _posts[3]);
+			function dataFn(model) {
+				var expectedPost = Post.createBy(model);
+					_equals(expectedPost,_posts[3]);
+					nextTest();
+			};
 		});
 	});
 	describe('#count', function() {
@@ -178,20 +193,6 @@ describe('aPostDAO', function() {
 			}
 		});
 	});
-	describe('$posts By date', function () {
-		it('should all posts By date', function (nextTest) {
-			var errFn = _testCatch1(nextTest);
-			var userId = 'annoymous';
-			postDAO.findAllByDate(new H.Done(dataFn, errFn), userId)
-			function dataFn(list) {
-				console.log(list);
-				console.log(arguments)
-				nextTest();
-			};
-		
-			
-		})
-	});
 	
 });
 ////////==== helper =====/////////
@@ -204,16 +205,17 @@ function _createTempPosts() {
 	var Type = Post
 	  , count = 10;
 	posts = testHelper.createObjsByType(Type, count, keys4tempValue);
-	posts[0].created = 0106624028189;
-	posts[1].created = 0206624028189;
-	posts[2].created = 0306424008189;
-	posts[3].created = 0406424008189;
-	posts[4].created = 006724017189;
-	posts[5].created = 1406724018189;
-	posts[6].created = 1406724018189;
-	posts[7].created = 1406724018189;
-	posts[8].created = 1406724018189;
-	posts[9].created = 1406724018189;
+	posts[0].created = "2013-11-30T04:04:33.131Z"
+	posts[1].created = "2013-07-10T04:04:33.131Z"
+	posts[2].created = "2013-07-22T04:04:33.131Z"
+	posts[3].created = "2013-09-22T04:04:33.131Z"
+	posts[4].created = "2013-09-25T04:04:33.131Z"
+		
+	posts[5].created = "2014-02-11T04:04:33.131Z"
+	posts[6].created = "2014-06-11T04:04:33.131Z"
+	posts[7].created = "2014-04-11T04:04:33.131Z"
+	posts[8].created = "2014-07-31T04:04:33.131Z"
+	posts[9].created = "2014-07-31T04:04:33.131Z"
 	
 	return posts;
 }

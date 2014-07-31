@@ -141,4 +141,6 @@ blogService.increaseVote = function(done, postNum, userId) {
 	 })
 	 .catch(errFn);
 }
-
+blogService.findGroupedPostsByDate = function (done) {
+	postDAO.findGroupedPostsByDate(done);
+} 

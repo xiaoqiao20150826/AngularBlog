@@ -1,0 +1,104 @@
+<% layout('../layout.ejs') -%>
+<meta charset="utf-8">
+<div class="col-sm-8">
+	<div class='col-sm-8 col-sm-offset-1'>
+
+<% 
+	var COUNT = 'count';
+	var groupedPostsByDate = blog.groupedPostsByDate
+	  , _ = blog._
+	  , H = blog.H;
+	
+	var yearsMap = groupedPostsByDate
+	  , yearsCount = H.getAndRemove(yearsMap, COUNT);
+%>
+	<div class='row'>
+		<a href='javascript:'>
+		<div data-toggle="collapse" data-target="#history-years">
+		 	<h1>
+				All
+				<span class="caret"></span>   
+				<span class="badge"><%= yearsCount %></span>
+			</h1>
+		</div>
+		</a>
+	<%
+		var yearKeys =  _.keys(yearsMap).reverse();
+		for(var i in yearKeys) {
+		var year = yearKeys[i]
+		  , monthsMap = yearsMap[year]
+		  , monthsCount = H.getAndRemove(monthsMap, COUNT);
+	%>
+		<div class="collapse in" id="history-years">
+			<a href='javascript:'>
+			<div data-toggle="collapse" data-target=".history-months<%=i%>">
+			<h2>
+				&nbsp;<%= year%>
+				<span class="caret"></span>   
+				<span class="badge"><%= monthsCount %></span>
+			</h2>
+			</div>
+			</a>
+		
+			<%
+				var monthKeys =  _.keys(monthsMap).reverse();
+				for(var j in monthKeys) {
+				var month = monthKeys[j]
+				  , daysMap = monthsMap[month]
+				  , daysCount = H.getAndRemove(daysMap, COUNT)
+			  	   
+			%>
+				<div class="collapse in history-months<%=i%>">
+					<a href='javascript:'>
+					<div data-toggle="collapse" data-target=".history-days<%=j%>">
+					<h3>
+						&nbsp;&nbsp;&nbsp;&nbsp;<%= month%>
+						<span class="caret"></span>   
+						<span class="badge"><%= daysCount %></span>
+					</h3>
+					</div>
+					</a>
+			
+				<%
+					var dayKeys =  _.keys(daysMap).reverse();
+					for(var k in dayKeys) {
+					var day = dayKeys[k]
+					  , postsMap = daysMap[day]
+					  , postsCount = H.getAndRemove(postsMap, COUNT);
+				%>
+						<div class="collapse in  history-days<%=j%>">
+							<a href='javascript:'>
+							<div data-toggle="collapse" data-target=".history-posts<%=k%>">
+							<h4>
+								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+								<%= day%>
+								<span class="caret"></span>   
+								<span class="badge"><%= postsCount %></span>
+							</h4>
+							</div>
+							</a>
+					<%
+						var posts =  postsMap.posts;
+						for(var l in posts) {
+						var post = posts[l];
+					%>
+							<div class="collapse out history-posts<%=k%>">
+							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							<a href = "/blog/<%= post.num %>/<%= post.getTitle4Url() %>" style="font-size:20px">
+								<span class="label label-success col-sm-offset-1" >
+								<%= post.getTitle4Url() %>
+								</span>
+							</a>
+							</div>
+	
+				<%  } %>
+				</div>	
+			<%  } %>
+			</div>	
+		<%  } %>
+		</div>
+	<%  } %>
+	</div>
+	
+	</div>
+</div>
