@@ -1,7 +1,7 @@
 <% layout('../layout.ejs') -%>
 <% script('../../resources/js/board/detail.js')  -%>
+<meta charset="utf-8">
 <div class="col-lg-7" id="center_frame" style="margin: 0 0 0 20px">
-	<meta charset="utf-8">
 
 	<!-- blog detail -->
 	<%  
@@ -41,7 +41,7 @@
 			<% } %>
 				<footer class="span8">
 			<%
-				if(loginUser) {
+				if(loginUser.isExist()) {
 			%>
 					<p>
 						<div class=" col-sm-offset-5">
@@ -60,7 +60,7 @@
 							class="label label-info">안했음</span></a>
 					</p>
 			<%
-				if(loginUser && loginUser._id == post.userId) {
+				if(loginUser.isExist() && loginUser.isEqualById(post.userId)) {
 			%>		
 					<p>
 					<div class="row-fluid">

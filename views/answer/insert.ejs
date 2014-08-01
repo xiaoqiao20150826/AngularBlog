@@ -4,7 +4,7 @@
 <div id = "insert-answer-div">
 <hr>
 			<%
-				if(loginUser) {
+				if(loginUser.isExist()) {
 			%>
 			
 <form action="/answer" method="post" enctype="multipart/form-data" name="write-comment" class="form-horizontal"  role="form">

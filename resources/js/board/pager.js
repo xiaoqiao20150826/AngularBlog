@@ -3,7 +3,6 @@
 (function($, H) {
 	var ns = $$NameSpace("com.kang.board");
 	
-	
 	var BLOG_PAGER= '.blogPager'
 	  , CLASS_ACTIVE = 'active';
 	var pager = ns.pager = {

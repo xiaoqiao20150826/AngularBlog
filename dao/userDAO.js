@@ -97,7 +97,7 @@ userDAO.findOrCreateByUser = function (done, loginUser) {
 		 if(!(H.exist(data)) ) { return userDAO.insertOne(done, loginUser); }
 		 
 		 var user = User.createBy(data);
-		 console.log('db user ;'+ JSON.stringify(user));
+		 console.log('user insert db ;'+ JSON.stringify(user));
 		 dataFn(user);
 	 })
 	 .catch(errFn);

@@ -1,0 +1,64 @@
+<% layout('../layout.ejs') -%>
+
+
+<meta charset="utf-8">
+<div class="container col-sm-7 col-sm-offset-2">
+	<% 
+		var loginUser = blog.loginUser
+		  , categories = blog.categories
+	%>
+
+	<div class="row">
+			<a href="#"><%=loginUser.name %></a>
+			<img src='<%=loginUser.photo %>' alt='img' style="width:70px;padding:10px 0 0 0">
+	</div>
+	<hr>
+	<form action="/admin/category" method="post">
+		<div class="media">
+			<div class="media-object">
+		 		<select name = "title" class="selectpicker">
+					<option>---기본---</option>
+					<% 
+						for(var i in categories) {
+						var category = categories[i]
+						  , childTitles = category.childTitles;
+					%>
+					<option><%=category.title%></option>
+						<% 
+							for(var j in childTitles) {
+							var childTitle = childTitles[j];
+						%>
+						<option disabled>&nbsp;&nbsp;<%=childTitle%></option>
+						<% } %>
+					<% } %>
+				</select>
+				<input name="titleToInsert">
+				<button class="btn btn-default">insert</button>
+			</div>
+		</div>
+	</form>
+	<hr>
+	<form action="/admin/category/delete" method="post">
+		<div class="media">
+			<div class="media-object">
+		 		<select name = "title" class="selectpicker">
+					<% 
+						for(var i in categories) {
+						var category = categories[i]
+						  , childTitles = category.childTitles;
+					%>
+					<option><%=category.title%></option>
+						<% 
+							for(var j in childTitles) {
+							var childTitle = childTitles[j];
+						%>
+						<option value='<%=category.title%>;<%=childTitle%>'>&nbsp;&nbsp;<%=childTitle%></option>
+						<% } %>
+					<% } %>
+				</select>
+				<button class="btn btn-default">delete</button>
+			</div>
+		</div>
+	</form>	
+	
+</div>

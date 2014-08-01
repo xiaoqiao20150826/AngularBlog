@@ -8,7 +8,7 @@
 		<span class="date"><%= answer.created %></span>
 	
 	<%	
-		if(loginUser && (loginUser._id == user._id)) {
+		if(loginUser.isExist() && (loginUser.isEqualById(user._id)) ) {
 	%>	
 		<a href="/answer/delete?num=<%=answer.num %>&postNum=<%=answer.postNum %>&userId=<%=answer.userId%>" class="pull-right">
 			<i class="glyphicon glyphicon-remove"></i>

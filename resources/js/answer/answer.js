@@ -9,9 +9,9 @@
 	var answerBtn = {
 			init : function () {
 				$insertAnswerHtml = $(INSERT_ANSWER_DIV).html();
-				$(EMBEDDED_ANSWER_BTN).click(this.toggleEmbeddedAnswerDiv);
+				$(EMBEDDED_ANSWER_BTN).click(this.replaceEmbeddedAnswerDiv);
 			},
-			toggleEmbeddedAnswerDiv : function (e) {
+			replaceEmbeddedAnswerDiv : function (e) {
 //				var $embeddedAnswerDiv = $(this).siblings().last()
 				var $embeddedAnswerDiv = $(this).parent().find(EMBEDDED_ANSWER_DIV)
 				  , answerNum = $embeddedAnswerDiv.data().answernum;

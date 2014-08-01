@@ -22,7 +22,7 @@ var testSuites = [
 				  , './dao/answerTest.js'
 				  , './dao/userTest.js'
 
-				  , './routes/common/checkerTest.js'
+//				  , './routes/common/checkerTest.js'
 				  , './routes/common/reqParserTest.js'
 				  , './routes/common/cookieTest.js'
 				  

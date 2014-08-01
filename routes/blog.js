@@ -4,7 +4,6 @@ var _ = require('underscore');
 
 var H = require('../common/helper.js')
   , reqParser = require('./common/reqParser.js')
-  , checker = require('./common/checker.js')
   , Cookie = require('./common/Cookie.js')
   , Post = require('../domain/Post.js')
   , blogService = require('../services/blogService');
@@ -20,7 +19,7 @@ var blog = module.exports = {
 		app.get('/', this.listLayoutView);
 		app.get('/blog', this.listLayoutView);
 		app.post('/blog', this.insertPost);
-		app.get('/test', _test);
+		
 		
 		app.get('/blog/new', this.insertView);
 		app.get('/blog/delete', this.deletePostOrFile);
@@ -31,6 +30,10 @@ var blog = module.exports = {
 		
 		app.post('/ajax/increaseVote', this.increaseVote)
 		app.post('/ajax/blogListView', this.listView)
+		
+		//test
+		app.get('/cookie', _seeCookie);
+		app.get('/test', _test);
 		
 		//err
 		app.get('/blog/:stringParam(\\w+)', this.errPage);
@@ -54,7 +57,6 @@ var blog = module.exports = {
 		  , pageNum = rawData.pageNum
 		  , sorter = rawData.sorter
 		  , loginUser = reqParser.getLoginUser(req);
-		
 		if(!(H.exist(pageNum))) pageNum = FIRST_PAGE_NUM;
 		if(!(H.exist(sorter))) sorter = SORTER_NEWEST;
 		
@@ -72,7 +74,7 @@ var blog = module.exports = {
 		var loginUser = reqParser.getLoginUser(req)
 		  , blog = {loginUser: loginUser};
 		
-		if(loginUser)
+		if(loginUser.isExist(req))
 			return res.render('./blog/insert.ejs', {blog: blog});
 		else
 			return res.send('need sign in');
@@ -97,11 +99,13 @@ var blog = module.exports = {
 		 .catch(errFn);
 	},
 	insertPost : function(req,res) {
-		var rawData = reqParser.getRawData(req)
+		var loginUser = reqParser.getLoginUser(req)
+		  , rawData = reqParser.getRawData(req)
+		  , userId = rawData.userId
 		  , post = Post.createBy(rawData)
 		  , file = _.first(_.toArray(req.files));//TODO: 현재하나뿐. 파일업로드 안해도 빈거들어감
 		
-		if(checker.isNotAuthorizedAbout(req)) return _redirectCurrentPost(rawData, res)
+		if(loginUser.isNotExist() || loginUser.isNotEqualById(userId)) return _redirectCurrentPost(rawData, res)
 		
 		blogService.insertPostWithFile(new Done(dataFn, catch1(res)), post, file);
 		function dataFn(insertedPost) {
@@ -109,11 +113,13 @@ var blog = module.exports = {
 		}
 	},
 	deletePostOrFile : function (req, res) {
-		var rawData = reqParser.getRawData(req)
+		var loginUser = reqParser.getLoginUser(req)
+		  , rawData = reqParser.getRawData(req)
+		  , userId = rawData.userId
 		  , postNum = rawData.postNum
 	      , filepath = rawData.filepath;
 	      
-		if(checker.isNotAuthorizedAbout(req)) return _redirectCurrentPost(rawData, res)
+		if(loginUser.isNotExist() || loginUser.isNotEqualById(userId)) return _redirectCurrentPost(rawData, res)
 		
 		if(_.isEmpty(filepath)) filepath = null;  // ''가 전달될 경우
 		
@@ -125,12 +131,13 @@ var blog = module.exports = {
 	increaseVote : function (req, res) {
 		var rawData = reqParser.getRawData(req)
 		  , postNum = rawData.postNum
+		  , userId = rawData.userId
 		  , loginUser = reqParser.getLoginUser(req)
-		  , userId = loginUser._id;
+		  , loginUserId = loginUser._id;
 		
-		if(checker.isNotAuthorizedAbout(req)) return _redirectCurrentPost(rawData, res);
+		if(loginUser.isNotExist() || loginUser.isNotEqualById(userId)) return _redirectCurrentPost(rawData, res);
 		
-		blogService.increaseVote(new Done(dataFn, catch1(res)), postNum, userId);
+		blogService.increaseVote(new Done(dataFn, catch1(res)), postNum, loginUserId);
 		function dataFn(isSuccess) {
 			//TODO: 성공 실패를 어떤 데이터를 보내야 할까.
 			if(isSuccess != -1)
@@ -140,9 +147,11 @@ var blog = module.exports = {
 		 }
 	},
 	historyView : function (req, res) {
+		var loginUser = reqParser.getLoginUser(req);
 		blogService.findGroupedPostsByDate(new Done(dataFn, catch1(res)));
 		function dataFn(groupedPostsByDate) {
-			var blog = { groupedPostsByDate : groupedPostsByDate 
+			var blog = { loginUser : loginUser
+					   , groupedPostsByDate : groupedPostsByDate 
 					   , _ : _
 					   , H : H
 					   }
@@ -156,15 +165,6 @@ var blog = module.exports = {
 	}
 };
 /*    helper   */
-//test
-function _test(req, res) {
-	req.session.passport.user = {_id: '6150493-github'
-		                       , name: 'kangil'
-		                       , photo: 'https://avatars.githubusercontent.com/u/6150493'
-		                       , email: 'ee@dd.com'
-		                    	 };
-	res.redirect('/');
-}
 function _redirectCurrentPost(rawData, res) {
 	var postNum = rawData.postNum || rawData.num || null;
 	
@@ -175,4 +175,16 @@ function catch1(res) {
 	return function(err) {
 		res.send(new Error(err));
 	}
+}
+//test
+function _test(req, res) {
+	req.session.passport.user = {_id: '6150493-github'
+		                       , name: 'kangil'
+		                       , photo: 'https://avatars.githubusercontent.com/u/6150493'
+		                       , email: 'ee@dd.com'
+		                    	 };
+	res.redirect('/');
+}
+function _seeCookie(req, res) {
+    res.send(req.headers);
 }

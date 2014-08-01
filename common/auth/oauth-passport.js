@@ -36,7 +36,7 @@ var myPassport = (function() {
 			passport.deserializeUser(this.deserializeUser);			
 			return passport;			
 		},
-		//auth/linkedin/callback 요청의 콜백
+		//auth/linkedin/ 요청의 콜백
 		authCallBack : function(accessToken, refreshToken, profile, next) {
 //			console.log('profile' + JSON.stringify(profile));
 			var userInfo = reqParser.profileToUserInfo(profile);

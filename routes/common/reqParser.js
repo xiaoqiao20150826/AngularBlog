@@ -3,9 +3,9 @@
  */
 
 var U = require('../../common/util/util.js')
-  , _ = require('underscore');
+  , _ = require('underscore')
+  , User = require('../../domain/User.js')
 
-var POST_COOKIE = 'post';
 
 var reqParser = module.exports = {};
 
@@ -22,7 +22,9 @@ reqParser.getRawData = function (req) {
 	});
 };
 reqParser.getLoginUser = function (req) {
-	return req.session.passport.user || null;
+	var loginUser = User.createBy(req.session.passport.user);
+	if(loginUser.isExist()) return loginUser;
+	else return User.getEmptyUser();
 }
 
 // passport로 소셜서비스에서 전달된 데이터를 아래 형식의 레코드로 반환해준다.

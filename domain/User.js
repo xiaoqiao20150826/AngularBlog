@@ -15,13 +15,11 @@ var User = module.exports = function User() {
 };
 
 /* static method */
-// 생성자
 /* 생성자 */
 User.createBy= function(model) {
-	if(!(H.exist(model)) ) return null;
+	if(!(H.exist(model)) ) return User.getEmptyUser();
 	// db의 model이라면.
 	return H.createTargetFromSources(User, model);
-	
 
 };
 
@@ -53,6 +51,12 @@ User.getAnnoymousUser = function () {
 	}
 }
 
+var _emptyUser = new User();
+_emptyUser._id = null, _emptyUser.name = null;
+User.getEmptyUser = function () {
+	return _emptyUser; 
+}
+
 
 /* instance method */
 //User.prototype.getPassword = function () {
@@ -60,6 +64,20 @@ User.getAnnoymousUser = function () {
 //}
 User.prototype.getId = function () {
 	return this._id;
+}
+User.prototype.isNotEqualById = function (userId) {
+	return !this.isEqualById(userId);
+}
+User.prototype.isEqualById = function (userId) {
+	if (this._id == userId) return true;
+	else return false;
+}
+User.prototype.isExist = function () {
+	if(this._id == null || this.name == null) return false;
+	else return true;
+}
+User.prototype.isNotExist = function () {
+	return !this.isExist();
 }
 //User.prototype.getPassword = function () {
 //	return this._password;
