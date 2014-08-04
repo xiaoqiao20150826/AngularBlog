@@ -88,17 +88,13 @@ userDAO.findByUser = function (done, loginUser) {
 }
 
 userDAO.findOrCreateByUser = function (done, loginUser) {
-	done.hook4dataFn(User.createBy);
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();
 	
 	H.call4promise(userDAO.findById, loginUser.getId())
-	 .then(function (data) {
-		 if(!(H.exist(data)) ) { return userDAO.insertOne(done, loginUser); }
-		 
-		 var user = User.createBy(data);
-		 console.log('user insert db ;'+ JSON.stringify(user));
-		 dataFn(user);
+	 .then(function (user) {
+		 if(user.isNotExist()) { return userDAO.insertOne(done, loginUser); }
+		 else return dataFn(user);
 	 })
 	 .catch(errFn);
 };

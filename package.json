@@ -12,6 +12,7 @@
     "chai": "^1.9.1",
     "chai-as-promised": "^4.1.1",
     "color": "^0.6.0",
+    "debug": "^1.0.4",
     "ejs": "^1.0.0",
     "ejs-locals": "^1.0.2",
     "express": "^3.2.6",

@@ -89,10 +89,10 @@ describe('userDAO', function() {
 		it('should take count with where', function(nextTest) {
 			var passportData = {id : 'id999' , name : 'name999', photo : 'photo999', email : 'email', provider : 'provider'}
 			var a_user = User.createBy(passportData);
+			
 			userDAO.findOrCreateByUser(new H.Done(dataFn, H.testCatch1(nextTest)), a_user);
-			function dataFn(model) {
-				var e_user = User.createBy(model);
-				_equals(a_user, e_user);
+			function dataFn(user) {
+				_equals(a_user, user);
 				nextTest();
 			}
 		});

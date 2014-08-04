@@ -7,9 +7,12 @@
 
 
 var testSuites = [
-                    './testHelperTest.js'
-                  , './underscoreTest.js'
-                  , './pathTest.js'
+                    './OuterModules/underscoreTest.js'
+                  , './OuterModules/pathTest.js'
+                  , './OuterModules/qTest.js'
+                  , './OuterModules/supertestTest.js'
+                  
+                  ,'./testHelperTest.js'
                   
                   , './common/localFileTest.js'
                   , './common/asyncSuporterTest.js'

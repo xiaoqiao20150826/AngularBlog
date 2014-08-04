@@ -93,7 +93,7 @@ var blog = module.exports = {
 					if(joinedPost.isEmpty()) return res.redirect('/blog'); 
 					
 					var blog = {loginUser : loginUser, post : joinedPost}
-					res.render('./blog/detail.ejs',{blog : blog});
+					res.render('./blog/detailLayout.ejs',{blog : blog});
 				}
 		 })
 		 .catch(errFn);
