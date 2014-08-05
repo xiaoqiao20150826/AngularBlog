@@ -10,7 +10,7 @@
 	
 	var utilPackage = $$namespace.package('com.kang').package('util')
 	utilPackage.export.log = log1(normalNewDiv);
-	utilPackage.export.errLog = log1(errNewDiv);
+	utilPackage.export.errLog = debugLog1(errNewDiv);
 
 	//일반적인 html 로그
 	function normalNewDiv (strings) {
@@ -26,10 +26,11 @@
 	}
 	
 	
-	
-	function log1(newDivFn) {
+	function debugLog1(errNewDiv) {
 		if(!isDebugMode()) return function() {};
-		
+		return log1(errNewDiv);
+	}
+	function log1(newDivFn) {
 		var $div = $('<div>');
 		$div.prependTo('body');
 		var count = 0;

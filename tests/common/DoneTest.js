@@ -242,7 +242,46 @@ describe('Done', function () {
 				});
 			})
 		})
-		
+		describe('#hookBeforeDataFn', function () {
+			it('should run nomal', function (nextTest) {
+				var errFn = assertedErrFn1(nextTest);
+				(function (done) {
+					done.hook4dataFn(function (str) {
+						return '2' +str;
+					})
+					done.hook4dataFn(function (str) {
+						return '1' +str;
+					})
+					done.hook4dataFn(function (str) {
+						return '0' +str;
+					})
+					rawData(done.getCallback())
+				})(new Done(dataFn, errFn))
+				function dataFn (arg) {
+					should.exist(arg.match('210'))
+					nextTest()
+				}
+			})
+			it('should run with async', function (nextTest) {
+				var errFn = assertedErrFn1(nextTest);
+				(function (done) {
+					done.hook4dataFn(function (str) {
+						return '2' +str;
+					})
+					done.hook4dataFn(function (str) {
+						return '1' +str;
+					})
+					done.hook4dataFn(function (str) {
+						return '0' +str;
+					})
+					rawData(done.getCallback())
+				})(new Done(asyncDataFn, errFn, Done.ASYNC))
+				function asyncDataFn (err, arg) {
+					should.exist(arg.match('210'))
+					nextTest()
+				}
+			})
+		})
 	})
 })
 //////////// 실험대상이 될 함수들.

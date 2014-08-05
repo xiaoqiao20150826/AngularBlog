@@ -12,8 +12,8 @@ var routes = [
               require('./user.js'),
               require('./auth.js'),
               require('./file.js'),
-              require('./admin.js'),
-              require('./answer.js')
+              require('./answer.js'),
+              require('./admin.js')
               ];
 
 //2. 각 route에 서버의 url과 route 연결 책임을 위임.

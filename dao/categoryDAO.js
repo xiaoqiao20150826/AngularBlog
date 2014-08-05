@@ -20,16 +20,27 @@ var categoryDAO = module.exports = (function init() {
 
 
 		//find
-categoryDAO.findAll = function (done) {
-	done.hook4dataFn(Category.createBy);
-	var where = where || {}
-		,select = select || {}
-		,callback = done.getCallback();
-	  _db.find(where,select).exec(callback);
-}
-categoryDAO.findByTitle = function (done, title) {
-	var where = {_id : title}
+categoryDAO.findById = function (done, id) {
+	var where = {_id: id}
 	categoryDAO.findOne(done, where);
+}
+
+categoryDAO.hasDuplicateChildTitleFromParent = function (done, parent, title) {
+	var parentId = parent.id;
+	return categoryDAO.hasDuplicateChildTitleFromParentId(done, parentId, title);
+}
+categoryDAO.hasDuplicateChildTitleFromParentId = function (done, parentId, title) {
+	done.hook4dataFn(function (category) {
+		if(category.isEmpty()) return false;
+		else return true;
+	})
+	var where = {title: title, parentId: parentId}
+	categoryDAO.findOne(done, where);
+}
+
+categoryDAO.findChildsFromParent = function (done, parent) {
+	var where = {parentId: parent.id}
+	categoryDAO.findAll(done, where);
 }
 categoryDAO.findOne = function (done, where, select) {
 	done.hook4dataFn(Category.createBy);
@@ -38,38 +49,74 @@ categoryDAO.findOne = function (done, where, select) {
 	   ,callback = done.getCallback();
 	_db.findOne(where,select).exec(callback);
 };
+categoryDAO.findAll = function (done, where) {
+	done.hook4dataFn(Category.createBy);
+	var where = where || {}
+		,select = select || {}
+		,callback = done.getCallback();
+	  _db.find(where,select).exec(callback);
+}
 
 
 		// insert
-categoryDAO.insertByTitle = function(done, title) {
-	var category = Category.createBy({title:title});
-	categoryDAO.insertOne(done, category);
-};
-categoryDAO.insertOne = function (done, category) {
-	_create(done, category);
+// 부모의 직계 자식들중 일치하는 title이 있는지 확인. 
+categoryDAO.insertChildToParentByTitle = function(done, parent, title) {
+	var dataFn = done.getDataFn()
+	  , errFn = done.getErrFn();
+	
+	var newChildCategory = Category.createBy({ title:title
+		 									 , deep: (++parent.deep)
+		 									 , parentId: parent.id });
+	
+	H.call4promise(categoryDAO.hasDuplicateChildTitleFromParent, parent, title)
+	 .then(function (hasDuplicateChildTitle) {
+		 if(hasDuplicateChildTitle) 
+			 return 'err : already exist category title';
+		 else 
+			 return H.call4promise(_create, newChildCategory); 
+	 })
+	 .then(dataFn)
+	 .catch(errFn)
+	
 };
 function _create(done, data) {
-	var errFn = done.getErrFn();
-	
-	done.setErrFn(function (err) {
-		if(err.code == '11000') return done.next(true); 
-		else return errFn(err);
-	})
 	done.hook4dataFn(Category.createBy);
 	_db.create(data, done.getCallback());
 };
 
 		//update
-categoryDAO.pushChildTitleToCategory = function(done, childTitle, toCategory) {
-	if(!(H.exist(toCategory._id))) throw new Error('_id은 필수 when update');
-	var where = {_id : toCategory._id}
-	,data = {$addToSet : {childTitles : childTitle}};
+categoryDAO.increasePostCountById = function(done, id) {
+	var where = {_id : id}
+	,data = {$inc : {postCount : 1}};
 	
 	_update(done, where, data);
 };
-categoryDAO.removeChildTitleFromCategory = function (done, childTitle, fromCategory) {
-	var where = {_id : fromCategory._id}
-	,data = {$pull : {childTitles : childTitle}};
+categoryDAO.updateTitleByCategory = function(done, category, newTitle) {
+	done.hook4dataFn(function (successMessageOrErrString) {
+		if(_.isString(successMessageOrErrString)) return successMessageOrErrString; 
+		
+		if(successMessageOrErrString == 1) return 'success';
+		else return 'err : update fail by db';
+	});
+	
+	var dataFn = done.getDataFn()
+	  , errFn = done.getErrFn();
+	var parentId = category.parentId
+	  , categoryId = category.id;
+	
+	H.call4promise(categoryDAO.hasDuplicateChildTitleFromParentId, parentId, newTitle)
+	 .then(function (hasDuplicateChildTitle) {
+		 if(hasDuplicateChildTitle) 
+			 return 'already exist category title';
+		 else 
+			 return H.call4promise(categoryDAO.updateTitleById, categoryId, newTitle); 
+	 })
+	 .then(dataFn)
+	 .catch(errFn)
+};
+categoryDAO.updateTitleById = function(done, id, title) {
+	var where = {_id : id}
+	,data = {title: title};
 	
 	_update(done, where, data);
 };
@@ -80,20 +127,40 @@ function _update(done, where, data, config) {
 	   ,callback = done.getCallback();
 	_db.update(where, data, config).exec(callback);
 }
+
 		// remove
 categoryDAO.removeAll = function (done) {
 	var where = {};
 	_remove(done,where)
 }
-categoryDAO.removeByTitle = function (done, title) {
-	var where = {_id: title};
-	_remove(done, where);
-};
-categoryDAO.removeOne = function (done, category) {
-	var where = {_id: category.title};
-	_remove(done, where);
+// postCount가 0이고 childCategory가 없어야 삭제가능.
+categoryDAO.removeById = function (done, id) {
+	var where = {_id: id};
+	
+	H.call4promise(categoryDAO.findById, id)
+	 .then(function (category){
+		 if(category.isEmpty()) return 'err : not found category by'+ category.id;
+		 if(category.hasPost()) return 'err : cannot remove because category has post '+ category.postCount;
+		 return H.call4promise(categoryDAO.findChildsFromParent, category);
+	 })
+	 .then(function(errStringOrChilds) {
+		 if(_.isString(errStringOrChilds)) return errStringOrChilds;
+		 if(!(_.isEmpty(errStringOrChilds))) return 'err : cannot remove because category has child categories';
+		 
+		 return H.call4promise(_remove, where);
+	 })
+	 .then(function(errStringOrSuccessBool) {
+		 return done.getDataFn()(errStringOrSuccessBool);
+	 })
+	 .catch(function(err) {return done.getErrFn()(err)})
+	
+	
 };
 function _remove(done, where) {
+	done.hook4dataFn(function (success) {
+		if(success) return 'success'
+		else return 'err : fail';
+	})
 	_db.remove(where, done.getCallback());
 }
 
@@ -101,8 +168,9 @@ function _remove(done, where) {
 /* helper */		
 function _getSchema() {
 	return {
-        '_id' : String,
         'title' : String,
-        'childTitles' : Array
+        'postCount' : Number,
+        'deep' : Number,
+        'parentId' : String
 		};
 };

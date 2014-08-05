@@ -35,6 +35,17 @@
 		if(node.nodeName && node.nodeName == name) return true;
 		else return false;
 	}
+	H.queryStringToMap = function(queryString) {
+		return JSON.parse('{"' + queryString.replace(/&/g, "\",\"").replace(/=/g,"\":\"") + '"}') 
+	}
+	H.redirect = function (url) {
+		return window.location.href = url; 
+	}
+	H.isErrMessage = function (responseData) {
+		if(_.isString(responseData) && responseData.match('err')) return true;
+		else return false;
+	}
+	
 	
 })(this)
 //@ sourceURL=util/helper.js

@@ -23,15 +23,21 @@
 	var modules = [
 	               // 외부 모듈
 	             
+	                "/resources/lib/underscore-min.js" 
+	               
       	           // 사용자 모듈
-	                "/resources/js/util/htmlLoger.js"	             
+	              , "/resources/js/util/htmlLoger.js"	             
 	              , "/resources/js/util/helper.js"
 	              
 	              , "/resources/js/blog/pager.js"	             
 	              , "/resources/js/blog/tabs.js"
 	              
-	              , "/resources/js/answer/voteBtn.js"  //detail을 위한기능인데..
-	              , "/resources/js/answer/insertViewBtn.js"  //detail을 위한기능인데..
+	              	// detail
+	              , "/resources/js/answer/voteBtn.js"  
+	              , "/resources/js/answer/insertViewBtn.js"
+	              
+	                // admin
+	              , "/resources/js/admin/categoryInsertForm.js" 
 	              
 	               ]  
 	

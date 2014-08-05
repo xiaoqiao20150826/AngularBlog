@@ -10,13 +10,23 @@ var H = require('../testHelper.js')
   , categoryDAO = require('../../dao/categoryDAO.js')
   , Category= require('../../domain/Category.js');
 
+var log = require('debug')('dao:categoryTest');
 
 var _title = 'gggggggggg';
 describe('categoryDAO', function() {
 	var mongoose = require('mongoose');
+	var categories;
 	before(function(nextTest) {
 		mongoose.connect('mongodb://localhost/test',function() {
-			_insertAllTestData(nextTest);
+			_insertAllTestData(dataFn);
+			function dataFn() {
+				categoryDAO.findAll(new Done(dataFn))
+				function dataFn(_categories) {
+//					log('inserted categories : ',_categories)
+					categories =  _categories;
+					nextTest();
+				}
+			}
 		})
 	})
 	after(function(nextTest) {
@@ -28,107 +38,113 @@ describe('categoryDAO', function() {
 		});
 	})
 	describe('#find',function() {
-		it('should find by title', function (nextTest) {
+		it('should find All', function (nextTest) {
 			var errFn = H.testCatch1(nextTest);
 			categoryDAO.findAll(new Done(dataFn, errFn))
 			function dataFn(categorys) {
-				should.equal(categorys.length, 2)
+//				log('findAll : ',categorys);
+				should.equal(categorys[0].title , 'title1')
 				nextTest()
 			}
 		});
-		it('should find by title', function (nextTest) {
+		it('should return bool hasDuplicateChildTitleFromParent', function (nextTest) {
 			var errFn = H.testCatch1(nextTest);
-			categoryDAO.findByTitle(new Done(dataFn, errFn), _title)
-			function dataFn(category) {
-				should.equal(category.title, _title);
+			var parent = Category.getRoot()
+			, title = 'title1';
+			categoryDAO.hasDuplicateChildTitleFromParent(new Done(dataFn, errFn), parent, title)
+			function dataFn(hasDuplicateChildTitle) {
+//				log('hasDuplicateChildTitleFromParent : ',hasDuplicateChildTitle)
+				should.equal(hasDuplicateChildTitle, true);
 				nextTest()
 			}
 		});
+		
 	})
 	describe('#insert',function() {
-		it('should insert a category', function (nextTest) {
+		it('should handle err if insert a category with duplicate title category have same parent', function (nextTest) {
 			var errFn = H.testCatch1(nextTest);
-			var category = Category.createBy({title: 'cate1231'})
+			var parent = Category.getRoot()
+			  , title = 'title1';
 			
-			categoryDAO.insertOne(new Done(dataFn, errFn), category)
-			function dataFn(category) {
-				should.equal(category.title , 'cate1231');
+			categoryDAO.insertChildToParentByTitle(new Done(dataFn, errFn), parent, title)
+			function dataFn(categoryOrErrString) {
+//				log('insert err : ', categoryOrErrString)
+				should.equal(_.isString(categoryOrErrString) , true);
 				nextTest();
 			}
 		})
-		it('should catch err if insert a category same title', function (nextTest) {
+		it('should insert ChildToParentByTitle', function (nextTest) {
 			var errFn = H.testCatch1(nextTest);
-			var category = Category.createBy({title: 'cate1231'})
-			categoryDAO.insertOne(new Done(dataFn, errFn), category)
-			function dataFn(category) {
-				should.equal(category.title, '')
-				nextTest();
-			}
-		})
-		it('should insert a category by not parentTitle', function (nextTest) {
-			var errFn = H.testCatch1(nextTest);
-			var category = Category.createBy({title: 'cate111231'})
-			  , parentTitle = '--기본--';
-			categoryDAO.insertByParentTitle(new Done(dataFn, errFn), category, parentTitle)
-			function dataFn(category) {
-				should.equal(category.title, 'cate111231')
+			var parent = Category.getRoot()
+			, title = 'title123';
+			
+			categoryDAO.insertChildToParentByTitle(new Done(dataFn, errFn), parent, title)
+			function dataFn(categoryOrErrString) {
+//				log('insert err : ', categoryOrErrString)
+				should.equal(categoryOrErrString.title , title);
 				nextTest();
 			}
 		})
 	})
 	describe('#update',function() {
-		it('should push childTitle to category', function (nextTest) {
-			var errFn = H.testCatch1(nextTest);
-			var toCategory = Category.createBy({title: 'cate111231'})
-			var childTitle = 'wfwefwfeew';
-			categoryDAO.pushChildTitleToCategory(new Done(dataFn, errFn), childTitle, toCategory)
-			function dataFn(bool) {
-				should.equal(1,bool)
-				categoryDAO.findByTitle(new Done(dataFn2, errFn), toCategory.title)
-				function dataFn2(category2) {
-					should.equal(category2.childTitles.pop(), childTitle)
-					nextTest()
-				}
-			}
-		});
-		it('should remove childTitle from category', function (nextTest) {
-			var errFn = H.testCatch1(nextTest);
-			var fromCategory = Category.createBy({title: 'cate111231'})
-			var childTitle = 'wfwefwfeew';
-			categoryDAO.removeChildTitleFromCategory(new Done(dataFn, errFn), childTitle, fromCategory)
-			function dataFn(bool) {
-				should.equal(1,bool)
-				categoryDAO.findByTitle(new Done(dataFn2, errFn), fromCategory.title)
-				function dataFn2(category2) {
-					should.deepEqual(category2.childTitles, [])
-					nextTest()
-				}
-			}
-		});
-	})
-	describe('#delete',function() {
-		it('should delete a category by title', function (nextTest) {
-			var errFn = H.testCatch1(nextTest);
-			categoryDAO.removeByTitle(new Done(dataFn, errFn), _title)
-			function dataFn(bool) {
-				should.equal(bool,1)
+		it('should take errString update by already exist title', function (nextTest) {
+			var errFn = H.testCatch1(nextTest)
+			  , category = _.findWhere(categories, {title: 'title2'})
+			  , alreadyExistTitle = 'title1';
+			categoryDAO.updateTitleByCategory(new Done(dataFn, errFn), category, alreadyExistTitle)
+			function dataFn(successMessageOrErrString) {
+//				log('update err : ', successMessageOrErrString)
+				should.exist(successMessageOrErrString.match('already exist '));
 				nextTest();
 			}
 		});
-//		it('should push childTitle to category', function (nextTest) {
-//			var errFn = H.testCatch1(nextTest);
-//			var toCategory = Category.createBy({title: 'cate111231'})
-//			var childTitle = 'wfwefwfeew';
-//			categoryDAO.pushChildTitleToCategory(new Done(dataFn, errFn), childTitle, toCategory)
-//			function dataFn(bool) {
-//				should.equal(1,bool)
-//				categoryDAO.findByTitle(new Done(dataFn2, errFn), toCategory.title)
-//				function dataFn2(category2) {
-//					should.equal(category2.childTitles.pop(), childTitle)
-//					nextTest()
-//				}
-//			}
-//		});
+		it('should take success by new title', function (nextTest) {
+			var errFn = H.testCatch1(nextTest)
+			, category = _.findWhere(categories, {title: 'title2'})
+			, newTitle = 'newTitle';
+			categoryDAO.updateTitleByCategory(new Done(dataFn, errFn), category, newTitle)
+			function dataFn(successMessageOrErrString) {
+//				log('update message : ', arguments)
+				should.equal(successMessageOrErrString,'success');
+				nextTest();
+			}
+		});
+//		it('update postCount', function (nextTest) {
+//			//테스트 데이터 넣을때 확인한 것으로 생략
+//		})
+		
+	})
+	describe('#delete',function() {
+		it('should delete fail with category have postcount > 0', function (nextTest) {
+			var errFn = H.testCatch1(nextTest)
+			  , categoryIsPostCountIsNotZero = _.findWhere(categories,{postCount : 1})
+			  , id = categoryIsPostCountIsNotZero.id;
+			categoryDAO.removeById(new Done(dataFn, errFn), id);
+			function dataFn(stringErrOrSussecc) {
+				should.exist(stringErrOrSussecc.match('category has post'))
+				nextTest();
+			}
+		});
+		it('should delete fail with category have child', function (nextTest) {
+			var errFn = H.testCatch1(nextTest)
+			  , cagegoryBeHaveChild = _.findWhere(categories, {title: 'hasChild'})
+			  , id = cagegoryBeHaveChild.id;
+			categoryDAO.removeById(new Done(dataFn, errFn), id);
+			function dataFn(stringErrOrSussecc) {
+				should.exist(stringErrOrSussecc.match('category has child categories'))
+				nextTest();
+			}
+		})
+		it('should delete success whit category if abobe case else', function (nextTest) {
+			var errFn = H.testCatch1(nextTest)
+			  , nomalCategory = _.findWhere(categories, {title: 'title1'})
+			  , id = nomalCategory.id;
+			categoryDAO.removeById(new Done(dataFn, errFn), id);
+			function dataFn(SusseccMessage) {
+				should.exist(SusseccMessage.match('success'))
+				nextTest();
+			}
+		});
 	})
 	
 	
@@ -136,18 +152,21 @@ describe('categoryDAO', function() {
 
 
 /////////
-function _insertAllTestData(nextTest) {
-	var errFn = H.testCatch1(nextTest);
-	var category1 = Category.createBy({title: _title})
-	var category2 = Category.createBy({title: _title+2})
+function _insertAllTestData(dataFn) {
+	var root = Category.getRoot();
 	
-	H.call4promise(categoryDAO.insertOne, category1)
+	H.call4promise(categoryDAO.insertChildToParentByTitle, root, 'title1')
 	 .then(function () {
-		H.call4promise(categoryDAO.insertOne, category2) 
+		return H.call4promise(categoryDAO.insertChildToParentByTitle, root, 'title2') 
+	 })
+	 .then(function (category) {
+		 return H.call4promise(categoryDAO.increasePostCountById, category.id)  
+	 })
+	 .then(function () {
+		 return H.call4promise(categoryDAO.insertChildToParentByTitle, root, 'hasChild')
+	 })
+	 .then(function (parent) {
+		 return H.call4promise(categoryDAO.insertChildToParentByTitle, parent, 'childTitle')		 
 	 })
 	 .then(dataFn)
-	 .catch(errFn)
-	function dataFn() {
-		nextTest();
-	}
 };

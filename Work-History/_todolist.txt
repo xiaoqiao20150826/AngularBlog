@@ -62,6 +62,7 @@ e:당장 중요하지는 않다. 보기싫은 것뿐.
 =r : ㅇㅋ
 
 [] : 프론트 엔드 환경에서 모듈로더를 사용한 것.
+  - 읽어봐 http://tech.pro/tutorial/1254/9-ways-to-optimize-your-front-end-performance
   - 비동기 호출 + importModule의 실행부, modules부가 뭉쳐있기에 현재 단일 importModule밖에 사용 못한다.
     
   - 해결방안

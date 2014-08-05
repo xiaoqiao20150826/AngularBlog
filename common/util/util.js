@@ -38,6 +38,8 @@ var U = module.exports = {
 		,deepClone : function (obj) {
 			return _deepClone(obj);
 		}
+		
+		//TODO: makeTypeFromSources..이게 좋ㅇ르듯?
 		// source의 키와 new Type() 의 키가 일치하면 source의 값을 type에 deepClone한다.  
 		// targetType : Type
 		// sources : [sourceInstance1, sourceInstance2  ....]
