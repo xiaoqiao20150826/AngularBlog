@@ -2,16 +2,28 @@
  * 
  */
 var expect = chai.expect
-var log = $$namespace.package('com.kang').package('util').import('log');
+  , _ = _;
+
+var log = log;
 
 var ns = $$namespace;
 
 describe('namespace', function() {
 	var module = {a:2,b:3}; 
 	var moduleName = 'module';
-	
+	var modulePaths = [
+	                   './namespace/testForModuleLoaderTest.js'
+	                 , './namespace/testForModuleLoaderTest2.js'
+	                   ]
 	it('should exist namespace', function () {
 		expect(ns ? true : false).to.equal(true);
+	})
+	it('should load modules by modulePaths', function(nextTest) {
+		ns.load(modulePaths, endDone);
+		function endDone(currentStatus) {
+			expect(currentStatus.status).to.equal('success');
+			nextTest();
+		}
 	})
 	it('should run with package', function() {
 		ns.package('com.kang')

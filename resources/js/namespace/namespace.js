@@ -21,13 +21,21 @@
  *  @parmas
  *    - this : 현재 페이지의 window
  *    
- *  주의
- *    - window에 이미 존재하는 이름을 사용하면 덮어쓰는 위험이있다.  
  */
-(function (_window) {
-	var window = _window;
+var context = this;
+
+(function () {
+	var window = context.window;
 	
 	var ns = window.$$namespace = {};
+	
+//	ns.moduleLoader = getModuleLoader(ns, window);
+	ns.moduleLoader = window.moduleLoader; //test
+	
+	ns.load = function(modulePaths, endDone) {
+		if(!endDone) endDone = function notWork() {};
+		this.moduleLoader.load(endDone, modulePaths);
+	}
 	
 	ns.package = function(packageName, newContext) {
 		if(packageName == null || packageName == undefined) throw console.error('need a param');
@@ -77,4 +85,18 @@
 		}
 	}
 	
-})(this);
+	
+	/////////////////////// moduleLoader
+	var cachedModuleLoader;
+	function getModuleLoader(ns, window) {
+		var parentModule = ns
+		  , window = window;
+		
+		if(cachedModuleLoader) return cachedModuleLoader;
+		
+//		return cachedPath = (function(parentModule, window) {
+//			return cachedPath = (function(parentModule, window) {
+	}
+	
+	
+})();

@@ -6,16 +6,14 @@
  *    
  *    2) 서버경로라면.
  */
+var parentModule = window;
 
-(function(window) {
-	var window = window
-	  , location = window.location;
+(function(parentModule, window) {
+	var location = window.location;
 	if(location == null || location == undefined) throw new Error('window.location is not exist')
-	
-	var utilPackage = $$namespace.package('com.kang').package('util');
-	
 	//
-	var path = utilPackage.export.path = {};
+	
+	var path = parentModule.path = {};  //테스트를위해.. 외부에참조저장.
 	
 	
 	path.parse = function  (path) {
@@ -43,7 +41,7 @@
 		
 		if(char != '/') {path = '/' + path;}
 		
-		path = this.trasformPostfix(path);
+		path = this.addExtensionJs(path);
 		
 		return path; 
 	}
@@ -79,12 +77,12 @@
 		
 		var startIndex = path.lastIndexOf('/')
 			name = path.slice(startIndex+1)
-			name = this.trasformPostfix(name);
+			name = this.addExtensionJs(name);
 		return name;
 	}
 	// 다른 확장자 변환은 안되고 js만 확인해서 붙임.
-	path.trasformPostfix = function (path) {
-		if(path.lastIndexOf('.js') == -1) path = path + '.js';
+	path.addExtensionJs = function (path) {
+		if(!isExtension(path, '.js')) path = path + '.js';
 		return path;
 	};
 	
@@ -93,7 +91,57 @@
 		var lastIndex = path.lastIndexOf('/');
 		return path.slice(0, lastIndex);
 	}
+	//원하는 만큼 일치하면 일치.
+	path.equalPath = function(paths, pacakgePath) {
+		var samePath = null;
+		if(paths instanceof Array) 
+			samePath = this.equalPathMany(paths, pacakgePath);
+		else 
+			samePath = this.equalPathOne(paths, pacakgePath);
+		
+		if(samePath.count == 0) throw new Error('not found path of : ' + pacakgePath);
+		
+		return samePath.path;
+	}
+	path.equalPathOne = function(path, pacakgePath) {
+		return this.equalCountOne(path,pacakgePath);
+	}
+	path.equalPathMany = function(paths, pacakgePath) {
+		var samePath = {count:0 , path:''};
+		for(var i in paths) {
+			var path = paths[i]
+			var equalCount = this.equalCountOne(path, pacakgePath);
+			if(samePath.count < equalCount.count)
+				samePath = equalCount;
+		}
+		return samePath;
+	}
+	path.equalCountOne = function(path, pacakgePath) {
+		var originPath = path;
+		
+		path = this.removeExtension(path.toLowerCase());
+		var paths = path.split('/').reverse();
+		pacakgePath = this.removeExtension(pacakgePath.toLowerCase());
+		var pacakgePaths = pacakgePath.split('.').reverse();
+		
+		var minLength = (pacakgePaths.length < paths.length) ? pacakgePaths.length : paths.length; 
+		
+		var equalCount = 0;
+		for(var i = 0, max = minLength; i < max; ++i) {
+			var pathPart = paths[i]
+			  , pacakgePathPart = pacakgePaths[i];
+			
+			if(pathPart == pacakgePathPart) ++equalCount;
+			else break;
+		}
+		return {path: originPath , count: equalCount};
+	}
+//	firstPathMustEqual()
 	
+	path.removeExtension = function(path) {
+		if(isExtension(path, '.js')) return path.slice(0, path.lastIndexOf('.js')); 
+		else return path;
+	}
 	path.getDirPath = function (path) {
 		if(isOnlyName(path)) return '/';
 		
@@ -103,17 +151,22 @@
 		if(dirpath.charAt(0) != '/') return '/' + dirpath;
 		else return dirpath;  
 	}
-	function isOnlyName(path) {
-		if(path.lastIndexOf('/') == -1) return true;
-		else return false;
-	}
 	
 	path.getLocalDir = function () {
 		var pathname = location.pathname;
 		var last = pathname.lastIndexOf('/')
 		return pathname.slice(1,last)
 	}
-	
+	function isExtension(path, extentionName) { // .js   .붙여야함
+		var lastIndex = path.lastIndexOf('.');
+		var extension = path.slice(lastIndex);
+		if(extension == extentionName) return true;
+		else return false;
+	}
+	function isOnlyName(path) {
+		if(path.lastIndexOf('/') == -1) return true;
+		else return false;
+	}
 	function isDot(str) {
 		if(str == '.') return true;
 		else return false;
@@ -129,4 +182,7 @@
 	}
 	
 	
-})(this)
+	
+	return path;	
+})(parentModule, window)
+//@ sourceURL=util/path.js

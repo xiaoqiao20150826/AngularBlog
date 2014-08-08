@@ -4,17 +4,16 @@
  *   - 아니면 false;
  */
 
-(function (window) {
-	var location = window.location
-	  , $$namespace = window.$$namespace;
+(function (parentModule) {
+	var window = parentModule.window
+	  , location = window.location;
 	
-	var utilPackage = $$namespace.package('com.kang').package('util')
-	utilPackage.export.log = log1(normalNewDiv);
-	utilPackage.export.errLog = debugLog1(errNewDiv);
+	parentModule.log = log1(normalNewDiv);
+	parentModule.errLog = debugLog1(errNewDiv);
 
 	//일반적인 html 로그
 	function normalNewDiv (strings) {
-		return $('<div>').text(strings);
+		return $('<div>').append(strings);
 	}
 	//에러로그 (특별한 것은 없고 그냥 눈에띄는것)
 	function errNewDiv(strings) {
@@ -33,19 +32,25 @@
 	function log1(newDivFn) {
 		var $div = $('<div>');
 		$div.prependTo('body');
-		var count = 0;
 		
 		return function log() {
-			var list = [];
-			var args = Array.prototype.slice.apply(arguments);
+			var list = []
+			  , args = Array.prototype.slice.apply(arguments);
+			
 			getStrings1(list)(args);
 			
-			var strings = '('+(++count)+')'+ ' : '+list
+			var strings =  decorateHTML(list.toString())
 			  , newDiv = newDivFn(strings);
 			
 			$div.append(newDiv);
 			return list;
 		}
+	}
+	var count = 0;
+	function decorateHTML(str) {
+		str = str.replace(/","/g, '<B style="background-color:blue">","</B>')
+				 .replace(/":"/g, '<B style="background-color:yellow">:</B>');
+		return '('+(++count)+')'+ ' : '+str;
 	}
 	function isDebugMode() {
 		var qs = getQueryString();
@@ -65,14 +70,26 @@
 				}
 				return ;
 			}
-			if(isObjectAndNotElseType(o)) { return getStrings(JSON.stringify(o))}
+			if(isObjectAndNotElseType(o)) { 
+				return getStrings(JSON.stringify(o, function(key, value) {
+					if(isFunction(value)) {
+						return (''+value).replace(/[\n\r\t]+/g, "")
+											  .replace('function','[FN] ')
+											  .slice(0,4);
+					}
+					return value;
+				}));
+			}
 			
 			// else
 			return list.push(o);
 		}
 	}
 	
-	
+	function isFunction(o) {
+		if(o instanceof Function) return true;
+		else return false;
+	}
 	function isElement(o) {
 		if(o.nodeType != undefined && o.nodeType != null )
 			return true;					

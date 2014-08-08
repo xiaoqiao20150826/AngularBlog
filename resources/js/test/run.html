@@ -6,23 +6,31 @@
 <link rel="stylesheet" href="./lib/mocha/mocha.css" />
 </head>
 <body>
-  <div id="mocha"></div>
+<div id="mocha"></div>
 
 
 <script src="./lib/jquery-2.0.0.min.js"></script>  
+<script src="./lib/underscore-min.js"></script>  
 <script src="./lib/chai/chai.js"></script>  
 <!--   사용자 모듈 -->
-<script src="../namespace.js"></script>
-<script src="../util/path.js"></script>
-<script src="../util/moduleLoader.js"></script>
+<!-- <script src="../namespace.js"></script> -->
 <script src="../util/htmlLoger.js"></script>
+
+<!-- <script src="../util/helper.js"></script> -->
+<script src="../namespace/path.js"></script>
+<script src="../namespace/moduleStatus.js"></script>
+<script src="../namespace/moduleLoader.js"></script>
+<script src="../namespace/Package.js"></script>
+<script src="../namespace/namespace.js"></script>
 
 <!--   테스트 모듈-->
 <script src="./lib/mocha/mocha.js"></script>
 <script src="./mochaSetup.js"></script>
-<script src="./util/moduleLoaderTest.js"></script>
+<script src="./namespace/PackageTest.js"></script>
+<!-- <script src="./namespace/namespaceTest.js"></script> -->
+<script src="./namespace/pathTest.js"></script>
+<script src="./namespace/moduleStatusTest.js"></script>
+<script src="./namespace/moduleLoaderTest.js"></script>
 <script src="./mochaRun.js"></script>
-
-
 </body>
 </html>
