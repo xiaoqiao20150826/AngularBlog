@@ -30,19 +30,4 @@
 //_db.findOneAndUpdate(where, update, options, done.getCallback());
 //};
 
-						//JAVASCIRPT
-//var SELECTED = 'selected';
-//selectedOne : function ($btn) {
-//	var className = 'selected';
-//	pager.addClassToOneOfSiblings($btn, className);
-//},
-//get$selctedBtn : function (btnClassName) {
-//	if(!(btnClassName.charAt(0) == '.')) btnClassName = '.'+btnClassName;
-//	var className4selector = btnClassName+'.selected';
-//	return $(className4selector);
-//},
-//addClassToOneOfSiblings : function ($btn, className) {
-//	$btn.addClass(className);
-//	var $siblingTapBtns = $btn.siblings();
-//	$siblingTapBtns.removeClass(className);
-//},
+					

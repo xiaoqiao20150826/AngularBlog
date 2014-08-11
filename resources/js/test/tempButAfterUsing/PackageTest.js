@@ -12,10 +12,6 @@ var makePackage = window.package;
 
 describe('pacakge', function() {
 	var package = makePackage;
-	var modulePaths = [
-	                   './namespace/testForModuleLoaderTest.js'
-	                 , './namespace/testForModuleLoaderTest2.js'
-	                   ]
 	it('should exist package', function () {
 		expect(package ? true : false).to.equal(true);
 	})
@@ -31,14 +27,11 @@ describe('pacakge', function() {
 		expect(com.kang.b.a.module).to.equal(module);
 	})
 	describe('#import', function () {
-		it('should take module if find ', function() {
+		it('should take module by already exist context', function() {
 			//위에서 export 한것 사용하자.
-			com.kang.b.a.module;
+//			com.kang.b.a.module;
 			var module = package('com.kang').package('b.a').import('module');
 			expect(module.name).to.equal('module');
-		})
-		it('should throw err if dont find modulePaths', function () {
-			
 		})
 	})
 	

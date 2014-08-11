@@ -3,28 +3,34 @@ var expect = chai.expect
   , _ = window._;
 
 var moduleLoader = window.moduleLoader
+  , moduleManager = window.moduleManager
   , log = window.log
+  
 
 describe('moduleLoader', function() {
 	it('should exist moduleLoader', function() {
 	    expect(moduleLoader ? true : false).to.equal(true);
+	})
+	describe('#currentLoadedModule', function () {
+		
 	})
 	describe('#loadOne', function () {
 		it('should throw err loadOne script by wrong path', function (nextTest) {
 			var path = 'wrong_path.js';
 			moduleLoader.loadOne(done, path);
 			function done(){
-				expect(moduleLoader.currentStatus().status).to.equal('error');
+				expect(moduleManager.getCurrentStatus().status).to.equal('error');
 				nextTest();
 			};
 		})
 		it('should success load a script by right path', function (nextTest) {
-			moduleLoader.moduleStatus.removeAll();
+			moduleManager.removeAll();
 			var errFn = catch1(nextTest);
 			var path = './namespace/testForModuleLoaderTest.js';
 			moduleLoader.loadOne(done, path);
 			function done() {
-				expect(moduleLoader.currentStatus().status).to.equal('success');
+//				log(moduleManager.getCurrentStatus())
+				expect(moduleManager.getCurrentStatus().isAllSuccess()).to.equal(true);
 				nextTest();
 			}
 		})
@@ -40,20 +46,21 @@ describe('moduleLoader', function() {
 			moduleLoader.loadMany(lastDone, paths);
 			
 			function lastDone(currentStatus){
-				expect(moduleLoader.currentStatus().status).to.equal('error');
+				expect(moduleManager.getCurrentStatus().status).to.equal('error');
 				nextTest();
 			};
 		})
 		it('should load scripts by paths', function (nextTest) {
-			moduleLoader.moduleStatus.removeAll();
+			moduleManager.removeAll();
 			var paths = [ './namespace/testForModuleLoaderTest.js'
 			            , './namespace/testForModuleLoaderTest2.js'
 			            , './namespace/testForModuleLoaderTest2'
 			            , 'namespace/testForModuleLoaderTest'
+//			            , '../util/htmlLoger'
 			            ];
 			moduleLoader.loadMany(lastDone, paths);
 			function lastDone(currentStatus){
-				expect(moduleLoader.currentStatus().status).to.equal('success');
+				expect(moduleManager.getCurrentStatus().isAllSuccess()).to.equal(true);
 				nextTest();
 			};
 		})
@@ -64,17 +71,17 @@ describe('moduleLoader', function() {
 			var path = 'wrong_path.js';
 			moduleLoader.load(done, path);
 			function done(){
-				expect(moduleLoader.currentStatus().status).to.equal('error');
+				expect(moduleManager.getCurrentStatus().status).to.equal('error');
 				nextTest();
 			};
 		})
 		it('should success load a script by right path', function (nextTest) {
-			moduleLoader.moduleStatus.removeAll();
+			moduleManager.removeAll();
 			var errFn = catch1(nextTest);
 			var path = './namespace/testForModuleLoaderTest.js';
 			moduleLoader.load(done, path);
 			function done() {
-				expect(moduleLoader.currentStatus().status).to.equal('success');
+				expect(moduleManager.getCurrentStatus().isAllSuccess()).to.equal(true);
 				nextTest();
 			}
 		})
@@ -87,12 +94,12 @@ describe('moduleLoader', function() {
 			moduleLoader.load(lastDone, paths);
 			
 			function lastDone(currentStatus){
-				expect(moduleLoader.currentStatus().status).to.equal('error');
+				expect(moduleManager.getCurrentStatus().status).to.equal('error');
 				nextTest();
 			};
 		})
 		it('should load scripts by paths', function (nextTest) {
-			moduleLoader.moduleStatus.removeAll();
+			moduleManager.removeAll();
 			var paths = [ './namespace/testForModuleLoaderTest.js'
 			            , './namespace/testForModuleLoaderTest2.js'
 			            , './namespace/testForModuleLoaderTest2'
@@ -100,10 +107,11 @@ describe('moduleLoader', function() {
 			            ];
 			moduleLoader.load(lastDone, paths);
 			function lastDone(currentStatus){
-				expect(moduleLoader.currentStatus().status).to.equal('success');
+				expect(moduleManager.getCurrentStatus().isAllSuccess()).to.equal(true);
 				nextTest();
 			};
 		})
+		
 	})
 })
 function catch1(nextTest) {

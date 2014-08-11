@@ -70,6 +70,7 @@ module.exports.server = server;
 // 임시] 
 app.get('/close',function () {
 	  mongoose.connection.close(function () {
+		  //연결종료가아니라 프로세스종료를 해야지 lock이안생기는데..
 		      console.log('Mongoose default connection disconnected through app termination');
 		      process.exit(0);
 	  });

@@ -1,102 +1,109 @@
 /*
  * 
- *  $$namespace
- *     - 할당 위치
- *       : window.$$namespace  
- *     - 사용
- *       
- *        - package
- *          ; var package = $$namespace.package('com.kang').package('util');
- *             
- *        - import 
- *          ; var importModule = package.import(importModuleName);
- *            
- *        - export
- *          * 주의 : 사용하기 쉽게 아래처럼 만들었지만 패키지 참조를 직접 사용하므로 조심해야함.
- *                   쓰다가 이상하면 예전버전으로 살릴것.( ex ) pacakge.exprot(moduleName, moduel);)
- *          ;   var moduleLoader = utilPackage.export.moduleLoader = {};
- *          or) var e_module = package.export[moduleName] = module;
- *       
  *   
- *  @parmas
- *    - this : 현재 페이지의 window
  *    
  */
-var context = this;
+var parentModule = this;
 
 (function () {
-	var window = context.window;
+	var namespace = parentModule.namespace = {};
 	
-	var ns = window.$$namespace = {};
+	namespace.moduleLoader = parentModule.moduleLoader; //test
+	namespace.moduleManager = parentModule.moduleManager; //test
 	
-//	ns.moduleLoader = getModuleLoader(ns, window);
-	ns.moduleLoader = window.moduleLoader; //test
 	
-	ns.load = function(modulePaths, endDone) {
-		if(!endDone) endDone = function notWork() {};
-		this.moduleLoader.load(endDone, modulePaths);
+	namespace.include = function (moduleFunction) {
+		this.moduleLoader.setCurrentLoadedModule(moduleFunction);
 	}
 	
-	ns.package = function(packageName, newContext) {
-		if(packageName == null || packageName == undefined) throw console.error('need a param');
-		if(typeof packageName != 'string') throw console.error('should be param typeof String');
+	
+	namespace.load = function (modulePaths, callbackOfUser) {
+		if(!( ((typeof modulePaths) == 'string') || modulePaths instanceof Array) ) throw new Error('first arg must be modulePaths is String or Array')
 		
-		var context = newContext || window; //
-		var packageList = packageName.split('.')
-		  , firstPackageName = packageList[0];
+		var callbackOfUser = callbackOfUser || function () {}
+		  , doAfterAllLoadModules = doAfterAllLoadModules1(callbackOfUser)
+		  , noDuplicateOrderedModulePaths = this.getNoDuplicateModulePaths(modulePaths);
+		  
+		this.setOrderedModulePaths(noDuplicateOrderedModulePaths);
+		
+		if(noDuplicateOrderedModulePaths.length > 0) 
+			return 	this.moduleLoader.load(doAfterAllLoadModules, noDuplicateOrderedModulePaths);
+		else 
+			return doAfterAllLoadModules(this.moduleManager.getCurrentStatus());
+	}
+	
+	var _orderedModulePaths = [];
+	namespace.getNoDuplicateModulePaths = function (modulePaths) {
+		if((typeof modulePaths) == 'string') modulePaths = [modulePaths];
+		
+		var noDuplicateOrderedModulePaths = [];
+		for(var i in modulePaths) {
+			var modulePath = modulePaths[i]
+			if(_orderedModulePaths.indexOf(modulePath) == -1 )
+				noDuplicateOrderedModulePaths.push(modulePath);
+		}
+		return noDuplicateOrderedModulePaths;
+	}
+	namespace.setOrderedModulePaths = function (noDuplicateOrderedModulePaths) {
+		_orderedModulePaths = _orderedModulePaths.concat(noDuplicateOrderedModulePaths);
+	}
+	
+	namespace.getOrderedModulePaths = function () {
+		if(_orderedModulePaths == null) throw new Error('modulePaths is not exist')
+		
+		return _orderedModulePaths;
+	}
+	function doAfterAllLoadModules1(callbackOfUser) {
+		if(!(callbackOfUser instanceof Function) ) throw new Error('callback of user must be function')
+		return function doAfterAllLoadModules (currentStatus) {
+			if(currentStatus.isError()) {
+				console.error('load fail : '+ currentStatus.getErrorMessage())
+				throw new Error('load fail : '+ currentStatus.getErrorMessage());
+			}
+			
+			return runAndCallbackOfUserByExportedModules(callbackOfUser);
+			
+		}
+		function runAndCallbackOfUserByExportedModules(callbackOfUser) {
+			var moduleManager = namespace.moduleManager
+			  , orderedModulePaths = namespace.getOrderedModulePaths()
+			  , require = namespace.require;
+			
+			var exportedModules = [];
+			for(var i in orderedModulePaths) {
+				var modulePath = orderedModulePaths[i]
+				  , module = moduleManager.getModule(modulePath);
+							
+			    if(module.isSuccess()) {
+					try {
+						//BeforeEachDo
+						var exportedModule = module.run(require); //exports, require
+						//AfterEachDo
+						moduleManager.run(modulePath);
+						if(exportedModule) exportedModules.push(exportedModule);
+					} catch(e) {
+						console.error(e.message);
+						throw new Error(e.message); 
+					}
+			    }
+			}
+			
+			//all run complete
+			callbackOfUser.call(null, exportedModules);
+		}
+		
+	}
+	//this로 module을 갖는다. // Module에 위치시켜도 될것같은데..
+	namespace.require = function (modulePath) {
+		
+		var errMessage = ' is can not to require :' + modulePath
+		if(this.path)  errMessage = this.path + errMessage;
+		
+		var moduleManager = namespace.moduleManager
+		  , module = moduleManager.getModule(modulePath);
+		
+		if(!module.isRun()) throw new Error(errMessage);
+		return module.getExports();
+	}
 
-		var aPackageName;
-		for (var i = 0, max = packageList.length; i < max; ++i) {
-			aPackageName = packageList[i];
-			if(!(alreadyExistObject(context, aPackageName) )) context[aPackageName] = {}; 
-			context = context[aPackageName];
-		}
-		
-		return exportAndExport1(context);
-	}
-	function alreadyExistObject(_context, _aPackageName) {
-		var o = _context[_aPackageName];
-		if(o && o instanceof Object) return true;
-		else return false;
-	}
-	
-	function exportAndExport1(package) {
-		return { 
-			export : package
-		  , import : importFn
-		  , package : packageFn
-		};
-
-		//
-//		function exportFn(moduleName, module) {
-//			if(alreadyExistObject(package, moduleName)) throw console.error('already exist name in pacakge');
-//			
-//			if(!(module instanceof Object || module instanceof Function)) throw console.error('module type is wrong');
-//			
-//			package[moduleName] = module;
-//			return module; 
-//		}
-		function importFn(moduleName) {
-			if(!(alreadyExistObject(package, moduleName))) {throw console.error( 'not exist '+ moduleName+ ' in pacakge')};
-			return package[moduleName];
-		}
-		function packageFn(packageName) {
-			return ns.package(packageName, package);
-		}
-	}
-	
-	
-	/////////////////////// moduleLoader
-	var cachedModuleLoader;
-	function getModuleLoader(ns, window) {
-		var parentModule = ns
-		  , window = window;
-		
-		if(cachedModuleLoader) return cachedModuleLoader;
-		
-//		return cachedPath = (function(parentModule, window) {
-//			return cachedPath = (function(parentModule, window) {
-	}
-	
-	
 })();
