@@ -1,15 +1,14 @@
-(function() {
-	var ns = $$namespace.package('com.kang')
-	  , answerPackage = ns.package('answer')
-	  , utilPackage = ns.package('util')
-	  , H = utilPackage.import('helper');
+
+
+$$namespace.include(function(exports, require) {
+	var H = require('helper');
 	
 	var INSERT_ANSWER_DIV = '#insert-answer-div'
 	  , EMBEDDED_ANSWER_DIV = '.embedded-answer-div'
 	  , EMBEDDED_ANSWER_BTN = '.embedded-answer';
 	
 	var $insertAnswerHtml;
-	var insertViewBtn = answerPackage.export.insertViewBtn = {
+	var insertViewBtn = exports.insertViewBtn = {
 			init : function () {
 				$insertAnswerHtml = $(INSERT_ANSWER_DIV).html();
 				$(EMBEDDED_ANSWER_BTN).click(this.replaceEmbeddedAnswerDiv);
@@ -34,6 +33,6 @@
 	};
 	/// 실행
 	insertViewBtn.init();
-})();
+});
 
 //@ sourceURL=answer/insertViewBtn.js

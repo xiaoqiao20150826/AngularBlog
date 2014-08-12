@@ -66,15 +66,11 @@ var parentModule = this
 			 .done(function() {
 				 asyncCallOnSuccess(done, modulePath)
 			 })
-			 .fail(function(o, status) {
+			 .fail(function(o, errStatus, error) {
+				 var errMessage = '['+modulePath+"] "+ ' : '+ error.stack; 
 				 moduleManager.error(modulePath);
-				 if(status == 'error') {
-					 done(moduleManager.getCurrentStatus()); 
-				 } else {
-					 var errMessage = 'fail but not err status';
-					 done(moduleManager.makeEmptyCurrentStatus('err : ajaxErr '+errMessage));
-					 throw console.error(errMessage);
-				 }
+				 console.error(errMessage);
+				 done(moduleManager.makeEmptyCurrentStatus(errStatus, errMessage));
 			 });
 	};
 	

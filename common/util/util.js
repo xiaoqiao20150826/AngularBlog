@@ -19,6 +19,14 @@ var U = module.exports = {
 		,notExist : function(o) {
 			return !this.exist(o);
 		}
+		// 좀 더 깊이비교할것인가?
+		,isEqual : function(a, b) {
+			if(a == b) return true;
+			else return false;
+		}
+		,isNotEqual : function(a, b) {
+			return !this.isEqual(a,b);
+		}
 
 		//자바스크립트 파라미터는 지역 변수이다. 즉. 이렇게는 바꿀수가없다.
   		//그래서 배열을 이용하기로 결정. 인덱스로 직접 접근한다...위험해보여. 
@@ -113,25 +121,6 @@ var U = module.exports = {
 			  , rightStr = source.slice(midIndex, source.length);
 			return leftStr + pushData + rightStr;
 		}
-		//TODO: 변경 고려 initSourceValue, realKey 를 합쳐서
-		//      initObjectToJoin = {realKey : initSourceValue}
-		,joinSourcesIntoTagertsWithList : function (sources, targets, realKey, getRealData, initSourceValue) {
-			initSourceValue = initSourceValue || []
-			return _template4join2(initSourceValue, function(left, right) {
-				left.push(right);
-				return left;
-			})
-			.apply(null, _.toArray(arguments))
-			
-		}
-		,joinSourcesIntoTagerts : function (sources, targets, realKey, getRealData, initSourceValue) {
-			if(!(U.exist(initSourceValue))) initSourceValue = null; 
-			
-			return _template4join2(initSourceValue, function(left, right) {
-				return right;
-			})
-			.apply(null, _.toArray(arguments)) 
-		}
 		
 		,getAndRemove : function (o, key) {
 			var value = o[key];
@@ -149,25 +138,6 @@ function _existOne(o) {
 	if(o != null || o != undefined) return true;
 	else return false;
 };
-function _template4join2(initResult, howToInsertInToResult) {
-	return function(sources, targets, key, getSourceToJoin) {
-		_.each(targets, function(target, i) {
-			var result = _.clone(initResult);
-			var bVal;
-			for(j in sources) {
-				source = sources[j];
-				var source4join = getSourceToJoin(source, target);
-				if(source4join) {
-					result = howToInsertInToResult(result, source4join);
-				}
-			}
-			// source를 모두 result로 모았으면 target에 join시켜.
-			target[key] = result;
-		});
-		
-		return targets;
-	}
-}
 //clone
 function _deepClone(obj) {
 	// Handle the 3 simple types, and null or undefined

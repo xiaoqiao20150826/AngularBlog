@@ -44,22 +44,7 @@ Post.getUserIds = function (posts) {
 	}
 	return result;
 }
-// 이름이...
-// 참조를 이용하여 실제 데이터를 할당한다.
-Post.setUserByReal = function(posts, users) {
-	H.joinSourcesIntoTagerts(users, posts, 'user' , function(user, post) {
-		if(user._id == post.userId) 
-			return user;
-	});
-}
 
-//to deprease
-Post.setAnswerCountByReal = function(posts, answerCounts) {
-	H.joinSourcesIntoTagerts(answerCounts, posts, 'answerCount' , function(answerCount, post) {
-		if(answerCount._id == post.num) 
-			return answerCount.count;
-	}, 0);
-}
 /* instance method */
 //get
 Post.prototype.getTitle4Url = function () {

@@ -68,7 +68,7 @@
 				%>
 						<div class="collapse in  history-days<%=j%>">
 							<a href='javascript:'>
-							<div data-toggle="collapse" data-target=".history-posts<%=k%>">
+							<div data-toggle="collapse" data-target=".history-posts-<%=j%>-<%=k%>">
 							<h4>
 								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 								<%= day%>
@@ -82,7 +82,7 @@
 						for(var l in posts) {
 						var post = posts[l];
 					%>
-							<div class="collapse out history-posts<%=k%>">
+							<div class="collapse out history-posts-<%=j%>-<%=k%>">
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 							<a href = "/blog/<%= post.num %>/<%= post.getTitle4Url() %>" style="font-size:20px">
 								<span class="label label-success col-sm-offset-1" >

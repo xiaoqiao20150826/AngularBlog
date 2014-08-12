@@ -18,6 +18,8 @@ var window = window;
 	
 	//이름을 어떻게 바꿀까. 서버에 요청할 수 있는 모듈이름.(dir, 모듈이름, 확장자 포함된것)
 	path.getFilePath = function (modulePath) {
+		if(this.isUrl(modulePath)) return modulePath;
+			
 		if(this.isLocal()) return this.getLocalPath(modulePath);
 		if(this.isServer()) return this.getServerPath(modulePath);
 		
@@ -31,6 +33,11 @@ var window = window;
 		  , origin = location.origin;
 		
 		if(isEmpty(host) || (origin.match('file')) ) return true;
+		else return false;
+	}
+	//modulePath의 시작이 http라면 url이다.
+	path.isUrl = function (modulePath) {
+		if(modulePath.indexOf('http') == 0) return true;
 		else return false;
 	}
 	//sever

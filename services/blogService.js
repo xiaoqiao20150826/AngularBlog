@@ -12,6 +12,7 @@ var H = require('../common/helper.js')
 var Post = require('../domain/Post.js')
   , User = require('../domain/User.js')
   , Answer = require('../domain/Answer.js')
+  , ReferenceJoiner = require('../domain/ReferenceJoiner.js')
 
 var postDAO = require('../dao/postDAO.js')
   , userDAO = require('../dao/userDAO.js')
@@ -46,8 +47,12 @@ blogService.getPostsAndPager = function (done, curPageNum, sorter) {
 				return H.call4promise([userDAO.findByIds], userIds)
 			})
 		   .then(function (users) {
-				Post.setUserByReal(result.posts, users);
-				dataFn(result);
+			   var posts = result.posts
+			     , joiner = new ReferenceJoiner(posts, 'userId', 'user')
+			     , joinedPosts = joiner.join(users, '_id', User.getAnnoymousUser());
+			   
+			   result.posts = joinedPosts;
+			   dataFn(result);
 			})
 		   .catch(errFn);
 };

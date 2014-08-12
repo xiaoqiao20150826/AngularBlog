@@ -23,6 +23,11 @@ describe('path', function() {
 			expect(path.extensionMustBe('js', 'name')).to.equal('name.js')
 		})
 	})
+	describe('#getFilePath', function () {
+		it('should return if path is url', function () {
+			expect(path.getFilePath('http://welkfn/awefwef.js')).to.equal('http://welkfn/awefwef.js')
+		})
+	})
 	describe('transform path if local path', function () {
 		it('should get name and dirpath', function () {
 			expect(path.getModuleName('../welkfn/awefwef.js')).to.equal('awefwef.js')

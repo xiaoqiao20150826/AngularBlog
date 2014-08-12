@@ -1,14 +1,11 @@
 	
 
-(function() {
-	var ns = $$namespace.package('com.kang')
-	  , utilPackage = ns.package('util')
-	  , answerPackage = ns.package('answer')
-	  , H = utilPackage.import('helper') 
+$$namespace.include(function(exports, require) {
+	var H = require('helper') 
 	
 	var VOTE_BTN = '#post_increase_vote'
 	var $voteBtn;
-	var voteBtn = answerPackage.export.voteBtn = {
+	var voteBtn = exports.voteBtn = {
 			init : function () {
 				$voteBtn = $(VOTE_BTN);
 				$voteBtn.click(this.increaseVote);
@@ -36,5 +33,5 @@
 	};
 	voteBtn.init();
 	//helper
-})();
+});
 

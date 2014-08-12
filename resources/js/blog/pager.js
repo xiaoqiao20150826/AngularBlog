@@ -1,14 +1,11 @@
 	
 
-(function() {
-	var ns = $$namespace.package('com.kang')
-	  , utilPackage = ns.package('util')
-	  , blogPackage = ns.package('blog')
-	  , H = utilPackage.import('helper') 
+$$namespace.include(function() {
+	var H = this.require('helper') 
 	
 	var BLOG_PAGER= '.blogPager'
 	  , CLASS_ACTIVE = 'active';
-	var pager = blogPackage.export.pager = {
+	var pager = this.exports = {
 			init : function (selectedPageNum) {
 				$(BLOG_PAGER).click(this.replaceBlogListHtml);
 				
@@ -54,5 +51,6 @@
 	};
 	/// 실행
 	pager.init();
-})();
+});
 
+//@ sourceURL=blog/pager.js

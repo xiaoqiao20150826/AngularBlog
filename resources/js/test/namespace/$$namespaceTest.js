@@ -8,8 +8,8 @@ var log = log;
 
 describe('namespace', function() {
 	var modulePaths = [
-	                   './namespace/testForModuleLoaderTest.js'
-	                 , './namespace/testForModuleLoaderTest2.js'
+	                   './testForModuleLoaderTest.js'
+	                 , './testForModuleLoaderTest2.js'
 	                   ]
 	it('should exist namespace', function () {
 		expect($$namespace ? true : false).to.equal(true);
@@ -30,8 +30,8 @@ describe('namespace', function() {
 		}
 	})
 	it('should replay to load modules', function(nextTest) {
-		modulePaths.push('./namespace/testForModuleLoaderTest3.js')
-		modulePaths.push('./namespace/testForNamespace.js')
+		modulePaths.push('./testForModuleLoaderTest3.js')
+		modulePaths.push('./testForNamespace.js')
 		$$namespace.load(modulePaths, done);
 		function done(exportedModules) {
 //			log(exportedModules)

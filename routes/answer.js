@@ -1,6 +1,7 @@
 
 /* 초기화 및 클래스 변수 */
-var _ = require('underscore');
+var _ = require('underscore')
+  , debug = require('debug')('route:answer')
 
 var H = require('../common/helper.js')
   , reqParser = require('./common/reqParser.js')
@@ -26,6 +27,8 @@ var blog = module.exports = {
 		  , answer = Answer.createBy(rawData);
 		if(loginUser.isNotExist() || loginUser.isNotEqualById(userId)) return _redirectCurrentPost(rawData, res);
 		
+		debug('to create answer for rawData',rawData)
+		debug('to insert answer at route(answer)',answer)
 		return answerService.insertAndIncreaseCount(new H.Done(dataFn, catch1(res)), answer);
 		
 		function dataFn() {

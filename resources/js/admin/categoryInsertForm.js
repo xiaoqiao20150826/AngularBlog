@@ -1,15 +1,11 @@
 	
 
-(function() {
-	var ns = $$namespace.package('com.kang')
-	  , utilPackage = ns.package('util')
-	  , adminPackage = ns.package('admin')
-	  , H = utilPackage.import('helper') 
-	  , log = utilPackage.import('log') 
+$$namespace.include(function(exports, require) {
+	var H = require('helper') 
 	
 	var CATEGORY_INSERT_FORM_ID = "#categoryInsertForm"
 	  , $form;
-	var categoryInsertForm = adminPackage.export.categoryInsertForm = {
+	var categoryInsertForm = exports.categoryInsertForm = {
 			init : function () {
 				$form = $(CATEGORY_INSERT_FORM_ID);
 				$form.submit(this.insertCategoryAndReLocationAdmin);
@@ -41,6 +37,6 @@
 	};
 	/// 실행
 	categoryInsertForm.init();
-})();
+});
 
 //@ sourceURL=admin/categoryInsertForm.js

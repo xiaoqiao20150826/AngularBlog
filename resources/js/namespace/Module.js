@@ -88,8 +88,8 @@ var parentModule = this;
 		return emptyModule;
 	}
 	Module.prototype.getErrorMessage = function() {
-		var message = this.status + ' ';
-		if(this.message) message = message + ' ' + this.message + '| ';
+		var message = '['+this.status+'] : ';
+		if(this.message) message = message + '[message:' + this.message + '] -> ';
 		
 		var modules = this.modules;
 		if(isExist(modules)) {

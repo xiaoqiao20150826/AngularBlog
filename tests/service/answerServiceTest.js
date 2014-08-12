@@ -2,8 +2,10 @@
 
 var mongoose = require('mongoose');
 var should = require('should')
-  , Q = require('q');
-
+  , Q = require('q')
+  , debug = require('debug')('test:service:answerServiceTest')
+  , log = console.log
+  
 var H = require('../testHelper.js')
   , Done = H.Done;
 
@@ -13,6 +15,7 @@ var Post = require('../../domain/Post.js')
 var answerDAO = require('../../dao/answerDAO.js')
   , postDAO = require('../../dao/postDAO.js')
   , userDAO = require('../../dao/userDAO.js');
+
 var answerService = require('../../services/answerService.js');
 
 // 테스트를 위한 참조, 입력한 데이터에 대한.  
@@ -34,6 +37,7 @@ describe('answerService', function () {
 			answerService.getJoinedAnswers(new H.Done(dataFn, errFn), postNum);
 			
 			function dataFn(e_answers) {
+				debug('joinedAnswers :', e_answers)
 				var e_answer = e_answers.pop();
 				should.equal(e_answer.user, e_answer.answers.pop().user)
 				var e_lowAnswer = e_answer.answers.pop()
@@ -71,9 +75,9 @@ describe('answerService', function () {
 			}
 		})
 	});
-	describe('#delete', function () {
-		
-	})
+//	describe('#delete', function () {
+//		
+//	})
 });
 
 /* helper */
@@ -130,8 +134,7 @@ function _createAndInsertTestData(nextTest) {
 			  , answerDAO.insertOne(done, answer4)
 			  , userDAO.insertOne(done, user)
 		])
-		 .then(function(url) {
-			 testFileUrl = url;
+		 .then(function() {
 			 nextTest();
 		})
 		.catch(errFn);

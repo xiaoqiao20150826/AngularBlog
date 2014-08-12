@@ -44,22 +44,16 @@ Answer.getUserIds = function (answers) {
 	}
 	return result;
 }
-Answer.setAnswersByReal = function(answers, lowAnswers) {
-	H.joinSourcesIntoTagertsWithList(lowAnswers, answers, 'answers' , function(lowAnswer, answer) {
-		if(lowAnswer.answerNum == answer.num) 
-			return lowAnswer;
-		else 
-			return null;
-	});
+var lowEmptyAnswer = null; 
+Answer.getEmptyLowAnswer = function () {
+	if(lowEmptyAnswer == null) {
+		lowEmptyAnswer = new Answer();
+		lowEmptyAnswer.created = '';
+		lowEmptyAnswer.deep = 2;
+	}
+	return lowEmptyAnswer;
 }
-Answer.setUserByReal = function(answers, users) {
-	H.joinSourcesIntoTagerts(users, answers, 'user' , function(user, answer) {
-		if(user._id == answer.userId) 
-			return user;
-		else 
-			return null;
-	});
-}
+
 Answer.getSchema = function () {
 	return {
         'num' : Number,

@@ -1,17 +1,14 @@
 	
 
-(function() {
-	var ns = $$namespace.package('com.kang')
-	  , utilPackage = ns.package('util')
-	  , blogPackage = ns.package('blog')
-	  , H = utilPackage.import('helper') 
-	  , pager = blogPackage.import('pager');
+$$namespace.include(function() {
+	var H = this.require('/util/helper') 
+	  , pager = this.require('/blog/pager');
 	  
 
 	var BLOG_TAP= '.blogTap'
 	  , CLASS_ACTIVE = 'active';
 		
-	var tabs = blogPackage.export.tabs = {
+	var tabs = this.exports = {
 			init : function () {
 				$(BLOG_TAP).click(this.changeActiveAndReplaceBlogList);
 			},
@@ -47,6 +44,7 @@
 	};
 	/// 실행
 	tabs.init();
-})();
+});
 
 
+//@ sourceURL=blog/tabs.js

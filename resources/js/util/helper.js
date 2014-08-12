@@ -2,12 +2,10 @@
  * 
  */
 
-(function(window) {
+$$namespace.include(function() {
 	var $ = window.$
-	  , utilPackage = $$namespace.package('com.kang').package('util')
-	  , log = utilPackage.import('log');
 	
-	var H = utilPackage.export.helper = {};
+	var H = this.exports = {};
 	
 	// 안쓰는것같던데..?
 	var BLOG_LIST_FRAME = '#blogListFrame';
@@ -47,5 +45,5 @@
 	}
 	
 	
-})(this)
+})
 //@ sourceURL=util/helper.js

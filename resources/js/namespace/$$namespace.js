@@ -1,4 +1,5 @@
 /*
+ * TODO: 알고있는 위치의 필요파일을 불러오게끔 만들면 이렇게 몰아넣지 않아도 될텐데.
  * 
  *  $$namespace
  *     - 할당 위치
@@ -42,6 +43,8 @@
 	
 	//이름을 어떻게 바꿀까. 서버에 요청할 수 있는 모듈이름.(dir, 모듈이름, 확장자 포함된것)
 	path.getFilePath = function (modulePath) {
+		if(this.isUrl(modulePath)) return modulePath;
+		
 		if(this.isLocal()) return this.getLocalPath(modulePath);
 		if(this.isServer()) return this.getServerPath(modulePath);
 		
@@ -55,6 +58,11 @@
 		  , origin = location.origin;
 		
 		if(isEmpty(host) || (origin.match('file')) ) return true;
+		else return false;
+	}
+	//modulePath의 시작이 http라면 url이다.
+	path.isUrl = function (modulePath) {
+		if(modulePath.indexOf('http') == 0) return true;
 		else return false;
 	}
 	//sever
@@ -321,8 +329,8 @@
 		return emptyModule;
 	}
 	Module.prototype.getErrorMessage = function() {
-		var message = this.status + ' ';
-		if(this.message) message = message + ' ' + this.message + '| ';
+		var message = '['+this.status+'] : ';
+		if(this.message) message = message + '[message:' + this.message + '] -> ';
 		
 		var modules = this.modules;
 		if(isExist(modules)) {
@@ -458,7 +466,7 @@
 			if(module.isStatus(Status.ERROR)) {
 				currentStatus.status = Status.ERROR;
 				currentStatus.modules.push(module)
-				currentStatus.message = 'error';
+				currentStatus.message = module.message;
 			}
 			//제일마지막이어야한다.
 			if(module.isStatus(Status.SUCCESS)) {
@@ -476,9 +484,10 @@
 		return Object.keys(o).length;
 	}
 	
-	moduleManager.makeEmptyCurrentStatus = function (status) {
-		status = status || 'emptyStatus'
-		var currentStatus = {status:status, message:'', modules:[]};
+	moduleManager.makeEmptyCurrentStatus = function (status, message) {
+		status = status || 'emptyStatus';
+		message = message || '';
+		var currentStatus = {status:status, message:message, modules:[]};
 		currentStatus.__proto__ = Module.getEmpty();
 		return currentStatus;
 	}
@@ -555,15 +564,11 @@
 			 .done(function() {
 				 asyncCallOnSuccess(done, modulePath)
 			 })
-			 .fail(function(o, status) {
+			 .fail(function(o, errStatus, error) {
+				 var errMessage = '['+modulePath+"] "+ ' : '+ error.stack; 
 				 moduleManager.error(modulePath);
-				 if(status == 'error') {
-					 done(moduleManager.getCurrentStatus()); 
-				 } else {
-					 var errMessage = 'fail but not err status';
-					 done(moduleManager.makeEmptyCurrentStatus('err : ajaxErr '+errMessage));
-					 throw console.error(errMessage);
-				 }
+				 console.error(errMessage);
+				 done(moduleManager.makeEmptyCurrentStatus(errStatus, errMessage));
 			 });
 	};
 	
@@ -696,8 +701,7 @@
 		if(!(callbackOfUser instanceof Function) ) throw new Error('callback of user must be function')
 		return function doAfterAllLoadModules (currentStatus) {
 			if(currentStatus.isError()) {
-				console.error('load fail : '+ currentStatus.getErrorMessage())
-				throw new Error('load fail : '+ currentStatus.getErrorMessage());
+				return console.error('load fail : '+ currentStatus.getErrorMessage())
 			}
 			
 			return runAndCallbackOfUserByExportedModules(callbackOfUser);
@@ -721,14 +725,13 @@
 						moduleManager.run(modulePath);
 						if(exportedModule) exportedModules.push(exportedModule);
 					} catch(e) {
-						console.error(e.message);
-						throw new Error(e.message); 
+						return console.error('Running Error['+module.path+'] : '+ e.stack); 
 					}
 			    }
 			}
 			
 			//all run complete
-			callbackOfUser.call(null, exportedModules);
+			callbackOfUser.call(namespace, namespace.require, exportedModules);
 		}
 		
 	}

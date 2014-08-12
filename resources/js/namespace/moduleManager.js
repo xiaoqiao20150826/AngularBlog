@@ -135,9 +135,10 @@ var parentModule = this;
 		return Object.keys(o).length;
 	}
 	
-	moduleManager.makeEmptyCurrentStatus = function (status) {
-		status = status || 'emptyStatus'
-		var currentStatus = {status:status, message:'', modules:[]};
+	moduleManager.makeEmptyCurrentStatus = function (status, message) {
+		status = status || 'emptyStatus';
+		message = message || '';
+		var currentStatus = {status:status, message:message, modules:[]};
 		currentStatus.__proto__ = Module.getEmpty();
 		return currentStatus;
 	}

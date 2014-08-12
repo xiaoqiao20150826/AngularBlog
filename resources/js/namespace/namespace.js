@@ -82,14 +82,13 @@ var parentModule = this;
 						moduleManager.run(modulePath);
 						if(exportedModule) exportedModules.push(exportedModule);
 					} catch(e) {
-						console.error(e.message);
-						throw new Error(e.message); 
+						return console.error('Running Error['+module.path+'] : '+ e.stack);
 					}
 			    }
 			}
 			
 			//all run complete
-			callbackOfUser.call(null, exportedModules);
+			callbackOfUser.call(namespace, namespace.require, exportedModules);
 		}
 		
 	}
