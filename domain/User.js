@@ -4,7 +4,7 @@ var H = require('../common/helper.js')
   , C = require('../common/constant.js');
 
 
-var _annoymousUser = null;
+
 //////////////////
 var User = module.exports = function User() {
 	var o = User.getSchema();
@@ -17,7 +17,7 @@ var User = module.exports = function User() {
 /* static method */
 /* 생성자 */
 User.createBy= function(model) {
-	if(!(H.exist(model)) ) return User.getEmptyUser();
+	if(!(H.exist(model)) ) return User.getAnnoymousUser();
 	// db의 model이라면.
 	return H.createTargetFromSources(User, model);
 
@@ -42,19 +42,9 @@ User.isAnnoymousId = function (userId) {
 		return false;
 };
 User.getAnnoymousUser = function () {
-	if(_annoymousUser) return _annoymousUser;
-	else {
-		var user = User.createBy({name:C.ANNOYMOUS_ID, photo:'', email:''})
-		user.created = undefined;
-		_annoymousUser = user; 
-		return _annoymousUser;
-	}
-}
-
-var _emptyUser = new User();
-_emptyUser._id = null, _emptyUser.name = null;
-User.getEmptyUser = function () {
-	return _emptyUser; 
+	var user = User.createBy({name:C.ANNOYMOUS_ID, photo:'', email:''})
+	user.created = undefined;
+	return user;
 }
 
 

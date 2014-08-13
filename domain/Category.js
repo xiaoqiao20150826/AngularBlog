@@ -8,7 +8,6 @@ var H = require('../common/helper.js');
 var ROOT_ID = 'root';
 
 var Category = module.exports = function () {
-	
 	this.id  = null;//db의 자동 할당된 아이디 사용.
 	this.title = '';
 	this.postCount = 0;
@@ -24,12 +23,8 @@ Category.createBy= function(model) {
 	};
 };
 
-var _rootCategory = (function() {
-	return Category.createBy({id:ROOT_ID, deep:0, parentId:''});
-})();
-
-Category.getRoot = function () {
-	return _rootCategory;
+Category.makeRoot = function () {
+	return Category.createBy({id:ROOT_ID, deep:0, parentId:'', categories:[]})
 }
 // instance
 Category.prototype.isEmpty = function() {

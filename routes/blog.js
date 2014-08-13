@@ -1,7 +1,8 @@
 
 /* 초기화 및 클래스 변수 */
-var _ = require('underscore');
-
+var _ = require('underscore')
+  , Q = require('q')
+  
 var H = require('../common/helper.js')
   , reqParser = require('./common/reqParser.js')
   , Cookie = require('./common/Cookie.js')
@@ -52,7 +53,7 @@ var blog = module.exports = {
 		var toRenderView = './blog/list.ejs'
 			blog._getBlogListAndRenderTo(req, res, toRenderView)
 	},
-	_getBlogListAndRenderTo : function (req, res, toRenderView) {
+ 	_getBlogListAndRenderTo : function (req, res, toRenderView) {
 		var rawData = reqParser.getRawData(req)
 		  , pageNum = rawData.pageNum
 		  , sorter = rawData.sorter
@@ -60,6 +61,8 @@ var blog = module.exports = {
 		if(!(H.exist(pageNum))) pageNum = FIRST_PAGE_NUM;
 		if(!(H.exist(sorter))) sorter = SORTER_NEWEST;
 		
+		var errFn = catch1(res);
+//		Q
 		blogService.getPostsAndPager(new H.Done(dataFn, catch1(res)), pageNum, sorter)
 		function dataFn(result) {
 			var blog = {posts : result.posts

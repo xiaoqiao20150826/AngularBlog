@@ -44,14 +44,14 @@ Answer.getUserIds = function (answers) {
 	}
 	return result;
 }
-var lowEmptyAnswer = null; 
-Answer.getEmptyLowAnswer = function () {
-	if(lowEmptyAnswer == null) {
-		lowEmptyAnswer = new Answer();
-		lowEmptyAnswer.created = '';
-		lowEmptyAnswer.deep = 2;
-	}
-	return lowEmptyAnswer;
+//answers를 할당하는데.. 클로저변수로 만들면안돼지. 
+Answer.makeRoot = function () {
+	rootAnswer = new Answer();
+	rootAnswer.created = '';
+	rootAnswer.num = null;
+	rootAnswer.answers = [];
+	rootAnswer.deep=0;
+	return rootAnswer;
 }
 
 Answer.getSchema = function () {

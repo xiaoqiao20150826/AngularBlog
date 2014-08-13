@@ -12,7 +12,7 @@ var H = require('../common/helper.js')
 var Post = require('../domain/Post.js')
   , User = require('../domain/User.js')
   , Answer = require('../domain/Answer.js')
-  , ReferenceJoiner = require('../domain/ReferenceJoiner.js')
+  , Joiner = require('../domain/Joiner.js')
 
 var postDAO = require('../dao/postDAO.js')
   , userDAO = require('../dao/userDAO.js')
@@ -48,8 +48,8 @@ blogService.getPostsAndPager = function (done, curPageNum, sorter) {
 			})
 		   .then(function (users) {
 			   var posts = result.posts
-			     , joiner = new ReferenceJoiner(posts, 'userId', 'user')
-			     , joinedPosts = joiner.join(users, '_id', User.getAnnoymousUser());
+			     , userjoiner = new Joiner(users, '_id', 'user')
+			     , joinedPosts = userjoiner.joinTo(posts, 'userId', User.getAnnoymousUser());
 			   
 			   result.posts = joinedPosts;
 			   dataFn(result);
@@ -58,6 +58,7 @@ blogService.getPostsAndPager = function (done, curPageNum, sorter) {
 };
 
 //postNum에 해당하는 블로그 데이터를 가져온다.
+//하나를 가져오는 것이기에. Joiner안사용해도됨.
 blogService.getJoinedPost = function (done, postNum) {
 	var dataFn = done.getDataFn()
 	, errFn = done.getErrFn();

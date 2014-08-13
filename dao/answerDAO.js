@@ -62,7 +62,7 @@ answerDAO.find = function (done,where,select) {
 	  _db.find(where,select).sort(orderBy).exec(callback);
 };
 answerDAO.findByPostNum = function(done, postNum) {
-	var where = { $and:[{postNum:postNum}, {deep:1}] };
+	var where = {postNum:postNum};
 	answerDAO.find(done, where);
 };
 answerDAO.findByNum = function (done, num) {
@@ -72,12 +72,12 @@ answerDAO.findByNum = function (done, num) {
 		,callback = done.getCallback();
 	_db.findOne(where,select).exec(callback);
 };
-answerDAO.findByAnswerNums = function (done, answerNums) {
-	var where = {'answerNum': {$in : answerNums}}
-		,select = select || {};
-		
-	answerDAO.find(done, where, select)
-}
+//answerDAO.findByAnswerNums = function (done, answerNums) {
+//	var where = {'answerNum': {$in : answerNums}}
+//		,select = select || {};
+//		
+//	answerDAO.find(done, where, select)
+//}
 answerDAO.findByRange = function (done, postNum, start,end) {
 	done.hook4dataFn(Answer.createBy);
 	var where = {postNum:postNum}

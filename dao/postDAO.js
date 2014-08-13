@@ -1,11 +1,13 @@
 /**
  * postDAO (싱글톤)
+
  * 
  * TODO: 싱글톤 클래스의 외부참조와 초기화를 위한 코드 공간이 더럽다.
  */
 
 
 //////// 참조클래스
+var debug = require('debug')('nodeblog:dao:postDAO')
 var Post = require('../domain/Post.js')
 	,Sequence = require('./Sequence.js')
 	,Q = require('q');
@@ -187,12 +189,14 @@ postDAO.findGroupedPostsByDate = function (done) {
 	_db.aggregate([project, group], callback);
 //	_db.aggregate([project, match, group, sort], callback);
 }
+//TODO: 이게 최선인가.... 조금더.....이쁘게안되나... 보류.
 // findGroupedPostsByDate에서 가져온 데이터를 다시 그룹화함.
 // array는 sort할수있지만 map으로 사용하는 object는 sort안됨.
 //  - 그래서 오름차순임. 1,2,3...
 function _reGroup(model) {
+	debug('groupedPostsByDate origin :', model)
 	//reduce말고 each하되 공통 저장소사용해도 됨.
-		return _.reduce(model, function(memo, o){
+	var groupedPostsByDate = _.reduce(model, function(memo, o){
 			var count = o.count
 			  , date = o._id
 			  , year = date.year
@@ -228,6 +232,8 @@ function _reGroup(model) {
 			}
 			return memo; 
 		}, {});
+	debug('reGroupedPostsByDate :', groupedPostsByDate)
+	return groupedPostsByDate;
 	}
 
 /* helper */		

@@ -19,13 +19,17 @@ var testSuites = [
                   , './common/pagerTest.js'
                   , './common/DoneTest.js'
                   , './common/utilTest.js'
+                  , './common/scriptletUtilTest.js'
+                  
+                  , './domain/JoinerTest.js'
                   
                   , './dao/seqTest.js'
                   , './dao/postTest.js'
 				  , './dao/answerTest.js'
 				  , './dao/userTest.js'
+				  , './dao/categoryTest.js'
 
-//				  , './routes/common/checkerTest.js'
+//				  , './routes/common/checkerTest.js' 사용안함
 				  , './routes/common/reqParserTest.js'
 				  , './routes/common/cookieTest.js'
 				  

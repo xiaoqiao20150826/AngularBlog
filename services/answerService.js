@@ -5,14 +5,14 @@
 /* 초기화 및 의존성, 클래스 변수 */
 var Q = require('q')
   , _ = require('underscore')
-  , debug = require('debug')('service:answerService');
+  , debug = require('debug')('nodeblog:service:answerService');
 
 var H = require('../common/helper.js')
   , config = require('../config.js');
 
 var Answer = require('../domain/Answer.js')
   , User = require('../domain/User.js')
-  , ReferenceJoiner = require('../domain/ReferenceJoiner.js')
+  , Joiner = require('../domain/Joiner.js')
 
 var answerDAO = require('../dao/answerDAO.js')
   , postDAO = require('../dao/postDAO.js')
@@ -30,36 +30,24 @@ answerService.getJoinedAnswers = function (done, postNum) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();
 	
-	var _answers, _lowAnswers;
+	var _answers;
 	
 	return H.call4promise(answerDAO.findByPostNum, postNum)
 	 		.then(function (answers) {
-	 			_answers = answers;
-	 			var answerNums = Answer.getAnswerNums(answers);
-	 			var deep = 2;
-	 			return H.call4promise(answerDAO.findByAnswerNums, answerNums, deep);
-	 		})
-	 		.then(function (lowAnswers) {
-	 			_lowAnswers = lowAnswers;
-	 			var userIds = _.union(Answer.getUserIds(_answers)
-	 			            		, Answer.getUserIds(_lowAnswers) );
+	 			_answers = answers
+	 			var userIds = Answer.getUserIds(_answers);
 	 	    	return H.call4promise([userDAO.findByIds], userIds);
 	 		})
 			 .then(function (users) {
-			     var _answersJoiner = new ReferenceJoiner(_answers, 'userId', 'user')
-			       , joinedAnswerByUser = _answersJoiner.join(users, '_id');
-			     debug('joinedAnswerByUser :',joinedAnswerByUser)
-			     var _lowAnswersJoiner = new ReferenceJoiner(_lowAnswers, 'userId', 'user')
-			       , joinedLowAnswersByUser = _lowAnswersJoiner.join(users, '_id');
-			     debug('joinedLowAnswersByUser :',joinedLowAnswersByUser)
-			     
-			     //거꾸로해야해. 자식이 부모를 찾는것.
-			     var answerJoiner = new ReferenceJoiner(joinedAnswerByUser, 'num', 'answers')
-			       , joinedAnswersByLowAnswers = answerJoiner.joinMany(joinedLowAnswersByUser, 'answerNum');
-			     
-			     debug('joinedAnswers :',joinedAnswersByLowAnswers)
-			     debug('joinedAnswers.answers :',joinedAnswersByLowAnswers.answers)
-				 dataFn(joinedAnswersByLowAnswers);
+			     var userJoiner = new Joiner(users, '_id', 'user')
+			       , joinedAnswerByUser = userJoiner.joinTo(_answers, 'userId');
+			     var answerJoiner = new Joiner(joinedAnswerByUser, 'answerNum', 'answers')
+			       , rootOfTree = answerJoiner.treeTo(Answer.makeRoot(), 'num');
+
+				 dataFn(rootOfTree.answers);
+				 
+			     debug('joinedAnswerByUser :', joinedAnswerByUser)
+			     debug('rootOfAnswersTree :', rootOfTree)
 			})
 	 		.catch(errFn);
 }

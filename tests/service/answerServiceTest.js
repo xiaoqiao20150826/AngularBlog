@@ -48,8 +48,9 @@ describe('answerService', function () {
 		})
 		it('should take emptyanswer by wrong answerNum', function (nextTest) {
 			var errFn = H.testCatch1(nextTest);
-			answerService.getJoinedAnswers(new H.Done(dataFn, errFn), 7);
+			answerService.getJoinedAnswers(new H.Done(dataFn, errFn), 22);
 			function dataFn(e_answers) {
+				debug('answers empty ',e_answers)
 				should.equal(e_answers.length,0);
 				nextTest();
 			}

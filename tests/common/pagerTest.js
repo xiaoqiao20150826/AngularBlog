@@ -1,7 +1,6 @@
 /**
  * 
  */
-var pagerTest = module.exports = {}
 	
 var should = require('should')
   , Pager = require('../../common/Pager.js');

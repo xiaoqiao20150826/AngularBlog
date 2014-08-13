@@ -3,7 +3,7 @@
 
 <meta charset="utf-8">
 <div class="container col-sm-7 col-sm-offset-2">
-	<% 
+	<% 	var scriptletUtil = blog.scriptletUtil
 		var loginUser = blog.loginUser
 		  , categories = blog.categories
 	%>
@@ -19,11 +19,17 @@
 		 		<select name = "parentId" class="selectpicker">
 					<option value="root">---기본---</option>
 					<% 
-						for(var i in categories) {
-						var category = categories[i]
+					var categories = categories;
+					scriptletUtil.treeEach(categories, 'categories', eachFn);
+					function eachFn(category, deep) {
+						var title = category.title
+						  , space = scriptletUtil.repeatString('&nbsp;',deep)
+						title = space + title;
 					%>
-					<option value="<%=category.id%>"><%=category.title%></option>
-					<% } %>
+					<option value="<%=category.id%>"><%=title%></option>	
+					<%
+					}
+					%>
 				</select>
 				<input name="newTitle">
 				<input type="submit" class="btn btn-default" value="insert">

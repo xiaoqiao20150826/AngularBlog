@@ -24,7 +24,7 @@ reqParser.getRawData = function (req) {
 reqParser.getLoginUser = function (req) {
 	var loginUser = User.createBy(req.session.passport.user);
 	if(loginUser.isExist()) return loginUser;
-	else return User.getEmptyUser();
+	else return User.getAnnoymousUser();
 }
 
 // passport로 소셜서비스에서 전달된 데이터를 아래 형식의 레코드로 반환해준다.

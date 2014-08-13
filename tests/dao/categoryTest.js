@@ -1,16 +1,17 @@
 /**
  * 
  */
-
 var should = require('should')
-  , _ = require('underscore');
+  , _ = require('underscore')
+  , debug = require('debug')('test:dao:categoryTest')
 
 var H = require('../testHelper.js')
   , Done = H.Done
+  , categoryService = require('../../services/categoryService.js')
   , categoryDAO = require('../../dao/categoryDAO.js')
   , Category= require('../../domain/Category.js');
 
-var log = require('debug')('dao:categoryTest');
+var debug = require('debug')('test:dao:categoryTest');
 
 var _title = 'gggggggggg';
 describe('categoryDAO', function() {
@@ -22,7 +23,7 @@ describe('categoryDAO', function() {
 			function dataFn() {
 				categoryDAO.findAll(new Done(dataFn))
 				function dataFn(_categories) {
-//					log('inserted categories : ',_categories)
+					debug('inserted categories : ',_categories)
 					categories =  _categories;
 					nextTest();
 				}
@@ -42,18 +43,29 @@ describe('categoryDAO', function() {
 			var errFn = H.testCatch1(nextTest);
 			categoryDAO.findAll(new Done(dataFn, errFn))
 			function dataFn(categorys) {
-//				log('findAll : ',categorys);
+				debug('findAll : ',categorys);
 				should.equal(categorys[0].title , 'title1')
 				nextTest()
 			}
 		});
+		describe('#categoryService',function() {
+			it('should get joinedCategories', function (nextTest) {
+				var errFn = H.testCatch1(nextTest);
+				categoryService.getJoinedCategories(new Done(dataFn, errFn))
+				function dataFn(joinedCategories) {
+					debug('joinedCategories[2] : ',joinedCategories[2]);
+					should.equal(joinedCategories[2].categories[0].title , 'childTitle')
+					nextTest()
+				}
+			});
+		})
 		it('should return bool hasDuplicateChildTitleFromParent', function (nextTest) {
 			var errFn = H.testCatch1(nextTest);
-			var parent = Category.getRoot()
+			var parent = Category.makeRoot()
 			, title = 'title1';
 			categoryDAO.hasDuplicateChildTitleFromParent(new Done(dataFn, errFn), parent, title)
 			function dataFn(hasDuplicateChildTitle) {
-//				log('hasDuplicateChildTitleFromParent : ',hasDuplicateChildTitle)
+//				debug('hasDuplicateChildTitleFromParent : ',hasDuplicateChildTitle)
 				should.equal(hasDuplicateChildTitle, true);
 				nextTest()
 			}
@@ -63,24 +75,24 @@ describe('categoryDAO', function() {
 	describe('#insert',function() {
 		it('should handle err if insert a category with duplicate title category have same parent', function (nextTest) {
 			var errFn = H.testCatch1(nextTest);
-			var parent = Category.getRoot()
+			var parent = Category.makeRoot()
 			  , title = 'title1';
 			
 			categoryDAO.insertChildToParentByTitle(new Done(dataFn, errFn), parent, title)
 			function dataFn(categoryOrErrString) {
-//				log('insert err : ', categoryOrErrString)
+//				debug('insert err : ', categoryOrErrString)
 				should.equal(_.isString(categoryOrErrString) , true);
 				nextTest();
 			}
 		})
 		it('should insert ChildToParentByTitle', function (nextTest) {
 			var errFn = H.testCatch1(nextTest);
-			var parent = Category.getRoot()
+			var parent = Category.makeRoot()
 			, title = 'title123';
 			
 			categoryDAO.insertChildToParentByTitle(new Done(dataFn, errFn), parent, title)
 			function dataFn(categoryOrErrString) {
-//				log('insert err : ', categoryOrErrString)
+//				debug('insert err : ', categoryOrErrString)
 				should.equal(categoryOrErrString.title , title);
 				nextTest();
 			}
@@ -93,7 +105,7 @@ describe('categoryDAO', function() {
 			  , alreadyExistTitle = 'title1';
 			categoryDAO.updateTitleByCategory(new Done(dataFn, errFn), category, alreadyExistTitle)
 			function dataFn(successMessageOrErrString) {
-//				log('update err : ', successMessageOrErrString)
+//				debug('update err : ', successMessageOrErrString)
 				should.exist(successMessageOrErrString.match('already exist '));
 				nextTest();
 			}
@@ -104,7 +116,7 @@ describe('categoryDAO', function() {
 			, newTitle = 'newTitle';
 			categoryDAO.updateTitleByCategory(new Done(dataFn, errFn), category, newTitle)
 			function dataFn(successMessageOrErrString) {
-//				log('update message : ', arguments)
+//				debug('update message : ', arguments)
 				should.equal(successMessageOrErrString,'success');
 				nextTest();
 			}
@@ -153,17 +165,16 @@ describe('categoryDAO', function() {
 
 /////////
 function _insertAllTestData(dataFn) {
-	var root = Category.getRoot();
 	
-	H.call4promise(categoryDAO.insertChildToParentByTitle, root, 'title1')
+	H.call4promise(categoryDAO.insertChildToParentByTitle, Category.makeRoot(), 'title1')
 	 .then(function () {
-		return H.call4promise(categoryDAO.insertChildToParentByTitle, root, 'title2') 
+		return H.call4promise(categoryDAO.insertChildToParentByTitle, Category.makeRoot(), 'title2') 
 	 })
 	 .then(function (category) {
 		 return H.call4promise(categoryDAO.increasePostCountById, category.id)  
 	 })
 	 .then(function () {
-		 return H.call4promise(categoryDAO.insertChildToParentByTitle, root, 'hasChild')
+		 return H.call4promise(categoryDAO.insertChildToParentByTitle, Category.makeRoot(), 'hasChild')
 	 })
 	 .then(function (parent) {
 		 return H.call4promise(categoryDAO.insertChildToParentByTitle, parent, 'childTitle')		 

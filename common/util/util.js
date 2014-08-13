@@ -19,12 +19,12 @@ var U = module.exports = {
 		,notExist : function(o) {
 			return !this.exist(o);
 		}
-		// 좀 더 깊이비교할것인가?
-		,isEqual : function(a, b) {
+		// 현재는 스트링.
+		,equal : function(a, b) {
 			if(a == b) return true;
 			else return false;
 		}
-		,isNotEqual : function(a, b) {
+		,notEqual : function(a, b) {
 			return !this.isEqual(a,b);
 		}
 
