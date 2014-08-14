@@ -130,7 +130,7 @@ postDAO.updateReadCount = function(done, num) {
 };
 postDAO.updateFilePaths = function(done, num, filePath) {
 	var where = {num : num}
-	,data = {$addToSet: { filePaths : filePath }};
+	,data = {$addToSet: { filePaths : filePath } };
 	_update(done, where, data);
 };
 
@@ -250,7 +250,7 @@ function getSchema() {
         'answerCount' : Number,
         'vote' : Number,
         'votedUserIds' : Array,
-        'filePaths' : String,
+        'filePaths' : Array,
         'title' : String,
         'content' : String,
         'userId' : String,  // 참조

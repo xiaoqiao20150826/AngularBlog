@@ -14,7 +14,7 @@ var Post = module.exports = function Post() {
 	this.readCount = 0;
 	this.vote = 0;
 	this.votedUserIds = [];
-	this.filePaths = null;
+	this.filePaths = [];  // 저장할때 로컬의 절대 주소로 .지우기쉽게.
 	this.title = '';
 	this.content = '';
 	this.created = Date.now();
@@ -44,10 +44,13 @@ Post.getUserIds = function (posts) {
 	}
 	return result;
 }
+Post.getFileName4url = function (filePath) {
+	return filePath.slice(filePath.lastIndexOf('\\')+1);
+}
 
 /* instance method */
 //get
-Post.prototype.getTitle4Url = function () {
+Post.prototype.getTitle4url = function () {
 	return this.title.trim().replace(/\s+/g, '-');
 };
 Post.prototype.getNum = function () {
@@ -56,14 +59,6 @@ Post.prototype.getNum = function () {
 Post.prototype.getUserId = function () {
 	return this.userId;
 };
-Post.prototype.getFileName = function () {
-	var filePath = this.filePaths;
-	if(this.hasFile())
-		return filePath.slice(filePath.lastIndexOf('\\')+1);
-	else
-		return null;
-}
-
 
 //set
 Post.prototype.setNum = function (num) {
@@ -76,13 +71,14 @@ Post.prototype.setAnswers = function (answers) {
 	this.answers = answers || [];
 	this.answerCount = answers.length;
 };
+//deprease
 Post.prototype.addFilePath = function (path) {
 	if(this.filePaths == null) this.filePaths = []; 
 	this.filePaths = _.union(this.filePaths, path);
 };
 // etc
 Post.prototype.hasFile = function () {
-	if(this.filePaths)
+	if(!_.isEmpty(this.filePaths))
 		return true
 	else
 		return false;

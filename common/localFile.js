@@ -71,7 +71,8 @@ localFile.copyNoThrow = function(done, fromFileUrl, toFileUrl) {
 localFile.copy = function(done, fromFileUrl, toFileUrl) {
 	H.call4promise(localFile.read, fromFileUrl)
 	 .then(function(data) {
-		 debug('read data :', data)
+//		 이미지를 읽을때 debug하면 무한반복됨. 이게 뭔일이냐.
+//		 debug('read data :', data)
 		 localFile.createEx(done, toFileUrl, data);
 	 })
 	 .catch(done.getErrFn());

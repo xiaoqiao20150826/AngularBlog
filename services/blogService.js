@@ -5,6 +5,7 @@
 /* 초기화 및 의존성, 클래스 변수 */
 
 var debug = require('debug')('nodeblog:service:blogService')
+var _ = require('underscore')
 var H = require('../common/helper.js')
   , path = require('path')
   , localFile = require('../common/localFile.js')
@@ -123,7 +124,7 @@ blogService.insertPostWithFile = function(done, post, file) {
    		 //post insert 후 비동기로 작업.
    		 blogService.saveFileAndUpdatePost(file, post)
    		
-   		 //바로 반환
+   		 //서버응답
    		 var insertedPost = args[0];
    		 return dataFn(insertedPost);
    	 })
@@ -140,8 +141,10 @@ blogService.saveFileAndUpdatePost = function (file, post) {
 	 .then(function(savedFileUrl) {
 		debug('saved file url : ', savedFileUrl) 
 		 if(_.isEmpty(savedFileUrl)) return;
+		
 		 return H.call4promise(postDAO.updateFilePaths ,post.num ,savedFileUrl)
 	 })
+	 .catch(function(){});
 }	
 
 // TODO:비동기로바꿔

@@ -28,18 +28,28 @@
 			<%
 			if(post.hasFile()) {
 			%>
-				<footer class="span8">
+				<footer class="row">
 					<div class='pull-right'>
 						<div class='row-fluid'>download</div>
-						<div class='row-fluid'>
-							<a href='/file/download?filepath=<%= post.filePaths %>'> <%=
-								post.getFileName(post.filePaths) %> 
-							</a>
-						</div>
+							<%
+								
+								var Post = post.constructor
+								var filePaths = post.filePaths
+								for(var i in filePaths) {
+								var fileName = Post.getFileName4url(filePaths[i])
+							%>
+							 	<form action="/file/download" method="post" >
+									<input name="userId" value="<%= user._id%>" style="display:none">
+									<input name="fileName" value="<%= fileName%>" style="display:none">
+								 	<input class='btn btn-link' type="submit" value='<%=fileName%>'>
+								</form>
+							<%
+								}
+							%>
 					</div>
 				</footer>
 			<% } %>
-				<footer class="span8">
+				<footer class="span8" style="padding:0">
 			<%
 				if(loginUser.isExist()) {
 			%>

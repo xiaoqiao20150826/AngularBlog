@@ -8,7 +8,7 @@ var mongoose = require('mongoose')
   , _ = require('underscore');
 
 var	H = require('../testhelper.js')
-  , reqParser = require('../../routes/common/reqParser.js')
+  , requestParser = require('../../routes/common/requestParser.js')
   , userDAO = require('../../dao/userDAO.js')
   , User = require('../../domain/User.js');
 
@@ -38,7 +38,7 @@ describe('userDAO', function() {
 	describe('User', function() {
 		it('should create by vary models', function () {
 			var passportData = {id : 'id' , name : 'name', photo : 'photo', email : 'email', provider : 'provider'}
-			  , userInfo = reqParser.profileToUserInfo(passportData);
+			  , userInfo = requestParser.profileToUserInfo(passportData);
 			var dbData = {_id : 'id' , name : 'name', photo : 'photo', email : 'email'}
 			var user1 = User.createBy(userInfo);
 			var user2 = User.createBy(dbData);

@@ -77,50 +77,36 @@ describe('blogService', function () {
 			blogService.insertPostWithFile(done, post, emptyFile);
 			function dataFn(post) {
 				should.exist(post);
-				should.equal(post.filePaths, null);
-				nextTest();
-			}
-		})
-		it('should insert post with file', function (nextTest) {
-			var errFn = H.testCatch1(nextTest)
-			  , done = new H.Done(dataFn, errFn);
-			
-			var file = {size:2, name:testFileName, path:testFileUrl};
-			blogService.insertPostWithFile(done, post, file);
-			function dataFn(post) {
-				_postWithFile4Test = post;
-				var filepath = post.filePaths;
-				var fileName = path.basename(filepath)
-				should.equal(fileName, 'test.txt');
+				should.deepEqual(post.filePaths, []);
 				nextTest();
 			}
 		})
 	})
-	describe('#deletePostOrFile', function() {
-		it('should delete post with null filepath', function(nextTest) {
-			var errFn = H.testCatch1(nextTest)
-			  , done = new H.Done(dataFn, errFn);
-			var filepath = null
-			  , postNum = post.num;
-			blogService.deletePostOrFile(done, postNum , filepath);
-			function dataFn() {
-				//이곳까지와서 nextTest()만 호출하면됨.
-//				console.log('without')
-				nextTest();
-			}
-		})
-		it('should delete post and file', function(nextTest) {
-			var errFn = H.testCatch1(nextTest)
-			, done = new H.Done(dataFn, errFn);
-			//위에서 삽입했던 데이터 재활용..겸 삭제
-			blogService.deletePostOrFile(done, _postWithFile4Test.num , _postWithFile4Test.filePaths);
-			function dataFn() {
-				//이곳까지와서 nextTest()만 호출하면됨.
-//				console.log('with')
-				nextTest();
-			}
-		})
-	})
+//	describe('#deletePostOrFile', function() {
+//		it('should delete post with null filepath', function(nextTest) {
+//			var errFn = H.testCatch1(nextTest)
+//			  , done = new H.Done(dataFn, errFn);
+//			var filepath = null
+//			  , postNum = post.num;
+//			blogService.deletePostOrFile(done, postNum , filepath);
+//			function dataFn() {
+//				//이곳까지와서 nextTest()만 호출하면됨.
+////				console.log('without')
+//				nextTest();
+//			}
+//		})
+//		it('should delete post and file', function(nextTest) {
+//			var errFn = H.testCatch1(nextTest)
+//			, done = new H.Done(dataFn, errFn);
+//			//위에서 삽입했던 데이터 재활용..겸 삭제
+//			blogService.deletePostOrFile(done, _postWithFile4Test.num , _postWithFile4Test.filePaths);
+//			function dataFn() {
+//				//이곳까지와서 nextTest()만 호출하면됨.
+////				console.log('with')
+//				nextTest();
+//			}
+//		})
+//	})
 	describe('#update', function () {
 		it('should success increaseVote', function (nextTest) {
 			var errFn = H.testCatch1(nextTest)

@@ -30,7 +30,7 @@ var testSuites = [
 				  , './dao/categoryTest.js'
 
 //				  , './routes/common/checkerTest.js' 사용안함
-				  , './routes/common/reqParserTest.js'
+				  , './routes/common/requestParserTest.js'
 				  , './routes/common/cookieTest.js'
 				  
 				  , './service/blogServiceTest.js'
