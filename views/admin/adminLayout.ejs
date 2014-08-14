@@ -16,21 +16,7 @@
 	<form  id='categoryInsertForm'>
 		<div class="media">
 			<div class="media-object">
-		 		<select name = "parentId" class="selectpicker">
-					<option value="root">---기본---</option>
-					<% 
-					var categories = categories;
-					scriptletUtil.treeEach(categories, 'categories', eachFn);
-					function eachFn(category, deep) {
-						var title = category.title
-						  , space = scriptletUtil.repeatString('&nbsp;',deep)
-						title = space + title;
-					%>
-					<option value="<%=category.id%>"><%=title%></option>	
-					<%
-					}
-					%>
-				</select>
+				<% include ../category/categorySelector.ejs %>
 				<input name="newTitle">
 				<input type="submit" class="btn btn-default" value="insert">
 			</div>
@@ -40,23 +26,12 @@
 	<form action="/admin/category/delete" method="post">
 		<div class="media">
 			<div class="media-object">
-		 		<select name = "title" class="selectpicker">
-					<% 
-						for(var i in categories) {
-						var category = categories[i]
-						  , childTitles = category.childTitles;
-					%>
-					<option><%=category.title%></option>
-						<% 
-							for(var j in childTitles) {
-							var childTitle = childTitles[j];
-						%>
-						<option value='<%=category.title%>;<%=childTitle%>'>&nbsp;&nbsp;<%=childTitle%></option>
-						<% } %>
-					<% } %>
-				</select>
+		 		<% include ../category/categorySelector.ejs %>
+			</div>
+			<div class="media-body">
 				<button class="btn btn-default">delete</button>
 			</div>
+			
 		</div>
 	</form>	
 	

@@ -7,7 +7,8 @@
 	var COUNT = 'count';
 	var groupedPostsByDate = blog.groupedPostsByDate
 	  , _ = blog._
-	  , H = blog.H;
+	  , H = blog.H
+	  , scriptletUtil = blog.scriptletUtil 
 	
 	var yearsMap = groupedPostsByDate
 	  , yearsCount = H.getAndRemove(yearsMap, COUNT);

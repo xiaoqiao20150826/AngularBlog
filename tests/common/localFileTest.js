@@ -101,6 +101,15 @@ describe('localFile', function() {
 				nextTest();
 			}
 		})
+		it('should not copy if emptyFile', function(nextTest) {
+			var from = 'wrongPath'
+			, to = H.pushInMidOfStr(from, 1, '.');
+			localFile.copyNoThrow(new Done(dataFn, catch1(nextTest)), from, to);
+			function dataFn(url) {
+				should.equal(url , null);
+				nextTest();
+			}
+		})
 		it('복사하되 from이 이미 있다면 다른 이름으로 만든다', function(nextTest) {
 			var from = fileUrl
 			  , to = fileUrl;

@@ -20,7 +20,6 @@ var Sequence = module.exports = function(_id) {
 };
 
 // instance method
-	
 Sequence.prototype.create = function(done) {
 	var doc = {_id:this._id, seq:0}
 	  , done = done || new H.Done(function emptyDataFn() {}) //하는 일이 없다.

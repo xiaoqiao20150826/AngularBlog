@@ -1,6 +1,7 @@
 /**
  *  fs을 감싼 객체.
  */
+var debug = require('debug')('nodeblog:commmon:localFile')
 var _ = require('underscore')
   , path = require('path')
   , fs = require('fs');
@@ -59,13 +60,23 @@ localFile.read = function(done, fileUrl) {
 	var option = {encoding:'utf8'};
 	fs.readFile(fileUrl, option, done.getCallback());
 }
+localFile.copyNoThrow = function(done, fromFileUrl, toFileUrl) {
+	var dataFn = done.getDataFn();
+	done.setErrFn(function() {
+		dataFn(null);
+	})
+	localFile.copy(done, fromFileUrl, toFileUrl)
+}
+
 localFile.copy = function(done, fromFileUrl, toFileUrl) {
 	H.call4promise(localFile.read, fromFileUrl)
 	 .then(function(data) {
+		 debug('read data :', data)
 		 localFile.createEx(done, toFileUrl, data);
 	 })
 	 .catch(done.getErrFn());
 }
+
 localFile.copyNoDuplicate = function(done, fromFileUrl, toFileUrl) {
 	var i = 0;
 	
@@ -73,7 +84,7 @@ localFile.copyNoDuplicate = function(done, fromFileUrl, toFileUrl) {
 	function loopUntilNoExistFile(to) {
 		H.call4promise(localFile.exists, to)
 		 .then(function (existFile) {
-			 if(!existFile) { return localFile.copy(done, fromFileUrl, to); }
+			 if(!existFile) { return localFile.copyNoThrow(done, fromFileUrl, to); }
 			 else {
 				 var newFileUrl = H.pushInMidOfStr(toFileUrl, (++i), '.');
 				 return loopUntilNoExistFile(newFileUrl);

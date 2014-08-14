@@ -96,6 +96,7 @@ var U = module.exports = {
 			}
 			return target;
 		}
+		//디버깅할때 params에서 array를 보았다. 혹시 여기서 에러나면 다시확인을.
 		//ojbects를 병합하되 얕은 병합. 
 		,lightMerge : function (objects , isCondition) {
 			isCondition = isCondition || function() {return true};

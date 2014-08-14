@@ -35,3 +35,7 @@ Category.prototype.hasPost = function () {
 	if(this.postCount > 0) return true;
 	else return false;
 }
+Category.isRoot = function(categoryId) {
+	if(categoryId == ROOT_ID) return true
+	else return false;
+}

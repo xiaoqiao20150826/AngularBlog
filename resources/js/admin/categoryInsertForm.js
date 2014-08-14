@@ -12,15 +12,17 @@ $$namespace.include(function(exports, require) {
 			},
 			insertCategoryAndReLocationAdmin : function (e) {
 				var queryString = decodeURI($form.serialize())
-				  , queryMap = H.queryStringToMap(queryString);
-				
-				if(_.isEmpty(queryMap.newTitle)) {
+				  , queryMap = H.queryStringToMap(queryString)
+				  , newCategory = { parentId : queryMap.categoryId //select의 name
+						  		  , newTitle : queryMap.newTitle
+						  		  };				
+				if(_.isEmpty(newCategory.newTitle)) {
 					H.redirect('/admin');
 					return e.preventDefault();
 				}
 
 				
-				H.ajaxCall(dataFn, 'post', 'ajax/category', queryMap);
+				H.ajaxCall(dataFn, 'post', 'ajax/category', newCategory);
 				return e.preventDefault();
 				
 				function dataFn (resultString) {

@@ -5,6 +5,7 @@ var _ = require('underscore')
   , H = require('../common/helper.js')
   , Category = require('../domain/Category.js');
 
+var DEFAULT_TITLE = '기본';
 // 싱글톤 (포함되는 참조변수 초기화 후 싱글톤 반환)
 var _db; //콜백함수를 위해 this없이 접근할 수 있도록..
 var categoryDAO = module.exports = (function init() {
@@ -17,6 +18,7 @@ var categoryDAO = module.exports = (function init() {
 	
 	return self;
 })();
+
 
 
 		//find

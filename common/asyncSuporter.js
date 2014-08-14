@@ -2,9 +2,7 @@
  *  비동기 관련 보조 함수들.
  */
 
-/** 
- * reference variables 
- */
+var debug = require('debug')('nodeblog:common:asyncSuporter')
 var _ = require('underscore')
   , Q = require('q')
   , async = require('async');
@@ -15,6 +13,8 @@ var U = require('./util/util.js')
 asyncSuporter = module.exports = {};
 //Done 참조쉽게 여기에 놓음
 asyncSuporter.Done = Done;
+
+//            deprease
 /////////////
 /* 비동기 함수 호출을 위한 루프 */
 //1) someList의 각 원소를 인자로하여 비동기함수를 수행한다
@@ -32,7 +32,6 @@ asyncSuporter.asyncLoop = function (someList ,contextAndAsyncFn, done) {
 		context = null;
 		asyncFn = contextAndAsyncFn;
 	}
-	
 	
 	async.series(_.map(someList, _iterator), done.getCallback());
 	function _iterator(eachVal) {
@@ -67,3 +66,60 @@ asyncSuporter.call4promise = function (contextAndAsyncFn /*...args*/) {
 	function _dataFn(data){ deferred.resolve(data)};
 }
 
+
+asyncSuporter.all4promise = function (asyncMethodAndArgsList) {
+	if(!_.isArray(asyncMethodAndArgsList)) throw new Error('arguments must be array');
+	debug('$all4promise : ',asyncMethodAndArgsList)
+	return this.call4promise(this.all, asyncMethodAndArgsList)
+}
+// all
+// # 전제
+//     1) this가 필요할시 알아서 바인딩할것. 그런데 바인딩하면되는지확인안함.
+//     2) asyncMethod(done , arg1, .....)  첫번째 파라미터가 done인 함수  
+// # 이상한것
+//  TODO: 하나의 함수일때 arg를 전달하기 위해서는 [ [fn, arg1..] ] 이렇게 해야해.이상해.
+//  TODO: promise가 인자로 오는 기능은 아직임. 확인하고 then에 연결해야함.
+asyncSuporter.all = function (done, asyncMethodAndArgsList) {
+	if(!_.isArray(asyncMethodAndArgsList)) asyncMethodAndArgsList = [asyncMethodAndArgsList]
+	var lastDataFn = done.getDataFn()
+	  , errFn = done.getErrFn()
+	  , lastCallIndex = asyncMethodAndArgsList.length
+	var orderAndReturnArgs = {}
+	  , callCount = 0;
+	
+	_.each(asyncMethodAndArgsList, function (asyncMethodAndArgs, i) {
+		if(!_.isArray(asyncMethodAndArgs)) asyncMethodAndArgs = [asyncMethodAndArgs]
+		
+		
+		var eachDataFn = indexedEachDataFn(i)
+		  , eachDone = new Done(eachDataFn, errFn)
+		var asyncMethod = _.first(asyncMethodAndArgs)
+		  , args = _.union(eachDone, _.rest(asyncMethodAndArgs))
+		if(!_.isFunction(asyncMethod)) throw console.error(''+ asyncMethod+ ' must be function')
+		debug(i+ ':'+'args of asyncMethod :' +args)
+		asyncMethod.apply(null, args)
+	})
+	
+	function indexedEachDataFn(index) {
+
+		return function eachDataFn(/* args */) {
+			debug(index+ ':'+'args asyncCall :' +args)
+			var args = null;
+			switch(arguments.length) {
+				case 0 : break;
+				case 1 : 
+					args = _.first(arguments);
+					break;
+				default : //큰경우
+					args = _.toArray(arguments);
+					break;
+			}
+			orderAndReturnArgs[index] = args;
+			
+			debug('lastCallIndex and called count ' +lastCallIndex+ ' and '+callCount+'+1')
+			if(lastCallIndex == (++callCount)) {
+				lastDataFn(orderAndReturnArgs)
+			}
+		}
+	}
+}

@@ -17,10 +17,10 @@ var Post = module.exports = function Post() {
 	this.filePaths = null;
 	this.title = '';
 	this.content = '';
-	this.userId = C.ANNOYMOUS_ID;
 	this.created = Date.now();
 	this.answerCount = 0;
-	
+	this.userId = C.ANNOYMOUS_ID;
+	this.categoryId = '';	
 };
 
 /* static method */

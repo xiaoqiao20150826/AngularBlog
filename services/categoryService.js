@@ -39,3 +39,10 @@ categoryService.insertCategory = function (done, parentId, newTitle) {
 	
 	return categoryDAO.insertChildToParentByTitle(done, parent, newTitle);
 }
+categoryService.increasePostCountById = function (done, categoryId) {
+	var dataFn = done.getDataFn();
+	if(_.isEmpty(categoryId) || Category.isRoot(categoryId)) return dataFn(null);
+	
+	return categoryDAO.increasePostCountById(done, categoryId);
+}
+

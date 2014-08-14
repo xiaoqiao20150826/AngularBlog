@@ -4,7 +4,7 @@ var _ = require('underscore')
   , debug = require('debug')('route:answer')
 
 var H = require('../common/helper.js')
-  , reqParser = require('./common/reqParser.js')
+  , requestParser = require('./common/requestParser.js')
   , Done = H.Done
   , Answer = require('../domain/Answer.js')
   , answerService = require('../services/answerService.js');
@@ -21,8 +21,8 @@ var blog = module.exports = {
 		_config = app.get('config');
 	}	
     , insert : function(req, res) {
-		var loginUser = reqParser.getLoginUser(req)
-		  , rawData = reqParser.getRawData(req)
+		var loginUser = requestParser.getLoginUser(req)
+		  , rawData = requestParser.getRawData(req)
 		  , userId = rawData.userId
 		  , answer = Answer.createBy(rawData);
 		if(loginUser.isNotExist() || loginUser.isNotEqualById(userId)) return _redirectCurrentPost(rawData, res);
@@ -36,8 +36,8 @@ var blog = module.exports = {
 		}
 	}
     , delete : function(req, res) {
-		var loginUser = reqParser.getLoginUser(req)
-		  , rawData = reqParser.getRawData(req)
+		var loginUser = requestParser.getLoginUser(req)
+		  , rawData = requestParser.getRawData(req)
 		  , userId = rawData.userId
     	  , num = rawData.num;
     	

@@ -9,7 +9,7 @@ var H = require('../helper.js')
   , Done = H.Done;
 
 var User = require('../../domain/User.js')
-  , reqParser = require('../../routes/common/reqParser.js')
+  , requestParser = require('../../routes/common/requestParser.js')
   , userDAO = require('../../dao/userDAO.js');
 // ///////////////////////////////////////
 //------------1. 정의
@@ -39,7 +39,7 @@ var myPassport = (function() {
 		//auth/linkedin/ 요청의 콜백
 		authCallBack : function(accessToken, refreshToken, profile, next) {
 //			console.log('profile' + JSON.stringify(profile));
-			var userInfo = reqParser.profileToUserInfo(profile);
+			var userInfo = requestParser.profileToUserInfo(profile);
 			var loginUser = User.createBy(userInfo); 
 			
 			//1. user가 db에 이미 있는지 찾아보고 없으면 만듬.

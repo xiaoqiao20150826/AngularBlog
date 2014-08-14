@@ -1,13 +1,19 @@
 
 /* 초기화 및 클래스 변수 */
+
+var debug = require('debug')('nodeblog:route:blog')
 var _ = require('underscore')
   , Q = require('q')
-  
 var H = require('../common/helper.js')
-  , reqParser = require('./common/reqParser.js')
+
+var requestParser = require('./common/requestParser.js')
   , Cookie = require('./common/Cookie.js')
-  , Post = require('../domain/Post.js')
-  , blogService = require('../services/blogService');
+  , Redirector = require('./common/Redirector.js')
+  , scriptletUtil = require('../common/util/scriptletUtil.js')
+  
+var Post = require('../domain/Post.js')
+  , blogService = require('../services/blogService')
+  , categoryService = require('../services/categoryService')
 
 var _config;
 var FIRST_PAGE_NUM = 1
@@ -54,93 +60,121 @@ var blog = module.exports = {
 			blog._getBlogListAndRenderTo(req, res, toRenderView)
 	},
  	_getBlogListAndRenderTo : function (req, res, toRenderView) {
-		var rawData = reqParser.getRawData(req)
+ 		var redirector = new Redirector(res)
+		var rawData = requestParser.getRawData(req)
 		  , pageNum = rawData.pageNum
 		  , sorter = rawData.sorter
-		  , loginUser = reqParser.getLoginUser(req);
+		  , loginUser = requestParser.getLoginUser(req);
+		
 		if(!(H.exist(pageNum))) pageNum = FIRST_PAGE_NUM;
 		if(!(H.exist(sorter))) sorter = SORTER_NEWEST;
 		
-		var errFn = catch1(res);
-//		Q
-		blogService.getPostsAndPager(new H.Done(dataFn, catch1(res)), pageNum, sorter)
-		function dataFn(result) {
-			var blog = {posts : result.posts
-					  , pager : result.pager
-					  , loginUser : loginUser 
-					  , sorter : sorter
-					  };
-			res.render(toRenderView, {blog : blog});
-		}
+		var errFn = redirector.catch;
+		H.all4promise([  [blogService.getPostsAndPager, pageNum, sorter]
+		               , [categoryService.getJoinedCategories]
+		])
+         .then(function dataFn(args) {
+           	var postsAndPager = args[0]
+  		      , joinedCategories = args[1];
+  		    
+  			var blog = {posts : postsAndPager.posts
+  					  , pager : postsAndPager.pager
+  					  , categories : joinedCategories
+  					  , loginUser : loginUser 
+  					  , sorter : sorter
+  					  , scriptletUtil : scriptletUtil
+  					  };
+  			
+  			res.render(toRenderView, {blog : blog});
+  		})
+         .catch(errFn)
 	},
 	insertView : function(req,res) {
-		var loginUser = reqParser.getLoginUser(req)
-		  , blog = {loginUser: loginUser};
+		var redirector = new Redirector(res)
+		var loginUser = requestParser.getLoginUser(req)
+		  , rawData = requestParser.getRawData(req)
 		
-		if(loginUser.isExist(req))
-			return res.render('./blog/insert.ejs', {blog: blog});
-		else
-			return res.send('need sign in');
+		if(loginUser.isNotExist()) return redirector.main();
+		
+		H.call4promise(categoryService.getJoinedCategories)
+		 .then(function (joinedCategories) {
+			 	var blog = { loginUser: loginUser
+			 			   , categories : joinedCategories
+			 			   , scriptletUtil : scriptletUtil
+			 			   };
+			 	
+				return res.render('./blog/insert.ejs', { blog : blog} );
+		 })
 	},
 	detailView : function(req, res) {
-		var rawData = reqParser.getRawData(req)
+		var redirector = new Redirector(res)
+		var rawData = requestParser.getRawData(req)
 		  , postNum = rawData.postNum
-		  , loginUser = reqParser.getLoginUser(req)
+		  , loginUser = requestParser.getLoginUser(req)
 		  , cookie = new Cookie(req, res);
-		var errFn = catch1(res);
 		
-		H.call4promise(blogService.increaseReadCount, postNum, cookie)
-		 .then(function() {
-			 blogService.getJoinedPost(new H.Done(dataFn, errFn), postNum);
-				function dataFn(joinedPost) {
-					if(joinedPost.isEmpty()) return res.redirect('/blog'); 
-					
-					var blog = {loginUser : loginUser, post : joinedPost}
-					res.render('./blog/detailLayout.ejs',{blog : blog});
-				}
+		var errFn = redirector.catch;
+		H.all4promise([
+		               	  [blogService.increaseReadCount, postNum, cookie]
+		               	, [blogService.getJoinedPost, postNum]
+		])
+		 .then(function dataFn(args) {
+			 var joinedPost = args[1]
+  			 if(joinedPost.isEmpty()) return redirector.main() 
+			
+			 var blog = { loginUser : loginUser
+					    , post : joinedPost
+			 			}
+			 
+			 res.render('./blog/detailLayout.ejs',{blog : blog} )
 		 })
 		 .catch(errFn);
 	},
 	insertPost : function(req,res) {
-		var loginUser = reqParser.getLoginUser(req)
-		  , rawData = reqParser.getRawData(req)
+		var redirector = new Redirector(res)
+		var loginUser = requestParser.getLoginUser(req)
+		  , rawData = requestParser.getRawData(req)
 		  , userId = rawData.userId
 		  , post = Post.createBy(rawData)
 		  , file = _.first(_.toArray(req.files));//TODO: 현재하나뿐. 파일업로드 안해도 빈거들어감
+
+		debug('insertPost reqData : ', rawData)
+		if(loginUser.isNotExist() || loginUser.isNotEqualById(userId)) return redirector.main()
 		
-		if(loginUser.isNotExist() || loginUser.isNotEqualById(userId)) return _redirectCurrentPost(rawData, res)
-		
-		blogService.insertPostWithFile(new Done(dataFn, catch1(res)), post, file);
+		blogService.insertPostWithFile(new Done(dataFn, redirector.catch), post, file);
 		function dataFn(insertedPost) {
-			_redirectCurrentPost(rawData, res)
+			var postNum = insertedPost.num;
+			redirector.post(postNum)
 		}
 	},
 	deletePostOrFile : function (req, res) {
-		var loginUser = reqParser.getLoginUser(req)
-		  , rawData = reqParser.getRawData(req)
+		var redirector = new Redirector(res)
+		var loginUser = requestParser.getLoginUser(req)
+		  , rawData = requestParser.getRawData(req)
 		  , userId = rawData.userId
 		  , postNum = rawData.postNum
 	      , filepath = rawData.filepath;
 	      
-		if(loginUser.isNotExist() || loginUser.isNotEqualById(userId)) return _redirectCurrentPost(rawData, res)
+		if(loginUser.isNotExist() || loginUser.isNotEqualById(userId)) return redirector.main()
 		
 		if(_.isEmpty(filepath)) filepath = null;  // ''가 전달될 경우
 		
-		blogService.deletePostOrFile(new Done(dataFn, catch1(res)), postNum, filepath);
+		blogService.deletePostOrFile(new Done(dataFn, redirector.catch), postNum, filepath);
 		function dataFn() {
-			res.redirect('/');
+			redirector.main()
 		 }
 	},
 	increaseVote : function (req, res) {
-		var rawData = reqParser.getRawData(req)
+		var redirector = new Redirector(res)
+		var rawData = requestParser.getRawData(req)
 		  , postNum = rawData.postNum
 		  , userId = rawData.userId
-		  , loginUser = reqParser.getLoginUser(req)
+		  , loginUser = requestParser.getLoginUser(req)
 		  , loginUserId = loginUser._id;
 		
-		if(loginUser.isNotExist() || loginUser.isNotEqualById(userId)) return _redirectCurrentPost(rawData, res);
+		if(loginUser.isNotExist() || loginUser.isNotEqualById(userId)) return redirector.post(postNum);
 		
-		blogService.increaseVote(new Done(dataFn, catch1(res)), postNum, loginUserId);
+		blogService.increaseVote(new Done(dataFn, redirector.catch), postNum, loginUserId);
 		function dataFn(isSuccess) {
 			//TODO: 성공 실패를 어떤 데이터를 보내야 할까.
 			if(isSuccess != -1)
@@ -150,35 +184,28 @@ var blog = module.exports = {
 		 }
 	},
 	historyView : function (req, res) {
-		var loginUser = reqParser.getLoginUser(req);
-		blogService.findGroupedPostsByDate(new Done(dataFn, catch1(res)));
+		var redirector = new Redirector(res)		
+		var loginUser = requestParser.getLoginUser(req);
+		blogService.findGroupedPostsByDate(new Done(dataFn, redirector.catch));
 		function dataFn(groupedPostsByDate) {
 			var blog = { loginUser : loginUser
 					   , groupedPostsByDate : groupedPostsByDate 
 					   , _ : _
 					   , H : H
+					   , scriptletUtil : scriptletUtil 
 					   }
 				res.render('./blog/history.ejs',{blog : blog});
 		 }
 	},
 	
 	errPage : function(req, res) {
-		var rawData = reqParser.getRawData(req)
-		res.send('not bind url : ',"not bind url" +JSON.stringify(rawData));
+		var redirector = new Redirector(res)
+		var rawData = requestParser.getRawData(req)
+		redirector.catch(rawData);
 	}
 };
 /*    helper   */
-function _redirectCurrentPost(rawData, res) {
-	var postNum = rawData.postNum || rawData.num || null;
-	
-	if(postNum) return res.redirect('/blog/'+postNum);
-	else return res.redirect('/')
-}
-function catch1(res) {
-	return function(err) {
-		res.send(new Error(err));
-	}
-}
+
 //test
 function _test(req, res) {
 	req.session.passport.user = {_id: '6150493-github'

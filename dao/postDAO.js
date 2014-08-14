@@ -128,6 +128,11 @@ postDAO.updateReadCount = function(done, num) {
 		,data = {$inc:{readCount:1}};
 	_update(done, where, data);
 };
+postDAO.updateFilePaths = function(done, num, filePath) {
+	var where = {num : num}
+	,data = {$addToSet: { filePaths : filePath }};
+	_update(done, where, data);
+};
 
 postDAO.updateVoteAndVotedUserId = function(done, num, userId) {
 	var where = {num : num}
@@ -248,6 +253,7 @@ function getSchema() {
         'filePaths' : String,
         'title' : String,
         'content' : String,
-        'userId' : String  // 참조
+        'userId' : String,  // 참조
+        'categoryId' : String  // 참조
 		};
 };

@@ -3,7 +3,8 @@
  */
 
 /* 초기화 및 의존성, 클래스 변수 */
-var Q = require('q');
+
+var debug = require('debug')('nodeblog:service:blogService')
 var H = require('../common/helper.js')
   , path = require('path')
   , localFile = require('../common/localFile.js')
@@ -18,6 +19,7 @@ var postDAO = require('../dao/postDAO.js')
   , userDAO = require('../dao/userDAO.js')
    ,answerDAO = require('../dao/answerDAO.js')
    ,answerService = require('./answerService.js')
+   ,categoryService = require('./categoryService.js')
    ,Pager = require('../common/Pager.js');
 
 
@@ -80,33 +82,69 @@ blogService.getJoinedPost = function (done, postNum) {
 	.catch(errFn);
 }
 //이 구조. 너무 장황해
+//blogService.insertPostWithFile = function(done, post, file) {
+//	var dataFn = done.getDataFn()
+//	, errFn = done.getErrFn();
+//	
+//	var imgDir =config.imgDir + '\\' + post.userId;
+//	var promise = null;
+//	
+//	if(localFile.existFile(file)) {
+//		var urls = localFile.getToAndFromFileUrl(file, imgDir);
+//		promise = H.call4promise(localFile.copyNoDuplicate, urls.from , urls.to)
+//		.then(function(savedFileUrl) {
+//			post.addFilePath(savedFileUrl);
+//		})
+//		.catch(errFn);
+//	};
+//	nextFn(promise);
+//	
+//	function nextFn(promise) {
+//		if(promise == null) __fn();
+//		else promise.then(__fn);
+//		
+//		function __fn() {
+//			H.call4promise(postDAO.insertOne ,post)
+//			.then(dataFn).catch(errFn);
+//		}
+//	}
+//}
 blogService.insertPostWithFile = function(done, post, file) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();
 	
-	var imgDir =config.imgDir + '\\' + post.userId;
-	var promise = null;
+	var categoryId = post.categoryId;
 	
-	if(localFile.existFile(file)) {
-		var urls = localFile.getToAndFromFileUrl(file, imgDir);
-		promise = H.call4promise(localFile.copyNoDuplicate, urls.from , urls.to)
-				   .then(function(savedFileUrl) {
-					   post.addFilePath(savedFileUrl);
-				    })
-				   .catch(errFn);
-	};
-	nextFn(promise);
-	
-	function nextFn(promise) {
-		if(promise == null) __fn();
-		else promise.then(__fn);
+	H.all4promise([ 
+	                [postDAO.insertOne ,post]
+	              , [categoryService.increasePostCountById, categoryId]
+     ])
+   	 .then(function (args) {
+   		 //post insert 후 비동기로 작업.
+   		 blogService.saveFileAndUpdatePost(file, post)
+   		
+   		 //바로 반환
+   		 var insertedPost = args[0];
+   		 return dataFn(insertedPost);
+   	 })
+	 .catch(errFn);
+};
+
+// 비동기로 실패하던, 성공하던 신경 쓰지 않음.
+blogService.saveFileAndUpdatePost = function (file, post) {
+	//file저장 및 업데이트.
+	var imgDir =config.imgDir + '\\' + post.userId
+	  , urls = localFile.getToAndFromFileUrl(file, imgDir);
 		
-		function __fn() {
-			H.call4promise(postDAO.insertOne ,post)
-			 .then(dataFn).catch(errFn);
-		}
-	}
-}
+	H.call4promise(localFile.copyNoDuplicate, urls.from , urls.to)
+	 .then(function(savedFileUrl) {
+		debug('saved file url : ', savedFileUrl) 
+		 if(_.isEmpty(savedFileUrl)) return;
+		 return H.call4promise(postDAO.updateFilePaths ,post.num ,savedFileUrl)
+	 })
+}	
+
+// TODO:비동기로바꿔
 blogService.deletePostOrFile = function (done, postNum, filepath) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();

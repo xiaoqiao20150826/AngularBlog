@@ -1,0 +1,52 @@
+<meta charset="utf-8">
+<div class='container col-sm-8 col-sm-offset-2'>
+
+	<hr style='margin: 0; padding:0; border: thin dashed black'>
+	<div data-toggle="collapse" data-target="#category">
+		<a href="javascrip:">
+			<h4>category&nbsp;&nbsp;&nbsp;<span class="caret"></span>
+			</h4>
+		</a>
+	</div>
+	<hr style='margin: 0; padding:0; border: thin dashed black'>
+	<div class='row col-sm-offset-1 collapse in' id ="category">
+		<div>
+			<%
+			var scriptletUtil = blog.scriptletUtil 
+			  , categories = blog.categories
+			 
+			scriptletUtil.treeEach(categories, 'categories', eachFn, eachNodesBefore, eachNodesAfter);
+			function eachNodesBefore(parentCategory, deep) {
+				var indentifier = parentCategory.id + (deep-1)
+			%>
+			<div class="row col-sm-offset-1 collapse in category-<%=indentifier%>">
+			<%
+			}
+				function eachFn(category, deep, hasChild) {
+				    var indentifier = category.id + deep
+				%>
+				<div data-toggle="collapse" data-target=".category-<%=indentifier%>">
+					<a href="javascrip:">		
+					<h6>
+						<%=category.title %>
+						<%
+						if(hasChild) {
+						%>
+						<span class="caret"></span>
+						<% } %>
+						<span class="badge"><%=category.postCount %></span>
+					</h6>
+					</a>
+				</div>
+				<%
+				}
+			function eachNodesAfter() {
+			%>
+			</div>
+			<%
+			}
+			%>
+			
+		</div>
+	</div>
+</div>

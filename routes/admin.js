@@ -7,7 +7,7 @@ var _ = require('underscore')
   
 var scriptletUtil = require('../common/util/scriptletUtil.js')  
 var H = require('../common/helper.js')
-  , reqParser = require('./common/reqParser.js')
+  , requestParser = require('./common/requestParser.js')
   , categoryService = require('../services/categoryService.js')
   
   
@@ -21,7 +21,7 @@ var admin = module.exports = {
 	},
 ////////////////////////////
 	adminView : function (req, res) {
-		var loginUser = reqParser.getLoginUser(req)
+		var loginUser = requestParser.getLoginUser(req)
 		
 		if(!isAdmin(loginUser))  return _redirectMain(res);
 		
@@ -37,8 +37,8 @@ var admin = module.exports = {
 		
 	},
 	insertCategory: function (req, res) {
-		var loginUser = reqParser.getLoginUser(req)
-		  , rawData = reqParser.getRawData(req)
+		var loginUser = requestParser.getLoginUser(req)
+		  , rawData = requestParser.getRawData(req)
 		  , newTitle = rawData.newTitle
 		  , parentId = rawData.parentId;
 		
@@ -54,8 +54,8 @@ var admin = module.exports = {
 		}
 	}
 //	deleteCategory: function (req, res) {
-//		var loginUser = reqParser.getLoginUser(req)
-//		, rawData = reqParser.getRawData(req)
+//		var loginUser = requestParser.getLoginUser(req)
+//		, rawData = requestParser.getRawData(req)
 //		, titles = rawData.title.split(';')
 //		, categories = Category.createBy(titles);
 //		console.debug(titles);

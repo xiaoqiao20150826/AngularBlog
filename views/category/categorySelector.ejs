@@ -1,0 +1,19 @@
+<meta charset="utf-8">
+<div>
+<select name = "categoryId" class="selectpicker">
+					<option name="root" value="root">---기본---</option>
+					<%
+					var scriptletUtil = blog.scriptletUtil
+					    categories = blog.categories 
+					scriptletUtil.treeEach(categories, 'categories', eachFn);
+					function eachFn(category, deep) {
+						var title = category.title
+						  , space = scriptletUtil.repeatString('&nbsp;&nbsp;',deep)
+						title = space + title;
+					%>
+					<option name="<%=category.id%>" value="<%=category.id%>"><%=title%></option>	
+					<%
+					}
+					%>
+</select>
+</div>		 		
