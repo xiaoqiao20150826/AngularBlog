@@ -1,3 +1,4 @@
+// TODO:이름을 SequenceDAO로 할걸 그랬나.?
 
 /**
  * 

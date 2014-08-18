@@ -21,23 +21,25 @@ describe('scriptletUtil', function() {
 	                                          ]}
 	            , {id:3, name:'name3'}
 	            ]
-	it('should get all name and id  of names', function () {
+	var root = {id:0, name:'root',  names : names}
+	it('should get all name and id  of root', function () {
 		var childsKey = 'names'
 		  ,	count = 0;
-		scriptletUtil.treeEach(names, childsKey, eachFn)
-		should.equal(count, 8)
+		scriptletUtil.treeEach(root, childsKey, eachFn)
+		should.equal(count, 9)
 		function eachFn(node, deep, hasChild) {
 			++count
 			debug('deep :'+deep+'] '+node.name + ', hasChild : '+ hasChild);
 		}
 	})
+	
 	it('should call nodes before and after', function () {
 		var childsKey = 'names'
 			,	beforeCount = 0
 			,	afterCount = 0
-		scriptletUtil.treeEach(names, childsKey, null, eachNodesBefore, eachNodesAfter)
-		should.equal(beforeCount, 3)
-		should.equal(afterCount, 3)
+		scriptletUtil.treeEach(root, childsKey, null, eachNodesBefore, eachNodesAfter)
+		should.equal(beforeCount, 4)
+		should.equal(afterCount, 4)
 		function eachNodesBefore() {
 			++beforeCount
 			debug('eachNodesBefore : ', arguments)
@@ -46,5 +48,4 @@ describe('scriptletUtil', function() {
 			++afterCount
 		}
 	})
-	
 })

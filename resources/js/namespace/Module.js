@@ -68,7 +68,7 @@ var parentModule = this;
 		this.exports = {};
 		this.require = require;
 		var moduleToRun = this.getModuleToRun();
-		moduleToRun.call(this, this.exports, this.require);
+		moduleToRun.call(this, require, this);
 		
 		if(isEmptyObject(this.exports)) return null;
 		else return this.exports;

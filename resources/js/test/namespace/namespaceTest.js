@@ -23,8 +23,9 @@ describe('namespace', function() {
 	})
 	it('should run to load modules', function(nextTest) {
 		namespace.load(modulePaths, done);
-		function done(exportedModules) {
-			expect(exportedModules[0].aa.a).to.equal(1)
+		function done(require, exportedModules) {
+			var test = require('./namespace/testForModuleLoaderTest.js')
+			expect(test.aa.a).to.equal(1)
 			nextTest()
 		}
 	})
@@ -32,9 +33,9 @@ describe('namespace', function() {
 		modulePaths.push('./namespace/testForModuleLoaderTest3.js')
 		modulePaths.push('./namespace/testForNamespace.js')
 		namespace.load(modulePaths, done);
-		function done(exportedModules) {
-//			log(exportedModules)
-			expect(exportedModules[0].k.name).to.equal('k')
+		function done(require, exportedModules) {
+			var test3 = require('./namespace/testForModuleLoaderTest3.js')
+			expect(test3.k.name).to.equal('k')
 			nextTest()
 		}
 	})

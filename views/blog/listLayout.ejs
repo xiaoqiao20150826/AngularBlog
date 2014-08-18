@@ -4,15 +4,16 @@
 <div class="col-lg-8">
 	<!-- taps -->
 	<%
-		var loginUser = blog.loginUser;
+		var loginUser = blog.loginUser
+		  , categoryId = blog.categoryId
 	%>
 	
 	<ul class="nav nav-tabs col-sm-10  col-sm-offset-1" role="tablist">
-  		<li class="blogTap active"><a href='javascript:'>newest</a></li>
-  		<li class="blogTap"><a href='javascript:'>oldest</a></li>
- 		<li class="blogTap"><a href='javascript:'>view</a></li>
- 		<li class="blogTap"><a href='javascript:'>vote</a></li>
- 		<li class="blogTap"><a href='javascript:'>answer</a></li>
+  		<li class="blogTap" data-index=0><a href='javascript:'>newest</a></li>
+  		<li class="blogTap" data-index=1><a href='javascript:'>oldest</a></li>
+ 		<li class="blogTap" data-index=2><a href='javascript:'>view</a></li>
+ 		<li class="blogTap" data-index=3><a href='javascript:'>vote</a></li>
+ 		<li class="blogTap" data-index=4><a href='javascript:'>answer</a></li>
  		<% 
 			if(loginUser.isExist()) {
 		%>
@@ -25,7 +26,7 @@
 	</ul>
 	<!-- list (inclue pager  -->	
 	<% include ./list.ejs %>
-
+	
 </div>
 <!--sideFrame  -->
 <div class="col-lg-4 hidden-xs hidden-sm">

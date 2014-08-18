@@ -7,9 +7,8 @@ var scriptletUtil = module.exports = {}
 
 
 //root기준으로 했으면 좋았을것을.
-scriptletUtil.treeEach = function (childs, childsKey, eachFn, eachChildsBefore, eachChildsAfter) {
-	var root = {};
-	_deepSearch(childs, root, 0);
+scriptletUtil.treeEach = function (root, childsKey, eachFn, eachChildsBefore, eachChildsAfter) {
+	_deepSearch([root], null, -1);
 	function _deepSearch(childs, parentNode, originDeep) {
 		if(U.notExist(childs)) return;
 		if(_.isEmpty(childs)) return;
@@ -17,7 +16,7 @@ scriptletUtil.treeEach = function (childs, childsKey, eachFn, eachChildsBefore, 
 		if(!_.isArray(childs)) childs = [childs];
 
 		var deep = originDeep+1;
-		if(eachChildsBefore) {eachChildsBefore(parentNode,deep) }
+		if(eachChildsBefore) {eachChildsBefore(parentNode,originDeep) }
 		for(var i in childs) {
 			var node = childs[i]
 			  , childNodes = node[childsKey]
@@ -25,7 +24,7 @@ scriptletUtil.treeEach = function (childs, childsKey, eachFn, eachChildsBefore, 
 			if(eachFn) { eachFn(node, deep, hasChild); }
 			_deepSearch(childNodes, node, deep)
 		}
-		if(eachChildsAfter) {eachChildsAfter(parentNode, deep)}
+		if(eachChildsAfter) {eachChildsAfter(parentNode, originDeep)}
 		return ;
 	}
 	// helper

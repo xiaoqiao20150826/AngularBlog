@@ -14,11 +14,14 @@ var H = require('../common/helper.js')
 var Post = require('../domain/Post.js')
   , User = require('../domain/User.js')
   , Answer = require('../domain/Answer.js')
+  , Category = require('../domain/Category.js')
+  , Status = require('../domain/Status.js')
   , Joiner = require('../domain/Joiner.js')
 
 var postDAO = require('../dao/postDAO.js')
   , userDAO = require('../dao/userDAO.js')
    ,answerDAO = require('../dao/answerDAO.js')
+   ,categoryDAO = require('../dao/categoryDAO.js')
    ,answerService = require('./answerService.js')
    ,categoryService = require('./categoryService.js')
    ,Pager = require('../common/Pager.js');
@@ -31,28 +34,38 @@ var blogService = module.exports = {};
 /* functions */
 var POST_COOKIE = 'postNums';
 // pageNum에 해당하는 블로그 데이터를 가져온다.
-blogService.getPostsAndPager = function (done, curPageNum, sorter) {
+blogService.getPostsAndPager = function (done, curPageNum, sorter, categoryId) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();
 	
+	if(Category.isRoot(categoryId)) categoryId = null;
 	var result = {};
-	
-	return H.call4promise([postDAO, postDAO.getCount])
+	return H.call4promise([postDAO, postDAO.getCount], categoryId)
 		    .then(function (allRowCount) {
 		    	var pager = new Pager(allRowCount)
 		    	  , rowNums = pager.getStartAndEndRowNumBy(curPageNum);
 		    	result.pager = pager;
-		    	return H.call4promise([postDAO.findByRange], rowNums.start, rowNums.end, sorter);
+		    	return H.call4promise([postDAO.findByRange], rowNums.start, rowNums.end, sorter, categoryId);
 		   })
 		   .then(function (posts) {
 				result.posts = posts;
-				var userIds = Post.getUserIds(posts);
-				return H.call4promise([userDAO.findByIds], userIds)
+				var userIds = Post.getUserIds(posts)
+				  , categoryIds = Post.getCategoryIds(posts)
+				
+				return H.all4promise([
+						               	 [userDAO.findByIds, userIds]
+						               , [categoryDAO.findByIds, categoryIds]	 
+						            ])
 			})
-		   .then(function (users) {
+		   .then(function (args) {
+			   var users = args[0]
+			     , categories = args[1]
 			   var posts = result.posts
 			     , userjoiner = new Joiner(users, '_id', 'user')
 			     , joinedPosts = userjoiner.joinTo(posts, 'userId', User.getAnnoymousUser());
+			   
+			   var categoryjoiner = new Joiner(categories, 'id', 'category')
+			   joinedPosts= categoryjoiner.joinTo(joinedPosts, 'categoryId', Category.makeRoot());
 			   
 			   result.posts = joinedPosts;
 			   dataFn(result);
@@ -78,6 +91,7 @@ blogService.getJoinedPost = function (done, postNum) {
 	})
 	.then(function (answers) {
 		_post.setAnswers(answers);
+		debug('joinedPosts :', _post)
 		dataFn(_post);
 	})
 	.catch(errFn);
@@ -133,6 +147,7 @@ blogService.insertPostWithFile = function(done, post, file) {
 
 // 비동기로 실패하던, 성공하던 신경 쓰지 않음.
 blogService.saveFileAndUpdatePost = function (file, post) {
+	if(!localFile.existFile(file)) return ;
 	//file저장 및 업데이트.
 	var imgDir =config.imgDir + '\\' + post.userId
 	  , urls = localFile.getToAndFromFileUrl(file, imgDir);
@@ -182,7 +197,7 @@ blogService.increaseVote = function(done, postNum, userId) {
 	H.call4promise(postDAO.findOne, where)
 	 .then(function(post) {
 		 var failIncreaseVote = -1; //넌 이미 투표했다
-		 if(!(post.isEmpty())) return done.return(failIncreaseVote);
+		 if(!(post.isEmpty())) return done.return(Status.makeError('already voted'));
 		 
 		 postDAO.updateVoteAndVotedUserId(done, postNum, userId)
 	 })

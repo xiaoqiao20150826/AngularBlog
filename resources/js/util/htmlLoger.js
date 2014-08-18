@@ -6,12 +6,13 @@
 
 
 (function() {
-	if($$namespace) {
+	var s = '';
+	if(window.$$namespace) {
 		$$namespace.include(function(exports) {
 			htmlLoger(exports)
 		})
 	} else {
-		htmlLoager(this);
+		htmlLoger(this.window);
 	}
 	
 	
@@ -137,4 +138,4 @@
 
 })()
 
-//@ sourceURL=util/helper.js
+//@ sourceURL=util/htmlLoger.js

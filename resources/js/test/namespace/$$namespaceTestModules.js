@@ -6,22 +6,29 @@
 	
 	var modules = [
 	             // 외부 모듈
-	               "../lib/underscore-min.js"
+	               "../lib/underscore-min"
 	             , "../lib/chai/chai.js"
 	             
 	             // 사용자모듈
 	             , "../../util/htmlLoger.js"
-	             
-	             // 테스트 모듈
-	             , "../lib/mocha/mocha.js"
-	             , "../mochaSetup.js"
-	           
-	             , "./$$namespaceTest.js"
-	           
-	             , "../mochaRun.js"
 	              ]  
 
-	$(document).ready(function() {
-		$$namespace.load(modules)
+	$$namespace.load(modules)
+	
+	var modules = [
+	               // 외부 모듈
+	               "../lib/underscore-min.js"
+	               , "../lib/chai/chai"
+	               
+	               // 사용자모듈
+	               , "../../util/htmlLoger"
+	               
+	               // 테스트 모듈
+	               , "./$$namespaceTest"
+	               ]  
+	
+	$$namespace.load(modules, function() {
+		mocha.run();
 	})
+	
 })();

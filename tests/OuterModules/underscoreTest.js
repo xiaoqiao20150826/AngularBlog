@@ -96,15 +96,15 @@ describe('underscore', function() {
 							  "loginUser": null
 							};
 				should.equal(false, _.isEmpty(k));
+				should.equal(false, _.isEmpty('ee'));
 				should.equal(true, _.isEmpty({}));
 				should.equal(true, _.isEmpty(''));
-				should.equal(false, _.isEmpty('ee'));
-//				should.equal(true, _.isEmpty(0));
-//				should.equal(true, _.isEmpty(1));   //숫자는 이상하게나오네
-//				should.equal(true, _.isEmpty(-1));
-//				should.equal(true, _.isEmpty(11));
 				should.equal(true, _.isEmpty(""));
 				should.equal(true, _.isEmpty([]));
+//				should.equal(true, _.isEmpty(0)); 	//숫자가 있으면 다 false
+//				should.equal(true, _.isEmpty(1));   
+//				should.equal(true, _.isEmpty(-1));
+//				should.equal(true, _.isEmpty(11));
 			})
 			it('#compact', function() {
 				should.deepEqual([1,{a:1}, true], _.compact([1,{a:1},null,'',false, true]))

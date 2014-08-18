@@ -17,10 +17,10 @@ describe('Joiner', function() {
 		var childsKey, joiner
 		beforeEach(function() {
 			root = {_id:'root'}
-			nodesOneDeep = [{_id:'node1', parentId:'root'}, {_id:'node2', parentId:'root'}]
-			nodesTwoDeep = [{_id:'node3', parentId:'node1'}, {_id:'node4', parentId:'node1'}]
-			nodesTwoDeep2 = [{_id:'node5', parentId:'node2'}, {_id:'node6', parentId:'node2'}]
-			nodesThreeDeep = [{_id:'node7', parentId:'node5'}, {_id:'node8', parentId:'node5'}]
+			nodesOneDeep = [{_id:'node1', parentId:'root' , count:1}, {_id:'node2', parentId:'root' , count:1}]
+			nodesTwoDeep = [{_id:'node3', parentId:'node1' , count:1}, {_id:'node4', parentId:'node1' , count:1}]
+			nodesTwoDeep2 = [{_id:'node5', parentId:'node2' , count:1}, {_id:'node6', parentId:'node2' , count:1}]
+			nodesThreeDeep = [{_id:'node7', parentId:'node5' , count:1}, {_id:'node8', parentId:'node5' , count:1}]
 			childList = _.union(nodesOneDeep, nodesTwoDeep, nodesTwoDeep2, nodesThreeDeep)
 			
 			childsKey = 'childs'
@@ -47,6 +47,14 @@ describe('Joiner', function() {
 			should.equal(bindedNode[childsKey][1][childsKey][0][childsKey][1]._id, 'node8');
 			should.equal(bindedNode[childsKey][1][childsKey][1]._id, 'node6');
 		})
+		it('should binded node', function() {
+			//부모에게 자식의 특정값을 어떻게 한다.
+			joiner.setKey4count('count')
+			var bindedNode = joiner.treeTo(root, '_id')
+			debug('bindedNode', bindedNode)
+			should.equal(bindedNode.count, 8)
+			should.equal(bindedNode[childsKey][0].count, 3)
+		})
 		it('재귀함수',function () {
 			var a = 1;
 			var count= 0;
@@ -58,6 +66,17 @@ describe('Joiner', function() {
 			}
 			var value = sum(10)
 //		log(count+ ' : '+ value)
+		})
+		it('should get tree by answers', function() {
+			var answers = [{num:1, answerNum:'root'}, {num:2, answerNum:'root'}, {num:3, answerNum:'root'}]
+			  , lowAnswers = [{num:4, answerNum:1}, {num:5, answerNum:1}];
+			var allAnswers = _.union(answers, lowAnswers)
+			  , root = {num:'root'}
+			var joiner = new Joiner(allAnswers, 'answerNum', 'answers');
+			
+			var rootOfTree = joiner.treeTo(root, 'num')
+			debug('rootOfTree answers :', rootOfTree)
+			should.deepEqual(rootOfTree.answers[0].answers, lowAnswers );
 		})
 	})
 	describe('$joinTo', function() {
@@ -71,17 +90,6 @@ describe('Joiner', function() {
 			should.deepEqual(joinedPosts[0].user, users[0]); 
 			should.deepEqual(joinedPosts[1].user, users[1]); 
 			should.deepEqual(joinedPosts[2].user, undefined); 
-		})
-		it('should join many sources', function() {
-			var answers = [{num:1, answerNum:'root'}, {num:2, answerNum:'root'}, {num:3, answerNum:'root'}]
-			  , lowAnswers = [{num:4, answerNum:1}, {num:5, answerNum:1}];
-			var allAnswers = _.union(answers, lowAnswers)
-			  , root = {num:'root'}
-			var joiner = new Joiner(allAnswers, 'answerNum', 'answers');
-			
-			var rootOfTree = joiner.treeTo(root, 'num')
-			debug('rootOfTree answers :', rootOfTree)
-			should.deepEqual(rootOfTree.answers[0].answers, lowAnswers );
 		})
 	})
 })

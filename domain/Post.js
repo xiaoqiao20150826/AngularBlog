@@ -44,6 +44,17 @@ Post.getUserIds = function (posts) {
 	}
 	return result;
 }
+Post.getCategoryIds = function (posts) {
+	var result = [];
+	var key = 'categoryId';
+	for(var i in posts) {
+		var post = posts[i];
+		if(H.exist(post[key])) {
+			result.push(post[key]);
+		}
+	}
+	return result;
+}
 Post.getFileName4url = function (filePath) {
 	return filePath.slice(filePath.lastIndexOf('\\')+1);
 }

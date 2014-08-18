@@ -11,8 +11,10 @@
 	
 	<!-- list  -->
 	<%
+	    var sorter = blog.sorter
 		for(var i in posts) {
 			var post = posts[i]
+			  , category = post.category
 			  , user = post.user;
 	%>
 	<div class="row  col-sm-10  col-sm-offset-1 board-row">
@@ -27,10 +29,17 @@
 					<H2><%=post.title %></H2>
 				</a>
 			</div>
-			<div class="media-body  pull-right">
-				<img src='<%=user.photo %>' class="img-circle" alt='img' style="width:20px">
-				<span class="name"><a href="#"><%=user.name %></a></span>
-				<span class="date"><%=post.created.toLocaleDateString() %></span>
+			<div class='row'>
+				<div class="media-body">
+					<span class='pull-left'>
+						<a class="blogCategory" href="javascirpt:" data-id="<%=category.id%>" ><%=category.title%> </a>
+					</span>
+					<div class='pull-right'>
+						<img src='<%=user.photo %>' class="img-circle" alt='img' style="width:20px">
+						<span class="name"><a href="#"><%=user.name %></a></span>
+						<span class="date"><%=post.created.toLocaleDateString() %></span>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>	
@@ -42,20 +51,21 @@
 	<!--pager  -->
 	
 	<%		
-		var sorter = blog.sorter;
+		var sorter = blog.sorter
+		  , categoryId = blog.categoryId
 	%>
 	<div class='jumbotron'>
 		<ul class="pagination">
-			<li class="blogPager" data-sorter="<%=sorter%>" data-pagenum="<%=1%>" ><a href='javascript:'>&laquo;</a></li>
+			<li class="blogPager"><a href='javascript:'>&laquo;</a></li>
 		<%
 		  
 		  for(var i=1, max=pageCount+1 ; i < max; ++i) {
 		%>
-		  		<li class="blogPager"  data-sorter="<%=sorter%>" data-pagenum="<%=i%>"><a href='javascript:'><%= i %></a></li>
+		  		<li class="blogPager" data-index="<%=i-1%>"><a href='javascript:'><%= i %></a></li>
 		<%
 		  } 
 		%>
-			<li class="blogPager"  data-sorter="<%=sorter%>" data-pagenum="<%=pageCount%>"><a href='javascript:'>&raquo;</a></li>  
+			<li class="blogPager"><a href='javascript:'>&raquo;</a></li>  
 		</ul>
 	</div>
 	

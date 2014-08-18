@@ -12,12 +12,14 @@ var requestParser = require('./common/requestParser.js')
   , scriptletUtil = require('../common/util/scriptletUtil.js')
   
 var Post = require('../domain/Post.js')
+  , Category = require('../domain/Category')
   , blogService = require('../services/blogService')
   , categoryService = require('../services/categoryService')
 
 var _config;
 var FIRST_PAGE_NUM = 1
-  , SORTER_NEWEST = 'newest';
+  , SORTER_NEWEST = 'newest'
+  , ROOT_CATEGORY_ID = Category.getRootId()
 
 var blog = module.exports = {
 /* 클라이언트의 요청을 컨트롤러에 전달한다.*/
@@ -55,33 +57,33 @@ var blog = module.exports = {
 		var toRenderView = './blog/listLayout.ejs'
 			blog._getBlogListAndRenderTo(req, res, toRenderView)
 	},
-	listView : function (req, res) {
+	listView : function (req, res) { //분리하자.
 		var toRenderView = './blog/list.ejs'
 			blog._getBlogListAndRenderTo(req, res, toRenderView)
 	},
  	_getBlogListAndRenderTo : function (req, res, toRenderView) {
  		var redirector = new Redirector(res)
 		var rawData = requestParser.getRawData(req)
-		  , pageNum = rawData.pageNum
-		  , sorter = rawData.sorter
-		  , loginUser = requestParser.getLoginUser(req);
+		  , pageNum = _.isEmpty(rawData.pageNum) ? FIRST_PAGE_NUM : rawData.pageNum  
+		  , sorter = _.isEmpty(rawData.sorter) ? SORTER_NEWEST: rawData.sorter
+		  , categoryId = _.isEmpty(rawData.categoryId) ? ROOT_CATEGORY_ID: rawData.categoryId
+		  , loginUser = requestParser.getLoginUser(req)
 		
-		if(!(H.exist(pageNum))) pageNum = FIRST_PAGE_NUM;
-		if(!(H.exist(sorter))) sorter = SORTER_NEWEST;
-		
+		debug('list rawData ',rawData)  
 		var errFn = redirector.catch;
-		H.all4promise([  [blogService.getPostsAndPager, pageNum, sorter]
-		               , [categoryService.getJoinedCategories]
+		H.all4promise([  [blogService.getPostsAndPager, pageNum, sorter, categoryId]
+		               , [categoryService.getRootOfCategoryTree]
 		])
          .then(function dataFn(args) {
            	var postsAndPager = args[0]
-  		      , joinedCategories = args[1];
-  		    
+  		      , rootOfCategoryTree = args[1];
+
   			var blog = {posts : postsAndPager.posts
   					  , pager : postsAndPager.pager
-  					  , categories : joinedCategories
+  					  , rootOfCategoryTree : rootOfCategoryTree
   					  , loginUser : loginUser 
   					  , sorter : sorter
+  					  , categoryId : categoryId
   					  , scriptletUtil : scriptletUtil
   					  };
   			
@@ -96,10 +98,10 @@ var blog = module.exports = {
 		
 		if(loginUser.isNotExist()) return redirector.main();
 		
-		H.call4promise(categoryService.getJoinedCategories)
-		 .then(function (joinedCategories) {
+		H.call4promise(categoryService.getRootOfCategoryTree)
+		 .then(function (rootOfCategoryTree) {
 			 	var blog = { loginUser: loginUser
-			 			   , categories : joinedCategories
+			 			   , rootOfCategoryTree : rootOfCategoryTree
 			 			   , scriptletUtil : scriptletUtil
 			 			   };
 			 	
@@ -135,7 +137,7 @@ var blog = module.exports = {
 		var loginUser = requestParser.getLoginUser(req)
 		  , rawData = requestParser.getRawData(req)
 		  , userId = rawData.userId
-		  , post = Post.createBy(rawData)
+		var post = Post.createBy(rawData)
 		  , file = _.first(_.toArray(req.files));//TODO: 현재하나뿐. 파일업로드 안해도 빈거들어감
 
 		debug('insertPost reqData : ', rawData)
@@ -143,8 +145,9 @@ var blog = module.exports = {
 		
 		blogService.insertPostWithFile(new Done(dataFn, redirector.catch), post, file);
 		function dataFn(insertedPost) {
-			var postNum = insertedPost.num;
-			redirector.post(postNum)
+//			var postNum = insertedPost.num;
+//			redirector.post(postNum)
+			redirector.main()
 		}
 	},
 	deletePostOrFile : function (req, res) {
@@ -172,15 +175,11 @@ var blog = module.exports = {
 		  , loginUser = requestParser.getLoginUser(req)
 		  , loginUserId = loginUser._id;
 		
-		if(loginUser.isNotExist() || loginUser.isNotEqualById(userId)) return redirector.post(postNum);
+		if(loginUser.isNotExist() ) return res.send('must login');
 		
 		blogService.increaseVote(new Done(dataFn, redirector.catch), postNum, loginUserId);
-		function dataFn(isSuccess) {
-			//TODO: 성공 실패를 어떤 데이터를 보내야 할까.
-			if(isSuccess != -1)
-				res.send('sucess');
-			else
-				res.send('before you voted');
+		function dataFn(status) {
+			res.send(status.message);
 		 }
 	},
 	historyView : function (req, res) {

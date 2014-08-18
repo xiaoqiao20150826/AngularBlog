@@ -8,9 +8,9 @@ var parentModule = this;
 (function () {
 	var namespace = parentModule.namespace = {};
 	
-	namespace.moduleLoader = parentModule.moduleLoader; //test
-	namespace.moduleManager = parentModule.moduleManager; //test
-	
+	namespace.moduleLoader = parentModule.moduleLoader; 
+	namespace.moduleManager = parentModule.moduleManager; 
+	namespace.path = parentModule.path;
 	
 	namespace.include = function (moduleFunction) {
 		this.moduleLoader.setCurrentLoadedModule(moduleFunction);
@@ -32,15 +32,20 @@ var parentModule = this;
 			return doAfterAllLoadModules(this.moduleManager.getCurrentStatus());
 	}
 	
+
 	var _orderedModulePaths = [];
 	namespace.getNoDuplicateModulePaths = function (modulePaths) {
+		var path = namespace.path
 		if((typeof modulePaths) == 'string') modulePaths = [modulePaths];
 		
 		var noDuplicateOrderedModulePaths = [];
 		for(var i in modulePaths) {
 			var modulePath = modulePaths[i]
-			if(_orderedModulePaths.indexOf(modulePath) == -1 )
+			  , similaireModulePath = path.getMostSimilaireModulePathWithNoThrow(_orderedModulePaths, modulePath);
+			if(similaireModulePath == null) {
+				modulePath = path.extensionMustBe('js',modulePath)
 				noDuplicateOrderedModulePaths.push(modulePath);
+			}
 		}
 		return noDuplicateOrderedModulePaths;
 	}
@@ -54,55 +59,58 @@ var parentModule = this;
 		return _orderedModulePaths;
 	}
 	function doAfterAllLoadModules1(callbackOfUser) {
-		if(!(callbackOfUser instanceof Function) ) throw new Error('callback of user must be function')
-		return function doAfterAllLoadModules (currentStatus) {
-			if(currentStatus.isError()) {
-				console.error('load fail : '+ currentStatus.getErrorMessage())
-				throw new Error('load fail : '+ currentStatus.getErrorMessage());
+			if(!(callbackOfUser instanceof Function) ) throw new Error('callback of user must be function')
+			return function doAfterAllLoadModules (currentStatus) {
+				if(currentStatus.isError()) {
+					console.error('load fail : '+ currentStatus.getErrorMessage())
+					throw new Error('load fail : '+ currentStatus.getErrorMessage());
+				}
+				
+				return runAndCallbackOfUserByExportedModules(callbackOfUser);
+				
+			}
+			function runAndCallbackOfUserByExportedModules(callbackOfUser) {
+				var moduleManager = namespace.moduleManager
+				  , orderedModulePaths = namespace.getOrderedModulePaths()
+				  , require = namespace.require;
+				
+				for(var i in orderedModulePaths) {
+					var modulePath = orderedModulePaths[i]
+					  , module = moduleManager.getModule(modulePath);
+					
+					if(module.isRun()) {continue;}
+				    if(module.isSuccess()) {
+				    	var exportedModule = namespace.runOneModuleIfSuccess(module)
+				    }
+				}
+				//all run complete
+				callbackOfUser.call(namespace, namespace.require);
 			}
 			
-			return runAndCallbackOfUserByExportedModules(callbackOfUser);
-			
 		}
-		function runAndCallbackOfUserByExportedModules(callbackOfUser) {
+		namespace.runOneModuleIfSuccess = function (module) {
+			try {
+				var modulePath = module.path;
+				//BeforeEachDo
+				var exportedModule = module.run(namespace.require); //exports, require
+				//AfterEachDo
+				namespace.moduleManager.run(modulePath);
+			} catch(e) {
+				return console.error('Running Error['+module.path+'] : '+ e.stack);
+			}
+		}
+		//this로 module을 갖는다. // Module에 위치시켜도 될것같은데..
+		namespace.require = function (modulePath) {
+			
+			var errMessage = ' is can not to require :' + modulePath
+			if(this.path)  errMessage = this.path + errMessage;
+			
 			var moduleManager = namespace.moduleManager
-			  , orderedModulePaths = namespace.getOrderedModulePaths()
-			  , require = namespace.require;
+			  , module = moduleManager.getModule(modulePath);
 			
-			var exportedModules = [];
-			for(var i in orderedModulePaths) {
-				var modulePath = orderedModulePaths[i]
-				  , module = moduleManager.getModule(modulePath);
-							
-			    if(module.isSuccess()) {
-					try {
-						//BeforeEachDo
-						var exportedModule = module.run(require); //exports, require
-						//AfterEachDo
-						moduleManager.run(modulePath);
-						if(exportedModule) exportedModules.push(exportedModule);
-					} catch(e) {
-						return console.error('Running Error['+module.path+'] : '+ e.stack);
-					}
-			    }
-			}
+			if(module.isSuccess()) { namespace.runOneModuleIfSuccess(module) };
+			if(module.isRun()) return module.getExports(); 
 			
-			//all run complete
-			callbackOfUser.call(namespace, namespace.require, exportedModules);
+			throw new Error(errMessage);
 		}
-		
-	}
-	//this로 module을 갖는다. // Module에 위치시켜도 될것같은데..
-	namespace.require = function (modulePath) {
-		
-		var errMessage = ' is can not to require :' + modulePath
-		if(this.path)  errMessage = this.path + errMessage;
-		
-		var moduleManager = namespace.moduleManager
-		  , module = moduleManager.getModule(modulePath);
-		
-		if(!module.isRun()) throw new Error(errMessage);
-		return module.getExports();
-	}
-
-})();
+	})()

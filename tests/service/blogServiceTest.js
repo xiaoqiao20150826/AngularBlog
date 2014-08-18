@@ -1,5 +1,5 @@
 
-
+var debug = require('debug')('test:service:blogServiceTest')
 var mongoose = require('mongoose');
 var should = require('should')
   , path = require('path')
@@ -114,8 +114,9 @@ describe('blogService', function () {
 			var postNum = 1;
 			var userId = 'AAA';
 			blogService.increaseVote(done, postNum, userId);
-			function dataFn(success) {
-				should.equal(success,1)
+			function dataFn(status) {
+				debug('success arg', arguments)
+				should.equal(status.isSuccess(), true)
 				nextTest()
 			}
 		})
@@ -125,8 +126,9 @@ describe('blogService', function () {
 			var postNum = 1;
 			var userId = 'AAA';
 			blogService.increaseVote(done, postNum, userId);
-			function dataFn(success) {
-				should.equal(success,-1)
+			function dataFn(status) {
+				debug('fail arg ', arguments);
+				should.equal(status.isError(), true)
 				nextTest()
 			}
 		})

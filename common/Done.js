@@ -40,6 +40,11 @@ Done.NOMAL = _NOMAL;
 Done.ASYNC = _ASYNC;
 
 
+Done.makeEmpty = function () {
+	return new Done(emtpy, empty);
+	function empty() {}
+}
+
 // 기본 템플릿
 Done.prototype.getCallback = function () {
 	if(this._templateType == _NOMAL) return _nomalTemplate2(this._errFn, this._dataFn);

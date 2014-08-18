@@ -4,9 +4,11 @@
 					<option name="root" value="root">---기본---</option>
 					<%
 					var scriptletUtil = blog.scriptletUtil
-					    categories = blog.categories 
-					scriptletUtil.treeEach(categories, 'categories', eachFn);
+					    rootOfCategoryTree = blog.rootOfCategoryTree 
+					scriptletUtil.treeEach(rootOfCategoryTree, 'categories', eachFn);
 					function eachFn(category, deep) {
+						if(deep < 1) return ;
+						
 						var title = category.title
 						  , space = scriptletUtil.repeatString('&nbsp;&nbsp;',deep)
 						title = space + title;

@@ -102,5 +102,14 @@ describe('path', function() {
 	    	modulePath = path.getMostSimilaireModulePath(modulePaths,modulePathOne);
 	    	expect(modulePath).to.equal('../JS/util/kk/a.js');
 	    })
+	    it('no throw getMostSimilaireModulePath', function () {
+	    	var modulePathOne = 'com/kang/util/gnne/aa1';
+	    	var testModulePath1 = '../JS/tesT/gnne/a1';
+	    	var testModulePath2 = '../JS/tesT/gnne2/a2a1.js';
+	    	var modulePaths = [testModulePath1, testModulePath2];
+	    	
+	    	var modulePath = path.getMostSimilaireModulePathWithNoThrow(modulePaths,modulePathOne);
+	    	log(modulePath)
+	    })
 	})
 })

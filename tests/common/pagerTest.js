@@ -55,6 +55,11 @@ describe('Pager', function () {
 			should.equal(startAndEnd2.start, 101);
 			should.equal(startAndEnd2.end, 101);
 		})
+		it('should run', function () {
+			var pager = new Pager(6,5);
+			var startAndEnd = pager.getStartAndEndRowNumBy(1);
+			console.log(startAndEnd)
+		})
 	}) 
 	
 	

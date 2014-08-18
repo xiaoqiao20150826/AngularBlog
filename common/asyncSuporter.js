@@ -59,7 +59,8 @@ asyncSuporter.call4promise = function (contextAndAsyncFn /*...args*/) {
 	var deferred = Q.defer()
 	  , done = new Done(_dataFn, _errFn);
 	
-	asyncFn.apply(context, _.union(done, args));
+//	asyncFn.apply(context, _.union(done, args)); //union시 중복값이 사라짐. pager는 같은값이전달되기도하는데..
+	asyncFn.apply(context, [done].concat(args));
 	return deferred.promise;
 	
 	function _errFn(err){ deferred.reject(err)};
@@ -103,7 +104,7 @@ asyncSuporter.all = function (done, asyncMethodAndArgsList) {
 	function indexedEachDataFn(index) {
 
 		return function eachDataFn(/* args */) {
-			debug(index+ ':'+'args asyncCall :' +args)
+			debug(index+ ':'+'args asyncCall :' +arguments)
 			var args = null;
 			switch(arguments.length) {
 				case 0 : break;

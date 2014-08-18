@@ -5,13 +5,10 @@
 $$namespace.include(function() {
 	var $ = window.$
 	
-	var H = this.exports = {};
+	var CLASS_ACTIVE = 'active';
+
 	
-	// 안쓰는것같던데..?
-	var BLOG_LIST_FRAME = '#blogListFrame';
-	H.get$BlogListFrame = function () {
-		return $(BLOG_LIST_FRAME);
-	};
+	var H = this.exports = {};
 	
 	H.ajaxCall = function ajaxCall(dataFn, type, url, data) {
 		$.ajax({
@@ -19,18 +16,14 @@ $$namespace.include(function() {
 			url: url,
 			data: data
 		})
-		.done(dataFn);
+		 .done(dataFn)
+		 .fail(function(o, errStatus, error) {
+			 var errMessage = '['+errStatus+"]["+url+"] : "+ error.stack; 
+			 console.error(errMessage);
+		 });
 	}
-	
-	H.isEmptyChildren = function ($parent) {
-		if($parent.children().length > 0) 
-			return true;
-		else
-			return false;
-	}
-	
-	H.isNodeName = function (node, name) {
-		if(node.nodeName && node.nodeName == name) return true;
+	H.exist = function (o) {
+		if(!_.isEmpty(o)) return true;
 		else return false;
 	}
 	H.queryStringToMap = function(queryString) {
@@ -39,10 +32,10 @@ $$namespace.include(function() {
 	H.redirect = function (url) {
 		return window.location.href = url; 
 	}
-	H.isErrMessage = function (responseData) {
-		if(_.isString(responseData) && responseData.match('err')) return true;
-		else return false;
-	}
+//	H.isErrMessage = function (responseData) {
+//		if(_.isString(responseData) && responseData.match('err')) return true;
+//		else return false;
+//	}
 	
 	
 })

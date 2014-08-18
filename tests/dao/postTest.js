@@ -1,6 +1,7 @@
 
 /* test */
 
+var debug = require('debug')('test:dao:postTest')
 var should = require('should');
 var mongoose = require('mongoose')
   , Q = require('q')
@@ -118,15 +119,15 @@ describe('aPostDAO', function() {
 	});
 	describe('#update', function() {
 		it('should update',function(nextTest) {
-			var num = 3 , success = 1
-			 	,a_post = _posts[num-1];
+			var num = 3 
+			  , a_post = _posts[num-1];
 			a_post.num = num;
 			a_post.title = 'title_update';
 			a_post.content = 'content_update';
 			
 			postDAO.update(new H.Done(dataFn, _testCatch1(nextTest)), a_post);
-			function dataFn(bool) {
-				should.equal(bool, success);
+			function dataFn(status) {
+				should.equal(status.isSuccess(),true);
 				postDAO.findByNum(new H.Done(dataFn2, _testCatch1(nextTest)), num);
 				function dataFn2(model) {
 					var e_post = Post.createBy(model);
@@ -136,11 +137,11 @@ describe('aPostDAO', function() {
 			}
 		});
 		it('should update readCount', function(nextTest) {
-				var num = 2, success = 1
+				var num = 2
 					,testArray = [num, num, num, num]
 					,a_count=testArray.length;
 				H.asyncLoop(testArray,postDAO.updateReadCount, new H.Done(dataFn, _testCatch1(nextTest)) );
-				function dataFn(bool) {
+				function dataFn() {
 					postDAO.findByNum(new H.Done(dataFn2, _testCatch1(nextTest)), num);
 					function dataFn2(model) {
 						should.equal(a_count, model.readCount);
@@ -149,11 +150,10 @@ describe('aPostDAO', function() {
 				}
 		});
 		it('should updateVoteAndVotedUserId', function(nextTest) {
-			var num = 2, userId = 'aaa', success = 1
+			var num = 2, userId = 'aaa'
 			var errFn =  _testCatch1(nextTest);
 			postDAO.updateVoteAndVotedUserId(new H.Done(dataFn, errFn), num, userId);
-			function dataFn(bool) {
-				should.equal(bool, success)
+			function dataFn() {
 				postDAO.findByNum(new H.Done(dataFn2, errFn), num);
 				function dataFn2(post) {
 					should.equal(post.vote, 1)
@@ -167,7 +167,7 @@ describe('aPostDAO', function() {
 			  , testArray = [num, num, num, num]
 			  , a_count=testArray.length;
 			H.asyncLoop(testArray,postDAO.increaseAnswerCount, new H.Done(dataFn, _testCatch1(nextTest)) );
-			function dataFn(bool) {
+			function dataFn() {
 				postDAO.findByNum(new H.Done(dataFn2, _testCatch1(nextTest)), num);
 				function dataFn2(post) {
 					should.equal(a_count, post.answerCount);
@@ -182,9 +182,8 @@ describe('aPostDAO', function() {
 			  , answerCount = 3;
 			
 			postDAO.decreaseAnswerCount(new H.Done(dataFn, errFn), postNum, answerCount);
-			
-			function dataFn(bool) {
-				should.equal(bool, 1);
+			function dataFn(status) {
+				should.equal(status.isSuccess(),true);
 				postDAO.findByNum(new H.Done(dataFn2, errFn), postNum);
 				function dataFn2(post) {
 					should.equal(post.answerCount, 1);

@@ -28,6 +28,9 @@
 	$$namespace.include = function (moduleFunction) {
 		return parentModule.namespace.include(moduleFunction);
 	}
+	$$namespace.require = function (modulePath) {
+		return parentModule.namespace.require(modulePath);
+	}
 	///////////////////////////////////////// 하위 모듈. //////////////////////////////////////
 	
 	
@@ -38,7 +41,7 @@
 	if(location == null || location == undefined) throw new Error('window.location is not exist')
 	//
 	
-	var path = parentModule.path = {};  //테스트를위해.. 외부에참조저장.
+	var path = parentModule.path = {};  
 	
 	
 	//이름을 어떻게 바꿀까. 서버에 요청할 수 있는 모듈이름.(dir, 모듈이름, 확장자 포함된것)
@@ -122,6 +125,13 @@
 	function removeLastFolderName(dir) {
 		var lastIndex = dir.lastIndexOf('/');
 		return dir.slice(0, lastIndex);
+	}
+	path.getMostSimilaireModulePathWithNoThrow = function(modulePath, modulePathOfPackage) {
+		try {
+			return path.getMostSimilaireModulePath(modulePath, modulePathOfPackage);
+		} catch(e) {
+			return null;
+		}
 	}
 	//가장 일치하는 것.
 	path.getMostSimilaireModulePath = function(modulePath, modulePathOfPackage) {
@@ -309,7 +319,7 @@
 		this.exports = {};
 		this.require = require;
 		var moduleToRun = this.getModuleToRun();
-		moduleToRun.call(this, this.exports, this.require);
+		moduleToRun.call(this, require, this);
 		
 		if(isEmptyObject(this.exports)) return null;
 		else return this.exports;
@@ -407,7 +417,6 @@
 			moduleMap[modulePath].setStatus(status); //같은 모듈을 참조하니까 캐쉬 status변경안해도되겟지?
 		}
 	}
-	
 	moduleManager.getModules = function () { return this.moduleMap; }
 	moduleManager.getModulePathsByStatus = function (status) {
 		var modulePaths = []
@@ -626,12 +635,13 @@
 		
 		moduleManager.start(modulePath);
         var promise = $.ajax({
-				            'type': "GET",
-				            'url': filePath,
-				            'data': dataMap,
+				               'type': "GET"
+				             , 'url': filePath
+				             , 'data': dataMap
 		//		            success: callback,
-				            'async' : isAsync,
-				            'dataType': dataType || 'script'
+				             , 'async' : isAsync
+				             , 'dataType': dataType || 'script'
+				             , 'cache' : true //캐쉬..
 		        	   });
         moduleManager.loading(modulePath);
         return promise;
@@ -652,9 +662,9 @@
 	(function () {
 	var namespace = parentModule.namespace = {};
 	
-	namespace.moduleLoader = parentModule.moduleLoader; //test
-	namespace.moduleManager = parentModule.moduleManager; //test
-	
+	namespace.moduleLoader = parentModule.moduleLoader; 
+	namespace.moduleManager = parentModule.moduleManager; 
+	namespace.path = parentModule.path;
 	
 	namespace.include = function (moduleFunction) {
 		this.moduleLoader.setCurrentLoadedModule(moduleFunction);
@@ -676,15 +686,20 @@
 			return doAfterAllLoadModules(this.moduleManager.getCurrentStatus());
 	}
 	
+
 	var _orderedModulePaths = [];
 	namespace.getNoDuplicateModulePaths = function (modulePaths) {
+		var path = namespace.path
 		if((typeof modulePaths) == 'string') modulePaths = [modulePaths];
 		
 		var noDuplicateOrderedModulePaths = [];
 		for(var i in modulePaths) {
 			var modulePath = modulePaths[i]
-			if(_orderedModulePaths.indexOf(modulePath) == -1 )
+			  , similaireModulePath = path.getMostSimilaireModulePathWithNoThrow(_orderedModulePaths, modulePath);
+			if(similaireModulePath == null) {
+				modulePath = path.extensionMustBe('js',modulePath)
 				noDuplicateOrderedModulePaths.push(modulePath);
+			}
 		}
 		return noDuplicateOrderedModulePaths;
 	}
@@ -701,7 +716,8 @@
 		if(!(callbackOfUser instanceof Function) ) throw new Error('callback of user must be function')
 		return function doAfterAllLoadModules (currentStatus) {
 			if(currentStatus.isError()) {
-				return console.error('load fail : '+ currentStatus.getErrorMessage())
+				console.error('load fail : '+ currentStatus.getErrorMessage())
+				throw new Error('load fail : '+ currentStatus.getErrorMessage());
 			}
 			
 			return runAndCallbackOfUserByExportedModules(callbackOfUser);
@@ -712,28 +728,30 @@
 			  , orderedModulePaths = namespace.getOrderedModulePaths()
 			  , require = namespace.require;
 			
-			var exportedModules = [];
 			for(var i in orderedModulePaths) {
 				var modulePath = orderedModulePaths[i]
 				  , module = moduleManager.getModule(modulePath);
-							
+				
+				if(module.isRun()) {continue;}
 			    if(module.isSuccess()) {
-					try {
-						//BeforeEachDo
-						var exportedModule = module.run(require); //exports, require
-						//AfterEachDo
-						moduleManager.run(modulePath);
-						if(exportedModule) exportedModules.push(exportedModule);
-					} catch(e) {
-						return console.error('Running Error['+module.path+'] : '+ e.stack); 
-					}
+			    	var exportedModule = namespace.runOneModuleIfSuccess(module)
 			    }
 			}
-			
 			//all run complete
-			callbackOfUser.call(namespace, namespace.require, exportedModules);
+			callbackOfUser.call(namespace, namespace.require);
 		}
 		
+	}
+	namespace.runOneModuleIfSuccess = function (module) {
+		try {
+			var modulePath = module.path;
+			//BeforeEachDo
+			var exportedModule = module.run(namespace.require); //exports, require
+			//AfterEachDo
+			namespace.moduleManager.run(modulePath);
+		} catch(e) {
+			return console.error('Running Error['+module.path+'] : '+ e.stack);
+		}
 	}
 	//this로 module을 갖는다. // Module에 위치시켜도 될것같은데..
 	namespace.require = function (modulePath) {
@@ -744,11 +762,12 @@
 		var moduleManager = namespace.moduleManager
 		  , module = moduleManager.getModule(modulePath);
 		
-		if(!module.isRun()) throw new Error(errMessage);
-		return module.getExports();
+		if(module.isSuccess()) { namespace.runOneModuleIfSuccess(module) };
+		if(module.isRun()) return module.getExports();
+		
+		throw new Error(errMessage);
 	}
-
-})();
+})()
 		
 	}
 	/////////////////////// namespace

@@ -104,9 +104,9 @@ describe('categoryDAO', function() {
 			  , category = _.findWhere(categories, {title: 'title2'})
 			  , alreadyExistTitle = 'title1';
 			categoryDAO.updateTitleByCategory(new Done(dataFn, errFn), category, alreadyExistTitle)
-			function dataFn(successMessageOrErrString) {
-//				debug('update err : ', successMessageOrErrString)
-				should.exist(successMessageOrErrString.match('already exist '));
+			function dataFn(status) {
+				debug('update err : ', status.getMessage())
+				should.equal(status.isError(),true);
 				nextTest();
 			}
 		});
@@ -115,9 +115,9 @@ describe('categoryDAO', function() {
 			, category = _.findWhere(categories, {title: 'title2'})
 			, newTitle = 'newTitle';
 			categoryDAO.updateTitleByCategory(new Done(dataFn, errFn), category, newTitle)
-			function dataFn(successMessageOrErrString) {
+			function dataFn(status) {
 //				debug('update message : ', arguments)
-				should.equal(successMessageOrErrString,'success');
+				should.equal(status.isSuccess(), true);
 				nextTest();
 			}
 		});
@@ -132,8 +132,11 @@ describe('categoryDAO', function() {
 			  , categoryIsPostCountIsNotZero = _.findWhere(categories,{postCount : 1})
 			  , id = categoryIsPostCountIsNotZero.id;
 			categoryDAO.removeById(new Done(dataFn, errFn), id);
-			function dataFn(stringErrOrSussecc) {
-				should.exist(stringErrOrSussecc.match('category has post'))
+			function dataFn(status) {
+//				console.log(status.getMessage())
+
+				should.equal(status.isError(), true)
+				should.exist(status.getMessage().match('category has post'))
 				nextTest();
 			}
 		});
@@ -142,8 +145,11 @@ describe('categoryDAO', function() {
 			  , cagegoryBeHaveChild = _.findWhere(categories, {title: 'hasChild'})
 			  , id = cagegoryBeHaveChild.id;
 			categoryDAO.removeById(new Done(dataFn, errFn), id);
-			function dataFn(stringErrOrSussecc) {
-				should.exist(stringErrOrSussecc.match('category has child categories'))
+			function dataFn(status) {
+//				console.log(status.getMessage())
+
+				should.equal(status.isError(), true)
+				should.exist(status.getMessage().match('category has child categories'))
 				nextTest();
 			}
 		})
@@ -152,8 +158,9 @@ describe('categoryDAO', function() {
 			  , nomalCategory = _.findWhere(categories, {title: 'title1'})
 			  , id = nomalCategory.id;
 			categoryDAO.removeById(new Done(dataFn, errFn), id);
-			function dataFn(SusseccMessage) {
-				should.exist(SusseccMessage.match('success'))
+			function dataFn(status) {
+				should.equal(status.isSuccess(), true)
+//				console.log(status.getMessage())
 				nextTest();
 			}
 		});

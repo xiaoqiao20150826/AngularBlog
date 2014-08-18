@@ -23,7 +23,7 @@ describe('namespace', function() {
 	})
 	it('should run to load modules', function(nextTest) {
 		$$namespace.load(modulePaths, done);
-		function done(exportedModules) {
+		function done(require, exportedModules) {
 //			log(exportedModules)
 			expect(exportedModules[0].aa.a).to.equal(1)
 			nextTest()
@@ -33,7 +33,7 @@ describe('namespace', function() {
 		modulePaths.push('./testForModuleLoaderTest3.js')
 		modulePaths.push('./testForNamespace.js')
 		$$namespace.load(modulePaths, done);
-		function done(exportedModules) {
+		function done(require, exportedModules) {
 //			log(exportedModules)
 			expect(exportedModules[0].k.name).to.equal('k')
 			nextTest()

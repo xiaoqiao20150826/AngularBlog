@@ -34,6 +34,7 @@ var Joiner = module.exports = function Joiner(childList, referenceKey, childsKey
 	this.isCache = false;
 	this.hasRelation = _hasRelation;
 	this.hookChildToBind = _hookChildToBind;
+	this.key4count = null;
 };
 Joiner.prototype.setIdentifierKey = function (identifierKey) {
 	this.identifierKey = identifierKey;
@@ -49,6 +50,9 @@ Joiner.prototype.setHasRelation = function (hasRelation) {
 }
 Joiner.prototype.setHookChildToBind = function (hookChildToBind) {
 	this.hookChildToBind = hookChildToBind
+}
+Joiner.prototype.setKey4count = function (key4count) {
+	this.key4count = key4count;
 }
 
 Joiner.prototype.joinTo = function (nodes, identifierKey, emptyChild) {
@@ -72,24 +76,34 @@ Joiner.prototype.joinTo = function (nodes, identifierKey, emptyChild) {
 Joiner.prototype.treeTo = function (root, identifierKey) {
 	this.isCache = true;
 	this.identifierKey = identifierKey;
-	var rootOfTree = this.getBindedNodeByChilds(root);
+	
+	var key4count = this.key4count
+	var rootOfTree = this.getBindedNodeByChilds(root, key4count);
 	return rootOfTree;
 }
 
 
-Joiner.prototype.getBindedNodeByChilds = function (node) {
+Joiner.prototype.getBindedNodeByChilds = function (node, key4count) {
 	var childsKey = this.childsKey;
 	
 	var childsToBind = this.getChildsToBindToNode(node);
 	if(_.isEmpty(childsToBind) ) return node;
 	else {
 		var newChildsToBind = []
+		
+		if(key4count) {var count = node[key4count] || 0}
+		
 		for(var i in childsToBind) {
 			var newNode = childsToBind[i];
-			var newChild =  this.getBindedNodeByChilds(newNode);
+			var newChild =  this.getBindedNodeByChilds(newNode, key4count);
+			
+			if(key4count) { count = count + newChild[key4count]}
+				
 			newChildsToBind.push(newChild);
 		}
 		node[childsKey] = newChildsToBind;
+		
+		if(key4count) { node[key4count] = count}
 		return node;
 	}
 	

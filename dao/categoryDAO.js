@@ -1,9 +1,11 @@
 /**
  * 
  */
+var debug = require('debug')('nodeblog:dao:categoryDAO')
 var _ = require('underscore')
   , H = require('../common/helper.js')
-  , Category = require('../domain/Category.js');
+  , Category = require('../domain/Category.js')
+  , Status = require('../domain/Status.js')
 
 var DEFAULT_TITLE = '기본';
 // 싱글톤 (포함되는 참조변수 초기화 후 싱글톤 반환)
@@ -25,6 +27,18 @@ var categoryDAO = module.exports = (function init() {
 categoryDAO.findById = function (done, id) {
 	var where = {_id: id}
 	categoryDAO.findOne(done, where);
+}
+categoryDAO.findByIds = function (done, ids) {
+	ids = mustNotContainRootAndEmpty(ids)
+	var where = {'_id': {$in : ids}}
+		,select = select || {};
+		
+	categoryDAO.findAll(done, where, select)
+}
+function mustNotContainRootAndEmpty(ids) {
+	return _.filter(ids, function(id) {
+		return !(Category.isRoot(id) ) && !(_.isEmpty(id))
+	})
 }
 
 categoryDAO.hasDuplicateChildTitleFromParent = function (done, parent, title) {
@@ -51,7 +65,7 @@ categoryDAO.findOne = function (done, where, select) {
 	   ,callback = done.getCallback();
 	_db.findOne(where,select).exec(callback);
 };
-categoryDAO.findAll = function (done, where) {
+categoryDAO.findAll = function (done, where, select) {
 	done.hook4dataFn(Category.createBy);
 	var where = where || {}
 		,select = select || {}
@@ -67,15 +81,21 @@ categoryDAO.insertChildToParentByTitle = function(done, parent, title) {
 	  , errFn = done.getErrFn();
 	
 	var newChildCategory = Category.createBy({ title:title
-		 									 , deep: (++parent.deep)
 		 									 , parentId: parent.id });
 	
+	debug('parentCategory', parent)
+	debug('newChildCategory', newChildCategory)
 	H.call4promise(categoryDAO.hasDuplicateChildTitleFromParent, parent, title)
 	 .then(function (hasDuplicateChildTitle) {
 		 if(hasDuplicateChildTitle) 
-			 return 'err : already exist category title';
+			 return Status.makeError('err : already exist category title');
 		 else 
 			 return H.call4promise(_create, newChildCategory); 
+	 })
+	 .then(function(statusOrNewCategory) {
+		 if(Status.isStatusType(statusOrNewCategory)) return statusOrNewCategory;
+		 else return Status.makeSuccess();
+		 //TODO: create에 성공 실패에 맞게 처리해야할텐데.
 	 })
 	 .then(dataFn)
 	 .catch(errFn)
@@ -94,13 +114,6 @@ categoryDAO.increasePostCountById = function(done, id) {
 	_update(done, where, data);
 };
 categoryDAO.updateTitleByCategory = function(done, category, newTitle) {
-	done.hook4dataFn(function (successMessageOrErrString) {
-		if(_.isString(successMessageOrErrString)) return successMessageOrErrString; 
-		
-		if(successMessageOrErrString == 1) return 'success';
-		else return 'err : update fail by db';
-	});
-	
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();
 	var parentId = category.parentId
@@ -109,7 +122,7 @@ categoryDAO.updateTitleByCategory = function(done, category, newTitle) {
 	H.call4promise(categoryDAO.hasDuplicateChildTitleFromParentId, parentId, newTitle)
 	 .then(function (hasDuplicateChildTitle) {
 		 if(hasDuplicateChildTitle) 
-			 return 'already exist category title';
+			 return Status.makeError('already exist category title');
 		 else 
 			 return H.call4promise(categoryDAO.updateTitleById, categoryId, newTitle); 
 	 })
@@ -118,12 +131,15 @@ categoryDAO.updateTitleByCategory = function(done, category, newTitle) {
 };
 categoryDAO.updateTitleById = function(done, id, title) {
 	var where = {_id : id}
-	,data = {title: title};
+	,data = {$set: {title: title}};
 	
 	_update(done, where, data);
 };
 function _update(done, where, data, config) {
-	if(!(H.exist(done))) throw new Error('done need when update');
+	done.hook4dataFn(function (isSuccess) {
+		debug('update arg', arguments)
+		return Status.makeForUpdate(data)
+	})
 	//TODO: writeConcern 는 무엇을 위한 설정일까. //매치되는 doc없으면 새로 생성안해.//매치되는 doc 모두 업데이트
 	var config = config || {upsert: false , multi:true}
 	   ,callback = done.getCallback();
@@ -136,32 +152,37 @@ categoryDAO.removeAll = function (done) {
 	_remove(done,where)
 }
 // postCount가 0이고 childCategory가 없어야 삭제가능.
+// $return 
+//      1) status instance
 categoryDAO.removeById = function (done, id) {
 	var where = {_id: id};
 	
 	H.call4promise(categoryDAO.findById, id)
 	 .then(function (category){
-		 if(category.isEmpty()) return 'err : not found category by'+ category.id;
-		 if(category.hasPost()) return 'err : cannot remove because category has post '+ category.postCount;
+		 if(category.isEmpty()) return Status.makeError('err : not found category by'+ category.id);
+		 if(category.hasPost()) return Status.makeError('err : cannot remove because category has post '+ category.postCount);
 		 return H.call4promise(categoryDAO.findChildsFromParent, category);
 	 })
-	 .then(function(errStringOrChilds) {
-		 if(_.isString(errStringOrChilds)) return errStringOrChilds;
-		 if(!(_.isEmpty(errStringOrChilds))) return 'err : cannot remove because category has child categories';
-		 
-		 return H.call4promise(_remove, where);
+	 .then(function(statusOrChilds) {
+		 if(Status.isStatusType(statusOrChilds)) {return statusOrChilds; }
+		 else {
+			 var childs = statusOrChilds;
+			 if(!(_.isEmpty(childs))) return Status.makeError('err : cannot remove because category has child categories');
+			 
+			 if(_.isEmpty(childs)) return H.call4promise(_remove, where);
+		 }
 	 })
-	 .then(function(errStringOrSuccessBool) {
-		 return done.getDataFn()(errStringOrSuccessBool);
+	 .then(function (resultStatus) {
+		 done.return(resultStatus);
 	 })
-	 .catch(function(err) {return done.getErrFn()(err)})
+	 .catch(done.getErrFn())
 	
 	
 };
 function _remove(done, where) {
-	done.hook4dataFn(function (success) {
-		if(success) return 'success'
-		else return 'err : fail';
+	done.hook4dataFn(function (data) {
+		debug('remove arg', arguments)
+		return Status.makeForRemove(data)
 	})
 	_db.remove(where, done.getCallback());
 }
@@ -172,7 +193,6 @@ function _getSchema() {
 	return {
         'title' : String,
         'postCount' : Number,
-        'deep' : Number,
         'parentId' : String
 		};
 };

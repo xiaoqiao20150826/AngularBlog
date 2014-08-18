@@ -13,16 +13,19 @@
 		<div>
 			<%
 			var scriptletUtil = blog.scriptletUtil 
-			  , categories = blog.categories
+			  , rootOfCategoryTree = blog.rootOfCategoryTree
 			 
-			scriptletUtil.treeEach(categories, 'categories', eachFn, eachNodesBefore, eachNodesAfter);
-			function eachNodesBefore(parentCategory, deep) {
-				var indentifier = parentCategory.id + (deep-1)
+			scriptletUtil.treeEach(rootOfCategoryTree, 'categories', eachFn, eachNodesBefore, eachNodesAfter);
+			function eachNodesBefore(parentCategory, parentDeep) {
+				if(parentDeep < 1 ) return;
+				var indentifier = parentCategory.id + (parentDeep)
 			%>
 			<div class="row col-sm-offset-1 collapse in category-<%=indentifier%>">
 			<%
 			}
 				function eachFn(category, deep, hasChild) {
+					if(deep < 1) return;
+				
 				    var indentifier = category.id + deep
 				%>
 				<div data-toggle="collapse" data-target=".category-<%=indentifier%>">

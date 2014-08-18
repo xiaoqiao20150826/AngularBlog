@@ -9,11 +9,12 @@
 //////// 참조클래스
 var debug = require('debug')('nodeblog:dao:postDAO')
 var Post = require('../domain/Post.js')
-	,Sequence = require('./Sequence.js')
-	,Q = require('q');
+  , Status = require('../domain/Status.js')
+  , Sequence = require('./Sequence.js')
+  , Q = require('q');
 var mongoose = require('mongoose')
-	,Schema = mongoose.Schema
-	,postSchema = new Schema(getSchema());
+  , Schema = mongoose.Schema
+  , postSchema = new Schema(getSchema());
 
 ///// 참조변수
 var SEQ_ID = 'post';
@@ -50,6 +51,10 @@ postDAO.removeAll = function (done) {
 			.catch(errFn);
 };
 function _remove(done, query) {
+	done.hook4dataFn(function (data) {
+		debug('remove arg ', arguments)
+		return Status.makeForRemove(data);
+	});
 	_db.remove(query, done.getCallback());
 }
 /* find */
@@ -71,12 +76,15 @@ postDAO.findOne = function (done, where, select) {
 	   ,callback = done.getCallback();
 	_db.findOne(where,select).exec(callback);
 };
-postDAO.findByRange = function (done, start, end, sorter) {
+postDAO.findByRange = function (done, start, end, sorter, categoryId) {
 	done.hook4dataFn(Post.createBy);
 	var where = {}
 		,select = {}
 		,sorter = _getSorter(sorter)
 		,callback = done.getCallback();
+	
+	if(categoryId) where.categoryId = categoryId;
+	
 	var startNum = start - 1; // 배열스타일의 인덱스라 실제 개수와 일치시키기위해 -1 한다.
 	var limitNum = end- startNum;
 	if(startNum < 0) startNum = 0;
@@ -142,6 +150,12 @@ postDAO.updateVoteAndVotedUserId = function(done, num, userId) {
 	_update(done, where, data);
 };
 
+postDAO.removeCategorId = function(done, categoryId) {
+	var where = {categoryId : categoryId}
+	  , data = {$set:{categoryId:null}}
+	
+	_update(done, where, data);
+};
 postDAO.increaseAnswerCount = function(done, num) {
 	var where = {num : num}
 	,data = {$inc:{answerCount:1}};
@@ -159,7 +173,11 @@ function _minusNumber(number) {
 }
 // private
 function _update(done, where, data, config) {
-	if(!(H.exist(done))) throw new Error('done need').stack;
+	done.hook4dataFn(function (data) {
+		debug('update arg ', arguments)
+		return Status.makeForUpdate(data);
+	});
+	
 	//TODO: writeConcern 는 무엇을 위한 설정일까. //매치되는 doc없으면 새로 생성안해.//매치되는 doc 모두 업데이트
 	var config = config || {upsert: false , multi:true}
 		,callback = done.getCallback();
@@ -168,9 +186,12 @@ function _update(done, where, data, config) {
 
 /* etc..count */
 //where는 검색 조건을 구할 경우 필요.
-postDAO.getCount = function (done, where) {
+postDAO.getCount = function (done, categoryId) {
 	var where = where || {}
-		,callback = done.getCallback();
+	  , callback = done.getCallback();
+		
+	if(categoryId) where.categoryId = categoryId;
+	
 	_db.find(where).count().exec(callback);
 }
 

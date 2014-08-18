@@ -98,6 +98,14 @@ var window = window;
 		var lastIndex = dir.lastIndexOf('/');
 		return dir.slice(0, lastIndex);
 	}
+
+	path.getMostSimilaireModulePathWithNoThrow = function(modulePath, modulePathOfPackage) {
+		try {
+			return path.getMostSimilaireModulePath(modulePath, modulePathOfPackage);
+		} catch(e) {
+			return null;
+		}
+	}
 	//가장 일치하는 것.
 	path.getMostSimilaireModulePath = function(modulePath, modulePathOfPackage) {
 		
