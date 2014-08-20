@@ -22,10 +22,14 @@ config.port = 3000;
 config.rootDir = __dirname;
 config.imgDir = __dirname + '\\resources\\img';
 
+// sequenceId
+config.sequenceIdMap = {}
+config.sequenceIdMap.post = 'post'
+config.sequenceIdMap.answer = 'answer'
+	
 //모드에 따라 달라지는 설정.
 var DEVELOPMENT = 'development'
   , TEST = 'test';
-
 (function () {
 	config.mode = process.env.NODE_ENV || DEVELOPMENT;
 	console.log(config.mode+ ' mode');

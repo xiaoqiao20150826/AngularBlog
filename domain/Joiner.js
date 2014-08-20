@@ -51,10 +51,20 @@ Joiner.prototype.setHasRelation = function (hasRelation) {
 Joiner.prototype.setHookChildToBind = function (hookChildToBind) {
 	this.hookChildToBind = hookChildToBind
 }
-Joiner.prototype.setKey4count = function (key4count) {
+// sum? 같은것으로 이름을 바꾸자.
+Joiner.prototype.setKey4count = function (key4count, delimiter) {
 	this.key4count = key4count;
+	this.delimiter = delimiter || 0
 }
-
+//root뿐아니라.. 모든 nodes에 대하여 해당하는 node를 찾는것.
+Joiner.prototype.findRoot = function (root, key) {
+	var childList = this.childList
+	for(var i in childList) {
+		var child = childList[i]
+		if(root[key] == child[key]) return child
+	}
+	return root
+}
 Joiner.prototype.joinTo = function (nodes, identifierKey, emptyChild) {
 	this.identifierKey = identifierKey;
 	
@@ -74,30 +84,25 @@ Joiner.prototype.joinTo = function (nodes, identifierKey, emptyChild) {
 }
 
 Joiner.prototype.treeTo = function (root, identifierKey) {
+	var key4count = this.key4count
+	  , delimiter = this.delimiter
 	this.isCache = true;
 	this.identifierKey = identifierKey;
-	
-	var key4count = this.key4count
-	var rootOfTree = this.getBindedNodeByChilds(root, key4count);
+	var rootOfTree = this.getBindedNodeByChilds(root, key4count, delimiter);
 	return rootOfTree;
 }
 
-
-Joiner.prototype.getBindedNodeByChilds = function (node, key4count) {
+Joiner.prototype.getBindedNodeByChilds = function (node, key4count, delimiter) {
 	var childsKey = this.childsKey;
-	
 	var childsToBind = this.getChildsToBindToNode(node);
 	if(_.isEmpty(childsToBind) ) return node;
 	else {
 		var newChildsToBind = []
-		
 		if(key4count) {var count = node[key4count] || 0}
-		
 		for(var i in childsToBind) {
 			var newNode = childsToBind[i];
-			var newChild =  this.getBindedNodeByChilds(newNode, key4count);
-			
-			if(key4count) { count = count + newChild[key4count]}
+			var newChild =  this.getBindedNodeByChilds(newNode, key4count, delimiter);
+			if(key4count) { count = count + delimiter +newChild[key4count]}
 				
 			newChildsToBind.push(newChild);
 		}

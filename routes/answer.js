@@ -29,7 +29,7 @@ var blog = module.exports = {
 		
 		debug('to create answer for rawData',rawData)
 		debug('to insert answer at route(answer)',answer)
-		return answerService.insertAndIncreaseCount(new H.Done(dataFn, catch1(res)), answer);
+		return answerService.insertAnswerAndIncreasePostCount(new H.Done(dataFn, catch1(res)), answer);
 		
 		function dataFn() {
 			_redirectCurrentPost(rawData, res)

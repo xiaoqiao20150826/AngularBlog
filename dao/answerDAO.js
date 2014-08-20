@@ -12,15 +12,12 @@ var mongoose = require('mongoose')
 	,Schema = mongoose.Schema
 	,answerSchema = new Schema(Answer.getSchema());
 
-var SEQ_ID = 'Answer';
 var _ = require('underscore')
-	,H = require('../common/helper.js')
-	,_seq = new Sequence(SEQ_ID)
-	,_db = mongoose.model('Answer', answerSchema);
+  , H = require('../common/helper.js')
+  , _db = mongoose.model('Answer', answerSchema)
 
 // 초기화
-_seq.create();
-var answerDAO = module.exports = {};
+var answerDAO = module.exports = {}
 ///////////////////////////////////////////////////////////////////////////
 
 /** 
@@ -47,6 +44,7 @@ answerDAO.removeAll = function (done) {
 	done.hook4dataFn(Answer.createBy);
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();
+	var _seq = Sequence.getForPost()
 	
 	return Q.all([H.call4promise([_seq,_seq.remove]), H.call4promise(_remove, {})])
 	 		.then(dataFn)
@@ -93,7 +91,8 @@ answerDAO.findByRange = function (done, postNum, start,end) {
 /* insert */
 answerDAO.insertOne = function(done, answer) {
 	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn();
+	  , errFn = done.getErrFn()
+	var _seq = Sequence.getForPost()
 	
 	return H.call4promise([_seq,_seq.getNext])
 			.then(function(data) {
@@ -136,22 +135,6 @@ answerDAO.getCount = function (done, where) {
 		,callback = done.getCallback();
 	_db.find(where).count().exec(callback);
 }
-//   mongoose에 group함수는 안되서 aggregate로 변경. 
-//   [] 전달시 파이프라인 사용이다.
-// @return : {_id:'', count:0}; 
-answerDAO.getCountsByPosts = function (done, posts) {
-	var postNums = [];
-	for(var i in posts) { postNums.push(posts[i].num); }
-	
-	var match = {$match : {postNum: {$in : postNums} }  };
-	var group = {$group : {_id : '$postNum' ,count : {$sum: 1} }  };
-	var sort = {$sort : {_id: 1} };
-	
-	
-	_db.aggregate([match, group, sort])
-	   .exec(done.getCallback());
-};
-
 
 
 /* helper */		

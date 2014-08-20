@@ -1,13 +1,13 @@
 <meta charset="utf-8">
 <div>
 <select name = "categoryId" class="selectpicker">
-					<option name="root" value="root">---기본---</option>
 					<%
 					var scriptletUtil = blog.scriptletUtil
 					    rootOfCategoryTree = blog.rootOfCategoryTree 
 					scriptletUtil.treeEach(rootOfCategoryTree, 'categories', eachFn);
 					function eachFn(category, deep) {
-						if(deep < 1) return ;
+						console.log(deep)
+						
 						
 						var title = category.title
 						  , space = scriptletUtil.repeatString('&nbsp;&nbsp;',deep)

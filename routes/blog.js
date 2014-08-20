@@ -19,7 +19,6 @@ var Post = require('../domain/Post.js')
 var _config;
 var FIRST_PAGE_NUM = 1
   , SORTER_NEWEST = 'newest'
-  , ROOT_CATEGORY_ID = Category.getRootId()
 
 var blog = module.exports = {
 /* 클라이언트의 요청을 컨트롤러에 전달한다.*/
@@ -66,20 +65,20 @@ var blog = module.exports = {
 		var rawData = requestParser.getRawData(req)
 		  , pageNum = _.isEmpty(rawData.pageNum) ? FIRST_PAGE_NUM : rawData.pageNum  
 		  , sorter = _.isEmpty(rawData.sorter) ? SORTER_NEWEST: rawData.sorter
-		  , categoryId = _.isEmpty(rawData.categoryId) ? ROOT_CATEGORY_ID: rawData.categoryId
+		  , categoryId = Category.isRoot(rawData.categoryId) ? Category.getRootId() : rawData.categoryId
 		  , loginUser = requestParser.getLoginUser(req)
 		
 		debug('list rawData ',rawData)  
 		var errFn = redirector.catch;
-		H.all4promise([  [blogService.getPostsAndPager, pageNum, sorter, categoryId]
-		               , [categoryService.getRootOfCategoryTree]
-		])
+		H.call4promise(blogService.getPostsAndPagerAndAllCategoires, pageNum, sorter, categoryId)
          .then(function dataFn(args) {
-           	var postsAndPager = args[0]
-  		      , rootOfCategoryTree = args[1];
+           	var posts = args.posts
+           	  , pager = args.pager
+           	  , allCategories = args.allCategories
+  		      , rootOfCategoryTree = categoryService.categoriesToTree(allCategories)
 
-  			var blog = {posts : postsAndPager.posts
-  					  , pager : postsAndPager.pager
+  			var blog = {posts : posts
+  					  , pager : pager
   					  , rootOfCategoryTree : rootOfCategoryTree
   					  , loginUser : loginUser 
   					  , sorter : sorter

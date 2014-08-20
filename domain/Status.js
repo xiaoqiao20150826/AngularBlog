@@ -18,7 +18,8 @@ Status.makeSuccess = function (message) {return new Status(SUCCESS, message)}
 
 Status.makeForUpdate = function (successAndFail) {
 	if(_.isNumber (successAndFail)) {
-		if(successAndFail == 1) return new Status.makeSuccess(SUCCESS);
+		if(successAndFail > 0) return new Status.makeSuccess(SUCCESS + ' : ' + successAndFail);
+		if(successAndFail == 0) return new Status.makeError(ERROR + 'not found');
 		if(successAndFail == -1) return new Status.makeError(ERROR);
 	}
 	if(_.isObject(successAndFail)) {
@@ -26,7 +27,7 @@ Status.makeForUpdate = function (successAndFail) {
 		return new Status.makeSuccess(SUCCESS);
 	}
 	
-	console.error('update 값이 이 외의 상황이 나오면 어떻게 된 것일까.', arguments)
+	console.error('update fail', new Error().stack)
 }
 
 Status.makeForRemove = function (removeCount) {
@@ -34,7 +35,7 @@ Status.makeForRemove = function (removeCount) {
 		return new Status(SUCCESS, 'remove '+ removeCount);
 	}
 	else {
-		console.error('remove 값이 이 외의 상황이 나오면 어떻게 된 것일까.', arguments)
+		console.error('remove fail', new Error().stack)
 	}
 }
 Status.isStatusType = function (o) {

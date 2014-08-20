@@ -17,7 +17,9 @@ $$namespace.include(function (require, module) {
 				  }
 	var blogRepository = module.exports = {}
 	
-	
+	blogRepository.replacePagerToInit = function () {
+		blogMap.pager = new Pager({});
+	}
 	blogRepository.savePager = function(pager) {
 		blogMap.pager = pager;
 	}

@@ -41,7 +41,7 @@ Done.ASYNC = _ASYNC;
 
 
 Done.makeEmpty = function () {
-	return new Done(emtpy, empty);
+	return new Done(empty, empty);
 	function empty() {}
 }
 
@@ -133,7 +133,7 @@ Done.prototype.hook4dataFn = function (hookFn) {
 //private 
 /////////////////////////////////////////////////
 function _defaultErrFn(err) {
-	throw new Error('default : ',err);
+	return console.error('default catch '+ err)
 }
 
 /*

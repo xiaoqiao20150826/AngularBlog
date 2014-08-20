@@ -4,7 +4,7 @@
 	<hr style='margin: 0; padding:0; border: thin dashed black'>
 	<div data-toggle="collapse" data-target="#category">
 		<a href="javascrip:">
-			<h4>category&nbsp;&nbsp;&nbsp;<span class="caret"></span>
+			<h4>category&nbsp;<span class="caret"></span>
 			</h4>
 		</a>
 	</div>
@@ -17,30 +17,32 @@
 			 
 			scriptletUtil.treeEach(rootOfCategoryTree, 'categories', eachFn, eachNodesBefore, eachNodesAfter);
 			function eachNodesBefore(parentCategory, parentDeep) {
-				if(parentDeep < 1 ) return;
 				var indentifier = parentCategory.id + (parentDeep)
 			%>
 			<div class="row col-sm-offset-1 collapse in category-<%=indentifier%>">
 			<%
 			}
 				function eachFn(category, deep, hasChild) {
-					if(deep < 1) return;
-				
 				    var indentifier = category.id + deep
 				%>
-				<div data-toggle="collapse" data-target=".category-<%=indentifier%>">
+				
 					<a href="javascrip:">		
 					<h6>
-						<%=category.title %>
+						<a class="blogCategory" href="javascirpt:" data-id="<%=category.id%>" >
+							<%=category.title%>
+							<span class="badge"><%=category.postCount %></span> 
+						</a>
+						
 						<%
 						if(hasChild) {
 						%>
-						<span class="caret"></span>
+						<a data-toggle="collapse" data-target=".category-<%=indentifier%>" href="javascrip:">
+						&nbsp;&nbsp;&nbsp;<span class="caret"></span>
+						</a>
 						<% } %>
-						<span class="badge"><%=category.postCount %></span>
+						
 					</h6>
 					</a>
-				</div>
 				<%
 				}
 			function eachNodesAfter() {

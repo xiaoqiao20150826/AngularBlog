@@ -30,4 +30,20 @@
 //_db.findOneAndUpdate(where, update, options, done.getCallback());
 //};
 
+//   mongoose에 group함수는 안되서 aggregate로 변경. 
+//   [] 전달시 파이프라인 사용이다.
+// @return : {_id:'', count:0}; 
+//answerDAO.getCountsByPosts = function (done, posts) {
+//	var postNums = [];
+//	for(var i in posts) { postNums.push(posts[i].num); }
+//	
+//	var match = {$match : {postNum: {$in : postNums} }  };
+//	var group = {$group : {_id : '$postNum' ,count : {$sum: 1} }  };
+//	var sort = {$sort : {_id: 1} };
+//	
+//	
+//	_db.aggregate([match, group, sort])
+//	   .exec(done.getCallback());
+//};
+//
 					

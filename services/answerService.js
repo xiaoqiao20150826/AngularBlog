@@ -24,8 +24,8 @@ var answerService = module.exports = {};
 
 /* functions */
 
-//answerNum에 해당하는 블로그 데이터를 가져온다.
-//이걸 재귀, emptyAnswer깊이, joiner의 변경. 세가지를 하면 좀더 간단해질텐데.
+//postNum의 answer를 가져와서 트리형태로 만든다.
+//이때 루트는 num 이 null 인 answer
 answerService.getJoinedAnswers = function (done, postNum) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();
@@ -39,25 +39,32 @@ answerService.getJoinedAnswers = function (done, postNum) {
 	 	    	return H.call4promise([userDAO.findByIds], userIds);
 	 		})
 			 .then(function (users) {
-			     var userJoiner = new Joiner(users, '_id', 'user')
-			       , joinedAnswerByUser = userJoiner.joinTo(_answers, 'userId');
-			     var answerJoiner = new Joiner(joinedAnswerByUser, 'answerNum', 'answers')
-			       , rootOfTree = answerJoiner.treeTo(Answer.makeRoot(), 'num');
-
-				 dataFn(rootOfTree.answers);
-				 
-			     debug('joinedAnswerByUser :', joinedAnswerByUser)
-			     debug('rootOfAnswersTree :', rootOfTree)
+				 var rootOfTree = answersJoinUsersAndTreeAnswers(users, _answers)
+			     return dataFn(rootOfTree.answers);
 			})
 	 		.catch(errFn);
 }
+// 조인한 후, 트리화 시킨다.
+function answersJoinUsersAndTreeAnswers (users, answers) {
+    var userJoiner = new Joiner(users, '_id', 'user')
+      , joinedAnswerByUser = userJoiner.joinTo(answers, 'userId', User.getAnnoymousUser());
+    
+    var answerJoiner = new Joiner(joinedAnswerByUser, 'answerNum', 'answers')
+      , rootOfTree = answerJoiner.treeTo(Answer.makeRoot(), 'num');
+    
+    debug('rootOfAnswersTree :', rootOfTree)
+    
+    return rootOfTree;
+}
+
+
 //to deprease
 answerService.insertAnswer = function(done, answer) {
 	answerDAO.insertOne(done, answer);
 };
 
 // 주의 post의 answerCount를 증가시키는 것.
-answerService.insertAndIncreaseCount = function(done, answer) {
+answerService.insertAnswerAndIncreasePostCount = function(done, answer) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();
 	var postNum = answer.postNum;
@@ -67,8 +74,8 @@ answerService.insertAndIncreaseCount = function(done, answer) {
 	     , H.call4promise(postDAO.increaseAnswerCount, postNum)
     ])
      .then(function(args){
-    	 var insertedAnswer = _.first(args);
-    	 dataFn(insertedAnswer);
+    	 var insertedAnswer = args[0];
+    	 return dataFn(insertedAnswer);
      })
      .catch(errFn);
 };

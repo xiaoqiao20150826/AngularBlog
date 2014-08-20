@@ -37,14 +37,18 @@ describe('scriptletUtil', function() {
 		var childsKey = 'names'
 			,	beforeCount = 0
 			,	afterCount = 0
-		scriptletUtil.treeEach(root, childsKey, null, eachNodesBefore, eachNodesAfter)
-		should.equal(beforeCount, 4)
-		should.equal(afterCount, 4)
-		function eachNodesBefore() {
+		scriptletUtil.treeEach(root, childsKey, eachFn, eachNodesBeforeIfHasChild, eachNodesAfterIfHasChild)
+		should.equal(beforeCount, 3)
+		should.equal(afterCount, 3)
+		function eachNodesBeforeIfHasChild(parentNode, parentDeep) {
 			++beforeCount
-			debug('eachNodesBefore : ', arguments)
+			debug('eachNodesBeforeIfHasChild : '+ parentNode.name +" "+ parentDeep)
 		}
-		function eachNodesAfter() {
+		function eachFn(node, deep, hasChild) {
+			debug('deep :'+deep+'] '+node.name + ', hasChild : '+ hasChild);
+		}
+		function eachNodesAfterIfHasChild(parentNode, parentDeep) {
+			debug('eachNodesAfterIfHasChild : '+ parentNode.name +" "+ parentDeep)
 			++afterCount
 		}
 	})

@@ -6,6 +6,7 @@ var _ = require('underscore')
   , path = require('path')
   , fs = require('fs');
 
+var Status = require('../domain/Status') //이것이. 몽고디비를 위한건데. 여기서도 사용.
 var H = require('./helper.js')
   , Done = H.Done;
   
@@ -98,10 +99,52 @@ localFile.copyNoDuplicate = function(done, fromFileUrl, toFileUrl) {
 localFile.exists = function(done, fileUrl) {
 	fs.exists(fileUrl, done.getDataFn());
 }
+
+localFile.deleteFileAndDeleteFolderIfNotExistFile = function (done, filePath) {
+	var dataFn = done.getDataFn()
+	  , errFn = done.getErrFn()
+	
+	if(_.isEmpty(filePath)) return dataFn();
+    
+	return H.call4promise(localFile.delete, filePath)
+		    .then(function() {
+			    return H.call4promise(localFile.deleteOneFolder, path.dirname(filePath)); 
+	       })
+	        .then(dataFn)
+	        .catch(errFn)
+}
+
 localFile.delete = function(done, fileUrl) {
+	var dataFn = done.getDataFn()
+	  , errFn = done.getErrFn()
+	  
+	done.hook4dataFn(function () { return Status.makeSuccess('success.. no arg')})
+	done.setErrFn(errFn4notFoundFile)  
+	function errFn4notFoundFile(err) {
+		if(err) {
+			if (err.code == 'ENOENT')  
+				return dataFn(Status.makeError('fail'));
+			else 
+				return errFn(err); 
+		}
+	}
+	
 	fs.unlink(fileUrl, done.getCallback());
 }
-localFile.deleteFolder = function(done, path) {
+localFile.deleteOneFolder = function(done, path) {
+	var dataFn = done.getDataFn()
+	  , errFn = done.getErrFn()
+	
+	done.hook4dataFn(function () { return Status.makeSuccess('success.. no arg')})  
+	done.setErrFn(errFn4existFile) 
+	function errFn4existFile(err) {
+		if(err) {
+			if (err.code == 'EBUSY') return dataFn(Status.makeError('fail EBUSY'));
+			if (err.code == 'ENOTEMPTY') return dataFn(Status.makeError('fail ENOTEMPTY'));
+			
+			return errFn(err); // 그외 
+		}
+	}  
 	fs.rmdir(path, done.getCallback());
 }
 

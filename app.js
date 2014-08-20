@@ -54,12 +54,19 @@ app.configure(_config.mode, function () {
 	app.use(express.errorHandler());
 })
 
-//4. 서버 열고 디비 연결.
+//4. 서버 열고 디비 연결. + 필요 테이블 생성.
 
 var server = http.createServer(app).listen(_config.port, function() {
 	mongoose.connect(_config.db, function() {
-		console.log('Express server listening on port ' + _config.port);
-		console.log('db :  ' + _config.db);
+		var H = require('./common/helper')
+		var initDataCreater = require('./initDataCreater')
+		
+		H.call4promise(initDataCreater.create)
+		 .then(function dataFn () {
+				console.log('Express server listening on port ' + _config.port);
+				console.log('db :  ' + _config.db);	
+		 })
+		 .catch(function(err) {console.error(err,new Error().stack)})
 	});
 });
 

@@ -24,106 +24,112 @@ var postDAO = require('../dao/postDAO.js')
    ,categoryDAO = require('../dao/categoryDAO.js')
    ,answerService = require('./answerService.js')
    ,categoryService = require('./categoryService.js')
-   ,Pager = require('../common/Pager.js');
-
-
 
 /* define  */
 var blogService = module.exports = {};
 
 /* functions */
 var POST_COOKIE = 'postNums';
-// pageNum에 해당하는 블로그 데이터를 가져온다.
-blogService.getPostsAndPager = function (done, curPageNum, sorter, categoryId) {
+blogService.getPostsAndPagerAndAllCategoires = function (done, curPageNum, sorter, categoryId) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();
 	
-	if(Category.isRoot(categoryId)) categoryId = null;
 	var result = {};
-	return H.call4promise([postDAO, postDAO.getCount], categoryId)
-		    .then(function (allRowCount) {
-		    	var pager = new Pager(allRowCount)
-		    	  , rowNums = pager.getStartAndEndRowNumBy(curPageNum);
+	var categoryIds;
+	return H.call4promise(categoryDAO.findIdsOfIncludeChildIdAndAllCategories, categoryId)
+	        .then(function(idsAndAllCategories) {
+		    	var _categoryIds = idsAndAllCategories.categoryIds
+		    	  , _allCategories = idsAndAllCategories.allCategories
+		    	
+		    	debug('categoryIds : ',_categoryIds);
+		    	categoryIds = _categoryIds
+		    	result.allCategories = _allCategories;
+		    	
+		    	return H.call4promise(postDAO.getPager, curPageNum, _categoryIds)
+	        })
+		    .then(function (pager) {
+		    	var _categoryIds = categoryIds
+		    	  
 		    	result.pager = pager;
-		    	return H.call4promise([postDAO.findByRange], rowNums.start, rowNums.end, sorter, categoryId);
-		   })
-		   .then(function (posts) {
-				result.posts = posts;
-				var userIds = Post.getUserIds(posts)
-				  , categoryIds = Post.getCategoryIds(posts)
-				
-				return H.all4promise([
-						               	 [userDAO.findByIds, userIds]
-						               , [categoryDAO.findByIds, categoryIds]	 
-						            ])
-			})
-		   .then(function (args) {
-			   var users = args[0]
-			     , categories = args[1]
-			   var posts = result.posts
-			     , userjoiner = new Joiner(users, '_id', 'user')
-			     , joinedPosts = userjoiner.joinTo(posts, 'userId', User.getAnnoymousUser());
-			   
-			   var categoryjoiner = new Joiner(categories, 'id', 'category')
-			   joinedPosts= categoryjoiner.joinTo(joinedPosts, 'categoryId', Category.makeRoot());
-			   
-			   result.posts = joinedPosts;
-			   dataFn(result);
-			})
-		   .catch(errFn);
+		    	
+		    	var rowNums = pager.getStartAndEndRowNumBy(curPageNum)
+		    	return H.call4promise(postDAO.findByRange, rowNums.start, rowNums.end, sorter, _categoryIds);
+		    })
+		     .then(function (posts) {
+			     var _allCategories = H.deepClone(result.allCategories)
+			     return H.call4promise(blogService.getJoinedPostsByUsersAndCategories, posts, _allCategories);
+	        })
+		     .then(function (joinedPosts) {
+			     result.posts = joinedPosts;
+			     dataFn(result)
+		    })
+		     .catch(errFn);
 };
 
-//postNum에 해당하는 블로그 데이터를 가져온다.
-//하나를 가져오는 것이기에. Joiner안사용해도됨.
+// 카테고리는 다른곳(사이드)에서 사용하므로 따로 전달~!
+blogService.getJoinedPostsByUsersAndCategories = function (done, posts, allCategories) {
+	var dataFn = done.getDataFn()
+	  , errFn = done.getErrFn()
+
+	var userIds = Post.getUserIds(posts)
+	
+	//side-effect : 모든 자식의 title을 부모로 모으기 위함.
+	categoryService.categoriesToTree(allCategories, 'title', ' > ') 
+	
+	H.call4promise(userDAO.findByIds, userIds)
+     .then(function (users) {
+    	 var userJoiner = new Joiner(users, '_id', 'user')
+    	   , categoryJoiner = new Joiner(allCategories, 'id', 'category')
+    	 
+    	 
+    	 joinedPosts = userJoiner.joinTo(posts, 'userId', User.getAnnoymousUser());
+    	 joinedPosts = categoryJoiner.joinTo(joinedPosts, 'categoryId');
+    	 
+    	 return dataFn(joinedPosts)
+     })
+     .catch(errFn)
+}
+
+
+//postNum에 해당하는 post 데이터를 가져온다.
+// user, answers를 조인.
 blogService.getJoinedPost = function (done, postNum) {
 	var dataFn = done.getDataFn()
 	, errFn = done.getErrFn();
 	
-	var _post;
-	H.call4promise(postDAO.findByNum, postNum)
+	H.all4promise([ [blogService.getJoinedPostByUser, postNum]
+	              , [answerService.getJoinedAnswers, postNum] 
+    ])
+	 .then(function (args) {
+		 var joinedPost = args[0]
+		   , joinedAnswers = args[1]
+		 
+		 joinedPost.setAnswers(joinedAnswers);
+	 	 debug('joinedPost :', joinedPost)
+	 	 
+	 	 return dataFn(joinedPost);
+	 })
+	 .catch(errFn);
+}
+blogService.getJoinedPostByUser = function (done, postNum) {
+	var dataFn = done.getDataFn()
+	  , errFn = done.getErrFn()
+	var _post = null;
+	
+	return H.call4promise(postDAO.findByNum, postNum)
 	 .then(function (post) {
 		 _post = post;
 		 return H.call4promise([userDAO.findById], post.getUserId());
      })
 	 .then(function (user) {
+		if(_.isEmpty(_post)) return console.error('not found By '+postNum + new Error().stack);
+		
 		_post.setUser(user);
-		return H.call4promise(answerService.getJoinedAnswers, postNum)
+		dataFn(_post)
 	})
-	.then(function (answers) {
-		_post.setAnswers(answers);
-		debug('joinedPosts :', _post)
-		dataFn(_post);
-	})
-	.catch(errFn);
+	.catch(errFn)
 }
-//이 구조. 너무 장황해
-//blogService.insertPostWithFile = function(done, post, file) {
-//	var dataFn = done.getDataFn()
-//	, errFn = done.getErrFn();
-//	
-//	var imgDir =config.imgDir + '\\' + post.userId;
-//	var promise = null;
-//	
-//	if(localFile.existFile(file)) {
-//		var urls = localFile.getToAndFromFileUrl(file, imgDir);
-//		promise = H.call4promise(localFile.copyNoDuplicate, urls.from , urls.to)
-//		.then(function(savedFileUrl) {
-//			post.addFilePath(savedFileUrl);
-//		})
-//		.catch(errFn);
-//	};
-//	nextFn(promise);
-//	
-//	function nextFn(promise) {
-//		if(promise == null) __fn();
-//		else promise.then(__fn);
-//		
-//		function __fn() {
-//			H.call4promise(postDAO.insertOne ,post)
-//			.then(dataFn).catch(errFn);
-//		}
-//	}
-//}
+
 blogService.insertPostWithFile = function(done, post, file) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();
@@ -135,17 +141,18 @@ blogService.insertPostWithFile = function(done, post, file) {
 	              , [categoryService.increasePostCountById, categoryId]
      ])
    	 .then(function (args) {
-   		 //post insert 후 비동기로 작업.
-   		 blogService.saveFileAndUpdatePost(file, post)
-   		
-   		 //서버응답
    		 var insertedPost = args[0];
+   		
+   	     //post insert 후 비동기로 작업 후 곧바로 다음 할일을 수행 
+   		 blogService.saveFileAndUpdatePost(file, insertedPost)
    		 return dataFn(insertedPost);
    	 })
 	 .catch(errFn);
 };
 
-// 비동기로 실패하던, 성공하던 신경 쓰지 않음.
+
+// 비동기 작업하며로 실패는 무시, 성공도 무시. 신경 쓰지 않음.
+// 나중에 파일업로드방식을 바꾸자.
 blogService.saveFileAndUpdatePost = function (file, post) {
 	if(!localFile.existFile(file)) return ;
 	//file저장 및 업데이트.
@@ -162,25 +169,20 @@ blogService.saveFileAndUpdatePost = function (file, post) {
 	 .catch(function(){});
 }	
 
-// TODO:비동기로바꿔
 blogService.deletePostOrFile = function (done, postNum, filepath) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();
 	
-	H.call4promise(postDAO.removeByPostNum, postNum)
-	 .then(function() {
-		 if(H.exist(filepath)) {
-			 H.call4promise(localFile.delete, filepath)
-			  .then(function() {
-				  return H.call4promise(localFile.deleteFolder, path.dirname(filepath));
-				  //TODO: 사실 파일있는지  확인하고 폴더를 지워야하는데. 에러가 안나니 넘어감. exists처럼 err없이 t/f만 반환하나보다. 
-			  })
-		 }
+	H.all4promise(postDAO.removeByPostNum, postNum)
+	 .then(function(status) {
+		 if(status.isSuccess()) return dataFn(status)
+		 else return errFn(status.appendMessage('remove faile :', postNum))
 	 })
-	 .then(function() { //성공실패 모두. undefined반환..
-		 dataFn();
-	 })
-	 .catch(errFn);
+	 
+	 //비동기로 호출
+	localFile.deleteFileAndDeleteFolderIfNotExistFile(Done.makeEmpty(), filePath);
+	
+	return;
 }
 
 blogService.increaseReadCount = function(done, postNum, cookie) {

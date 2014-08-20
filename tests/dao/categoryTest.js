@@ -10,6 +10,7 @@ var H = require('../testHelper.js')
   , categoryService = require('../../services/categoryService.js')
   , categoryDAO = require('../../dao/categoryDAO.js')
   , Category= require('../../domain/Category.js');
+var initDataCreater = require('../../initDataCreater')
 
 var debug = require('debug')('test:dao:categoryTest');
 
@@ -30,31 +31,36 @@ describe('categoryDAO', function() {
 			}
 		})
 	})
-	after(function(nextTest) {
-		H.call4promise(categoryDAO.removeAll)
+	after(function(nextCase) {
+		var errFn = H.testCatch1(nextCase);
+		H.all4promise([ categoryDAO.removeAll
+			          , initDataCreater.removeAll
+        ])
 		.then(function() {
-			mongoose.disconnect(function(d) {
-				nextTest();
+			mongoose.disconnect(function() {
+				nextCase();
 			});
-		});
-	})
+		})
+		.catch(errFn);
+	});
 	describe('#find',function() {
 		it('should find All', function (nextTest) {
 			var errFn = H.testCatch1(nextTest);
 			categoryDAO.findAll(new Done(dataFn, errFn))
 			function dataFn(categorys) {
 				debug('findAll : ',categorys);
-				should.equal(categorys[0].title , 'title1')
+				should.equal(categorys[0].title , 'root')
 				nextTest()
 			}
 		});
+		/////////// 이것만 카테고리 서비스다. 햇갈리지말것.
 		describe('#categoryService',function() {
-			it('should get joinedCategories', function (nextTest) {
+			it('should get rootOfCategoryTree', function (nextTest) {
 				var errFn = H.testCatch1(nextTest);
-				categoryService.getJoinedCategories(new Done(dataFn, errFn))
-				function dataFn(joinedCategories) {
-					debug('joinedCategories[2] : ',joinedCategories[2]);
-					should.equal(joinedCategories[2].categories[0].title , 'childTitle')
+				categoryService.getRootOfCategoryTree(new Done(dataFn, errFn))
+				function dataFn(rootOfCategoryTree) {
+					debug('rootOfCategoryTree : ',rootOfCategoryTree);
+					should.equal(rootOfCategoryTree.categories[0].title , 'title1')
 					nextTest()
 				}
 			});
@@ -70,6 +76,19 @@ describe('categoryDAO', function() {
 				nextTest()
 			}
 		});
+		it('should get all child id from parentId', function (nextTest) {
+			var errFn = H.testCatch1(nextTest);
+			var id = Category.getRootId();
+			
+			categoryDAO.findIdsOfIncludeChildIdAndAllCategories(new Done(dataFn, errFn), id)
+			
+			function dataFn(args) {
+				debug('category ids ', args);
+				should.equal(args.allCategories.length, 3)
+				should.equal(args.categoryIds.length, 3)
+				nextTest();
+			}
+		})
 		
 	})
 	describe('#insert',function() {
@@ -79,21 +98,20 @@ describe('categoryDAO', function() {
 			  , title = 'title1';
 			
 			categoryDAO.insertChildToParentByTitle(new Done(dataFn, errFn), parent, title)
-			function dataFn(categoryOrErrString) {
-//				debug('insert err : ', categoryOrErrString)
-				should.equal(_.isString(categoryOrErrString) , true);
+			function dataFn(status) {
+				debug('insert err : ', status)
+				should.equal(status.isError() , true);
 				nextTest();
 			}
 		})
-		it('should insert ChildToParentByTitle', function (nextTest) {
+		it('should insert success ChildToParentByTitle', function (nextTest) {
 			var errFn = H.testCatch1(nextTest);
 			var parent = Category.makeRoot()
 			, title = 'title123';
 			
 			categoryDAO.insertChildToParentByTitle(new Done(dataFn, errFn), parent, title)
-			function dataFn(categoryOrErrString) {
-//				debug('insert err : ', categoryOrErrString)
-				should.equal(categoryOrErrString.title , title);
+			function dataFn(status) {
+				should.equal(status.isSuccess() , true);
 				nextTest();
 			}
 		})
@@ -140,30 +158,18 @@ describe('categoryDAO', function() {
 				nextTest();
 			}
 		});
-		it('should delete fail with category have child', function (nextTest) {
+		it('should delete success with category', function (nextTest) {
 			var errFn = H.testCatch1(nextTest)
-			  , cagegoryBeHaveChild = _.findWhere(categories, {title: 'hasChild'})
+			  , cagegoryBeHaveChild = _.findWhere(categories, {title : 'title1'})
 			  , id = cagegoryBeHaveChild.id;
 			categoryDAO.removeById(new Done(dataFn, errFn), id);
 			function dataFn(status) {
 //				console.log(status.getMessage())
 
-				should.equal(status.isError(), true)
-				should.exist(status.getMessage().match('category has child categories'))
+				should.equal(status.isSuccess(), true)
 				nextTest();
 			}
 		})
-		it('should delete success whit category if abobe case else', function (nextTest) {
-			var errFn = H.testCatch1(nextTest)
-			  , nomalCategory = _.findWhere(categories, {title: 'title1'})
-			  , id = nomalCategory.id;
-			categoryDAO.removeById(new Done(dataFn, errFn), id);
-			function dataFn(status) {
-				should.equal(status.isSuccess(), true)
-//				console.log(status.getMessage())
-				nextTest();
-			}
-		});
 	})
 	
 	
@@ -173,18 +179,15 @@ describe('categoryDAO', function() {
 /////////
 function _insertAllTestData(dataFn) {
 	
-	H.call4promise(categoryDAO.insertChildToParentByTitle, Category.makeRoot(), 'title1')
+	H.call4promise(initDataCreater.create)
+	.then(function () {
+		return H.call4promise(categoryDAO.insertChildToParentByTitle, Category.makeRoot(), 'title1') 
+	})
 	 .then(function () {
 		return H.call4promise(categoryDAO.insertChildToParentByTitle, Category.makeRoot(), 'title2') 
 	 })
-	 .then(function (category) {
-		 return H.call4promise(categoryDAO.increasePostCountById, category.id)  
-	 })
 	 .then(function () {
-		 return H.call4promise(categoryDAO.insertChildToParentByTitle, Category.makeRoot(), 'hasChild')
-	 })
-	 .then(function (parent) {
-		 return H.call4promise(categoryDAO.insertChildToParentByTitle, parent, 'childTitle')		 
+		 return H.call4promise(categoryDAO.increasePostCountById, Category.getRootId()) 
 	 })
 	 .then(dataFn)
 };

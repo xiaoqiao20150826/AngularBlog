@@ -20,7 +20,7 @@ describe('localFile', function() {
 	after(function (nextTest) {
 		H.asyncLoop(toDeleteFiles ,localFile.delete, new Done(dataFn, catch1(nextTest)));
 		function dataFn() {
-			H.asyncLoop(toDeleteFolders ,localFile.deleteFolder, new Done(dataFn, catch1(nextTest)));
+			H.asyncLoop(toDeleteFolders ,localFile.deleteOneFolder, new Done(dataFn, catch1(nextTest)));
 			function dataFn() {
 				nextTest()
 			}
@@ -120,5 +120,33 @@ describe('localFile', function() {
 				nextTest();
 			}
 		});
+	})
+	describe('delete', function () {
+		it('폴더를 지운다. 파일이 없는 경우.', function (nextTest) {
+			var emptyFolder = folder + '/fff';
+			localFile.createFolderIfNotExist(emptyFolder, function () {
+				localFile.deleteOneFolder(new Done(dataFn, catch1(nextTest)), emptyFolder)
+				function dataFn(status) {
+				should.equal(status.isSuccess(), true)
+					nextTest()
+				}
+			})
+		})
+		it('폴더를 지울때 파일이 있다는 오류가 난다면 에러를 무시하고 리턴.', function (nextTest) {
+			var folderHasFile = folder;
+			localFile.deleteOneFolder(new Done(dataFn, catch1(nextTest)), folderHasFile)
+			function dataFn(status) {
+				should.equal(status.isError(), true)
+				nextTest()
+			}
+		})
+		it('파일을 지울때 없는 파일이라면 무시.', function (nextTest) {
+			var fileUrl = folder + '\\a223r23f23.txt'
+			localFile.delete(new Done(dataFn, catch1(nextTest)), fileUrl)
+			function dataFn(status) {
+				should.equal(status.isError(), true)
+				nextTest()
+			} 
+		})
 	})
 })

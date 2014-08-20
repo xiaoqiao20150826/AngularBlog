@@ -59,6 +59,7 @@ $$namespace.include(function(require, module) {
 			, dataMap = categoryView.getDataMap($categoryBtn)
 			, category = new Category(dataMap)
 			blogService.saveCategory(category);
+			blogService.replacePagerToInit()
 			blogService.ajaxBlogListHtml(dataFn, e)
 		function dataFn(html) {
 			blogView.replaceListDiv(html);

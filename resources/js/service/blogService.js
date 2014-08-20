@@ -20,6 +20,9 @@ $$namespace.include(function (require, module ) {
 	blogService.saveCategory = function (category) {
 		blogRepository.saveCategory(category);
 	}
+	blogService.replacePagerToInit = function () {
+		blogRepository.replacePagerToInit();
+	}
 	blogService.ajaxBlogListHtml = function (done, e) {
 		var blogMap = blogRepository.getBlogMap()
 		  , tab = blogMap.tab

@@ -1,10 +1,11 @@
 /**
  * 
  */
-
+//TODO: BoardPost가 적절한데.
 /* 참조 및 초기화 */
+
 var H = require('../common/helper.js')
-  , C = require('../common/constant.js');
+  , User = require('./User.js');
   
 var _ = require('underscore');
 
@@ -19,7 +20,7 @@ var Post = module.exports = function Post() {
 	this.content = '';
 	this.created = Date.now();
 	this.answerCount = 0;
-	this.userId = C.ANNOYMOUS_ID;
+	this.userId = User.ANNOYMOUS_ID;
 	this.categoryId = '';	
 };
 

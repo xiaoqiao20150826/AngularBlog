@@ -8,26 +8,25 @@
 
 //////// 참조클래스
 var debug = require('debug')('nodeblog:dao:postDAO')
+
 var Post = require('../domain/Post.js')
   , Status = require('../domain/Status.js')
   , Sequence = require('./Sequence.js')
   , Q = require('q');
+var Pager = require('../common/Pager.js');
+
 var mongoose = require('mongoose')
   , Schema = mongoose.Schema
   , postSchema = new Schema(getSchema());
 
 ///// 참조변수
-var SEQ_ID = 'post';
 var _ = require('underscore')
-	,H = require('../common/helper.js')
-	,_seq = new Sequence(SEQ_ID)
-	,_db = mongoose.model('Post', postSchema);
-
-//// init
-_seq.create();
+  , H = require('../common/helper.js')
+  , _db = mongoose.model('Post', postSchema)
+	
 ///////////////////////////////////////////////////////////////////////////
 
-var postDAO = module.exports = {};
+var postDAO = module.exports = {}
 
 /* 
  * functions(싱글톤) 
@@ -44,8 +43,10 @@ postDAO.removeOne = function (done, post) {
 };
 postDAO.removeAll = function (done) {
 	var dataFn = done.getDataFn()
-	var errFn = done.getErrFn()   
+      , errFn = done.getErrFn()   
 	
+    var _seq = Sequence.getForPost()
+    
 	return Q.all([H.call4promise([_seq,_seq.remove]), H.call4promise([_remove],{})])
 			.then(dataFn)
 			.catch(errFn);
@@ -76,14 +77,14 @@ postDAO.findOne = function (done, where, select) {
 	   ,callback = done.getCallback();
 	_db.findOne(where,select).exec(callback);
 };
-postDAO.findByRange = function (done, start, end, sorter, categoryId) {
+postDAO.findByRange = function (done, start, end, sorter, categoryIds) {
 	done.hook4dataFn(Post.createBy);
 	var where = {}
 		,select = {}
 		,sorter = _getSorter(sorter)
 		,callback = done.getCallback();
 	
-	if(categoryId) where.categoryId = categoryId;
+	if(!_.isEmpty(categoryIds) ) where.categoryId = {$in : categoryIds } 
 	
 	var startNum = start - 1; // 배열스타일의 인덱스라 실제 개수와 일치시키기위해 -1 한다.
 	var limitNum = end- startNum;
@@ -107,7 +108,9 @@ function _getSorter(sorterStr) {
 /* insert */
 postDAO.insertOne = function(done, post) {
 	var dataFn = done.getDataFn()
-	var errFn = done.getErrFn()
+	  , errFn = done.getErrFn()
+	  
+	var _seq = Sequence.getForPost()
 	
 	return H.call4promise([_seq, _seq.getNext])
 	 		.then(function __work1(data) {
@@ -127,7 +130,12 @@ function _create(done, data) {
 //TODO: 업데이트할 데이터에 post를 통채로 주므로 업데이트 하지말아야할 데이터는 잘 걸러서 줘야한다. 
 postDAO.update = function(done, post) {
 	var where = {num : post.num}
-		,data = post;
+		,data = { $set : { title : post.title
+		        		 , content : post.content
+		        		 , categoryId : post.categoryId
+		        		  }
+				, $addToSet : {filePaths : post.filePaths}
+				}
 	if(!(H.exist(post.num))) throw new Error('num은 필수').stack;
 	_update(done, where, data);
 };
@@ -173,9 +181,9 @@ function _minusNumber(number) {
 }
 // private
 function _update(done, where, data, config) {
-	done.hook4dataFn(function (data) {
+	done.hook4dataFn(function (post) {
 		debug('update arg ', arguments)
-		return Status.makeForUpdate(data);
+		return Status.makeForUpdate(post);
 	});
 	
 	//TODO: writeConcern 는 무엇을 위한 설정일까. //매치되는 doc없으면 새로 생성안해.//매치되는 doc 모두 업데이트
@@ -186,14 +194,28 @@ function _update(done, where, data, config) {
 
 /* etc..count */
 //where는 검색 조건을 구할 경우 필요.
-postDAO.getCount = function (done, categoryId) {
-	var where = where || {}
+postDAO.getPager = function (done, curPageNum, categoryIds) {
+	var dataFn = done.getDataFn()
+	  , errFn = done.getErrFn();
+	
+	return H.call4promise(postDAO.getCount, categoryIds)
+	        .then(function (allRowCount) {
+		    	var pager = new Pager(allRowCount)
+		    	
+		    	return dataFn(pager)
+	        })
+	        .catch(errFn)
+}
+postDAO.getCount = function (done, categoryIds) {
+	var where = {}
 	  , callback = done.getCallback();
 		
-	if(categoryId) where.categoryId = categoryId;
+	if(!_.isEmpty(categoryIds)) where.categoryId = {$in : categoryIds}
+	
 	
 	_db.find(where).count().exec(callback);
 }
+
 
 postDAO.findGroupedPostsByDate = function (done) {
 	done.hook4dataFn(_reGroup);

@@ -1,8 +1,6 @@
 
 /* 참조 및 초기화 */
 var H = require('../common/helper.js')
-  , C = require('../common/constant.js');
-
 
 
 //////////////////
@@ -14,7 +12,9 @@ var User = module.exports = function User() {
 	this.created = Date.now();
 };
 
+
 /* static method */
+User.ANNOYMOUS_ID = 'annoymous'; 
 /* 생성자 */
 User.createBy= function(model) {
 	if(!(H.exist(model)) ) return User.getAnnoymousUser();
@@ -36,13 +36,13 @@ User.getSchema = function () {
 /* helper */
 
 User.isAnnoymousId = function (userId) {
-	if(userId == C.ANNOYMOUS_ID) 
+	if(userId == User.ANNOYMOUS_ID) 
 		return true;
 	else 
 		return false;
 };
 User.getAnnoymousUser = function () {
-	var user = User.createBy({name:C.ANNOYMOUS_ID, photo:'', email:''})
+	var user = User.createBy({name:User.ANNOYMOUS_ID, photo:'', email:''})
 	user.created = undefined;
 	return user;
 }

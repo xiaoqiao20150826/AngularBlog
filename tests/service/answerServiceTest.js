@@ -15,6 +15,7 @@ var Post = require('../../domain/Post.js')
 var answerDAO = require('../../dao/answerDAO.js')
   , postDAO = require('../../dao/postDAO.js')
   , userDAO = require('../../dao/userDAO.js');
+var initDataCreater = require('../../initDataCreater')
 
 var answerService = require('../../services/answerService.js');
 
@@ -36,13 +37,12 @@ describe('answerService', function () {
 			var errFn = H.testCatch1(nextTest);
 			answerService.getJoinedAnswers(new H.Done(dataFn, errFn), postNum);
 			
-			function dataFn(e_answers) {
-				debug('joinedAnswers :', e_answers)
-				var e_answer = e_answers.pop();
-				should.equal(e_answer.user, e_answer.answers.pop().user)
-				var e_lowAnswer = e_answer.answers.pop()
-				should.equal(e_lowAnswer.num,4)
-				should.equal(e_lowAnswer.answerNum,e_answer.num )
+			function dataFn(answers) {
+				debug('joinedAnswers :', answers)
+				should.equal(answers[1].user, answers[1].answers.pop().user)
+				var lowAnswer = answers[1].answers[0]
+				should.equal(lowAnswer.num,5)
+				should.equal(lowAnswer.answerNum, 2 )
 				nextTest();
 			}
 		})
@@ -63,7 +63,7 @@ describe('answerService', function () {
 			answer.postNum = postNum;
 			answer.content = 'answerContent2';
 			answer.userId = userId;
-			answerService.insertAndIncreaseCount(new Done(dataFn, errFn), answer)
+			answerService.insertAnswerAndIncreasePostCount(new Done(dataFn, errFn), answer)
 			
 			function dataFn(insertedAnswer) {
 				postDAO.findByNum(new Done(dataFn2, errFn), insertedAnswer.postNum)
@@ -114,44 +114,48 @@ function _createAndInsertTestData(nextTest) {
 	answer3 = new Answer();
 	answer3.num = 3;
 	answer3.userId = userId;
-	answer3.answerNum = answer.num;
+	answer3.answerNum = 2;
 	answer3.content = 'answerContent3';
 	answer3.deep = 2;
 	answer3.postNum = postNum;
 	answer4 = new Answer();
 	answer4.num = 4;
 	answer4.userId = userId;
-	answer4.answerNum = answer.num;
+	answer4.answerNum = 2;
 	answer4.content = 'answerContent4';
 	answer4.deep = 2;
 	answer4.postNum = postNum;
 	var errFn = H.testCatch1(nextTest);
 	var done = new H.Done(function() {}, errFn);
+	
 	mongoose.connect('mongodb://localhost/test',function() {
-		Q.all([ postDAO.insertOne(done, post)
-		      , answerDAO.insertOne(done, answer)
-			  , answerDAO.insertOne(done, answer2)
-			  , answerDAO.insertOne(done, answer3)
-			  , answerDAO.insertOne(done, answer4)
-			  , userDAO.insertOne(done, user)
-		])
+		H.call4promise(initDataCreater.create)
 		 .then(function() {
-			 nextTest();
-		})
-		.catch(errFn);
+			H.all4promise([ [postDAO.insertOne, post]
+					      , [answerDAO.insertOne, answer]
+ 						  , [answerDAO.insertOne, answer2]
+						  , [answerDAO.insertOne, answer3]
+						  , [answerDAO.insertOne, answer4]
+						  , [userDAO.insertOne, user]
+			])
+			 .then(function() {
+				 nextTest();
+			})
+			.catch(errFn)
+		 })
 	});
 }
 function _deleteAllTestData(nextTest) {
 	var errFn = H.testCatch1(nextTest);
-	var done = new H.Done(function() {}, errFn);
-	Q.all([ answerDAO.removeAll(done)
-	      , postDAO.removeAll(done)
-		  , userDAO.removeAll(done)
+	H.all4promise([postDAO.removeAll
+				 , answerDAO.removeAll
+				 , userDAO.removeAll
+				 , initDataCreater.removeAll
 	])
 	.then(function() {
 			mongoose.disconnect(function(d) {
-				nextTest();
+					nextTest();
 			});
 	})
-	.catch(errFn);
+	.catch(errFn)
 }

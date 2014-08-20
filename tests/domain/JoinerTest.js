@@ -13,29 +13,31 @@ describe('Joiner', function() {
 
 	describe('tree', function() {
 		
-		var childList, nodesThreeDeep, nodesTwoDeep2, nodesTwoDeep, nodesOneDeep, root
+		var childList, allList, nodesThreeDeep, nodesTwoDeep2, nodesTwoDeep, nodesOneDeep, root
 		var childsKey, joiner
 		beforeEach(function() {
-			root = {_id:'root'}
+			root = {_id:'root', count:3}
 			nodesOneDeep = [{_id:'node1', parentId:'root' , count:1}, {_id:'node2', parentId:'root' , count:1}]
 			nodesTwoDeep = [{_id:'node3', parentId:'node1' , count:1}, {_id:'node4', parentId:'node1' , count:1}]
 			nodesTwoDeep2 = [{_id:'node5', parentId:'node2' , count:1}, {_id:'node6', parentId:'node2' , count:1}]
 			nodesThreeDeep = [{_id:'node7', parentId:'node5' , count:1}, {_id:'node8', parentId:'node5' , count:1}]
 			childList = _.union(nodesOneDeep, nodesTwoDeep, nodesTwoDeep2, nodesThreeDeep)
+			allList = _.union(root, nodesOneDeep, nodesTwoDeep, nodesTwoDeep2, nodesThreeDeep)
 			
 			childsKey = 'childs'
 			joiner = new Joiner(childList,'parentId', childsKey);
-			debug('beforeEach : ', ++count)
 		})
 		
 		it('should get childs To bind to node', function() {
+			var root4search = {_id:'root'}
 			joiner.setIdentifierKey('_id')
-			var childsToBind = joiner.getChildsToBindToNode(root);
+			var childsToBind = joiner.getChildsToBindToNode(root4search);
 			debug('childsToBind :', childsToBind);
 			should.deepEqual(childsToBind, nodesOneDeep);
 		})
 		it('should binded node', function() {
-			var bindedNode = joiner.treeTo(root, '_id')
+			var root4search = {_id:'root'}
+			var bindedNode = joiner.treeTo(root4search, '_id')
 			debug('bindedNode', bindedNode)
 			should.equal(bindedNode._id, 'root');
 			should.equal(bindedNode[childsKey][0]._id, 'node1');
@@ -47,13 +49,33 @@ describe('Joiner', function() {
 			should.equal(bindedNode[childsKey][1][childsKey][0][childsKey][1]._id, 'node8');
 			should.equal(bindedNode[childsKey][1][childsKey][1]._id, 'node6');
 		})
-		it('should binded node', function() {
-			//부모에게 자식의 특정값을 어떻게 한다.
+		it('should take root from childs', function() {
+			var root4search = {_id:'root'}
 			joiner.setKey4count('count')
-			var bindedNode = joiner.treeTo(root, '_id')
-			debug('bindedNode', bindedNode)
-			should.equal(bindedNode.count, 8)
-			should.equal(bindedNode[childsKey][0].count, 3)
+			var root = joiner.treeTo(root4search, '_id')
+			debug('root from childs', root)
+			should.equal(root.count, 8)
+			should.equal(root[childsKey][0].count, 3)
+		})
+		it('should take root from allList', function() {
+			var root4search = {_id:'root'}
+			  , allJoiner = new Joiner(allList,'parentId', childsKey)
+			  , root = allJoiner.findRoot(root4search, '_id')
+			allJoiner.setKey4count('count')
+			  
+			var rootOfTree = allJoiner.treeTo(root, '_id')
+			debug('rootOfTree from allList', rootOfTree)
+			should.equal(rootOfTree.count, 11)
+			should.equal(rootOfTree[childsKey][0].count, 3)
+		})
+		it('should take root from allList', function() {
+			var root4search = {_id:'root'}
+			, allJoiner = new Joiner(allList,'parentId', childsKey)
+			, root = allJoiner.findRoot(root4search, '_id')
+			allJoiner.setKey4count('_id', ',')
+			
+			var rootOfTree = allJoiner.treeTo(root, '_id')
+			should.equal(rootOfTree._id.split(',').length, 9)
 		})
 		it('재귀함수',function () {
 			var a = 1;

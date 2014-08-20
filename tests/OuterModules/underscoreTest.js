@@ -101,6 +101,7 @@ describe('underscore', function() {
 				should.equal(true, _.isEmpty(''));
 				should.equal(true, _.isEmpty(""));
 				should.equal(true, _.isEmpty([]));
+				should.equal(true, _.isEmpty(function(){})); //함수는 없는샘치는군!
 //				should.equal(true, _.isEmpty(0)); 	//숫자가 있으면 다 false
 //				should.equal(true, _.isEmpty(1));   
 //				should.equal(true, _.isEmpty(-1));

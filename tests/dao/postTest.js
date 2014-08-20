@@ -10,9 +10,10 @@ var mongoose = require('mongoose')
 var testHelper = require('../testHelper.js');
 
 var _ = require('underscore'),
-	H = require('../../common/helper.js');
+	H = require('../testHelper.js')
 var	postDAO = require('../../dao/postDAO.js');
 var	Post = require('../../domain/Post.js');
+var initDataCreater = require('../../initDataCreater')
 
 // test데이터를 삽입하고, eqaul비교 때 사용할 post의 프로퍼티 이름..
 var keys4tempValue = ['title','content'];
@@ -27,13 +28,17 @@ describe('aPostDAO', function() {
 		});
 		
 	});
-	after(function(nextTest) {
-		postDAO.removeAll(new H.Done(function() {
-						mongoose.disconnect(function(a,b) {
-//							console.log('after',a,b);
-							nextTest();
-						})
-		}));
+	after(function(nextCase) {
+		var errFn = H.testCatch1(nextCase);
+		H.all4promise([ postDAO.removeAll
+			          , initDataCreater.removeAll
+        ])
+		.then(function() {
+			mongoose.disconnect(function() {
+				nextCase();
+			});
+		})
+		.catch(errFn);
 	});
 	beforeEach(function() {
 		_posts = _createTempPosts();
@@ -41,9 +46,8 @@ describe('aPostDAO', function() {
 	describe('#find()',function() {
 		it('should take all posts', function (nextTest) {
 			postDAO.find(new H.Done(dataFn, _testCatch1(nextTest)), {});
-			function dataFn(models) {
-				var e_posts =  Post.createBy(models)
-				_equals(e_posts,_posts.slice(0, e_posts.length));
+			function dataFn(posts) {
+				_equals(posts,_posts.slice(0, posts.length));
 				nextTest();
 			}
 		});
@@ -124,7 +128,6 @@ describe('aPostDAO', function() {
 			a_post.num = num;
 			a_post.title = 'title_update';
 			a_post.content = 'content_update';
-			
 			postDAO.update(new H.Done(dataFn, _testCatch1(nextTest)), a_post);
 			function dataFn(status) {
 				should.equal(status.isSuccess(),true);
@@ -186,6 +189,7 @@ describe('aPostDAO', function() {
 				should.equal(status.isSuccess(),true);
 				postDAO.findByNum(new H.Done(dataFn2, errFn), postNum);
 				function dataFn2(post) {
+//					console.log(post)
 					should.equal(post.answerCount, 1);
 					nextTest();
 				}
@@ -219,10 +223,14 @@ function _createTempPosts() {
 	return posts;
 }
 function _insertTestData(nextTest) {
-	H.asyncLoop(_createTempPosts(), [postDAO, postDAO.insertOne], new H.Done(dataFn, _testCatch1(nextTest)) );
-	function dataFn(datas) {
-		nextTest();
-	}
+	H.call4promise(initDataCreater.create)
+	 .then(function() {
+		 H.asyncLoop(_createTempPosts(), [postDAO, postDAO.insertOne], new H.Done(dataFn, _testCatch1(nextTest)) );
+			function dataFn(datas) {
+				nextTest();
+			} 
+	 })
+	
 	
 };
 function _testCatch1(nextTest) {

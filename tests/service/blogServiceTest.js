@@ -3,21 +3,23 @@ var debug = require('debug')('test:service:blogServiceTest')
 var mongoose = require('mongoose');
 var should = require('should')
   , path = require('path')
-  , Q = require('q');
 
 var H = require('../testHelper.js')
   , localFile = require('../../common/localFile.js');
 
 var Post = require('../../domain/Post.js')
   , Answer= require('../../domain/Answer.js')
-  , User = require('../../domain/User.js');
+  , User = require('../../domain/User.js')
+  , Category = require('../../domain/Category.js');
+  
 var postDAO = require('../../dao/postDAO.js')
   , answerDAO = require('../../dao/answerDAO.js')
   , userDAO = require('../../dao/userDAO.js');
 var blogService = require('../../services/blogService.js')
-
+var initDataCreater = require('../../initDataCreater')
 // 테스트를 위한 참조, 입력한 데이터에 대한.  
 var userId, postNum, post, user, answer1, answer2;
+var categoryId
 
 var testFileName = 'test.txt'
   , testFileUrl = __dirname + '\\' + testFileName;
@@ -32,30 +34,48 @@ describe('blogService', function () {
 		_deleteAllTestData(nextTest)
 	});
 	describe('$getPostsAndPager', function( ) {
-		it('should get board data', function (nextTest) {
+		it('should get postsAndPager', function (nextTest) {
 			var errFn = H.testCatch1(nextTest)
 			  , done = new H.Done(dataFn, errFn);
 			var curPageNum = 1;
-			blogService.getPostsAndPager(new H.Done(dataFn, errFn), curPageNum);
-			function dataFn(postsAndPager) {
-				var e_pager = postsAndPager.pager
-				  , e_post = postsAndPager.posts.pop();
-				should.equal(e_pager.allRowCount, 1);
-				should.equal(post.content, e_post.content)
-				should.equal(null, e_post.answers)
-				should.equal(user._id , e_post.user._id)
+			blogService.getPostsAndPagerAndAllCategoires(new H.Done(dataFn, errFn), curPageNum, null, Category.getRootId());
+			function dataFn(PostsAndPagerAndAllCategoires) {
+//				console.log(PostsAndPagerAndAllCategoires)
+				var pager = PostsAndPagerAndAllCategoires.pager
+				  , posts = PostsAndPagerAndAllCategoires.posts
+				  , allCategories = PostsAndPagerAndAllCategoires.allCategories
+				  , post = posts[0];
+				should.equal(pager.allRowCount, 1);
+				should.equal(post.content, 'postContent1')
+				should.equal(post.user.name , 'kang')
+				should.equal(post.category.title , 'root')
+				should.equal(allCategories[0].title , 'root')
 				nextTest();
 			}
 		});
+		it('should get joinedPosts', function (nextTest) {
+			var errFn = H.testCatch1(nextTest)
+			var categories = [Category.makeRoot()]
+			H.call4promise(postDAO.find)
+			 .then(function(posts) {
+				 return H.call4promise(blogService.getJoinedPostsByUsersAndCategories, posts, categories) 
+			 })
+			 .then(function(joinedPosts) {
+				 var joinedPost = joinedPosts[0]
+				 should.equal(joinedPost.user.name , 'kang')
+				 should.equal(joinedPost.category.title , 'root')
+				 nextTest()
+			 })
+			 .catch(errFn)
+		})
 	})
 	describe('#getJoinedPost', function( ) {
 		it('should take realPost by postNum', function (nextTest) {
 			var errFn = H.testCatch1(nextTest);
 			blogService.getJoinedPost(new H.Done(dataFn, errFn), post.num);
-			
 			function dataFn(e_post) {
 				should.equal(e_post.num, post.num);
-				should.equal(e_post.answers.pop().num, 1);
+				should.equal(e_post.answers.pop().num, 2);
 				nextTest();
 				
 			}
@@ -140,64 +160,69 @@ describe('blogService', function () {
 //이번에는 눈으로 확인할 수 있는 테스트 데이터를 최대한 수동으로 만들자.
 //좀 길어지더라도..
 function _createAndInsertTestData(nextTest) {
-	userId = '1_github';
-	postNum = 1;
-	
-	post = new Post();
-	post.num = postNum;
-	post.content = 'postContent1';
-	post.userId = userId;
-	
-	user = new User();
-	user._id = userId;
-	user.name = 'kang';
-	
-	answer1 = new Answer();
-	answer1.num = 1;
-	answer1.userId = userId;
-	answer1.postNum = postNum;
-	answer1.content = 'answerContent1'
-	answer2 = new Answer();
-	answer2.num = 2;
-	answer2.userId = userId;
-	answer2.postNum = postNum;
-	answer2.content = 'answerContent2'
-
 	var errFn = H.testCatch1(nextTest);
-	var done = new H.Done(function() {}, errFn);
-	mongoose.connect('mongodb://localhost/test',function() {
-		Q.all([ postDAO.insertOne(done, post)
-			  , answerDAO.insertOne(done, answer1)
-			  , answerDAO.insertOne(done, answer2)
-			  , userDAO.insertOne(done, user)
-		])
+	 mongoose.connect('mongodb://localhost/test',function() {
+		H.call4promise(initDataCreater.create)
 		 .then(function() {
-			var dataInFile = '2222lmfelwm3ㅎㅈㄷㅎㄷㅈㅎ w3 3g';
-			return H.call4promise(localFile.create, testFileUrl, dataInFile);
-		 })
-		 .then(function(url) {
-			 testFileUrl = url;
-			 nextTest();
-		})
-		.catch(errFn);
-	});
+				categoryId = Category.getRootId()
+				
+				userId = '1_github';
+				postNum = 1;
+				
+				post = new Post();
+				post.num = postNum;
+				post.content = 'postContent1';
+				post.userId = userId;
+				post.categoryId = categoryId
+				
+				user = new User();
+				user._id = userId;
+				user.name = 'kang';
+				
+				answer1 = new Answer();
+				answer1.num = 1;
+				answer1.userId = userId;
+				answer1.postNum = postNum;
+				answer1.content = 'answerContent1'
+				answer2 = new Answer();
+				answer2.num = 2;
+				answer2.userId = userId;
+				answer2.postNum = postNum;
+				answer2.content = 'answerContent2'			 
+			 
+			 H.all4promise([   [ postDAO.insertOne, post] 
+					         , [ answerDAO.insertOne, answer1]
+					         , [ answerDAO.insertOne, answer2]
+					         , [ userDAO.insertOne, user]
+					         ])
+					         .then(function() {
+					        	 var dataInFile = '2222lmfelwm3ㅎㅈㄷㅎㄷㅈㅎ w3 3g';
+					        	 return H.call4promise(localFile.create, testFileUrl, dataInFile);
+					         })
+					         .then(function(url) {
+					        	 testFileUrl = url;
+					        	 nextTest();
+					         })
+					         .catch(errFn)
+		 });
+	 })
 }
 function _deleteAllTestData(nextTest) {
 	var errFn = H.testCatch1(nextTest);
 	var done = new H.Done(function() {}, errFn);
-	Q.all([postDAO.removeAll(done)
-		 , answerDAO.removeAll(done)
-		 , userDAO.removeAll(done)
+	
+	H.all4promise([postDAO.removeAll
+				 , answerDAO.removeAll
+				 , userDAO.removeAll
+				 , initDataCreater.removeAll
 	])
 	.then(function() {
 		return H.call4promise(localFile.delete, testFileUrl);
 	})
 	.then(function() {
 			mongoose.disconnect(function(d) {
-//				setTimeout(function() {
 					nextTest();
-//				},100)
 			});
 	})
-	.catch(errFn);
+	.catch(errFn)
 }

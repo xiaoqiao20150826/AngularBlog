@@ -70,7 +70,7 @@ asyncSuporter.call4promise = function (contextAndAsyncFn /*...args*/) {
 
 asyncSuporter.all4promise = function (asyncMethodAndArgsList) {
 	if(!_.isArray(asyncMethodAndArgsList)) throw new Error('arguments must be array');
-	debug('$all4promise : ',asyncMethodAndArgsList)
+//	debug('$all4promise : ',asyncMethodAndArgsList)
 	return this.call4promise(this.all, asyncMethodAndArgsList)
 }
 // all
@@ -87,24 +87,23 @@ asyncSuporter.all = function (done, asyncMethodAndArgsList) {
 	  , lastCallIndex = asyncMethodAndArgsList.length
 	var orderAndReturnArgs = {}
 	  , callCount = 0;
-	
 	_.each(asyncMethodAndArgsList, function (asyncMethodAndArgs, i) {
 		if(!_.isArray(asyncMethodAndArgs)) asyncMethodAndArgs = [asyncMethodAndArgs]
-		
+//		debug('----------asyncMethodAndArgs-----', asyncMethodAndArgs)
 		
 		var eachDataFn = indexedEachDataFn(i)
 		  , eachDone = new Done(eachDataFn, errFn)
 		var asyncMethod = _.first(asyncMethodAndArgs)
 		  , args = _.union(eachDone, _.rest(asyncMethodAndArgs))
-		if(!_.isFunction(asyncMethod)) throw console.error(''+ asyncMethod+ ' must be function')
-		debug(i+ ':'+'args of asyncMethod :' +args)
+		if(!_.isFunction(asyncMethod)) return console.error(''+ asyncMethod+ ' must be function' + new Error().stack)
+//		debug(i+ ':'+'args of asyncMethod :' +args)
 		asyncMethod.apply(null, args)
 	})
 	
 	function indexedEachDataFn(index) {
 
 		return function eachDataFn(/* args */) {
-			debug(index+ ':'+'args asyncCall :' +arguments)
+//			debug(index+ ':'+'args asyncCall :' +arguments)
 			var args = null;
 			switch(arguments.length) {
 				case 0 : break;
@@ -117,7 +116,7 @@ asyncSuporter.all = function (done, asyncMethodAndArgsList) {
 			}
 			orderAndReturnArgs[index] = args;
 			
-			debug('lastCallIndex and called count ' +lastCallIndex+ ' and '+callCount+'+1')
+//			debug('lastCallIndex and called count ' +lastCallIndex+ ' and '+callCount+'+1')
 			if(lastCallIndex == (++callCount)) {
 				lastDataFn(orderAndReturnArgs)
 			}

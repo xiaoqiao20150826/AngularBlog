@@ -1,44 +1,33 @@
 /**
- * 
+ *   정의 후 createRoot.
  */
+
 var debug = require('debug')('nodeblog:dao:categoryDAO')
 var _ = require('underscore')
   , H = require('../common/helper.js')
+  , Done = H.Done
   , Category = require('../domain/Category.js')
+  , Joiner = require('../domain/Joiner.js')
   , Status = require('../domain/Status.js')
 
-var DEFAULT_TITLE = '기본';
-// 싱글톤 (포함되는 참조변수 초기화 후 싱글톤 반환)
-var _db; //콜백함수를 위해 this없이 접근할 수 있도록..
-var categoryDAO = module.exports = (function init() {
-	var self = {};
-	
-	var mongoose = require('mongoose')
-	  , Schema = mongoose.Schema
-	  , categorySchema = new Schema(_getSchema());
-	_db = mongoose.model('Category', categorySchema);
-	
-	return self;
-})();
+var mongoose = require('mongoose')
+  , Schema = mongoose.Schema
+  , categorySchema = new Schema(_getSchema())
+  , _db = mongoose.model('Category', categorySchema)  
+//////////////////////////////
+var categoryDAO = module.exports = {};
 
-
-
-		//find
+//find
 categoryDAO.findById = function (done, id) {
 	var where = {_id: id}
 	categoryDAO.findOne(done, where);
 }
 categoryDAO.findByIds = function (done, ids) {
-	ids = mustNotContainRootAndEmpty(ids)
+	ids = _.compact(ids)
 	var where = {'_id': {$in : ids}}
 		,select = select || {};
 		
 	categoryDAO.findAll(done, where, select)
-}
-function mustNotContainRootAndEmpty(ids) {
-	return _.filter(ids, function(id) {
-		return !(Category.isRoot(id) ) && !(_.isEmpty(id))
-	})
 }
 
 categoryDAO.hasDuplicateChildTitleFromParent = function (done, parent, title) {
@@ -65,6 +54,43 @@ categoryDAO.findOne = function (done, where, select) {
 	   ,callback = done.getCallback();
 	_db.findOne(where,select).exec(callback);
 };
+categoryDAO.findFirstCreated = function (done) {
+	done.hook4dataFn(Category.createBy);
+	var where = where || {}
+	  , select = select || {}
+	  , sorter = {created: 1}
+	  , callback = done.getCallback();
+	_db.findOne(where,select).sort().exec(callback);
+};
+categoryDAO.findIdsOfIncludeChildIdAndAllCategories = function (done, categoryId) {
+	var dataFn = done.getDataFn()
+	  , errFn = done.getErrFn()
+
+	var result = {}  
+	return H.call4promise(categoryDAO.findAll)
+	 		.then(function (_allCategories) {
+	 			result.allCategories = H.deepClone(_allCategories);
+	 			result.categoryIds = idsOfAllChildAndCategory(categoryId, _allCategories);
+				 
+				return dataFn(result);
+		   })
+			.catch(errFn)
+}
+
+// categoryId와 그 자식의 모든 id를 모아서 반환.
+function idsOfAllChildAndCategory (categoryId, allCategories) {
+	var category = Category.createBy({id: categoryId})
+	var allJoiner = new Joiner(allCategories, 'parentId', 'categories')
+	allJoiner.setKey4count('id', ',')
+	
+	category = allJoiner.findRoot(category, 'id')
+	
+	var categoryOfTree = allJoiner.treeTo(category, 'id')
+      , ids = categoryOfTree['id'].split(',')
+      
+    return ids
+}
+
 categoryDAO.findAll = function (done, where, select) {
 	done.hook4dataFn(Category.createBy);
 	var where = where || {}
@@ -101,6 +127,33 @@ categoryDAO.insertChildToParentByTitle = function(done, parent, title) {
 	 .catch(errFn)
 	
 };
+//단한번만 호출된다. 
+categoryDAO.createRoot = function (done) {
+	var dataFn = done.getDataFn()
+	  , errFn = done.getErrFn()
+	var root = Category.makeRoot();
+	
+	H.call4promise(categoryDAO.findFirstCreated)
+	 .then(function (category) {
+		 if(category.isEmpty()) {
+			 return H.call4promise(_create, root)
+			  		 .then(function (rootCategory) {
+						 debug('create rootCategory', rootCategory)
+						 Category.rootId = rootCategory.id
+						 return dataFn(rootCategory)
+					 })
+					 .catch(function (err) { console.error('fail create root ', err)})				 
+		 } else {
+			 debug('found rootCategory', category)
+			 Category.rootId = category.id
+			 return dataFn(category)
+		 }
+	 })
+	 .catch(function (err) {
+		 console.error('fail create root ', err)
+		 errFn(err)
+	 })
+}
 function _create(done, data) {
 	done.hook4dataFn(Category.createBy);
 	_db.create(data, done.getCallback());
@@ -159,7 +212,7 @@ categoryDAO.removeById = function (done, id) {
 	
 	H.call4promise(categoryDAO.findById, id)
 	 .then(function (category){
-		 if(category.isEmpty()) return Status.makeError('err : not found category by'+ category.id);
+		 if(category.isEmpty()) return Status.makeError('err : not found category by '+ category.id);
 		 if(category.hasPost()) return Status.makeError('err : cannot remove because category has post '+ category.postCount);
 		 return H.call4promise(categoryDAO.findChildsFromParent, category);
 	 })
@@ -193,6 +246,7 @@ function _getSchema() {
 	return {
         'title' : String,
         'postCount' : Number,
-        'parentId' : String
+        'parentId' : String,
+        'created' : Date
 		};
 };

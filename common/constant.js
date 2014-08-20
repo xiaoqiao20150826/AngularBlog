@@ -5,6 +5,6 @@
 var constant = module.exports = {};
 
 // 리터럴
-constant.ANNOYMOUS_ID = 'annoymous';  //User,Post에서사용되기는하는데..
+constant.
 
 // 상수객체

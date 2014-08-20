@@ -13,7 +13,7 @@ var	answerDAO = require('../../dao/answerDAO.js');
 var	Answer= require('../../domain/Answer.js');
 var	postDAO = require('../../dao/postDAO.js');
 var	Post= require('../../domain/Post.js');
-
+var initDataCreater = require('../../initDataCreater')
 
 
 //test데이터를 삽입하고, eqaul비교 때 사용할 post의 프로퍼티 이름..
@@ -29,12 +29,12 @@ describe('aAnswerDAO', function() {
 	});
 	after(function(nextCase) {
 		var errFn = H.testCatch1(nextCase);
-		Q.all([postDAO.removeAll(new H.Done(function() {}, errFn))
-			 , answerDAO.removeAll(new H.Done(function() {}, errFn))
-			 ])
+		H.all4promise([ postDAO.removeAll
+		              , answerDAO.removeAll
+			          , initDataCreater.removeAll
+        ])
 		.then(function() {
-			mongoose.disconnect(function(d) {
-//				console.log('after--------',d);
+			mongoose.disconnect(function() {
 				nextCase();
 			});
 		})
@@ -64,10 +64,8 @@ describe('aAnswerDAO', function() {
 		it('should take a answer', function (nextCase) {
 			var num = 2;
 			answerDAO.findByNum(new H.Done(dataFn), num);
-			function dataFn(model) {
-				var e_answer = Answer.createBy(model);
-				var a_answer = _answers[num-1];
-				_equals(a_answer, e_answer);
+			function dataFn(answer) {
+				should.equal(answer.num, 2);
 				nextCase();
 			}
 		});
@@ -140,35 +138,7 @@ describe('aAnswerDAO', function() {
 			}
 		});
 	});
-	describe('#getCountsByPosts',function() {
-		it('should take counts Of answers By posts', function(nextCase) {
-			var postNum = 9;
-			var posts = [{num:_postNum}, {num:postNum}];
-			_insertTestData2(postNum, next, nextCase) 
-			
-			function next(err, datas) {
-				answerDAO.getCountsByPosts(new H.Done(dataFn), posts);
-				function dataFn(result) {
-					var r1 = result.shift();
-					var r2 = result.shift();
-					should.equal(r1._id, _postNum);
-					should.equal(r1.count, 11); //위에서 하나 추가되었기에 
-					should.equal(r2._id, postNum);
-					should.equal(r2.count, 10);
-					nextCase();
-				}
-			}
-		});
-		it('should take [] Of answers By empty posts', function(nextCase) {
-			var posts = [];
-			answerDAO.getCountsByPosts(new H.Done(dataFn), posts);
-			function dataFn(result) {
-				should.deepEqual(result,[]);
-				nextCase();
-			}
-			
-		});
-	});
+
 });
 ////////==== helper =====/////////
 function _equals(expectedPosts, actualsPosts) {
@@ -194,12 +164,17 @@ function _insertTestData2(postNum, done, nextCase) {
 	var answers = _createAnswers(post.num);
 	var errFn = H.testCatch1(nextCase);
 	
-	postDAO.insertOne(new H.Done(next, errFn) , post);
+	H.call4promise(initDataCreater.create)
+	 .then(function() {
+		 
+		 postDAO.insertOne(new H.Done(next, errFn) , post);
+			
+			function next(d) {
+				H.asyncLoop(answers, [answerDAO, answerDAO.insertOne], new H.Done(endDataFn, errFn));
+					function endDataFn(datas) {
+						done();
+					}
+			} 
+	 })
 	
-	function next(d) {
-		H.asyncLoop(answers, [answerDAO, answerDAO.insertOne], new H.Done(endDataFn, errFn));
-			function endDataFn(datas) {
-				done();
-			}
-	}
 };

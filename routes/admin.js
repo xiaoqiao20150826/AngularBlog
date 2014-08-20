@@ -27,10 +27,10 @@ var admin = module.exports = {
 		if(!isAdmin(loginUser))  return redirector.main();
 		
 		var done = new Done(dataFn, redirector.catch);
-		categoryService.getJoinedCategories(done);
-		function dataFn(categories) {
+		categoryService.getRootOfCategoryTree(done);
+		function dataFn(rootOfCategoryTree) {
 			var blog = { loginUser : loginUser
-					   , categories : categories
+					   , rootOfCategoryTree : rootOfCategoryTree
 					   , scriptletUtil : scriptletUtil
 					   }; 
 			res.render('./admin/adminLayout.ejs' , {blog : blog});	
