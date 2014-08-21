@@ -123,3 +123,29 @@ asyncSuporter.all = function (done, asyncMethodAndArgsList) {
 		}
 	}
 }
+
+// bind
+// * 주의 : 첫번째 arg는 done이라는 가정하에 나머지 args를 전달.
+asyncSuporter.bindRest = function (contextOrMethod /* ...rest args */) {
+	var context, method;
+	
+	if(_.isFunction(contextOrMethod) ) {
+		context = null;
+		method = contextOrMethod;
+	}
+	if(_.isArray(contextOrMethod)) {
+		method = contextOrMethod.pop()
+		context = contextOrMethod.pop()
+	}
+	if(!_.isFunction(method) ) throw console.error('must need method '+new Error().stack)
+	
+	var argsOfRest = _.rest(arguments);
+	
+	// 첫번째는 done으로 정해짐.
+	// arg와 다른 arg가 있다면... 애매해지네.
+	return function bindedMethod(done /* ...args*/) {
+		if(!Done.isDoneInstance(done)) throw console.error('must need done for async call'+new Error().stack)
+		var allArgs = _.union(done, argsOfRest)
+		return method.apply(context, allArgs);
+	} 
+}

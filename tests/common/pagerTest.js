@@ -58,9 +58,53 @@ describe('Pager', function () {
 		it('should run', function () {
 			var pager = new Pager(6,5);
 			var startAndEnd = pager.getStartAndEndRowNumBy(1);
-			console.log(startAndEnd)
+//			console.log(startAndEnd)
 		})
-	}) 
+	})
+	describe('dataForView', function () {
+		it('should get decreased maxCount', function () {
+			var currentPageNum = 2;
+			var maxPageCount = 5
+			var pager = new Pager(20); //allRowCount  20/5   pageCount == 4
+			var pager4view = pager.make4view(currentPageNum, maxPageCount)
+			
+			should.equal(pager4view.maxPageCount, 4)
+		})
+		// maxPageCount 이제 pageCount 보다 작거나 같다.
+		it('should get start and end', function () {
+			var currentPageNum = 2;
+			var maxPageCount = 4
+			var pager = new Pager(30); //allRowCount  30/5   pageCount == 6
+			var pager4view = pager.make4view(currentPageNum, maxPageCount)
+			should.equal(pager4view.startPageNum, 1)
+			should.equal(pager4view.endPageNum, 4)
+		})
+		it('should get start and end', function () {
+			var currentPageNum = 6;
+			var maxPageCount = 4
+			var pager = new Pager(30); //allRowCount  30/5   pageCount == 6
+			var pager4view = pager.make4view(currentPageNum, maxPageCount)
+			should.equal(pager4view.startPageNum, 3)
+			should.equal(pager4view.endPageNum, 6)
+		})
+		describe('좀 더 넓은 범위에서.',function () {
+			// 경계만 안넘게하면됨.
+			it('should get leftPageNum and rightPageNum', function () {
+				var currentPageNum = 6;
+				var maxPageCount = 4
+				var pager = new Pager(50); //allRowCount  30/5   pageCount == 6
+				var pager4view = pager.make4view(currentPageNum, maxPageCount)
+				should.equal(pager4view.startPageNum, 5)
+				should.equal(pager4view.endPageNum, 8)
+				should.equal(pager4view.existLeftPageNum(), true)
+				should.equal(pager4view.existRightPageNum(), true)
+				should.equal(pager4view.leftPageNum, 1)
+				should.equal(pager4view.rightPageNum, 10)
+//				console.log(pager4view)
+			})			
+		})
+	})
+	
 	
 	
 });

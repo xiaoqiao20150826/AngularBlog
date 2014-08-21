@@ -47,16 +47,19 @@ postDAO.removeAll = function (done) {
 	
     var _seq = Sequence.getForPost()
     
-	return Q.all([H.call4promise([_seq,_seq.remove]), H.call4promise([_remove],{})])
+	return H.all4promise([ H.bindRest([_seq,_seq.remove])
+	                     , [_remove, {}]
+	                     ])
 			.then(dataFn)
 			.catch(errFn);
 };
-function _remove(done, query) {
+function _remove(done, where) {
+	var where = where || {}
 	done.hook4dataFn(function (data) {
 		debug('remove arg ', arguments)
 		return Status.makeForRemove(data);
 	});
-	_db.remove(query, done.getCallback());
+	_db.remove(where, done.getCallback());
 }
 /* find */
 postDAO.find = function (done,where,select) {

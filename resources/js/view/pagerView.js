@@ -16,8 +16,9 @@ $$namespace.include(function(require, module){
 	}
 	pagerView.getDataMap = function($pagerBtn) {
 		var ds = $pagerBtn.data()
-		  , pageNum = $pagerBtn.text()
-		  , pagerData = {pageNum:pageNum, index: ds.index}
+		  , index = ds.pagenum - 1
+		  , pageNum = ds.pagenum
+		  , pagerData = {pageNum:pageNum, index: index}
 		  
 		return pagerData
 	}
@@ -27,6 +28,7 @@ $$namespace.include(function(require, module){
 	
 	pagerView.active = function (blogMap) {
 		var pager = blogMap.pager
+		console.log(pager.index)
 		this.activeOne(pager.index);
 	}
 	pagerView.activeOne = function (pagerIndex) {

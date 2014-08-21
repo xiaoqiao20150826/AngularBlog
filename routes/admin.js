@@ -7,6 +7,7 @@ var _ = require('underscore')
   
 var scriptletUtil = require('../common/util/scriptletUtil.js')  
 var H = require('../common/helper.js')
+  , Done = H.Done
   , requestParser = require('./common/requestParser.js')
   , Redirector = require('./common/Redirector.js')
   , categoryService = require('../services/categoryService.js')

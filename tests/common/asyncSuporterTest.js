@@ -154,20 +154,24 @@ describe('asyncSuporter', function () {
 		})
 		
 	})
-//	fsHelper.copyNoDuplicate 의 재귀함수를 추상화할수있다면...
-//	describe('#asyncWile' , function() {
-//		it('should run', function (nextTest) {
-//			asyncSuporter.asyncWhile(returnData, endCondition, new Done(endDone, nextTest))
-//			function endDone() {
-//				console.log('end',arguments);
-//				nextTest();
-//			}
-//			function endCondition(data) {
-//				if(data == 10) return true;
-//				else false;
-//			}
-//		});
-//	})
+	describe('#bindRest' , function() {
+		it('should call binded function from args and context', function () {
+			var context = { name: 'context' 
+				           , fn : function (done, arg1, arg2, arg3) {
+				        	   		var result = ''
+				        	   		if(this.name) { result = this.name;}
+				        	   		
+				        	   		return result+ (done instanceof Done) + arg1+arg2+arg3;
+				           	    }
+						   }	
+			var bindedMethod = asyncSuporter.bindRest([context, context.fn],11,22,33)
+			var bindedMethod2 = asyncSuporter.bindRest(context.fn, 11,22,33)
+			var result1 = bindedMethod(Done.makeEmpty(), '나머지는 위에서 바인드되었기에 무시.')
+			var result2 = bindedMethod2(Done.makeEmpty(), '나머지는 위에서 바인드되었기에 무시.')
+			should.equal(result1, 'contexttrue112233')
+			should.equal(result2, 'true112233')
+		});
+	})
 });
 
 /* asyncFns for test using asyncSuporter.getCallbackTemplate */

@@ -80,12 +80,11 @@ categoryDAO.findIdsOfIncludeChildIdAndAllCategories = function (done, categoryId
 // categoryId와 그 자식의 모든 id를 모아서 반환.
 function idsOfAllChildAndCategory (categoryId, allCategories) {
 	var category = Category.createBy({id: categoryId})
-	var allJoiner = new Joiner(allCategories, 'parentId', 'categories')
-	allJoiner.setKey4count('id', ',')
+	  , Joiner4sumToParent = Category.getJoiner4sumToParent(allCategories, 'id', ',')
 	
-	category = allJoiner.findRoot(category, 'id')
+	category = Joiner4sumToParent.findNode(category)
 	
-	var categoryOfTree = allJoiner.treeTo(category, 'id')
+	var categoryOfTree = Joiner4sumToParent.treeTo(category)
       , ids = categoryOfTree['id'].split(',')
       
     return ids

@@ -6,6 +6,7 @@
 /* 초기설정 (외부참조 설정 및 초기화) */
 // 외부 참조
 var Answer = require('../domain/Answer.js')
+    ,Status = require('../domain/Status.js')
 	,Sequence = require('./Sequence.js')
 	,Q = require('q');
 var mongoose = require('mongoose')
@@ -26,8 +27,11 @@ var answerDAO = module.exports = {}
 
 /* remove */
 function _remove(done, where) {
-	var where = where || {};
+	done.hook4dataFn(function (data) {
+		return Status.makeForRemove(data);
+	});
 	
+	var where = where || {};
 	_db.remove(where, done.getCallback());
 };
 answerDAO.removeOne = function (done, answer) {
@@ -46,7 +50,9 @@ answerDAO.removeAll = function (done) {
 	  , errFn = done.getErrFn();
 	var _seq = Sequence.getForPost()
 	
-	return Q.all([H.call4promise([_seq,_seq.remove]), H.call4promise(_remove, {})])
+	return H.all4promise([ H.bindRest([_seq,_seq.remove])
+	                     , [_remove, {} ]
+	        ])
 	 		.then(dataFn)
 	 		.catch(errFn);
 };

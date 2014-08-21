@@ -16,11 +16,11 @@ describe('Joiner', function() {
 		var childList, allList, nodesThreeDeep, nodesTwoDeep2, nodesTwoDeep, nodesOneDeep, root
 		var childsKey, joiner
 		beforeEach(function() {
-			root = {_id:'root', count:3}
-			nodesOneDeep = [{_id:'node1', parentId:'root' , count:1}, {_id:'node2', parentId:'root' , count:1}]
-			nodesTwoDeep = [{_id:'node3', parentId:'node1' , count:1}, {_id:'node4', parentId:'node1' , count:1}]
-			nodesTwoDeep2 = [{_id:'node5', parentId:'node2' , count:1}, {_id:'node6', parentId:'node2' , count:1}]
-			nodesThreeDeep = [{_id:'node7', parentId:'node5' , count:1}, {_id:'node8', parentId:'node5' , count:1}]
+			root = {_id:'root', name:'root' , count:3}
+			nodesOneDeep = [{_id:'node1', parentId:'root' , name:'name1' , count:1}, {_id:'node2', parentId:'root' , name:'name2' , count:1}]
+			nodesTwoDeep = [{_id:'node3', parentId:'node1' , name:'name3' , count:1}, {_id:'node4', parentId:'node1' , name:'name4' , count:1}]
+			nodesTwoDeep2 = [{_id:'node5', parentId:'node2' , name:'name5' , count:1}, {_id:'node6', parentId:'node2' , name:'name6' , count:1}]
+			nodesThreeDeep = [{_id:'node7', parentId:'node5' , name:'name7' , count:1}, {_id:'node8', parentId:'node5' , name:'name8' , count:1}]
 			childList = _.union(nodesOneDeep, nodesTwoDeep, nodesTwoDeep2, nodesThreeDeep)
 			allList = _.union(root, nodesOneDeep, nodesTwoDeep, nodesTwoDeep2, nodesThreeDeep)
 			
@@ -51,7 +51,7 @@ describe('Joiner', function() {
 		})
 		it('should take root from childs', function() {
 			var root4search = {_id:'root'}
-			joiner.setKey4count('count')
+			joiner.setKey4sumToParent('count')
 			var root = joiner.treeTo(root4search, '_id')
 			debug('root from childs', root)
 			should.equal(root.count, 8)
@@ -60,8 +60,8 @@ describe('Joiner', function() {
 		it('should take root from allList', function() {
 			var root4search = {_id:'root'}
 			  , allJoiner = new Joiner(allList,'parentId', childsKey)
-			  , root = allJoiner.findRoot(root4search, '_id')
-			allJoiner.setKey4count('count')
+			  , root = allJoiner.findNode(root4search, '_id')
+			allJoiner.setKey4sumToParent('count')
 			  
 			var rootOfTree = allJoiner.treeTo(root, '_id')
 			debug('rootOfTree from allList', rootOfTree)
@@ -71,11 +71,20 @@ describe('Joiner', function() {
 		it('should take root from allList', function() {
 			var root4search = {_id:'root'}
 			, allJoiner = new Joiner(allList,'parentId', childsKey)
-			, root = allJoiner.findRoot(root4search, '_id')
-			allJoiner.setKey4count('_id', ',')
+			, root = allJoiner.findNode(root4search, '_id')
+			allJoiner.setKey4sumToParent('_id', ',')
 			
 			var rootOfTree = allJoiner.treeTo(root, '_id')
 			should.equal(rootOfTree._id.split(',').length, 9)
+		})
+		it('should take root been sum name', function() {
+			var root4search = {_id:'root'}
+			, allJoiner = new Joiner(allList,'parentId', childsKey)
+			root = allJoiner.findNode(root4search, '_id')
+			allJoiner.setKey4sumToChild('name', ' > ')
+			var rootOfTree = allJoiner.treeTo(root, '_id')
+//			console.log(rootOfTree.childs[0].childs[0], 'root > name1 > name3')
+			should.equal(rootOfTree.childs[0].childs[0].name, 'root > name1 > name3')
 		})
 		it('재귀함수',function () {
 			var a = 1;

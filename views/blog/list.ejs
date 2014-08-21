@@ -1,24 +1,15 @@
 
 <div id="blogListFrame">
 	<meta charset="utf-8">
-	<!----------- 글 리스트  -->
-	<!-- Nested media object -->
-	<%
-		var pager = blog.pager
-		  , pageCount = pager.getPageCount()
-		  , posts = blog.posts;
-	%>
 	
 	<!-- list  -->
 	<%
-	    var sorter = blog.sorter
+	    var posts = blog.posts;
 		for(var i in posts) {
 			var post = posts[i]
 			  , category = post.category
 			  , user = post.user;
 			  
-			  console.log('-------------')
-			  console.log(category)
 	%>
 	<div class="row  col-sm-10  col-sm-offset-1 board-row">
 		<div class=" col-sm-2" style="padding:9px 0">
@@ -53,22 +44,35 @@
 	
 	<!--pager  -->
 	
-	<%		
-		var sorter = blog.sorter
-		  , categoryId = blog.categoryId
-	%>
 	<div class='jumbotron'>
 		<ul class="pagination">
-			<li class="blogPager"><a href='javascript:'>&laquo;</a></li>
+			<li class="blogPager" data-aquo='first' data-pagenum=1><a href='javascript:'>&laquo;</a></li>
 		<%
-		  
-		  for(var i=1, max=pageCount+1 ; i < max; ++i) {
+		var pager = blog.pager
+		  , startPageNum = pager.startPageNum
+		  , endPageNum = pager.endPageNum
+		  , pageCount = pager.pageCount
+		  , leftPageNum = pager.leftPageNum
+		  , rightPageNum = pager.rightPageNum
+
+	 	  if(leftPageNum) { 
 		%>
-		  		<li class="blogPager" data-index="<%=i-1%>"><a href='javascript:'><%= i %></a></li>
+		
+		 	<li class="blogPager" data-pagenum="<%=leftPageNum%>"><a href='javascript:'>...</a></li>
+		<% 		
+          }
+		  for(var i=startPageNum, max = endPageNum+1; i < max; ++i) {
+		%>
+		  		<li class="blogPager" data-index="<%=i-1%>" data-pagenum="<%=i%>"><a href='javascript:'><%= i %></a></li>
 		<%
-		  } 
+		  }
+		  if(rightPageNum) { 
 		%>
-			<li class="blogPager"><a href='javascript:'>&raquo;</a></li>  
+			<li class="blogPager" data-pagenum="<%=rightPageNum%>"><a href='javascript:'>...</a></li>
+		<%  }  %>
+		
+		
+			<li class="blogPager" data-aquo='end' data-pagenum='<%=pageCount%>'><a href='javascript:'>&raquo;</a></li>  
 		</ul>
 	</div>
 	

@@ -5,6 +5,7 @@ var debug = require('debug')('nodeblog:route:blog')
 var _ = require('underscore')
   , Q = require('q')
 var H = require('../common/helper.js')
+ , Done = H.Done
 
 var requestParser = require('./common/requestParser.js')
   , Cookie = require('./common/Cookie.js')
@@ -68,21 +69,22 @@ var blog = module.exports = {
 		  , categoryId = Category.isRoot(rawData.categoryId) ? Category.getRootId() : rawData.categoryId
 		  , loginUser = requestParser.getLoginUser(req)
 		
+		console.log('pageNum',pageNum, _.isNumber(pageNum))
 		debug('list rawData ',rawData)  
 		var errFn = redirector.catch;
 		H.call4promise(blogService.getPostsAndPagerAndAllCategoires, pageNum, sorter, categoryId)
          .then(function dataFn(args) {
            	var posts = args.posts
-           	  , pager = args.pager
+           	  , pager = args.pager.make4view(pageNum)
            	  , allCategories = args.allCategories
-  		      , rootOfCategoryTree = categoryService.categoriesToTree(allCategories)
+  		      , rootOfCategoryTree = categoryService.categoriesToTree(allCategories, 'postCount', 0)
 
   			var blog = {posts : posts
   					  , pager : pager
   					  , rootOfCategoryTree : rootOfCategoryTree
   					  , loginUser : loginUser 
-  					  , sorter : sorter
-  					  , categoryId : categoryId
+  					  , sorter : sorter //필여?
+  					  , categoryId : categoryId //필요?
   					  , scriptletUtil : scriptletUtil
   					  };
   			

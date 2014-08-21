@@ -23,7 +23,7 @@ var _NOMAL = 'nomalTemplate'
  *    ## 호출형태
  *     - new Done(dataFn) : 이때, errFn, templateType은 기본값을 할당한다.
  */ 
-Done = module.exports = function Done(dataFn, errFn, templateType) {
+var Done = module.exports = function Done(dataFn, errFn, templateType) {
 	if(!dataFn) throw new Error('dataFn은 필수').stack;
 	this._dataFn = dataFn;
 	
@@ -43,6 +43,13 @@ Done.ASYNC = _ASYNC;
 Done.makeEmpty = function () {
 	return new Done(empty, empty);
 	function empty() {}
+}
+
+Done.isDoneInstance = function (o) {
+	if(!_.isObject(o)) throw new Error(o + 'is not object')
+	
+	if(o instanceof Done) return true
+	else return false;
 }
 
 // 기본 템플릿

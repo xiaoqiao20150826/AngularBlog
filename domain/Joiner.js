@@ -34,7 +34,9 @@ var Joiner = module.exports = function Joiner(childList, referenceKey, childsKey
 	this.isCache = false;
 	this.hasRelation = _hasRelation;
 	this.hookChildToBind = _hookChildToBind;
-	this.key4count = null;
+	
+	this.key4sumToParent = null;
+	
 };
 Joiner.prototype.setIdentifierKey = function (identifierKey) {
 	this.identifierKey = identifierKey;
@@ -48,16 +50,9 @@ Joiner.prototype.setChildsKey = function (childsKey) {
 Joiner.prototype.setHasRelation = function (hasRelation) {
 	this.hasRelation = hasRelation
 }
-Joiner.prototype.setHookChildToBind = function (hookChildToBind) {
-	this.hookChildToBind = hookChildToBind
-}
-// sum? 같은것으로 이름을 바꾸자.
-Joiner.prototype.setKey4count = function (key4count, delimiter) {
-	this.key4count = key4count;
-	this.delimiter = delimiter || 0
-}
 //root뿐아니라.. 모든 nodes에 대하여 해당하는 node를 찾는것.
-Joiner.prototype.findRoot = function (root, key) {
+Joiner.prototype.findNode = function (root, key) {
+	var key = key || this.identifierKey
 	var childList = this.childList
 	for(var i in childList) {
 		var child = childList[i]
@@ -65,6 +60,69 @@ Joiner.prototype.findRoot = function (root, key) {
 	}
 	return root
 }
+
+Joiner.prototype.setKey4sumTo = function (key4sumTo, delimiter, isToChild) {
+	this.delimiter = delimiter || 0
+	
+	if(isToChild) {
+		this.key4sumToChild = key4sumTo;
+		var referenceKey = this.referenceKey
+		if(key4sumTo == referenceKey) throw console.error(referenceKey +' and ' +key4sumTo + ' should not equal');
+		
+		this.hookChildToBind = function(child, node) {
+			child[key4sumTo] = node[key4sumTo] + delimiter + child[key4sumTo];
+			return child;
+		}
+		return;
+	} else {
+		this.key4sumToParent = key4sumTo;
+		return;
+	} 
+		
+}
+Joiner.prototype.setKey4sumToParent = function (key4sumToParent, delimiter) {
+	return this.setKey4sumTo(key4sumToParent, delimiter, false)
+}
+Joiner.prototype.setKey4sumToChild = function (key4sumToChild, delimiter) {
+	return this.setKey4sumTo(key4sumToChild, delimiter, true)
+	
+}
+Joiner.prototype.treeTo = function (root, identifierKey) {
+	var key4sumToParent = this.key4sumToParent
+	  , delimiter = this.delimiter
+	  
+	this.isCache = true;
+	this.identifierKey = identifierKey || this.identifierKey;
+	var rootOfTree = this.getBindedNodeByChilds(root, key4sumToParent, delimiter);
+	return rootOfTree;
+}
+
+Joiner.prototype.getBindedNodeByChilds = function (node, key4sumToParent,  delimiter) {
+	var childsKey = this.childsKey;
+	var childsToBind = this.getChildsToBindToNode(node);
+	if(_.isEmpty(childsToBind) ) return node;
+	else {
+		var newChildsToBind = []
+		
+		if(key4sumToParent) {var count = node[key4sumToParent] || 0}
+		
+		for(var i in childsToBind) {
+			var newNode = childsToBind[i];
+			var newChild =  this.getBindedNodeByChilds(newNode, key4sumToParent, delimiter);
+			
+			if(key4sumToParent) { count = count + delimiter +newChild[key4sumToParent]}
+			
+			newChildsToBind.push(newChild);
+		}
+		
+		node[childsKey] = newChildsToBind;
+		
+		if(key4sumToParent) { node[key4sumToParent] = count}
+		
+		return node;
+	}
+	
+};
 Joiner.prototype.joinTo = function (nodes, identifierKey, emptyChild) {
 	this.identifierKey = identifierKey;
 	
@@ -82,38 +140,6 @@ Joiner.prototype.joinTo = function (nodes, identifierKey, emptyChild) {
 	
 	return nodes;
 }
-
-Joiner.prototype.treeTo = function (root, identifierKey) {
-	var key4count = this.key4count
-	  , delimiter = this.delimiter
-	this.isCache = true;
-	this.identifierKey = identifierKey;
-	var rootOfTree = this.getBindedNodeByChilds(root, key4count, delimiter);
-	return rootOfTree;
-}
-
-Joiner.prototype.getBindedNodeByChilds = function (node, key4count, delimiter) {
-	var childsKey = this.childsKey;
-	var childsToBind = this.getChildsToBindToNode(node);
-	if(_.isEmpty(childsToBind) ) return node;
-	else {
-		var newChildsToBind = []
-		if(key4count) {var count = node[key4count] || 0}
-		for(var i in childsToBind) {
-			var newNode = childsToBind[i];
-			var newChild =  this.getBindedNodeByChilds(newNode, key4count, delimiter);
-			if(key4count) { count = count + delimiter +newChild[key4count]}
-				
-			newChildsToBind.push(newChild);
-		}
-		node[childsKey] = newChildsToBind;
-		
-		if(key4count) { node[key4count] = count}
-		return node;
-	}
-	
-};
-
 Joiner.prototype.getChildsToBindToNode = function (node) {
 	var identifierKey = this.identifierKey
 	  , referenceKey = this.referenceKey
@@ -126,7 +152,7 @@ Joiner.prototype.getChildsToBindToNode = function (node) {
 		if(this.isCached(i)) continue;
 		var child = childList[i];
 		if(hasRelation(child[referenceKey], node[identifierKey]) ) {
-			childsToBindToNode.push(hookChildToBind(child));
+			childsToBindToNode.push(hookChildToBind(child, node));
 			this.cacheIndex(i);
 		}
 	}
@@ -146,6 +172,6 @@ function _hasRelation(childValue, rootValue) {
 	if(U.equal(childValue, rootValue)) return true;
 	else return false;
 }
-function _hookChildToBind(child) {
+function _hookChildToBind(child, node) {
 	return child;
 }

@@ -22,6 +22,8 @@ var categoryDAO = require('../dao/categoryDAO.js')
 /* define  */
 var categoryService = module.exports = {};
 
+
+//deprease
 categoryService.getRootOfCategoryTree = function (done, allCategories) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn()
@@ -37,17 +39,16 @@ categoryService.getRootOfCategoryTree = function (done, allCategories) {
 		return dataFn(rootOfTree)
 	 }
 }
-categoryService.categoriesToTree = function (categories, key4count, delimiter) {
+categoryService.categoriesToTree = function (categories, key4sumTo, delimiter, isToChild) {
+	var isToChild = isToChild || false;
 	var root = Category.makeRoot()
-	  , categoryJoiner = new Joiner(categories, 'parentId', 'categories')
-	
-	root = categoryJoiner.findRoot(root, 'id')
-	categoryJoiner.setKey4count(key4count, delimiter)
-	
-	var rootOfTree = categoryJoiner.treeTo(root, 'id')
-	debug('getRootOfCategoryTree : ',rootOfTree)
+	  , categoryJoiner = Category.getJoiner4sumTo(categories, key4sumTo, delimiter, isToChild)
+	  
+	root = categoryJoiner.findNode(root)
+	var rootOfTree = categoryJoiner.treeTo(root)
+//	debug('getRootOfCategoryTree : ',rootOfTree)
 	return rootOfTree
-}
+} 
 
 
 categoryService.insertCategory = function (done, parentId, newTitle) {

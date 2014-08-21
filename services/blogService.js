@@ -74,7 +74,8 @@ blogService.getJoinedPostsByUsersAndCategories = function (done, posts, allCateg
 	var userIds = Post.getUserIds(posts)
 	
 	//side-effect : 모든 자식의 title을 부모로 모으기 위함.
-	categoryService.categoriesToTree(allCategories, 'title', ' > ') 
+	var isToChild = true
+	categoryService.categoriesToTree(allCategories, 'title', ' > ', isToChild) 
 	
 	H.call4promise(userDAO.findByIds, userIds)
      .then(function (users) {

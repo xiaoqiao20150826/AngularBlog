@@ -3,6 +3,8 @@
  *   ; 이름이....이걸로 그냥 가?
  */
 
+var debug = require('debug')('nodeblog:domain:Status')
+
 var _ = require('underscore')
 
 var SUCCESS = 'success'
@@ -27,15 +29,16 @@ Status.makeForUpdate = function (successAndFail) {
 		return new Status.makeSuccess(SUCCESS);
 	}
 	
-	console.error('update fail', new Error().stack)
+	return console.error('update fail', new Error().stack)
 }
 
 Status.makeForRemove = function (removeCount) {
+	debug('makeForRemove', removeCount)
 	if(_.isNumber(removeCount)) {
 		return new Status(SUCCESS, 'remove '+ removeCount);
 	}
 	else {
-		console.error('remove fail', new Error().stack)
+		return console.error('remove fail', new Error().stack)
 	}
 }
 Status.isStatusType = function (o) {
