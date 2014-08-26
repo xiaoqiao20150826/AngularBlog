@@ -2,50 +2,50 @@
  * 
  */
 $$namespace.include(function(require, module){
-	var CLASS_ACTIVE = 'active';
+	var H = require('util/helper')
 	
+	var CLASS_ACTIVE = 'active'
+	  , CLASS_BG_COLOR = 'bg-success'
 	//
 	var viewUtil = module.exports = {}
-	
-	viewUtil.replaceDiv= function ($div , html) {
-		return $div.replaceWith(html);
-	};
-	
-	viewUtil.activeOne = function ($buttons, currentIndex) {
-		var $button = this.findOneButton($buttons, currentIndex)  
-		viewUtil.activeOneOfSibling($button);
-	}
-	viewUtil.findOneButton = function ($buttons, currentIndex) {
+	//찾은 결과가 하나일수도, 다수일수도.
+	viewUtil.find$btn = function ($buttons, value, key) {
 		return $buttons.filter(function () {
 			var $btn = $(this)
 			  , ds = $btn.data()
-			  , index = ds.index
+			  , valueOfBtn = ds[key]
 			
-			if(index == currentIndex) return true;
-			else return false;
+			if(H.notExist(valueOfBtn)) {valueOfBtn = $btn.text().trim()}		  
+					  
+			if(valueOfBtn == value) 
+				return true;
+			else 
+				return false;
         });
 	}
-	viewUtil.activeOneOfSibling = function ($btn) {
-		var $siblingBtns = $btn.siblings();
-		
-		$btn.addClass(CLASS_ACTIVE);
-		$siblingBtns.removeClass(CLASS_ACTIVE);
+	//형제를 제외하고 부여.
+	viewUtil.assignBgColorTo$btn = function ($btn,all$btns) { this.assignEffectTo$btn($btn,all$btns, CLASS_BG_COLOR); }
+	viewUtil.assignActiveTo$btn = function ($btn,all$btns) { this.assignEffectTo$btn($btn,all$btns, CLASS_ACTIVE); }
+	viewUtil.assignEffectTo$btn = function ($btn, all$btns, effectClass) {
+		all$btns.removeClass(effectClass);
+		$btn.addClass(effectClass);
 	}
+	
 	viewUtil.equalNodeName = function (node, nodeName) {
 		if(node.nodeName && node.nodeName == nodeName) return true;
 		else return false;
 	}
+	
 	viewUtil.isEmptyChildren = function ($parent) {
 		if($parent.children().length > 0) 
 			return true;
 		else
 			return false;
 	}
-//	viewUtil.findOne = function ($nodes, key, value) {
-//		return $nodes.filter(function () {
-//			return if($(this).data(key) == value) 
-//        });
-//	}
+	
+	viewUtil.replaceDiv= function ($div , html) {
+		return $div.replaceWith(html);
+	};	
 });
 
 //@ sourceURL=/view/viewUtil.js

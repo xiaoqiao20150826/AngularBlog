@@ -7,7 +7,7 @@ var should = require('should')
 var debug = require('debug')('test:domain:JoinerTest')
   , log = console.log;
 
-var	Joiner= require('../../domain/Joiner.js');
+var	Joiner= require('../../dao/util/Joiner.js');
 var count=0;
 describe('Joiner', function() {
 

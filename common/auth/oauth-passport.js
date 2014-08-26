@@ -9,7 +9,7 @@ var H = require('../helper.js')
   , Done = H.Done;
 
 var User = require('../../domain/User.js')
-  , requestParser = require('../../routes/common/requestParser.js')
+  , requestParser = require('../../controller/util/requestParser.js')
   , userDAO = require('../../dao/userDAO.js');
 // ///////////////////////////////////////
 //------------1. 정의

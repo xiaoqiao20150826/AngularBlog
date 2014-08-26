@@ -1,0 +1,25 @@
+	<!-- taps -->
+	<meta charset="utf-8">
+	<div>
+	<%
+		var loginUser = blog.loginUser
+	%>
+	
+	<ul class="nav nav-tabs col-sm-10  col-sm-offset-1" role="tablist">
+  		<li class="blogTap" data-index=0><a href='javascript:'>newest</a></li>
+  		<li class="blogTap" data-index=1><a href='javascript:'>oldest</a></li>
+ 		<li class="blogTap" data-index=2><a href='javascript:'>view</a></li>
+ 		<li class="blogTap" data-index=3><a href='javascript:'>vote</a></li>
+ 		<li class="blogTap" data-index=4><a href='javascript:'>answer</a></li>
+ 		<% 
+			if(loginUser.isExist()) {
+		%>
+		<div>
+			<a class="btn btn-default pull-right" href="/blog/new">입력</a>
+		</div>
+		<%	
+			}
+		%>
+	</ul>
+	</div>
+ 

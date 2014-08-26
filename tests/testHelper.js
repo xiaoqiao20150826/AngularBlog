@@ -1,5 +1,4 @@
-var Post = require('../domain/Post.js')
-  , H = require('../common/helper.js')
+var H = require('../common/helper.js')
   , should = require('should');
 var _ = require('underscore');
 

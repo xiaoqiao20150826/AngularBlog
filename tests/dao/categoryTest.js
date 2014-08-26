@@ -7,9 +7,9 @@ var should = require('should')
 
 var H = require('../testHelper.js')
   , Done = H.Done
-  , categoryService = require('../../services/categoryService.js')
-  , categoryDAO = require('../../dao/categoryDAO.js')
-  , Category= require('../../domain/Category.js');
+  , categoryService = require('../../service/blogBoard/categoryService.js')
+  , categoryDAO = require('../../dao/blogBoard/categoryDAO.js')
+  , Category= require('../../domain/blogBoard/Category.js');
 var initDataCreater = require('../../initDataCreater')
 
 var debug = require('debug')('test:dao:categoryTest');

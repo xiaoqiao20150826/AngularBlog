@@ -11,8 +11,8 @@ var testHelper = require('../testHelper.js');
 
 var _ = require('underscore'),
 	H = require('../testHelper.js')
-var	postDAO = require('../../dao/postDAO.js');
-var	Post = require('../../domain/Post.js');
+var	postDAO = require('../../dao/blogBoard/postDAO.js');
+var	Post = require('../../domain/blogBoard/Post.js');
 var initDataCreater = require('../../initDataCreater')
 
 // test데이터를 삽입하고, eqaul비교 때 사용할 post의 프로퍼티 이름..

@@ -5,7 +5,7 @@ var config = require('./config')
 var Done = require('./common/Done')
  ,  H = require('./common/helper')
  ,  Sequence = require('./dao/Sequence')
- ,  categoryDAO = require('./dao/categoryDAO')
+ ,  categoryDAO = require('./dao/blogBoard/categoryDAO')
 
 var initDataCreater = module.exports = {}
 

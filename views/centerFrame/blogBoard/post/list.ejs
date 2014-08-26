@@ -1,0 +1,43 @@
+
+<div id = 'blogBoard-postList'>
+	<meta charset="utf-8">
+	<!-- list  -->
+	<%
+	    var posts = blog.posts;
+		for(var i in posts) {
+			var post = posts[i]
+			  , category = post.category
+			  , user = post.user;
+			  
+	%>
+	<div class="row  col-sm-10  col-sm-offset-1 board-row">
+		<div class=" col-sm-2" style="padding:9px 0">
+			<div>Votes <B><%=post.vote%></B></div>
+			<div>Answers <B><%= post.answerCount%></B></div>
+			<div>Views <B><%= post.readCount%></B></div>
+		</div>
+		<div class="col-sm-10 " >
+			<div class="row">
+				<a href="/blog/<%=post.num%>/<%=post.getTitle4url()%>"> 
+					<H2><%=post.title %></H2>
+				</a>
+			</div>
+			<div class='row'>
+				<div class="media-body">
+					<span class='pull-left'>
+						<a class="blogCategory" href="javascirpt:" data-id="<%=category.id%>" ><%=category.title%> </a>
+					</span>
+					<div class='pull-right'>
+						<img src='<%=user.photo %>' class="img-circle" alt='img' style="width:20px">
+						<span class="name"><a href="#"><%=user.name %></a></span>
+						<span class="date"><%=post.created.toLocaleDateString() %></span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>	
+	<%					
+		}
+	%>
+</div>
+

@@ -25,16 +25,16 @@ app.configure(function () {
 	app.use(passport.initialize());
 	app.use(passport.session());
 	//////////////////////////
-	app.use(app.router);
+	app.use(app.router); // controller
 	
 	//config를 app를 통해 접근하기 위한 설정
 	app.set('config', _config);
 })
 
-//2. url과 route를 연결해준다. 
+//2. url과 controller를 연결해준다. 
 app.configure(function () {
-	var routeManager = require('./routes/routeManager.js');
-	routeManager.mapUrlToResponse(app); //동적자원 매핑
+	var controllerManager = require('./controller/controllerManager.js');
+	controllerManager.mapUrlToResponse(app); //동적자원 매핑
 	
 	app.use('/resources',express.static(path.join(__dirname, '/resources'))); 	//정적자원 매핑
 })

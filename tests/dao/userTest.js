@@ -8,7 +8,7 @@ var mongoose = require('mongoose')
   , _ = require('underscore');
 
 var	H = require('../testhelper.js')
-  , requestParser = require('../../routes/common/requestParser.js')
+  , requestParser = require('../../controller/util/requestParser.js')
   , userDAO = require('../../dao/userDAO.js')
   , User = require('../../domain/User.js');
 

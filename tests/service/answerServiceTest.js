@@ -9,15 +9,15 @@ var should = require('should')
 var H = require('../testHelper.js')
   , Done = H.Done;
 
-var Post = require('../../domain/Post.js')
-  , Answer= require('../../domain/Answer.js')
+var Post = require('../../domain/blogBoard/Post.js')
+  , Answer= require('../../domain/blogBoard/Answer.js')
   , User = require('../../domain/User.js');
-var answerDAO = require('../../dao/answerDAO.js')
-  , postDAO = require('../../dao/postDAO.js')
+var answerDAO = require('../../dao/blogBoard/answerDAO.js')
+  , postDAO = require('../../dao/blogBoard/postDAO.js')
   , userDAO = require('../../dao/userDAO.js');
 var initDataCreater = require('../../initDataCreater')
 
-var answerService = require('../../services/answerService.js');
+var answerService = require('../../service/blogBoard/answerService.js');
 
 // 테스트를 위한 참조, 입력한 데이터에 대한.  
 var userId, postNum, answer, user, answer1, answer2;

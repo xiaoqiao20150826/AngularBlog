@@ -49,6 +49,7 @@
     "passport-google-oauth": "^0.1.5",
     "passport-twitter": "^1.0.2",
     "q": "^1.0.1",
+    "rekuire": "^0.1.5",
     "request": "^2.36.0",
     "should": "^4.0.4",
     "supertest": "^0.13.0",

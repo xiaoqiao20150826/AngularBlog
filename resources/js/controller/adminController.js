@@ -2,7 +2,7 @@
 $$namespace.include(function(require, module) {
 	var H = this.require('/util/helper') 
 
-	var categoryView = this.require('/view/categoryView') 
+	var categoryView = this.require('/view/centerFrame/admin/categoryView') 
 		
 	//
 	var adminController = module.exports = {}

@@ -23,8 +23,15 @@ $$namespace.include(function() {
 		 });
 	}
 	H.exist = function (o) {
-		if(!_.isEmpty(o)) return true;
-		else return false;
+		if(_.isFunction(o)) return true;
+		if(_.isNumber(o)) return true;
+		else {
+			if(!_.isEmpty(o)) return true;
+			else return false;
+		}
+	}
+	H.notExist = function (o) {
+		return !H.exist(o)
 	}
 	H.queryStringToMap = function(queryString) {
 		return JSON.parse('{"' + queryString.replace(/&/g, "\",\"").replace(/=/g,"\":\"") + '"}') 

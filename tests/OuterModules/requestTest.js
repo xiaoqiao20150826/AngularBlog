@@ -8,7 +8,7 @@ server = http.createServer(app).listen(3000)
 
 app.get('/', function (req, res) {
 	var options = {
-			url:''
+			url:'',
 			host: '',
 		    port: 82,
 		};

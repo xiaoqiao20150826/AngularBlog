@@ -9,10 +9,10 @@ var async = require('async');
 
 var _ = require('underscore'),
 	H = require('../testHelper.js')
-var	answerDAO = require('../../dao/answerDAO.js');
-var	Answer= require('../../domain/Answer.js');
-var	postDAO = require('../../dao/postDAO.js');
-var	Post= require('../../domain/Post.js');
+var	answerDAO = require('../../dao/blogBoard/answerDAO.js');
+var	Answer= require('../../domain/blogBoard/Answer.js');
+var	postDAO = require('../../dao/blogBoard/postDAO.js');
+var	Post= require('../../domain/blogBoard/Post.js');
 var initDataCreater = require('../../initDataCreater')
 
 

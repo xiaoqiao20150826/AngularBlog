@@ -6,7 +6,7 @@ var _ = require('underscore')
   , path = require('path')
   , fs = require('fs');
 
-var Status = require('../domain/Status') //이것이. 몽고디비를 위한건데. 여기서도 사용.
+var Status = require('../dao/util/Status') //이것이. 몽고디비를 위한건데. 여기서도 사용.
 var H = require('./helper.js')
   , Done = H.Done;
   

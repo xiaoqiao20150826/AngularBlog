@@ -6,9 +6,9 @@
 
 $$namespace.include(function (require, module) {
 	var H = require('helper')
-	  , Pager= this.require('/domain/Pager') 
-	  , Tab= this.require('/domain/Tab')
-	  , Category= this.require('/domain/Category')
+	  , Pager= this.require('/domain/blogBoard/Pager') 
+	  , Tab= this.require('/domain/blogBoard/Tab')
+	  , Category= this.require('/domain/blogBoard/Category')
 	
 	var blogMap = {
 					pager : new Pager({})
@@ -17,7 +17,7 @@ $$namespace.include(function (require, module) {
 				  }
 	var blogRepository = module.exports = {}
 	
-	blogRepository.replacePagerToInit = function () {
+	blogRepository.initPager = function () {
 		blogMap.pager = new Pager({});
 	}
 	blogRepository.savePager = function(pager) {
