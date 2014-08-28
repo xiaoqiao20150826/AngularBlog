@@ -5,6 +5,7 @@
 
 $$namespace.include(function (require, module ) {
 	var H = require('/util/helper')
+	  , ajax = require('/util/ajax')
 	
 	var blogRepository = require('/repository/blogRepository')
 	
@@ -20,10 +21,13 @@ $$namespace.include(function (require, module ) {
 	blogBoardService.saveCategory = function (category) {
 		blogRepository.saveCategory(category);
 	}
+	blogBoardService.savePost = function (post) {
+		blogRepository.savePost(post);
+	}
 	blogBoardService.initPager = function () {
 		blogRepository.initPager();
 	}
-	blogBoardService.ajaxBlogListHtml = function (done, e) {
+	blogBoardService.getListHtml = function (done) {
 		var blogMap = blogRepository.getBlogMap()
 		  , tab = blogMap.tab
 		  , pager = blogMap.pager
@@ -33,8 +37,7 @@ $$namespace.include(function (require, module ) {
 		requestData.sorter = tab.sorter
 		requestData.pageNum = pager.pageNum
 		requestData.categoryId = category.id
-		H.ajaxCall(dataFn, "post","/ajax/blogBoardList", requestData);
-		return e.preventDefault(); //버블링방지
+		ajax.call(dataFn,"/blogBoard/List", requestData);
 		function dataFn(html) {
 			return done(html)
 		}

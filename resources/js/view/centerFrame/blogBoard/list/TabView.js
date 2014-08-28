@@ -4,11 +4,10 @@
 
 $$namespace.include(function(require, module){
 	
-	var viewUtil = require('/view/viewUtil')
+	var viewUtil = require('/view/util/viewUtil')
 	
 	var TAB_BTNS = '.blogTap'
 	var TabView = module.exports = function () {
-		this.assignEffect(0);
 	}
 	
 	TabView.prototype.getDataMap = function($tabBtn) {
@@ -31,7 +30,8 @@ $$namespace.include(function(require, module){
 	}
 	TabView.prototype.assignEffect = function (tabIndex) {
 		var all$btns = this.get$btns4find()
-		var $btn = viewUtil.find$btn(all$btns, tabIndex, 'index')
+		  , $btn = viewUtil.find$btn(all$btns, tabIndex, 'index')
+		  
 		viewUtil.assignActiveTo$btn($btn, all$btns)
 	}
 });

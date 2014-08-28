@@ -5,7 +5,7 @@ $$namespace.include(function(require, module){
 	var H = require('util/helper')
 	
 	var CLASS_ACTIVE = 'active'
-	  , CLASS_BG_COLOR = 'bg-success'
+	  , CLASS_BG_COLOR = 'bg-info'
 	//
 	var viewUtil = module.exports = {}
 	//찾은 결과가 하나일수도, 다수일수도.
@@ -24,9 +24,14 @@ $$namespace.include(function(require, module){
         });
 	}
 	//형제를 제외하고 부여.
-	viewUtil.assignBgColorTo$btn = function ($btn,all$btns) { this.assignEffectTo$btn($btn,all$btns, CLASS_BG_COLOR); }
+	viewUtil.assignBgColorTo$btn = function ($btn, all$btns, className) {
+		var className = className || CLASS_BG_COLOR
+		this.assignEffectTo$btn($btn,all$btns, className); 
+	}
 	viewUtil.assignActiveTo$btn = function ($btn,all$btns) { this.assignEffectTo$btn($btn,all$btns, CLASS_ACTIVE); }
 	viewUtil.assignEffectTo$btn = function ($btn, all$btns, effectClass) {
+		if($btn.length < 1 ) return;
+		
 		all$btns.removeClass(effectClass);
 		$btn.addClass(effectClass);
 	}
@@ -42,10 +47,6 @@ $$namespace.include(function(require, module){
 		else
 			return false;
 	}
-	
-	viewUtil.replaceDiv= function ($div , html) {
-		return $div.replaceWith(html);
-	};	
 });
 
 //@ sourceURL=/view/viewUtil.js

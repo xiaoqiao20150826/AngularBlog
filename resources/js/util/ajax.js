@@ -1,61 +1,75 @@
 /**
- *  send만들다 말았다.
- *  moduleLoader의 getScript에서..jquery의존성을 끊고 싶었는데,
- *  궂이 이렇게 까지 할 필요가 있을까.
+ * 
  */
 
-
-
-// ajax class
-
-var window = this;
-var parentModule = this;
-
-(function(parentModule, window) {
+$$namespace.include(function() {
+	var $ = window.$
 	
-	var ajax = parentModule._ajax = {};
-		
-	ajax.send =  function (onSuccess, onCatch, url, dataMap, method, setRequestHeader) {
-		if(!onSuccess) throw 'not exist onSuccess';
-	    var xmlHttp = this.getXmlHttpObject()
-	      , method = method || 'post'
-	      , async = async || true
-	      , dataMap = dataMap || {}
-	      , setRequestHeader = setRequestHeader || {}
-	      , onCatch = onCatch || this.defaultCatch;
-	    
-	    //setReq...  
-	      
-	    xmlHttp.onreadystatechange = this.readyStateCallback(xmlHttp, onSuccess, onCatch)
-	    xmlHttp.open(method, url, async);
-	    xmlHttp.send(dataMap);
-	};
-	function defaultCatch(err) {
-		console.error(err);
+	var ajax = this.exports = {};
+	
+	//이름이 같을경우 프로퍼티가 먹혀버리는 문제가 있다 .조심.
+	ajax.call4file = function (dataFn, url, data, type) {
+		var options = {
+				        'url': url,
+				        'data': data,
+				        'type': type || 'POST',
+				        'processData': false,
+				        'contentType': false
+	    			  }
+	    return _ajaxCall(dataFn, options)
+	}
+	ajax.call = function (dataFn, url, data, type) {
+		var options = {
+				        'url': url,
+				        'data': data,
+				        'type': type || 'POST'
+		    		   }
+		return _ajaxCall(dataFn, options)
+	}
+	function _ajaxCall(dataFn, options) {
+		var options = options || {}
+		options.beforeSend = ajax.showLoadingString 
+	    dataFn = _wrapHideLoadingString1(dataFn)
+		$.ajax(options)
+		 .then(dataFn)
+		 .fail(function(o, errStatus, error) {
+			 ajax.hideLoadingString()
+			 var errMessage = '['+errStatus+"]["+options.url+"] : "+ error.stack; 
+			 console.error(errMessage);
+		 });
 	}
 	
-	ajax.readyStateCallback = function (xmlHttp, onSuccess, onCatch) {
+	function _wrapHideLoadingString1 (fn) {
 		return function () {
-			var response = this;
-log(response.readyState)
-log(response.status)
-			if (response.readyState == 4) {
-				if (response.status != 200) { onError(response.responseText);}
-				onCatch(response.responseText);
-			}
-		};
+			ajax.hideLoadingString()
+			fn.apply(null, arguments);
+		}
 	}
-	ajax.getXmlHttpObject = function () {
-	    if(window.XMLHttpRequest) return new XMLHttpRequest();
-	    if(window.ActiveXObject) {
-	    	try {
-	            return new ActiveXObject("Msxml2.XMLHTTP");
-	        } catch (e) {
-	            return new ActiveXObject("Microsoft.XMLHTTP");
-	        }
-	    }
-	    throw new Error('not exist xhr in browser');
-	};
-})(parentModule, window);
-
+	
+	var $loadingNode = null
+	ajax.hideLoadingString = function () {
+		if(!$loadingNode) {$loadingNode = _create$loadingNode()}
+		$loadingNode.hide()
+		return ;
+	}
+	ajax.showLoadingString = function () {
+		if(!$loadingNode) {$loadingNode = _create$loadingNode()}
+		$loadingNode.show()
+		return ;
+	}
+	_create$loadingNode = function () {
+		var top = $(document).height() /5
+		  , left  = $(window).width() /5
+		return $('<div>Loading...</div>').prependTo('body')
+		 .css({
+			    "font-size":"500%"
+			  , 'position': 'fixed'
+			  , 'opacity': 0.2
+			  , 'z-index':1000 
+			  , 'top' : top
+			  , 'left' : left
+		      })
+	}
+	
+})
 //@ sourceURL=util/ajax.js

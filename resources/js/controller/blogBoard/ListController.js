@@ -1,10 +1,13 @@
 
 $$namespace.include(function(require, module) {
 	var H = this.require('/util/helper') 
-	
+	  , ajax = this.require('/util/ajax') 
+	  , divUtil = require('/view/util/divUtil')
+	  
 	var Pager= this.require('/domain/blogBoard/Pager') 
 	  , Tab= this.require('/domain/blogBoard/Tab') 
 	  , Category = this.require('/domain/blogBoard/Category')
+	  , Post = this.require('/domain/blogBoard/Post')
 	  
 	var Action = this.require('/history/Action')
 	  , actionHistory = this.require('/history/actionHistory.js')
@@ -18,14 +21,9 @@ $$namespace.include(function(require, module) {
 		  
 		this.app = app;
 		this.listView = listView
-		
-		this.init();
-	}
-	ListController.prototype.init = function () {
-		this.onHandler(); 
 	}
 	ListController.prototype.onHandler = function () {
-		var app = this.app 
+		var app = this.app
 		
 		var listView = this.listView
 		  , pagerView = listView.getPagerView()
@@ -35,18 +33,23 @@ $$namespace.include(function(require, module) {
 		var $pagerBtns4find = pagerView.get$btns4find()
 		  , $tabBtns4find = tabView.get$btns4find()
 		  , $categoryBtns4find = categoryView.get$btns4find()
- 
+          , $detailViewBtn = listView.get$detailViewBtn()
+          , $insertViewBtn = listView.get$insertViewBtn()
+          
+        var insertController = this.insertController  
 		// layout
 		app.onClick($pagerBtns4find, this.clickPagerBtns4find1(pagerView) )
 		app.onClick($tabBtns4find, this.clickTabBtns4find1(tabView) )
 		app.onClick($categoryBtns4find, this.clickCategoryBtns4find1(categoryView) )
+		app.onClick($detailViewBtn, this.clickDetailViewBtn1(listView))
+		app.onClick($insertViewBtn, this.clickInsertViewBtn1(listView))
 		// blogDetail
 //		app.onClick(blogDetailView.get$voteButton(), this.increaseVote)
 		
 	}
-	
+		
 	ListController.prototype.clickPagerBtns4find1 = function (pagerView) {
-		var self = this;
+		var reStarter = this.app.getReStarter()
 		
 		return function clickPagerBtns4find(e) {
 			var $pagerBtn = $(this)
@@ -57,12 +60,16 @@ $$namespace.include(function(require, module) {
 			actionHistory.save(action);
 			blogBoardService.savePager(pager);
 			
-			var callback = self.callback1(self)
-			blogBoardService.ajaxBlogListHtml(callback, e)
+			blogBoardService.getListHtml(function (html) {
+				divUtil.replaceCenterFrame(html)
+				reStarter.listOfBlogBoard()
+			})
+			
+			return e.preventDefault(); //버블링방지
 		}
 	}
 	ListController.prototype.clickTabBtns4find1 = function (tabView) {
-		var self = this;
+		var reStarter = this.app.getReStarter()
 		
 		return function clickTabBtns4find(e) {
 			var $tabBtn = $(this)
@@ -74,12 +81,16 @@ $$namespace.include(function(require, module) {
 			blogBoardService.saveTab(tab);
 			blogBoardService.initPager()
 			
-			var callback = self.callback1(self)
-			blogBoardService.ajaxBlogListHtml(callback, e)
+			blogBoardService.getListHtml(function (html) {
+				divUtil.replaceCenterFrame(html)
+				reStarter.listOfBlogBoard()
+			})
+			
+			return e.preventDefault(); //버블링방지
 		}
 	}
 	ListController.prototype.clickCategoryBtns4find1 = function (categoryView) {
-		var self = this;
+		var reStarter = this.app.getReStarter()
 		
 		return function clickCategoryBtns4find(e) {
 			var $categoryBtn = $(this)
@@ -91,27 +102,61 @@ $$namespace.include(function(require, module) {
 			blogBoardService.saveCategory(category);
 			blogBoardService.initPager()
 			
-			var callback = self.callback1(self)
-			blogBoardService.ajaxBlogListHtml(callback, e)
+			blogBoardService.getListHtml(function (html) {
+				divUtil.replaceCenterFrame(html)
+				reStarter.listOfBlogBoard()
+			})
+			
+			return e.preventDefault(); //버블링방지
 		}
 	}
 	
 	//
-	
-	//뷰의 html을 변경하고, 그 영역의 핸들러 바인딩, 효과 재 할당.
-	// 이름이름!
-	ListController.prototype.callback1 = function (self) {
-		
-		return function (html) {
-			var listView = self.listView
-			  , blogMap = blogBoardService.getBlogMap();
+	ListController.prototype.clickDetailViewBtn1 = function(listView) {
+		var reStarter = this.app.getReStarter()
+	    
+		return function clickDetailViewBtn(e) {
+			var $detailViewBtn = $(this)
+			  , num = $detailViewBtn.data().num
+			  , url = $detailViewBtn.attr('href')
 			
-			listView.replaceHtml(html);
-			listView.assignEffect(blogMap);
+			var post = new Post(num)
+			  , action = new Action([this, clickDetailViewBtn], e);
 			
-			self.onHandler();
+			actionHistory.save(action);
+			blogBoardService.savePost(post);
+			
+			ajax.call(callback, url);
+			function callback(html) {
+				divUtil.replaceCenterFrame(html)
+//				reStarter.insertOfBlogBoard() // 이건 detail
+			}
+			
+			return e.preventDefault(); //버블링방지
 		}
 	}
+	
+	// insertController 로 전환이 일어남. 
+ListController.prototype.clickInsertViewBtn1 = function(listView) {
+	var reStarter = this.app.getReStarter()
+    
+	return function clickInsertViewBtn(e) {
+		var action = new Action([this, clickInsertViewBtn], e)
+		
+		actionHistory.save(action)
+		ajax.call(callback, '/blog/new');
+		function callback(html) {
+			divUtil.replaceCenterFrame(html)
+			reStarter.insertOfBlogBoard() 
+		}
+		
+		return e.preventDefault(); //버블링방지
+	}
+}
+
+	
+	
+	
 //	listController.increaseVote = function (e, app) {
 //		var ds = this.dataset
 //		  , data = {userId:ds.userid, postNum:ds.postnum}

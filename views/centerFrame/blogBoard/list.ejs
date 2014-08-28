@@ -1,12 +1,25 @@
-<div id = 'blogBoard-listView'>
+<div class="col-sm-offset-1" id = 'blogBoard-listView'>
 	<meta charset="utf-8">
-	<!-- taps -->
-	<% include ./tab.ejs %>
 	
-	<!-- postList -->
-	<% include ./post/list.ejs %>
-	<!-- pager (inclue pager  -->	
-	<% include ./pager.ejs %>
+	
+	 	<% 
+		var loginUser = blog.loginUser
+		if(loginUser.isExist()) {
+		%>
+		<div class="row col-sm-11">
+			<a id ='blogBoard-insertView' class="btn btn-default pull-right" href="javascript:">입력</a>
+		</div>	
+		<%	
+			}
+		%>
+		<!-- taps -->
+		<% include ./tab.ejs %>
+		<!-- postList -->
+		<% include ./post/list.ejs %>
+		<!-- pager (inclue pager  -->	
+		<% include ./pager.ejs %>
+	
+
 	
 </div>
  

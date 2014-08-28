@@ -33,7 +33,7 @@ $$namespace.include(function (require, module) {
 		if(this.isCallByBackOrFowardCallback()) return ;
 		
 		var key = 'action'+ (++actionCount)
-//		  , url = url || key
+		  , url = url || '/blog'
 				  
 		actions[key] = action;
 		

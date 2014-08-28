@@ -10,7 +10,7 @@
 			  , user = post.user;
 			  
 	%>
-	<div class="row  col-sm-10  col-sm-offset-1 board-row">
+	<div class="row  col-sm-11  blogBoard-row" data-num="<%=post.num%>">
 		<div class=" col-sm-2" style="padding:9px 0">
 			<div>Votes <B><%=post.vote%></B></div>
 			<div>Answers <B><%= post.answerCount%></B></div>
@@ -18,7 +18,7 @@
 		</div>
 		<div class="col-sm-10 " >
 			<div class="row">
-				<a href="/blog/<%=post.num%>/<%=post.getTitle4url()%>"> 
+				<a class='blogBoard-detailView' href="/blog/<%=post.num%>/<%=post.getTitle4url()%>" data-num="<%=post.num%>"> 
 					<H2><%=post.title %></H2>
 				</a>
 			</div>

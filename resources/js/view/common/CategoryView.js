@@ -4,7 +4,7 @@
 
 $$namespace.include(function(require, module){
 	
-	var viewUtil = require('/view/viewUtil')
+	var viewUtil = require('/view/util/viewUtil')
 
 	var CATEGORY_BTNS = '.blogCategory'
 	var CATEGORY_INSERT_FORM_ID = "#categoryInsertForm"
@@ -33,7 +33,8 @@ $$namespace.include(function(require, module){
 	
 	CategoryView.prototype.assignEffect = function (id) {
 		var all$btns = this.get$btns4find()
-		var $btn = viewUtil.find$btn(all$btns, id, 'id')
+		  , $btn = viewUtil.find$btn(all$btns, id, 'id')
+		  
 		viewUtil.assignBgColorTo$btn($btn, all$btns)
 	}
 });

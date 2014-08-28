@@ -38,12 +38,12 @@ describe('blogService', function () {
 			var errFn = H.testCatch1(nextTest)
 			  , done = new H.Done(dataFn, errFn);
 			var curPageNum = 1;
-			blogService.getPostsAndPagerAndAllCategoires(new H.Done(dataFn, errFn), curPageNum, null, Category.getRootId());
-			function dataFn(PostsAndPagerAndAllCategoires) {
-//				console.log(PostsAndPagerAndAllCategoires)
-				var pager = PostsAndPagerAndAllCategoires.pager
-				  , posts = PostsAndPagerAndAllCategoires.posts
-				  , allCategories = PostsAndPagerAndAllCategoires.allCategories
+			blogService.getFullList(new H.Done(dataFn, errFn), curPageNum, null, Category.getRootId());
+			function dataFn(FullList) {
+//				console.log(FullList)
+				var pager = FullList.pager
+				  , posts = FullList.posts
+				  , allCategories = FullList.allCategories
 				  , post = posts[0];
 				should.equal(pager.allRowCount, 1);
 				should.equal(post.content, 'postContent1')
@@ -89,12 +89,11 @@ describe('blogService', function () {
 			}
 		})
 	})
-	describe('#insertPostWithFile', function () {
-		it('should insert post without file', function (nextTest) {
+	describe('#insertPostAndIncreaseCategoryCount', function () {
+ 		it('should insert post without file', function (nextTest) {
 			var errFn = H.testCatch1(nextTest)
 			  , done = new H.Done(dataFn, errFn);
-			var emptyFile = {size:0};
-			blogService.insertPostWithFile(done, post, emptyFile);
+			blogService.insertPostAndIncreaseCategoryCount(done, post);
 			function dataFn(post) {
 				should.exist(post);
 				should.deepEqual(post.filePaths, []);

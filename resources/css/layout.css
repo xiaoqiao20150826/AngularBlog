@@ -22,7 +22,7 @@ a:hover, a:focus{
   background-color: transparent;
   magin : 0; padding : 0;
 }
-.board-row {
+.blogBoard-row {
   border: thin solid blue;
 }
 /*

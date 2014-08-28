@@ -44,49 +44,55 @@ localFile.createFolderIfNotExist = function (dirPath, nextFn) {
 
 //callback(err)로 호출되기에 data는 값이 없지만 dataFn을 통해 다음행동을 할 수 있다.
 //이건 전달하는 data없으니 내가 생성한 fileUrl을 전달함.
-localFile.create = function(done, fileUrl, data) {
+localFile.create = function(done, fileUrl, data, option) {
 	done.hook4dataFn(function() {return fileUrl});
-	var option = {encoding:'utf8'};
+	var option = option || {encoding:'utf8'};
 	fs.writeFile(fileUrl, data, option, done.getCallback());
 }
 
-localFile.createEx = function(done, fileUrl, data) {
+localFile.createEx = function(done, fileUrl, data, option) {
 	done.hook4dataFn(function() {return fileUrl});
 	var dir = path.dirname(fileUrl)
-	this.createFolderIfNotExist(dir, function () {
-		localFile.create(done, fileUrl, data);
+	localFile.createFolderIfNotExist(dir, function () {
+		localFile.create(done, fileUrl, data, option);
 	});
 }
-localFile.read = function(done, fileUrl) {
-	var option = {encoding:'utf8'};
+localFile.read = function(done, fileUrl, option) {
+	var option = option || {encoding:'utf8'}
 	fs.readFile(fileUrl, option, done.getCallback());
 }
-localFile.copyNoThrow = function(done, fromFileUrl, toFileUrl) {
+localFile.copyNoThrow = function(done, fromFileUrl, toFileUrl, option) {
 	var dataFn = done.getDataFn();
 	done.setErrFn(function() {
 		dataFn(null);
 	})
-	localFile.copy(done, fromFileUrl, toFileUrl)
+	localFile.copy(done, fromFileUrl, toFileUrl, option)
 }
 
-localFile.copy = function(done, fromFileUrl, toFileUrl) {
-	H.call4promise(localFile.read, fromFileUrl)
+localFile.copy = function(done, fromFileUrl, toFileUrl, option) {
+	H.call4promise(localFile.read, fromFileUrl, option)
 	 .then(function(data) {
 //		 이미지를 읽을때 debug하면 무한반복됨. 이게 뭔일이냐.
 //		 debug('read data :', data)
-		 localFile.createEx(done, toFileUrl, data);
+		 localFile.createEx(done, toFileUrl, data, option);
 	 })
 	 .catch(done.getErrFn());
 }
 
-localFile.copyNoDuplicate = function(done, fromFileUrl, toFileUrl) {
+localFile.copyNoDuplicate = function(done, fromFileUrl, toFileUrl, type) {
+	var option = null;
+	if(localFile.isImageType(type)) { option = {encoding:'binary'} }
+	
+	return localFile.copyNoDuplicateWithOption(done, fromFileUrl, toFileUrl, option)
+}
+localFile.copyNoDuplicateWithOption = function(done, fromFileUrl, toFileUrl, option) {
 	var i = 0;
 	
 	loopUntilNoExistFile(toFileUrl);
 	function loopUntilNoExistFile(to) {
 		H.call4promise(localFile.exists, to)
 		 .then(function (existFile) {
-			 if(!existFile) { return localFile.copyNoThrow(done, fromFileUrl, to); }
+			 if(!existFile) { return localFile.copyNoThrow(done, fromFileUrl, to, option); }
 			 else {
 				 var newFileUrl = H.pushInMidOfStr(toFileUrl, (++i), '.');
 				 return loopUntilNoExistFile(newFileUrl);
@@ -149,7 +155,7 @@ localFile.deleteOneFolder = function(done, path) {
 }
 
 ///
-localFile.getToAndFromFileUrl = function _getToAndFromUrls(fromFile, imgDir) {
+localFile.getToAndFromFileUrl = function (fromFile, imgDir) {
 	var fileName = fromFile.name
 	  , fromFileUrl = fromFile.path //임시저장된 파일위치
 	  , toFileUrl = imgDir + '\\' + fileName;
@@ -162,3 +168,10 @@ localFile.existFile = function _existFile(file) {
 	else
 		return false;
 } 
+
+localFile.isImageType = function (type) {
+	if(!type) return false;
+	
+	if(type.indexOf('image/jpeg') != -1) return true;
+	else return false;
+}

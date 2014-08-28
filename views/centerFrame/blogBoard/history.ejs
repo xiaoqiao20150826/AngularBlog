@@ -84,7 +84,7 @@
 					%>
 							<div class="collapse out history-posts-<%=j%>-<%=k%>">
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-							<a href = "/blog/<%= post.num %>/<%= post.getTitle4url() %>" style="font-size:20px">
+							<a class='blogBoard-detailView' href="/blog/<%=post.num%>/<%=post.getTitle4url()%>" data-num="<%=post.num%>" style="font-size:20px">
 								<span class="label label-success col-sm-offset-1" >
 								<%= post.getTitle4url() %>
 								</span>

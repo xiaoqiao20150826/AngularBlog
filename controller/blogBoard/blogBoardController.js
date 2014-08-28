@@ -5,8 +5,9 @@ var debug = require('debug')('nodeblog:route:blog')
 var _ = require('underscore')
   , Q = require('q')
 var H = require('../../common/helper.js')
- , Done = H.Done
-
+  , Done = H.Done
+  , pathUtil = require('../../common/util/pathUtil')
+  
 var requestParser = require('../util/requestParser.js')
   , Cookie = require('../util/Cookie.js')
   , Redirector = require('../util/Redirector.js')
@@ -21,23 +22,28 @@ var _config;
 var FIRST_PAGE_NUM = 1
   , SORTER_NEWEST = 'newest'
 
-var blogController = module.exports = {
+var blogBoardController = module.exports = {}
 /* 클라이언트의 요청을 컨트롤러에 전달한다.*/
-	mapUrlToResponse : function(app) {
-//		app.get('/', this.listLayoutView);
-//		app.get('/blog', this.listLayoutView);
-//		app.post('/blog', this.insertPost);
-		
-//		
-//		app.get('/blog/new', this.insertView);
-//		app.get('/blog/delete', this.deletePostOrFile);
+blogBoardController.mapUrlToResponse = function(app) {
+
+		// 사용자를 위한 북마커블한 url
 		app.get('/blog/history', this.sendHistoryView);
 //		
-//		app.get('/blog/:postNum(\\d+)', this.detailView);
-//		app.get('/blog/:postNum(\\d+)/:title', this.detailView);
-//		
-		// ajax
-		app.post('/ajax/blogBoardList', this.sendBlogBoardList)
+		//ajax or 북마커블하지 않은 url.
+		app.post('/blog/new', this.sendInsertView);
+//		app.get('/blog/delete', this.deletePostOrFile);
+		app.post('/blog/history', this.sendHistoryView4ajax)
+	
+		// detail
+		app.get('/blog/:postNum(\\d+)', this.detailView);
+		app.get('/blog/:postNum(\\d+)/:title', this.detailView);
+		app.post('/blog/:postNum(\\d+)', this.detailView4ajax);
+		app.post('/blog/:postNum(\\d+)/:title', this.detailView4ajax);
+		
+//		//nav ajax위한 주소
+		app.post('/blog', this.sendBlogBoardList);
+		app.post('/blogBoard/List', this.sendBlogBoardList)
+		app.post('/blogBoard/insert', this.insertBlogBoardData)
 //		app.post('/ajax/increaseVote', this.increaseVote)
 //		app.post('/ajax/blogListView', this.listView)
 //		
@@ -50,11 +56,11 @@ var blogController = module.exports = {
 //		app.get('/blog/:stringParam(\\w+)/:sfwef', this.errPage);
 		//config 가져오기
 		_config = app.get('config');
-	}	
+}	
 	
 /* 요청에 대한 서비스를 제공하고 응답한다. */
 	//게시판 정보, 로그인 체크 및 유저정보 제공.
- 	, sendBlogBoardList : function (req, res) {
+blogBoardController.sendBlogBoardList = function (req, res) {
  		var redirector = new Redirector(res)
 		var rawData = requestParser.getRawData(req)
 		  , pageNum = _.isEmpty(rawData.pageNum) ? FIRST_PAGE_NUM : rawData.pageNum  
@@ -78,66 +84,79 @@ var blogController = module.exports = {
   			res.render('./centerFrame/blogBoard/list.ejs', {blog : blog});
   		})
          .catch(errFn)
+}
+blogBoardController.sendInsertView = function(req,res) {
+	var redirector = new Redirector(res)
+	var loginUser = requestParser.getLoginUser(req)
+	  , rawData = requestParser.getRawData(req)
+	
+	if(loginUser.isNotExist()) return redirector.main();
+	
+	H.call4promise(categoryService.getRootOfCategoryTree)
+	 .then(function (rootOfCategoryTree) {
+		 	var blog = { loginUser: loginUser
+		 			   , rootOfCategoryTree : rootOfCategoryTree
+		 			   , scriptletUtil : scriptletUtil
+		 			   };
+		 	
+			return res.render('./centerFrame/blogBoard/post/insert.ejs', { blog : blog} );
+	 })
+	 .catch(redirector.catch)
+}
+blogBoardController.detailView = function(req, res) {
+	_detailView(req,res,'./wholeFrame/blogBoard/detail.ejs')
+}
+blogBoardController.detailView4ajax = function(req, res) {
+	_detailView(req,res,'./centerFrame/blogBoard/detail.ejs')
+}
+function _detailView(req, res, viewPath) {
+	var redirector = new Redirector(res)
+	var rawData = requestParser.getRawData(req)
+	  , postNum = rawData.postNum
+	  , loginUser = requestParser.getLoginUser(req)
+	  , cookie = new Cookie(req, res);
+	
+	var errFn = redirector.catch;
+	H.all4promise([
+	               	  [blogService.increaseReadCount, postNum, cookie]
+	               	, [blogService.getJoinedPost, postNum]
+	               	, [categoryService.getRootOfCategoryTree]
+	])
+	 .then(function dataFn(args) {
+		 var joinedPost = args[1]
+		 if(joinedPost.isEmpty()) return redirector.main() 
+		
+		 var rootOfCategoryTree = args[2]
+		 var blog = { loginUser : loginUser
+				    , post : joinedPost
+				    , rootOfCategoryTree : rootOfCategoryTree
+		 			, scriptletUtil : scriptletUtil
+		 			}
+		 
+		 res.render(viewPath,{blog : blog} )
+	 })
+	 .catch(errFn);
+}
+blogBoardController.insertBlogBoardData = function(req,res) {
+	var redirector = new Redirector(res)
+	var loginUser = requestParser.getLoginUser(req)
+	  , rawData = requestParser.getRawData(req)
+	  , userId = rawData.userId
+	  , filePath = pathUtil.getLocalFilePathByUrl(rawData.fileUrl) 
+	var post = Post.createBy(rawData)
+	post.addFilePath(filePath);
+
+	debug('insertPost reqData : ', rawData)
+	if(loginUser.isNotExist() || loginUser.isNotEqualById(userId)) return redirector.main()
+	
+	blogService.insertPostAndIncreaseCategoryCount(new Done(dataFn, redirector.catch), post);
+	function dataFn(insertedPost) {
+//		var postNum = insertedPost.num;
+//		redirector.post(postNum)
+		debug('insertedPost : ', insertedPost)
+		redirector.main()
 	}
-//	insertView : function(req,res) {
-//		var redirector = new Redirector(res)
-//		var loginUser = requestParser.getLoginUser(req)
-//		  , rawData = requestParser.getRawData(req)
-//		
-//		if(loginUser.isNotExist()) return redirector.main();
-//		
-//		H.call4promise(categoryService.getRootOfCategoryTree)
-//		 .then(function (rootOfCategoryTree) {
-//			 	var blog = { loginUser: loginUser
-//			 			   , rootOfCategoryTree : rootOfCategoryTree
-//			 			   , scriptletUtil : scriptletUtil
-//			 			   };
-//			 	
-//				return res.render('./blog/insert.ejs', { blog : blog} );
-//		 })
-//	},
-//	detailView : function(req, res) {
-//		var redirector = new Redirector(res)
-//		var rawData = requestParser.getRawData(req)
-//		  , postNum = rawData.postNum
-//		  , loginUser = requestParser.getLoginUser(req)
-//		  , cookie = new Cookie(req, res);
-//		
-//		var errFn = redirector.catch;
-//		H.all4promise([
-//		               	  [blogService.increaseReadCount, postNum, cookie]
-//		               	, [blogService.getJoinedPost, postNum]
-//		])
-//		 .then(function dataFn(args) {
-//			 var joinedPost = args[1]
-//  			 if(joinedPost.isEmpty()) return redirector.main() 
-//			
-//			 var blog = { loginUser : loginUser
-//					    , post : joinedPost
-//			 			}
-//			 
-//			 res.render('./blog/detailLayout.ejs',{blog : blog} )
-//		 })
-//		 .catch(errFn);
-//	},
-//	insertPost : function(req,res) {
-//		var redirector = new Redirector(res)
-//		var loginUser = requestParser.getLoginUser(req)
-//		  , rawData = requestParser.getRawData(req)
-//		  , userId = rawData.userId
-//		var post = Post.createBy(rawData)
-//		  , file = _.first(_.toArray(req.files));//TODO: 현재하나뿐. 파일업로드 안해도 빈거들어감
-//
-//		debug('insertPost reqData : ', rawData)
-//		if(loginUser.isNotExist() || loginUser.isNotEqualById(userId)) return redirector.main()
-//		
-//		blogService.insertPostWithFile(new Done(dataFn, redirector.catch), post, file);
-//		function dataFn(insertedPost) {
-////			var postNum = insertedPost.num;
-////			redirector.post(postNum)
-//			redirector.main()
-//		}
-//	},
+}
 //	deletePostOrFile : function (req, res) {
 //		var redirector = new Redirector(res)
 //		var loginUser = requestParser.getLoginUser(req)
@@ -170,7 +189,13 @@ var blogController = module.exports = {
 //			res.send(status.message);
 //		 }
 //	},
-	, sendHistoryView : function (req, res) {
+blogBoardController.sendHistoryView4ajax = function (req, res) {
+	_sendHistoryView(req, res, './centerFrame/blogBoard/history.ejs')
+}
+blogBoardController.sendHistoryView = function (req, res) {
+	_sendHistoryView(req, res, './wholeFrame/blogBoard/history.ejs')
+}
+function _sendHistoryView(req, res, viewPath) {
 		var redirector = new Redirector(res)		
 		var loginUser = requestParser.getLoginUser(req);
 		
@@ -189,18 +214,17 @@ var blogController = module.exports = {
 					   , H : H
 					   , scriptletUtil : scriptletUtil 
 					   }
-			res.render('./wholeFrame/blogBoard/history.ejs',{blog : blog});
+			res.render(viewPath, {blog : blog});
  			return;
 		})
 		 .catch(redirector.catch)
-	}
+}
 //	
 //	errPage : function(req, res) {
 //		var redirector = new Redirector(res)
 //		var rawData = requestParser.getRawData(req)
 //		redirector.catch(rawData);
 //	}
-};
 /*    helper   */
 
 //test

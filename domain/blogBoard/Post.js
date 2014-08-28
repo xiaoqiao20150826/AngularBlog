@@ -5,9 +5,11 @@
 /* 참조 및 초기화 */
 
 var H = require('../../common/helper.js')
-  , User = require('../User.js');
+  , _ = require('underscore')
+  , pathUtil = require('../../common/util/pathUtil')
   
-var _ = require('underscore');
+var User = require('../User.js')
+  
 
 //////////////////
 var Post = module.exports = function Post() {
@@ -56,8 +58,8 @@ Post.getCategoryIds = function (posts) {
 	}
 	return result;
 }
-Post.getFileName4url = function (filePath) {
-	return filePath.slice(filePath.lastIndexOf('\\')+1);
+Post.getFileName = function (filePath) {
+	return pathUtil.getFileName(filePath)
 }
 
 /* instance method */
@@ -85,7 +87,8 @@ Post.prototype.setAnswers = function (answers) {
 };
 //deprease
 Post.prototype.addFilePath = function (path) {
-	if(this.filePaths == null) this.filePaths = []; 
+	if(this.filePaths == null) this.filePaths = [];
+	
 	this.filePaths = _.union(this.filePaths, path);
 };
 // etc

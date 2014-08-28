@@ -1,7 +1,5 @@
-<% layout('../layout.ejs') -%>
-
 <meta charset="utf-8">
-<div class="col-lg-7" id="center_frame" style="margin: 0 0 0 20px">
+<div class="col-sm-10 col-sm-offset-1">
 
 	<!-- blog detail -->
 	<%  
@@ -36,7 +34,7 @@
 								var Post = post.constructor
 								var filePaths = post.filePaths
 								for(var i in filePaths) {
-								var fileName = Post.getFileName4url(filePaths[i])
+								var fileName = Post.getFileName(filePaths[i])
 							%>
 							 	<form action="/file/download" method="post" >
 									<input name="userId" value="<%= user._id%>" style="display:none">
@@ -92,7 +90,7 @@
 	</article>
 	<article class="row">
 		<div class="span8">
-		<% include ../answer/list.ejs %>
+		<% include ./answer/list.ejs %>
 		</div>
 	</article>
 	

@@ -4,13 +4,11 @@
 
 $$namespace.include(function(require, module){
 	
-	var viewUtil = require('/view/viewUtil')
+	var viewUtil = require('/view/util/viewUtil')
 	
 	var PAGER_BTNS = '.blogPager'
 	
 	var PagerView = module.exports = function PagerView() {
-		
-		this.assignEffect(0);
 	}
 	
 	PagerView.prototype.getDataMap = function($pagerBtn) {
@@ -25,7 +23,8 @@ $$namespace.include(function(require, module){
 	
 	PagerView.prototype.assignEffect = function (pagerIndex) {
 		var all$btns = this.get$btns4find()
-		var $btn = viewUtil.find$btn(all$btns, pagerIndex, 'index')
+		  , $btn = viewUtil.find$btn(all$btns, pagerIndex, 'index')
+		  
 		viewUtil.assignActiveTo$btn($btn, all$btns)
 	}
 });

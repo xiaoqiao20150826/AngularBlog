@@ -9,16 +9,21 @@ $$namespace.include(function (require, module) {
 	  , Pager= this.require('/domain/blogBoard/Pager') 
 	  , Tab= this.require('/domain/blogBoard/Tab')
 	  , Category= this.require('/domain/blogBoard/Category')
+	  , Post = this.require('/domain/blogBoard/Post')
 	
 	var blogMap = {
 					pager : new Pager({})
 				  , tab : new Tab({})
 	              , category : new Category({})
+				  , post : new Post()
 				  }
 	var blogRepository = module.exports = {}
 	
 	blogRepository.initPager = function () {
 		blogMap.pager = new Pager({});
+	}
+	blogRepository.savePost = function(post) {
+		blogMap.post = post;
 	}
 	blogRepository.savePager = function(pager) {
 		blogMap.pager = pager;

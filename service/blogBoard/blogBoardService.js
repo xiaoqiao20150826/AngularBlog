@@ -132,7 +132,7 @@ blogBoardService.getJoinedPostByUser = function (done, postNum) {
 	.catch(errFn)
 }
 
-blogBoardService.insertPostWithFile = function(done, post, file) {
+blogBoardService.insertPostAndIncreaseCategoryCount = function(done, post, file) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();
 	
@@ -146,7 +146,6 @@ blogBoardService.insertPostWithFile = function(done, post, file) {
    		 var insertedPost = args[0];
    		
    	     //post insert 후 비동기로 작업 후 곧바로 다음 할일을 수행 
-   		 blogBoardService.saveFileAndUpdatePost(file, insertedPost)
    		 return dataFn(insertedPost);
    	 })
 	 .catch(errFn);
@@ -155,21 +154,21 @@ blogBoardService.insertPostWithFile = function(done, post, file) {
 
 // 비동기 작업하며로 실패는 무시, 성공도 무시. 신경 쓰지 않음.
 // 나중에 파일업로드방식을 바꾸자.
-blogBoardService.saveFileAndUpdatePost = function (file, post) {
-	if(!localFile.existFile(file)) return ;
-	//file저장 및 업데이트.
-	var imgDir =config.imgDir + '\\' + post.userId
-	  , urls = localFile.getToAndFromFileUrl(file, imgDir);
-		
-	H.call4promise(localFile.copyNoDuplicate, urls.from , urls.to)
-	 .then(function(savedFileUrl) {
-		debug('saved file url : ', savedFileUrl) 
-		 if(_.isEmpty(savedFileUrl)) return;
-		
-		 return H.call4promise(postDAO.updateFilePaths ,post.num ,savedFileUrl)
-	 })
-	 .catch(function(){});
-}	
+//blogBoardService.saveFileAndUpdatePost = function (file, post) {
+//	if(!localFile.existFile(file)) return ;
+//	//file저장 및 업데이트.
+//	var imgDir =config.imgDir + '\\' + post.userId
+//	  , urls = localFile.getToAndFromFileUrl(file, imgDir);
+//		
+//	H.call4promise(localFile.copyNoDuplicate, urls.from , urls.to)
+//	 .then(function(savedFileUrl) {
+//		debug('saved file url : ', savedFileUrl) 
+//		 if(_.isEmpty(savedFileUrl)) return;
+//		
+//		 return H.call4promise(postDAO.updateFilePaths ,post.num ,savedFileUrl)
+//	 })
+//	 .catch(function(){});
+//}	
 
 blogBoardService.deletePostOrFile = function (done, postNum, filepath) {
 	var dataFn = done.getDataFn()
