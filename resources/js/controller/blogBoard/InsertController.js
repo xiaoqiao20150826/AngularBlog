@@ -53,8 +53,15 @@ $$namespace.include(function(require, module) {
 			function dataFn(fileUrl) {
 				if(!fileUrl) return;
 				
-				var $fileUrlNode = insertView.get$fileUrlNode()
-				$fileUrlNode.val(fileUrl);
+				var $fileUrlsNode = insertView.get$fileUrlsNode()
+				  , $fileListNode = insertView.get$fileListNode()
+				  , value = $fileUrlsNode.val();
+				
+				value = value + ';' + fileUrl
+				if(value.charAt(0) == ';') {value = value.slice(1)}
+				
+				$fileUrlsNode.val(value); 
+			    $fileListNode.text(value.replace(/;/g,'\n')); 
 				inputNode.files = null;
 			}
 			
@@ -68,16 +75,11 @@ $$namespace.include(function(require, module) {
 			var queryString = decodeURI($insertForm.serialize())
 			  , queryMap = H.queryStringToMap(queryString)
 			  
-			if(H.notExist(queryMap.title)) return _errWaring(e,'title should not empty')  
-			if(H.notExist(queryMap.content)) return _errWaring(e,'content should not empty')  
+			if(H.notExist(queryMap.title)) return H.errorWarning(e,'title should not empty')  
+			if(H.notExist(queryMap.content)) return H.errorWarning(e,'content should not empty')  
 
 			return ; //본래 역할 수행.
 		}
-	}
-	
-	function _errWaring(e, message) {
-		alert(message)
-		return e.preventDefault();
 	}
 	
 });

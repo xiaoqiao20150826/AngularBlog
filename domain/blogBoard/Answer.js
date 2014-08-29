@@ -1,6 +1,7 @@
 
 /* 참조 및 초기화 */
-var H = require('../../common/helper.js');
+var _ = require('underscore')
+var H = require('../../common/helper.js')
 
 //////////////////
 var Answer = module.exports = function Answer() {
@@ -50,7 +51,6 @@ Answer.makeRoot = function () {
 	rootAnswer.created = '';
 	rootAnswer.num = null;
 	rootAnswer.answers = [];
-	rootAnswer.deep=0;
 	return rootAnswer;
 }
 
@@ -58,13 +58,11 @@ Answer.getSchema = function () {
 	return {
         'num' : Number,
         'created' : Date,
-        'vote' : Number,
-        'image' : String,
         'content' : String,
         'userId' : String,
         'postNum' : Number,
         'answerNum' : Number,
-        'deep' : Number
+        'password' : String
 		};
 };
 
@@ -75,5 +73,9 @@ Answer.prototype.setUser = function(user) {
 }
 Answer.prototype.setAnswers = function(answers) {
 	this.answers = answers;
+}
+Answer.prototype.isNotExistPassword = function() {
+	if(_.isEmpty(this.password)) return true;
+	else return false;
 }
 /* helper */

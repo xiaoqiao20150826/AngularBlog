@@ -2,18 +2,17 @@
 <div>
 <select name = "categoryId" class="selectpicker">
 					<%
+					
 					var scriptletUtil = blog.scriptletUtil
 					    rootOfCategoryTree = blog.rootOfCategoryTree 
 					scriptletUtil.treeEach(rootOfCategoryTree, 'categories', eachFn);
 					function eachFn(category, deep) {
-						console.log(deep)
-						
-						
-						var title = category.title
-						  , space = scriptletUtil.repeatString('&nbsp;&nbsp;',deep)
-						title = space + title;
+						var space = scriptletUtil.repeatString('&nbsp;&nbsp;',deep)
+						    title = space +category.title
+						  , categoryId = category.id
+
 					%>
-					<option name="<%=category.id%>" value="<%=category.id%>"><%=title%></option>	
+					<option name="<%=categoryId%>" value="<%=categoryId%>" ><%=title%></option>	
 					<%
 					}
 					%>

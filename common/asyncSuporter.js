@@ -14,12 +14,13 @@ asyncSuporter = module.exports = {};
 //Done 참조쉽게 여기에 놓음
 asyncSuporter.Done = Done;
 
-//            deprease
+           
+
 /////////////
 /* 비동기 함수 호출을 위한 루프 */
 //1) someList의 각 원소를 인자로하여 비동기함수를 수행한다
 //2) 모든 호출 후  done을 수행한다. 각 비동기함수에서 수행된 datas가 인자로 전달된다. 
-//3) 수행될 비동기 함수는 asyncFn(done, ...args) 시그니쳐를 가진다.(context 바인딩가능)
+//3) 수행될 비동기 함수는 asyncFn(done, eachVal) 시그니쳐를 가진다.(context 바인딩가능)
 //4) endDone(err, datas){}...
 //** __eachDone이 data만을 가지는 이유는 asyncFn이 done만을 받기 때문이다.(즉, err처리는 비동기 함수 내부에서 수행된다).
 asyncSuporter.asyncLoop = function (someList ,contextAndAsyncFn, done) {

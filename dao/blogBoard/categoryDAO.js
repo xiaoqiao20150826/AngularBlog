@@ -165,6 +165,12 @@ categoryDAO.increasePostCountById = function(done, id) {
 	
 	_update(done, where, data);
 };
+categoryDAO.decreasePostCountById = function(done, id) {
+	var where = {_id : id}
+	,data = {$inc : {postCount : -1}};
+	
+	_update(done, where, data);
+};
 categoryDAO.updateTitleByCategory = function(done, category, newTitle) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();

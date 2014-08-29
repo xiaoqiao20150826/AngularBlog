@@ -20,7 +20,7 @@ $$namespace.include(function (require, module) {
 		this.reStarter = new ReStarter(this.viewManager, this.controllerManager)
 	}
 	App.prototype.init = function() {
-		this.reStarter.wholeFrame()
+		this.reStarter.main()
 	}
 	App.prototype.onClick = function ($button, method) { return eventBinder.onClick($button, method); }
 	App.prototype.onChange = function ($button, method) { return eventBinder.onChange($button, method); }

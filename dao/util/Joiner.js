@@ -123,8 +123,9 @@ Joiner.prototype.getBindedNodeByChilds = function (node, key4sumToParent,  delim
 	}
 	
 };
-Joiner.prototype.joinTo = function (nodes, identifierKey, emptyChild) {
+Joiner.prototype.joinTo = function (nodes, identifierKey, assignChildIfNotFind) {
 	this.identifierKey = identifierKey;
+	assignChildIfNotFind = assignChildIfNotFind || function () {}
 	
 	var childsKey = this.childsKey;
 	if(!_.isArray(nodes)) nodes = [nodes]
@@ -133,7 +134,8 @@ Joiner.prototype.joinTo = function (nodes, identifierKey, emptyChild) {
 		var node = nodes[i]
 		  , childs = this.getChildsToBindToNode(node)
 		  , count = childs.length;
-		if(count == 0) {node[childsKey] = emptyChild}
+//		if(count == 0) {node[childsKey] = emptyChild}
+		if(count == 0) {node[childsKey] = assignChildIfNotFind(node)}		
 		if(count == 1) { node[childsKey] = childs.pop(); }
 		if(count > 1) { node[childsKey] = childs; }
 	}

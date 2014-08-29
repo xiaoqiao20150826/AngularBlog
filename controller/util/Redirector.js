@@ -16,6 +16,6 @@ Redirector.prototype.main = function () {
 }
 
 Redirector.prototype.catch = function (error) {
-	console.error(error)
+	console.error('err : ', error)
 	return this.res.send(error)
 }

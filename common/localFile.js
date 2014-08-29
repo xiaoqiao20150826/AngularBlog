@@ -106,6 +106,7 @@ localFile.exists = function(done, fileUrl) {
 	fs.exists(fileUrl, done.getDataFn());
 }
 
+//하나짜리 사용안할듯.
 localFile.deleteFileAndDeleteFolderIfNotExistFile = function (done, filePath) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn()
@@ -120,6 +121,26 @@ localFile.deleteFileAndDeleteFolderIfNotExistFile = function (done, filePath) {
 	        .catch(errFn)
 }
 
+localFile.deleteFiles = function (done, filePaths) {
+	var dataFn = done.getDataFn()
+	  , successStatus = Status.makeSuccess()
+	  , errorStatus = Status.makeError()
+	H.asyncLoop(filePaths , localFile.delete, new Done(lastCallback, eachErrFn))
+	
+	function lastCallback(statues) {
+		debug('deleteFiles statues : ', statues)
+		if(_.isEmpty(statues)) return dataFn(successStatus)
+		
+		_.each(statues, function (status,i) {
+			if(status.isError()) return dataFn(errorStatus) 
+		})
+		
+		return dataFn(successStatus)
+	}
+	function eachErrFn(err) {
+		return dataFn(errorStatus)
+	}
+}
 localFile.delete = function(done, fileUrl) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn()

@@ -123,13 +123,14 @@ $$namespace.include(function(require, module) {
 			var post = new Post(num)
 			  , action = new Action([this, clickDetailViewBtn], e);
 			
-			actionHistory.save(action);
+			actionHistory.save(action, url);
 			blogBoardService.savePost(post);
+			
 			
 			ajax.call(callback, url);
 			function callback(html) {
 				divUtil.replaceCenterFrame(html)
-//				reStarter.insertOfBlogBoard() // 이건 detail
+				reStarter.detailOfBlogBoard() // 이건 detail
 			}
 			
 			return e.preventDefault(); //버블링방지
@@ -144,7 +145,7 @@ ListController.prototype.clickInsertViewBtn1 = function(listView) {
 		var action = new Action([this, clickInsertViewBtn], e)
 		
 		actionHistory.save(action)
-		ajax.call(callback, '/blog/new');
+		ajax.call(callback, '/blogBoard/insertView');
 		function callback(html) {
 			divUtil.replaceCenterFrame(html)
 			reStarter.insertOfBlogBoard() 

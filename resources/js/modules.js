@@ -30,19 +30,15 @@
 	              //view-common
 	              , "/resources/js/view/common/CategoryView.js"
 
-	              //view-topFrame
 	              , "/resources/js/view/topFrame/NavView.js"
 	              
-	              //view-centerFrame
 	              , "/resources/js/view/centerFrame/blogBoard/list/PagerView.js"
 	              , "/resources/js/view/centerFrame/blogBoard/list/TabView.js"
 	              , "/resources/js/view/centerFrame/blogBoard/list/ListView.js"
 	              
-
-	              , "/resources/js/view/centerFrame/blogBoard/post/insertView.js"
-//	              , "/resources/js/view/centerFrame/blogBoard/post/detailView.js"
-	              
-//	              , "/resources/js/view/centerFrame/blogBoard/answer/answerView.js"
+	              , "/resources/js/view/centerFrame/blogBoard/insert/InsertView.js"
+	              , "/resources/js/view/centerFrame/blogBoard/detail/DetailView.js"
+	              , "/resources/js/view/centerFrame/blogBoard/detail/answer/AnswerView.js"
 	              
 	              
 	              //repository
@@ -52,11 +48,14 @@
 	              , "/resources/js/service/blogBoardService.js"
 	              
 	              //controller
-	              , "/resources/js/controller/blogBoard/ListController.js"
-	              , "/resources/js/controller/blogBoard/InsertController.js"
 	              , "/resources/js/controller/NavController.js"
 	              
-//	              , "/resources/js/controller/answerController.js"
+	              , "/resources/js/controller/blogBoard/ListController.js"
+	              , "/resources/js/controller/blogBoard/InsertController.js"
+	              , "/resources/js/controller/blogBoard/DetailController.js"
+	              
+	              , "/resources/js/controller/blogBoard/AnswerController.js"
+	              
 //	              , "/resources/js/controller/adminController.js"
 	              , "/resources/js/controller/ControllerManager.js"
 	              

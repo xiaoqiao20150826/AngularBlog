@@ -144,46 +144,52 @@ blogBoardService.insertPostAndIncreaseCategoryCount = function(done, post, file)
      ])
    	 .then(function (args) {
    		 var insertedPost = args[0];
-   		
-   	     //post insert 후 비동기로 작업 후 곧바로 다음 할일을 수행 
    		 return dataFn(insertedPost);
    	 })
 	 .catch(errFn);
 };
 
-
-// 비동기 작업하며로 실패는 무시, 성공도 무시. 신경 쓰지 않음.
-// 나중에 파일업로드방식을 바꾸자.
-//blogBoardService.saveFileAndUpdatePost = function (file, post) {
-//	if(!localFile.existFile(file)) return ;
-//	//file저장 및 업데이트.
-//	var imgDir =config.imgDir + '\\' + post.userId
-//	  , urls = localFile.getToAndFromFileUrl(file, imgDir);
-//		
-//	H.call4promise(localFile.copyNoDuplicate, urls.from , urls.to)
-//	 .then(function(savedFileUrl) {
-//		debug('saved file url : ', savedFileUrl) 
-//		 if(_.isEmpty(savedFileUrl)) return;
-//		
-//		 return H.call4promise(postDAO.updateFilePaths ,post.num ,savedFileUrl)
-//	 })
-//	 .catch(function(){});
-//}	
-
-blogBoardService.deletePostOrFile = function (done, postNum, filepath) {
+blogBoardService.deletePost = function (done, postNum) {
 	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn();
+	  , errFn = done.getErrFn()
+	  , successStatus = Status.makeSuccess()
+	  , errorStatus = Status.makeError()
 	
-	H.all4promise(postDAO.removeByPostNum, postNum)
-	 .then(function(status) {
-		 if(status.isSuccess()) return dataFn(status)
-		 else return errFn(status.appendMessage('remove faile :', postNum))
+	H.call4promise(postDAO.findByNum, postNum)
+	 .then(function(post){
+		 var filePaths = post.filePaths
+		   , categoryId = post.categoryId
+		 
+		 return H.all4promise([
+				                 [postDAO.removeByPostNum, postNum]
+				               , [answerDAO.removeAllByPostNum, postNum]
+				               , [localFile.deleteFiles, filePaths]
+				               , [categoryDAO.decreasePostCountById, categoryId]
+				              ])
 	 })
-	 
-	 //비동기로 호출
-	localFile.deleteFileAndDeleteFolderIfNotExistFile(Done.makeEmpty(), filePath);
-	
-	return;
+	 .then(function (statusMap) {
+		 	debug('statusMap', statusMap)
+			if(_.isEmpty(statusMap)) return dataFn(Status.makeError('not exist to delete some'))
+			
+			_.each(statusMap, function (status,i) {
+				if(status.isError()) return dataFn(errorStatus) 
+			})
+			return dataFn(successStatus)
+	 })
+	 .catch(function eachErrFn(err) {
+		 return dataFn(errorStatus)
+	 })
+}
+
+blogBoardService.updatePostAndCategoryId = function (done, post, originCategoryId) {
+	var dataFn = done.getDataFn()
+	  , errFn = done.getErrFn()
+	  
+	H.all4promise([ [categoryService.increaseOrDecreasePostCount, post.categoryId, originCategoryId]
+	              , [postDAO.update, post]
+	             ])
+	             .then(dataFn)
+	             .catch(errFn)
 }
 
 blogBoardService.increaseReadCount = function(done, postNum, cookie) {
@@ -206,6 +212,8 @@ blogBoardService.increaseVote = function(done, postNum, userId) {
 	 })
 	 .catch(errFn);
 }
+
+
 blogBoardService.findGroupedPostsByDate = function (done) {
 	postDAO.findGroupedPostsByDate(done);
 } 

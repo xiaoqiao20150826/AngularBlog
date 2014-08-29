@@ -72,6 +72,7 @@ var U = module.exports = {
 			for(var key in target) { 
 				if(target.hasOwnProperty(key)) {
 					var value = source[key];
+					if(_.isArray(value)) value = _.compact(value)
 					if(U.exist(value)) {
 						target[key] = U.deepClone(value);
 					}

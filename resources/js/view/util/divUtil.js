@@ -5,6 +5,7 @@
 $$namespace.include(function(require, module){
 	
 	var CENTER_FRAME = '#centerFrame'
+	var ANSWER_DIV = '#answer-div'
 		
 	var divUtil = module.exports = {}
 	
@@ -14,9 +15,13 @@ $$namespace.include(function(require, module){
 	divUtil.replaceCenterFrame = function (newHtml) {
 		$(CENTER_FRAME).html(newHtml)
 	};
+	//사용하나요.
 	divUtil.getCenterFrameHtml = function () {
 		return $(CENTER_FRAME).html()
 	}
+	divUtil.replaceAnswerDiv= function (newHtml) {
+		$(ANSWER_DIV).html(newHtml)
+	};
 	
 	divUtil.replaceDiv= function ($div , html) {
 		return $div.replaceWith(html);

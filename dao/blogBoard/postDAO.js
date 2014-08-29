@@ -137,7 +137,7 @@ postDAO.update = function(done, post) {
 		        		 , content : post.content
 		        		 , categoryId : post.categoryId
 		        		  }
-				, $addToSet : {filePaths : post.filePaths}
+				, $addToSet : { filePaths : {$each:  post.filePaths}  } 
 				}
 	if(!(H.exist(post.num))) throw new Error('num은 필수').stack;
 	_update(done, where, data);
@@ -147,6 +147,7 @@ postDAO.updateReadCount = function(done, num) {
 		,data = {$inc:{readCount:1}};
 	_update(done, where, data);
 };
+//안쓸껄
 postDAO.updateFilePaths = function(done, num, filePath) {
 	var where = {num : num}
 	,data = {$addToSet: { filePaths : filePath } };
@@ -168,7 +169,7 @@ postDAO.removeCategorId = function(done, categoryId) {
 	_update(done, where, data);
 };
 postDAO.increaseAnswerCount = function(done, num) {
-	var where = {num : num}
+	var where = {num : Number(num)}
 	,data = {$inc:{answerCount:1}};
 	_update(done, where, data);
 };

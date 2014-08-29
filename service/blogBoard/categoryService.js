@@ -13,6 +13,7 @@ var H = require('../../common/helper.js')
   
 var Category = require('../../domain/blogBoard/Category.js')
   , Joiner = require('../../dao/util/Joiner.js')
+  , Status = require('../../dao/util/Status.js')
 
 var categoryDAO = require('../../dao/blogBoard/categoryDAO.js')
   , postDAO = require('../../dao/blogBoard/postDAO.js')
@@ -57,10 +58,24 @@ categoryService.insertCategory = function (done, parentId, newTitle) {
 	
 	return categoryDAO.insertChildToParentByTitle(done, parent, newTitle);
 }
+
+// update post를 위한 함수. 그 이상으로 사용된다면 다시 생각.
+categoryService.increaseOrDecreasePostCount = function(done, categoryId, originCategoryId) {
+	var dataFn = done.getDataFn()
+	  , errFn = done.getErrFn()
+	  
+	if(categoryId == originCategoryId) return dataFn(Status.makeSuccess());
+
+	return H.all4promise([
+			                [categoryDAO.increasePostCountById, categoryId]
+			              , [categoryDAO.decreasePostCountById, originCategoryId]  
+						 ])
+				          .then(dataFn)
+						  .catch(errFn)
+}
 categoryService.increasePostCountById = function (done, categoryId) {
-	var dataFn = done.getDataFn();
-	if(_.isEmpty(categoryId)) categoryId = Category.rootId
-	
+//	if(_.isEmpty(categoryId)) categoryId = Category.rootId
+	if(_.isEmpty(categoryId)) return;
 	debug('increase categoryId : ', categoryId)
 	return categoryDAO.increasePostCountById(done, categoryId);
 }

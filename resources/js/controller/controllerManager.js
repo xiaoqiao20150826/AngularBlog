@@ -6,43 +6,39 @@ $$namespace.include(function (require, module) {
 
 	var ListController = require('controller/blogBoard/ListController.js')
 	  , InsertController = require('controller/blogBoard/InsertController.js')
-	  , NavController = require('controller/NavController.js')
+	  , DetailController = require('controller/DetailController.js')
+	  , AnswerController = require('controller/AnswerController.js')
+	  
+	var NavController = require('controller/NavController.js')
 	
 	var ControllerManager = module.exports =  function (app) {
 		this.app = app
-		this.listController = new ListController(app);
-		this.navController = new NavController(app);
-		this.insertController = new InsertController(app);
 		
-		this.controllers = [ this.listController
-		                   , this.navController
-		                   , this.insertController
-		                   ]
+		this.navController = new NavController(app);
+		
+		this.listController = new ListController(app);
+		this.insertController = new InsertController(app);
+		this.detailController = new DetailController(app);
+		this.answerController = new AnswerController(app);
 	}
-
-	ControllerManager.prototype.onHandlerAll = function () {
-		for(var i in this.controllers) {
-			var controller = this.controllers[i]
-			if(controller.onHandler) controller.onHandler();
-		}
+	// top
+	ControllerManager.prototype.onHandlerAboutNav = function () {
+		this.navController.onHandler()
 	}
-	ControllerManager.prototype.onHandlerAboutCenterFrame = function () {
-		this.listController.onHandler()
-	}
-	//개별
+	//centerFrame
 	ControllerManager.prototype.onHandlerAboutListOfBlogBoard = function () {
 		this.listController.onHandler()
 	}
 	ControllerManager.prototype.onHandlerAboutInsertOfBlogBoard = function () {
 		this.insertController.onHandler()
 	}
-	ControllerManager.prototype.getInsertController = function () { return this.insertController }
-//	ControllerManager.prototype.onHandler = function (app) {
-//		for(var i in controllers) {
-//			var controller = controllers[i]
-//			  , init = controller.init
-//			if(init) {  controller.init(app); }
-//		};
-//	}
+	ControllerManager.prototype.onHandlerAboutDetailOfBlogBoard = function () {
+		this.detailController.onHandler()
+		this.answerController.onHandler()
+	}
+	ControllerManager.prototype.onHandlerAboutAnswerOfBlogBoard = function () {
+		this.answerController.onHandler()
+	}
+	
 	
 })

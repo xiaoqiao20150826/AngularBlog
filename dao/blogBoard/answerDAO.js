@@ -39,6 +39,10 @@ answerDAO.removeOne = function (done, answer) {
 	_remove(done, where);
 };
 
+answerDAO.removeAllByPostNum = function (done, postNum) {
+	var where = { postNum: postNum}
+	_remove(done, where);
+};
 //댓글의 댓글까지 삭제.
 answerDAO.removeAllOfNum = function (done, answerNum) {
 	var where = {$or : [{num: answerNum}, {answerNum: answerNum} ]}

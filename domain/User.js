@@ -58,8 +58,9 @@ User.prototype.getId = function () {
 User.prototype.isNotEqualById = function (userId) {
 	return !this.isEqualById(userId);
 }
+//withId가 맞지않을까?
 User.prototype.isEqualById = function (userId) {
-	if (this._id == userId) return true;
+	if (this.isExist() && (this._id == userId) ) return true;
 	else return false;
 }
 User.prototype.isExist = function () {

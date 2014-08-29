@@ -3,8 +3,7 @@
  */
 
 /* 초기화 및 의존성, 클래스 변수 */
-var Q = require('q')
-  , _ = require('underscore')
+var _ = require('underscore')
   , debug = require('debug')('nodeblog:service:answerService');
 
 var H = require('../../common/helper.js')
@@ -46,8 +45,13 @@ answerService.getJoinedAnswers = function (done, postNum) {
 }
 // 조인한 후, 트리화 시킨다.
 function answersJoinUsersAndTreeAnswers (users, answers) {
+	//user가 있거나, id에 해당하는 유저가 없다면. 익명유저이어라. 
     var userJoiner = new Joiner(users, '_id', 'user')
-      , joinedAnswerByUser = userJoiner.joinTo(answers, 'userId', User.getAnnoymousUser());
+      , joinedAnswerByUser = userJoiner.joinTo(answers, 'userId', function (_answer) {
+    	  var user = User.getAnnoymousUser()
+    	  user.name = _answer.userId
+    	  return user;
+      });
     
     var answerJoiner = new Joiner(joinedAnswerByUser, 'answerNum', 'answers')
       , rootOfTree = answerJoiner.treeTo(Answer.makeRoot(), 'num');
@@ -58,26 +62,21 @@ function answersJoinUsersAndTreeAnswers (users, answers) {
 }
 
 
-//to deprease
-answerService.insertAnswer = function(done, answer) {
-	answerDAO.insertOne(done, answer);
-};
 
-// 주의 post의 answerCount를 증가시키는 것.
 answerService.insertAnswerAndIncreasePostCount = function(done, answer) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();
 	var postNum = answer.postNum;
 	
-	debug('insertAndIncreaseCount : ', answer)
-	Q.all([H.call4promise(answerDAO.insertOne, answer)
-	     , H.call4promise(postDAO.increaseAnswerCount, postNum)
-    ])
-     .then(function(args){
-    	 var insertedAnswer = args[0];
-    	 return dataFn(insertedAnswer);
-     })
-     .catch(errFn);
+	H.all4promise([  
+	                 [answerDAO.insertOne, answer]
+	              ,  [postDAO.increaseAnswerCount, postNum]
+				 ])
+				 .then(function(args){
+				 	 var insertedAnswer = args[0];
+				   	 return dataFn(insertedAnswer);
+				 })
+				 .catch(errFn);
 };
 answerService.deleteAnswer = function(done, answerNum) {
 	answerDAO.removeAllOfNum(done, answerNum);

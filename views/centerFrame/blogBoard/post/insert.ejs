@@ -1,4 +1,4 @@
-<div class="col-lg-7" style="margin:0 0 0 20px">
+<div class="col-lg-10" style="margin:0 0 0 20px">
 <meta charset="utf-8">
 
 <!-- blog insert form -->
@@ -27,14 +27,14 @@
    <div class="form-group">
       <label class="col-sm-2 control-label">Title</label>
       <div class="col-sm-10">
-         <input class="form-control" name="title" type="text" 
+         <input class="form-control" name="title" type="text"
             placeholder="title"  >
       </div>
    </div>
    <div class="form-group">
       <label class="col-sm-2 control-label">Content</label>
       <div class="col-sm-10">
-      <textarea class="col-sm-12" id="content_textarea" name="content" ></textarea><!--/textarea로 닫지않으면 아래 태그가 이상해짐  -->	
+      <textarea class="col-sm-12" name="content"></textarea><!--/textarea로 닫지않으면 아래 태그가 이상해짐  -->	
 <!--          <input class="form-control" id="content" type="text"  -->
 <!--             value="content"> -->
       </div>
@@ -42,10 +42,11 @@
    <div class="form-group">
 	    <label class="col-sm-2 control-label">File input</label>
 	    <div class="col-sm-10">
-	    	<input type="text" id="fileUrl" name='fileUrl' style="display:none"> 
+	    	<input type="text" id="blogBoard-fileUrls" name='fileUrl' style="display:none"> 
 	    	<input type="file" id= 'blogBoard-insertFile' data-userId='<%= loginUser._id%>'>
 	    </div>
    </div>
+   <textarea class='col-sm-offset-2 col-sm-10 row' id='blogBoard-fileList' style='height:70px' disabled></textarea>
    <button type="submit" class="btn btn-default pull-right">Submit</button>
 </form>
 </div>      

@@ -1,10 +1,13 @@
+<div id = 'answer-div'>
 <meta charset="utf-8">
-
+<br>
 <!----------- 댓글 리스트  -->
 <!-- part4list를 위해서  두번째 for문에서 answer, user를 재사용했다. -->
 	<%
-		var answers = post.answers;
-		
+		var loginUser = blog.loginUser
+	      , post = blog.post
+		  , answers = post ? post.answers : blog.answers
+		  
 		for(var i in answers) {
 			var answer = answers[i]
 			  , user = answer.user
@@ -30,3 +33,5 @@
 <!----------- 댓글 달기  -->
 
 <% include ./insert.ejs %>
+
+</div>

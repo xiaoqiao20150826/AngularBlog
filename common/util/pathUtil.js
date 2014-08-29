@@ -30,8 +30,14 @@ pathUtil.getUrlByLocalFilePath = function (localPath) {
 	return url;
 }
 //   / 와 \\ 가 섞인주소가 만들어지는데 별문제는 없네.
-pathUtil.getLocalFilePathByUrl = function (url) {
-	if(_.isEmpty(url)) return null;
+pathUtil.getLocalFilePathByUrl = function (urls) {
+	if(_.isEmpty(urls)) return null;
 	
-	return config.rootDir + url;
+	var filePaths = []
+	var urls = _.compact(urls.split(';')) // 프론트엔드(insertController)에서 ;으로 구분하여 여러개 올수도.
+	for(var i in urls) {
+		var url = urls[i]
+		filePaths.push(config.rootDir + url);
+	}
+	return filePaths;
 }

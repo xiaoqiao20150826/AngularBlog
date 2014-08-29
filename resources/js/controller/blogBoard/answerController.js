@@ -1,23 +1,58 @@
 
 $$namespace.include(function(require, module) {
-	var H = this.require('/util/helper') 
+	var H = require('/util/helper') 
+	  , ajax = require('/util/ajax') 
+	  , divUtil = require('/util/divUtil') 
 
-	var answerView = this.require('/view/centerFrame/blogBoard/answer/answerView') 
-		
-	//
-	var answerController = module.exports = {}
+	var actionHistory = require('history/actionHistory')
+	  , Action = require('history/Action') 
+
+	var AnswerController = module.exports = function (app) {
+		var viewManager = app.getViewManager()
+		  , answerView = viewManager.getAnswerView()
+		  
+		this.app = app;
+		this.answerView = answerView
+	}
 	
-	answerController.onHandler = function (app) {
-		app.onClick(answerView.get$insertViewButtons(), this.insertViewClick)
+	AnswerController.prototype.onHandler = function () {
+		var app = this.app
+		  , answerView = this.answerView
+		  , $insertForm = answerView.get$insertForm()
+		  , $loginBtn = answerView.get$loginBtn()
+		
+		app.onSubmit($insertForm, this.insertAnswer1(answerView))
 
 	}
-	answerController.insertViewClick = function (e, app) {
-		var $embeddedAnswerDiv = answerView.get$embeddedAnswerDiv($(this))
-		  , answerNum = $embeddedAnswerDiv.data().answernum
+	AnswerController.prototype.insertAnswer1 = function (answerView) {
+		var reStarter = this.app.getReStarter()
 		
-		answerView.replaceEmbeddedAnswerDiv($embeddedAnswerDiv, answerNum);
-		return e.preventDefault();
+		return function (e) {
+			var $insertForm = answerView.get$insertForm()
+			var queryString = decodeURI($insertForm.serialize())
+			  , queryMap = H.queryStringToMap(queryString)
+			  , password = queryMap.password;
+			  
+			if(_isNotLogIn(password) ) {
+				if(H.notExist(queryMap.userId)) return H.errorWarning(e,'writer should not empty')
+				if(H.notExist(password)) return H.errorWarning(e,'password should not empty')
+			}
+			if(H.notExist(queryMap.content) ) return H.errorWarning(e,'content should not empty')  
+			
+			ajax.call(callback, '/blogBoard/answer/insert', queryMap)
+			function callback (html) {
+				divUtil.replaceAnswerDiv(html)
+			    reStarter.answerOfBlogBoard()
+			}
+			return e.preventDefault(); 
+		}
+	}
+
+	//단순히 password값 유무로 판단. 노드가 있을경우 기본값이 ''
+	function _isNotLogIn(password) {
+		if(password != undefined) return true;
+		else return false;
 	}
 });
 
-//@ sourceURL=/controller/answerController.js
+//@ sourceURL=/controller/AnswerController.js

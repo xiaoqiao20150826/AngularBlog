@@ -11,20 +11,26 @@ $$namespace.include(function (require, module) {
 		this.viewManager = viewManager
 		this.controllerManager = controllerManager
 	}
-	ReStarter.prototype.wholeFrame = function () {
+	//main 
+	// 주소로 접속할 경우 어떤 center가 올지모르기에 모두 초기화해야한다.
+	ReStarter.prototype.main = function () {
 		actionHistory.init()
 
-		this.controllerManager.onHandlerAll()
-		var blogMap = blogRepository.getBlogMap()
-		this.viewManager.assignEffectAll(blogMap)
+		//top
+		this.nav()
+		
+		//center
+		this.listOfBlogBoard()
+		this.insertOfBlogBoard()
+		this.detailOfBlogBoard()
 	}
-	ReStarter.prototype.centerFrame = function () {
-		this.controllerManager.onHandlerAboutCenterFrame()
+	//topframe
+	ReStarter.prototype.nav = function () {
+		this.controllerManager.onHandlerAboutNav()
 		var blogMap = blogRepository.getBlogMap()
-		this.viewManager.assignEffectAboutCenterFrame(blogMap)
+		this.viewManager.assignEffectAboutNav(blogMap)
 	}
-	
-	//centerFrame 관련..
+	//centerFrame 
 	ReStarter.prototype.listOfBlogBoard = function () {
 		this.controllerManager.onHandlerAboutListOfBlogBoard()
 		var blogMap = blogRepository.getBlogMap()
@@ -34,5 +40,16 @@ $$namespace.include(function (require, module) {
 		this.controllerManager.onHandlerAboutInsertOfBlogBoard()
 		var blogMap = blogRepository.getBlogMap()
 		this.viewManager.assignEffectAboutInsertOfBlogBoard(blogMap)
+	}
+	//answer포함
+	ReStarter.prototype.detailOfBlogBoard = function () {
+		this.controllerManager.onHandlerAboutDetailOfBlogBoard()
+		var blogMap = blogRepository.getBlogMap()
+		this.viewManager.assignEffectAboutDetailOfBlogBoard(blogMap)
+	}
+	ReStarter.prototype.answerOfBlogBoard = function () {
+		this.controllerManager.onHandlerAboutAnswerOfBlogBoard()
+		var blogMap = blogRepository.getBlogMap()
+		this.viewManager.assignEffectAboutAnswerOfBlogBoard(blogMap)
 	}
 })
