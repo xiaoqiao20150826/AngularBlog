@@ -121,7 +121,10 @@ function _create(done, data) {
 answerDAO.update = function(done, answer) {
 	if(!(H.exist(answer.num))) throw 'num은 필수';
 	var where = {num : answer.num}
-		,data = answer;
+	  , data = { content:answer.content 
+			   , writer: answer.writer 
+			   }
+	
 	_update(done, where, data);
 };
 answerDAO.incVote = function(done, num) {
@@ -131,7 +134,9 @@ answerDAO.incVote = function(done, num) {
 };
 // private
 function _update(done, where, data, config) {
-	if(!(H.exist(done))) throw 'done need';
+	done.hook4dataFn(function (post) {
+		return Status.makeForUpdate(post);
+	});
 	//TODO: writeConcern 는 무엇을 위한 설정일까. //매치되는 doc없으면 새로 생성안해.//매치되는 doc 모두 업데이트
 	var config = config || {upsert: false , multi:true}
 		,callback = done.getCallback();

@@ -11,6 +11,7 @@ $$namespace.include(function(require, module) {
 		app.onClick(answerView.get$insertViewButtons(), this.insertViewClick)
 
 	}
+
 	answerController.insertViewClick = function (e, app) {
 		var $embeddedAnswerDiv = answerView.get$embeddedAnswerDiv($(this))
 		  , answerNum = $embeddedAnswerDiv.data().answernum

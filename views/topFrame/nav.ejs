@@ -17,9 +17,8 @@
 			<div class="row">
 				<%
 					var loginUser = blog.loginUser;
-					if(loginUser.isExist()) {
+					if(!loginUser.isAnnoymous()) {
 				%>
-				
 				<div class='row col-xs-12 col-sm-2  pull-right'>
 					<a href="/user/<%=loginUser._id %>" >
 						<strong><%= loginUser.name %></strong>

@@ -1,37 +1,31 @@
+<%
+	var scriptletUtil = blog.scriptletUtil
+	
+	var loginUser = blog.loginUser
+      , post = blog.post
+	  , answers = post ? post.answers : blog.answers
+%>
+
 <div id = 'answer-div'>
 <meta charset="utf-8">
 <br>
 <!----------- 댓글 리스트  -->
-<!-- part4list를 위해서  두번째 for문에서 answer, user를 재사용했다. -->
 	<%
-		var loginUser = blog.loginUser
-	      , post = blog.post
-		  , answers = post ? post.answers : blog.answers
-		  
-		for(var i in answers) {
-			var answer = answers[i]
-			  , user = answer.user
-			  , embeddedAnswers = answer.answers;
+		scriptletUtil.treeEach(answers, 'answers', eachFn);
+		function eachFn(answer, deep, hasChild, parentAnswer) {
+			var user = answer.user
+			  , offsetValue = (deep > 0) ? 1 : 0
+			  , hasHr = (deep == 0) ? true : false
 	%>
-			  
-		<% include ./part4list.ejs %>
-	<%
-			if(embeddedAnswers) {
-				for(var j in embeddedAnswers) {
-					answer = embeddedAnswers[j];
-					user = answer.user;
-	%>
-		<div class=col-sm-offset-1>
-			<% include ./part4list.ejs %>
-		</div>		
+			<!-- 	row -->
+			<% if(hasHr) { %> <hr>   <% } %>	
+			<% include ./row.ejs %>
+	
 	<%				
-				}
-			}
 		}
 	%>
-
 <!----------- 댓글 달기  -->
-
+<hr>
 <% include ./insert.ejs %>
 
 </div>

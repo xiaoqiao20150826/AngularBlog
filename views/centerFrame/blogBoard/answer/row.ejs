@@ -1,0 +1,49 @@
+<div class="answer-row media col-sm-offset-<%=offsetValue%>" data-num='<%= answer.num %>'>	
+	<a class="pull-left" href="#"> 
+		<img class="media-object" src="<%= user.photo %>" style="width:60px">
+	</a>
+	<div class="media-body">
+		<span class="name"><a href="#"><%= user.name %></a></span>
+		<span class="date"><%= answer.created.toLocaleDateString() %></span>
+	
+	<%	
+		console.log(user._id)
+		if(user.isAnnoymous()) {
+	%>	
+		<a href="/answer/delete?num=<%=answer.num %>&postNum=<%=answer.postNum %>&userId=<%=answer.userId%>" class="pull-right">
+			<i class="glyphicon glyphicon-remove"></i>
+		</a>
+		<a type="button" href='javascript:' class="answer-updateView pull-right"  data-currentnum='<%=answer.num %>' >
+			<i class="glyphicon glyphicon-edit"></i>
+		</a>
+	<% } else if(loginUser.isEqualById(user._id)){ %>	
+		<a href="/answer/delete?num=<%=answer.num %>&postNum=<%=answer.postNum %>&userId=<%=answer.userId%>" class="pull-right">
+			<i class="glyphicon glyphicon-remove"></i>
+		</a>
+		<a type="button" href='javascript:' class="answer-updateView pull-right"   data-currentnum='<%=answer.num %>' >
+			<i class="glyphicon glyphicon-edit"></i>
+		</a>
+	
+	<% } %>
+	
+		<a type="button" href='javascript:' data-currentnum='<%=answer.num %>' class="pull-right answer-replyView" >
+			replay
+		</a>
+		
+		<p>
+			<% 
+				var parentUser = parentAnswer ? parentAnswer.user : null
+			
+				if(parentUser) {
+			%>
+				<span class="name"><a href="#">
+				@&nbsp;<%= parentUser.name %>&nbsp;&nbsp;&nbsp;</a></span>
+			<%
+				}
+			%>
+			<%= answer.content %>
+		</p>
+		
+		<div class="answer-div4insertView"></div>
+	</div>
+</div>

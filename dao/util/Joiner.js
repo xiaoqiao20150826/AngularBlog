@@ -135,7 +135,7 @@ Joiner.prototype.joinTo = function (nodes, identifierKey, assignChildIfNotFind) 
 		  , childs = this.getChildsToBindToNode(node)
 		  , count = childs.length;
 //		if(count == 0) {node[childsKey] = emptyChild}
-		if(count == 0) {node[childsKey] = assignChildIfNotFind(node)}		
+		if(count == 0) {node[childsKey] = assignChildIfNotFind(node)} //조건이 만족하는 자식이 없을경우.
 		if(count == 1) { node[childsKey] = childs.pop(); }
 		if(count > 1) { node[childsKey] = childs; }
 	}

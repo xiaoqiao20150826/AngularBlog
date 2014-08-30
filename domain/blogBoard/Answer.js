@@ -10,8 +10,6 @@ var Answer = module.exports = function Answer() {
 		this[key] = null;
 	}
 	this.created = Date.now();
-	this.vote = 0;
-	this.deep = 1;
 };
 
 /* static method */
@@ -45,7 +43,7 @@ Answer.getUserIds = function (answers) {
 	}
 	return result;
 }
-//answers를 할당하는데.. 클로저변수로 만들면안돼지. 
+//answers Joiner의 treeTo에 사용할 루트. 
 Answer.makeRoot = function () {
 	rootAnswer = new Answer();
 	rootAnswer.created = '';
@@ -60,6 +58,7 @@ Answer.getSchema = function () {
         'created' : Date,
         'content' : String,
         'userId' : String,
+        'writer' : String,
         'postNum' : Number,
         'answerNum' : Number,
         'password' : String
@@ -74,8 +73,13 @@ Answer.prototype.setUser = function(user) {
 Answer.prototype.setAnswers = function(answers) {
 	this.answers = answers;
 }
-Answer.prototype.isNotExistPassword = function() {
-	if(_.isEmpty(this.password)) return true;
+//writer가있으면.
+Answer.prototype.isAnnoymous = function() {
+	if(H.exist(this.writer)) return true;
+	else return false;
+}
+Answer.prototype.hasNotData4annoymous = function () {
+	if(!(H.exist(this.writer) || H.exist(this.password)) ) return true
 	else return false;
 }
 /* helper */

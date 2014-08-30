@@ -100,11 +100,11 @@ blogBoardService.getJoinedPost = function (done, postNum) {
 	, errFn = done.getErrFn();
 	
 	H.all4promise([ [blogBoardService.getJoinedPostByUser, postNum]
-	              , [answerService.getJoinedAnswers, postNum] 
+	              , [answerService.getRootOfAnswerTree, postNum] 
     ])
 	 .then(function (args) {
 		 var joinedPost = args[0]
-		   , joinedAnswers = args[1]
+		   , joinedAnswers = args[1].answers
 		 
 		 joinedPost.setAnswers(joinedAnswers);
 	 	 debug('joinedPost :', joinedPost)

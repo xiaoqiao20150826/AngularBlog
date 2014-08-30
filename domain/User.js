@@ -35,6 +35,7 @@ User.getSchema = function () {
 };
 /* helper */
 
+//이거사용하나?
 User.isAnnoymousId = function (userId) {
 	if(userId == User.ANNOYMOUS_ID) 
 		return true;
@@ -42,7 +43,7 @@ User.isAnnoymousId = function (userId) {
 		return false;
 };
 User.getAnnoymousUser = function () {
-	var user = User.createBy({name:User.ANNOYMOUS_ID, photo:'', email:''})
+	var user = User.createBy({_id:User.ANNOYMOUS_ID, name:User.ANNOYMOUS_ID, photo:'', email:''})
 	user.created = undefined;
 	return user;
 }
@@ -70,6 +71,12 @@ User.prototype.isExist = function () {
 User.prototype.isNotExist = function () {
 	return !this.isExist();
 }
+User.prototype.isAnnoymous = function () {
+	if(this._id == User.ANNOYMOUS_ID) 
+		return true;
+	else 
+		return false;
+};
 //User.prototype.getPassword = function () {
 //	return this._password;
 //}

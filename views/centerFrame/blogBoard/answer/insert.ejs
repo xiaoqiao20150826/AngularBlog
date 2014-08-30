@@ -1,43 +1,44 @@
-<meta charset="utf-8">
 
 <!----------- 댓글 달기  -->
-<div id = "insert-answer-div">
+<div id = "answer-insertDiv">
+<meta charset="utf-8">
+<br>	
 	<div class="media col-sm-11">
-		<form action="/answer/insert" method="post" id='answer-insertForm'enctype="multipart/form-data" name="write-comment" class="form-horizontal"  role="form">
+		<form action="/blogBoard/answer/insert" method="post" id='answer-insertForm'enctype="multipart/form-data" name="write-comment" class="form-horizontal"  role="form">
 			<%
-				console.log(blog.postNum)
 				var loginUser = blog.loginUser
 				  , postNum = blog.postNum
 				
-				if(loginUser.isExist()) {
+				if(!loginUser.isAnnoymous()) {
 			%>
-			<input name="userId" value='<%=loginUser._id %>'  style="display:none">
 			<div class="media-object">
 				<a href="#"><%=loginUser.name %></a>
 			</div>
 			<div class="media-object pull-left">
 				<div><img src='<%=loginUser.photo %>' alt='img' style="width:70px;padding:10px 0 0 0"></div>
 			</div>
+			<input name="userId" value='<%=loginUser._id %>'  style="display:none"> 
 		    <%
 				  } else {
 				  
 			%>
 			<span class="label label-default">wrtier</span>
-			<input name="userId" type='text' placeholder="writer" >
+			<input name="writer" type='text' placeholder="writer" >
 			<span class="label label-default">password</span>
-			<input name="password" type='text' placeholder="pw" >
+			<input name="password" type='text' placeholder="password" >
 			<% 
 				  }		
 			%>
 			<div class="media-body">
 				<textarea name="content" placeholder="content" style="height:100px"></textarea>
 			</div>
-			<div class="media-body">
-				<button class="col-sm-offset-5 btn btn-warn" >submit</button>	
+			<div class="media-body answer-submitDiv">
+				<button class="col-sm-offset-5 btn btn-warn" >submit</button>
+				<button class="btn btn-warn" id='answer-cancel' style="display:none">cancel</button>	
 			</div>
 			<input name="postNum" value="<%=postNum %>" style="display:none">
 			<!-- 		댓글의 댓글을 추가할때 answerNum값을 부여 -->
-			<input name="answerNum" style="display:none"> 
+			<input name="answerNum" class='answer-input4answerNum' style="display:none">
 		</form>
 	</div>
 </div>
