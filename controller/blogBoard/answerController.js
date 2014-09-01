@@ -29,7 +29,7 @@ answerController.insertAnswer = function(req, res) {
 	  , postNum = Number(rawData.postNum) //주의
 	  , answer = Answer.createBy(rawData)
 	  
-	if(answer.isAnnoymous() ) {//익명사용자일경우 answer는 필수데이터 가져야해.
+	if(answer.isAnnoymous() ) {//writer가 익명사용자일경우 answer는 필수데이터 가져야해.
 		if(answer.hasNotData4annoymous()) return res.send('annoymous user should have password and writer');
 	}  
 	
@@ -58,7 +58,7 @@ answerController.updateAnswer = function(req, res) {
 	, postNum = Number(rawData.postNum) //주의
 	, answer = Answer.createBy(rawData)
 	
-	if(answer.isAnnoymous() ) {//익명사용자일경우 answer는 필수데이터 가져야해.
+	if(answer.isAnnoymous() ) {//wirter가 익명사용자일경우 answer는 필수데이터 가져야해.
 		if(answer.hasNotData4annoymous()) return res.send('error : annoymous user should have password and writer');
 	} else {
 		if(loginUser.isNotEqualById(answer.userId) ) return res.send('error : loginUser should same wirter')
@@ -112,10 +112,10 @@ answerController.deleteAnswer = function(req, res) {
 	  , rawData = requestParser.getRawData(req)
 	  , postNum = Number(rawData.postNum)
 	  
-	var answer = Answer.createBy(rawData) //주의
+	var answer = Answer.createBy(rawData) 
 	  , includedNums = _.compact(rawData.includedNums.split(',') )
 	
-	if(answer.isAnnoymous() ) {//익명사용자일경우 answer는 필수데이터 가져야해.
+	if(answer.isAnnoymous() ) {// writer가 익명사용자일경우 answer는 필수데이터 가져야해.
 		if(answer.hasNotData4annoymous()) return res.send('error : annoymous user should have password and writer');
 	} else {
 		if(loginUser.isNotEqualById(answer.userId) ) return res.send('error : loginUser should same wirter')

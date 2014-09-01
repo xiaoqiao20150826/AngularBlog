@@ -1,0 +1,58 @@
+
+<meta charset="utf-8">
+<div class="container col-sm-7 col-sm-offset-2">
+    <%
+    	var loginUser = blog.loginUser
+    %>
+	<div class="row">
+		<table class="table">
+        <tbody>
+            <tr>
+                <td>Id</td>
+                <td><%=loginUser._id %></td>
+            </tr>
+            <tr>
+                <td>Name</td>
+                <td><%=loginUser.name %></td>
+            </tr>
+            <tr>
+                <td>Photo</td>
+                <td><img src = "<%= loginUser.photo %>" style='width:50px'> </td>
+            </tr>
+            <tr>
+                <td>Email</td>
+                <td><%=loginUser.email %></td>
+            </tr>
+            <tr>
+                <td>Visit Count</td>
+                <td><%=loginUser.visitCount %></td>
+            </tr>
+            <tr>
+                <td>Created</td>
+                <td><%=loginUser.created %></td>
+            </tr>
+        </tbody>
+    </table>
+    	<p>
+		<div class='pull-right'>
+			<form action='/user/<%= loginUser._id%>/delete' method='POST'>
+				<button id='user-delete' type ='submit' class='btn btn-default'>leave</button>
+			</form>
+		</div>
+		<div class='pull-right'>
+			<a href='/user/<%= loginUser._id%>/updateView' class="btn btn-default span2" >update</a>
+		</div>
+		</p>
+	</div>
+</div>
+
+<script>
+	(function confirmDelete() {
+		$('#user-delete').click(function (e) {
+			var isYes = confirm('Do you realy want to leave?')
+			if(!isYes) return e.preventDefault()
+			else 
+				return;
+		})
+	})()
+</script>

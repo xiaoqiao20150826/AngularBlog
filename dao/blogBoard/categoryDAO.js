@@ -195,7 +195,7 @@ categoryDAO.updateTitleById = function(done, id, title) {
 	_update(done, where, data);
 };
 function _update(done, where, data, config) {
-	done.hook4dataFn(function (isSuccess) {
+	done.hook4dataFn(function (data) {
 		debug('update arg', arguments)
 		return Status.makeForUpdate(data)
 	})

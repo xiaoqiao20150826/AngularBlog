@@ -26,16 +26,14 @@ $$namespace.include(function (require, module) {
 		
 		this.reStarter.main()
 	}
+	//시작 주소가 여럿일수있으므로 이렇게.(즐겨찾기되었거나하면..) 
 	function _makeFirstAction(reStarter) {
-		var blogBoardService = require('/service/blogBoardService')
-		  , divUtil = require('/view/util/divUtil')
-		  
-		return new Action(blogBoardService.getFirstListHtml, dataFn)
-		function dataFn(html) {
-			divUtil.replaceCenterFrame(html)
-			reStarter.main()
+		var firstHref = window.location.href;
+		return new Action(reLocation)
+		function reLocation() {
+			window.location.href = firstHref
 		}
-	} 
+	}
 	App.prototype.onClick = function ($button, method) { return eventBinder.onClick($button, method); }
 	App.prototype.onChange = function ($button, method) { return eventBinder.onChange($button, method); }
 	App.prototype.onSubmit = function ($form, method) { return eventBinder.onSubmit($form, method); }

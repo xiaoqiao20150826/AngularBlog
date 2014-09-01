@@ -36,29 +36,28 @@ var myPassport = (function() {
 			passport.deserializeUser(this.deserializeUser);			
 			return passport;			
 		},
-		//auth/linkedin/ 요청의 콜백
+		//auth/linkedin(그리고 다른것) 요청의 콜백
+		//1. user가 db에 이미 있는지 찾아보고 없으면 만듬.
+		//2. next역할 : serializeUser에 전달
 		authCallBack : function(accessToken, refreshToken, profile, next) {
-//			console.log('profile' + JSON.stringify(profile));
-			var userInfo = requestParser.profileToUserInfo(profile);
-			var loginUser = User.createBy(userInfo); 
+			var userInfo = requestParser.profileToUserInfo(profile)
+			  , loginUser = User.createBy(userInfo)
 			
-			//1. user가 db에 이미 있는지 찾아보고 없으면 만듬.
-			//2. next역할 : serializeUser에 전달
-			var errFn = next
-			userDAO.findOrCreateByUser(new Done(dataFn, errFn), loginUser);
-			function dataFn(loginUser) {
-				next(null, loginUser) //serializeUser에 전달
-			}
+			H.call4promise(userDAO.findOrCreate, loginUser)
+			 .then(function dataFn(user) {
+				next(null, user) //serializeUser에 전달
+		    })
+		     .catch(next)
 		},
 		
 		//세션에 유저 저장 후 사용자 등록(user.goHome) 콜백을 수행
-		serializeUser : function (loginUser, next) {
-				next(null, loginUser);
+		serializeUser : function (user, next) {
+				next(null, user);
 		},
 		//세션에서 직렬화된 값을 가져올 때 사용. passport가 필요시 사용..
-		deserializeUser : function (loginUser, next) {
+		deserializeUser : function (user, next) {
 			// 세션에서 oauthId 가져옴
-				next(null, loginUser);
+				next(null, user);
 		}
 		
 	};
@@ -66,20 +65,3 @@ var myPassport = (function() {
 
 //----------------------------- 2.실행
 module.exports = myPassport.init();
-//------------------------------3. 주석
-////////////////////////////////////////
-// ----------------serializeUser, deserializeUser
-//로그인 후 세션에 정보가 저장되면,로그인 상태를 유지하기 위해 클라이언트 쿠키에 그 세션의 식별자를 전달해야한다.
-//그때 보안을위해 직접적 정보가 아닌 현재 세션의 유니크한 식별자를 전달하기 위해 아래 메서드사용.
-
-
-// //////////////////////////////////////
-// --------------verifyCallBack(accessToken, refreshToken, profile, done)
-// passport가 요청에 대한 응답을 인증한후 (ex : passport.authenticate('twitter') )
-// 파라미터로 아래의 콜백에 전달된다.
-// # 콜백은 그 인증을 서버측에서 확인하는 용도이다(ex: db의 유저와 일치한지 확인 등)
-// - 각 전략에 따라 전달되는 파라미터가 조금다름 (ex: localStrategy는 username, password, done )
-// - done는 콜백의 확인이 성공,예외,실패 여부를 검증한 데이터와 함께 passport에 재전달한다.
-// (ex: done(에러메시지 || null, user || false, {message:'실패이유'} || X);
-
-

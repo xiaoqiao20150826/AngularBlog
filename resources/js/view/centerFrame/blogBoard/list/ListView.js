@@ -10,7 +10,6 @@ $$namespace.include(function(require, module){
 	var LIST_VIEW = '#blogBoard-listView'
 		
 	//includeView	
-	var CategoryView = require('/view/common/CategoryView')
 	var PagerView = require('/view/blogBoard/list/PagerView')
 	  , TabView = require('/view/blogBoard/list/TabView')
 
@@ -19,10 +18,10 @@ $$namespace.include(function(require, module){
 	var DETAIL_VIEW_BTNS = '.blogBoard-detailView'
 	  , ROW_NODES =  '.blogBoard-row'
 		  
-	var ListView = module.exports = function ListView() {
+	var ListView = module.exports = function ListView(categoryView) {
 		this.pagerView = new PagerView();
 		this.tabView = new TabView();
-		this.categoryView = new CategoryView()
+		this.categoryView = categoryView
 	}
 	
 	//get

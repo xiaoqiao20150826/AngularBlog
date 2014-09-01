@@ -27,10 +27,12 @@
 	              , "/resources/js/view/util/viewUtil.js"
 	              , "/resources/js/view/util/divUtil.js"
 	              
-	              //view-common
+	              //view
 	              , "/resources/js/view/common/CategoryView.js"
 
 	              , "/resources/js/view/topFrame/NavView.js"
+	              
+	              , "/resources/js/view/centerFrame/admin/AdminView.js"
 	              
 	              , "/resources/js/view/centerFrame/blogBoard/list/PagerView.js"
 	              , "/resources/js/view/centerFrame/blogBoard/list/TabView.js"
@@ -56,7 +58,7 @@
 	              
 	              , "/resources/js/controller/blogBoard/AnswerController.js"
 	              
-//	              , "/resources/js/controller/adminController.js"
+	              , "/resources/js/controller/admin/AdminController.js"
 	              , "/resources/js/controller/ControllerManager.js"
 	              
 	              , "/resources/js/ReStarter.js"

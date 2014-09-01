@@ -3,10 +3,14 @@
  */
 
 $$namespace.include(function (require, module) {
+	//
+	var CategoryView = require('/view/common/CategoryView')
+	//
+	var NavView = require('/view/topFrame/NavView')
 	
-	//뷰가아닌 뷰매니저니 저장소 가져오는거 괜찮을까.
+	var AdminView = require('/view/centerFrame/admin/AdminView')
+	
 	var ListView = require('/view/centerFrame/blogBoard/list/ListView')
-	  , NavView = require('/view/topFrame/NavView')
 	  , InsertView = require('/view/centerFrame/blogBoard/insert/InsertView')
 	  , DetailView = require('/view/centerFrame/blogBoard/insert/DetailView')
 	  , AnswerView = require('/view/centerFrame/blogBoard/insert/AnswerView')
@@ -14,15 +18,18 @@ $$namespace.include(function (require, module) {
 	var ViewManager = module.exports = function (app) {
 		this.app = app
 		
+		// common
+		this.categoryView = new CategoryView()
+		
+		//nav
 		this.navView = new NavView();
-		
-		this.listView = new ListView();
-		
+		//blogBoard
+		this.listView = new ListView(this.categoryView);
 		this.insertView = new InsertView();
-		
 		this.detailView = new DetailView();
 		this.answerView = new AnswerView();
-		
+		//user
+		this.adminView = new AdminView(this.categoryView);
 	}
 	//topframe
 	ViewManager.prototype.assignEffectAboutNav = function (blogMap) {
@@ -43,11 +50,18 @@ $$namespace.include(function (require, module) {
 	ViewManager.prototype.assignEffectAboutAnswerOfBlogBoard = function (blogMap) {
 		this.answerView.assignEffect(blogMap)
 	}
+	ViewManager.prototype.assignEffectAboutAdmin= function (blogMap) {
+		this.adminView.assignEffect(blogMap)
+	}
 	
 	
 	//get
-	ViewManager.prototype.getListView = function () {return this.listView; }
 	ViewManager.prototype.getNavView = function () {return this.navView; }
+	
+	ViewManager.prototype.getAdminView = function () {return this.adminView; }
+	
+	//
+	ViewManager.prototype.getListView = function () {return this.listView; }
 	ViewManager.prototype.getInsertView = function () {return this.insertView; }
 	ViewManager.prototype.getDetailView = function () {return this.detailView; }
 	ViewManager.prototype.getAnswerView = function () {return this.answerView; }

@@ -38,6 +38,10 @@ answerDAO.removeOne = function (done, answer) {
 	var where = {num: answer.num}
 	_remove(done, where);
 };
+answerDAO.removeByUserId = function (done, userId) {
+	var where = {'userId': userId}
+	_remove(done, where);
+};
 
 answerDAO.removeAllByPostNum = function (done, postNum) {
 	var where = { postNum: postNum}

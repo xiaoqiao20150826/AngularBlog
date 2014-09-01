@@ -40,8 +40,9 @@ Done.NOMAL = _NOMAL;
 Done.ASYNC = _ASYNC;
 
 
-Done.makeEmpty = function () {
-	return new Done(empty, empty);
+Done.makeEmpty = function (errFn) {
+	errFn = errFn || empty
+	return new Done(empty, errFn);
 	function empty() {}
 }
 

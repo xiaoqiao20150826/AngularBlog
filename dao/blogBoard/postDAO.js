@@ -37,6 +37,10 @@ postDAO.removeByPostNum = function (done, postNum) {
 	var query = {num: postNum};
 	_remove(done, query);
 };
+postDAO.removeByUserId = function (done, userId) {
+	var where = {'userId': userId}
+	_remove(done, where);
+};
 postDAO.removeOne = function (done, post) {
 	var query = {num: post.num};
 	_remove(done, query);

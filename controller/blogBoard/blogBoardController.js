@@ -92,7 +92,7 @@ blogBoardController.sendInsertView = function(req,res) {
 	var loginUser = requestParser.getLoginUser(req)
 	  , rawData = requestParser.getRawData(req)
 	
-	if(loginUser.isNotExist()) return redirector.main();
+	if(loginUser.isAnnoymous()) return redirector.main();
 	
 	H.call4promise(categoryService.getRootOfCategoryTree)
 	 .then(function (rootOfCategoryTree) {
@@ -111,7 +111,7 @@ blogBoardController.sendUpdateView = function(req,res) {
 	  , rawData = requestParser.getRawData(req)
 	  , postNum = rawData.postNum
 	
-	if(loginUser.isNotExist()) return redirector.main();
+	if(loginUser.isAnnoymous()) return redirector.main(); //TODO:writer 일치 체크해야함
 	
 	H.all4promise([ [categoryService.getRootOfCategoryTree]
 	              , [postDAO.findByNum, postNum]
@@ -174,7 +174,7 @@ blogBoardController.insertBlogBoardData = function(req,res) {
 	post.addFilePath(filePath);
 
 	debug('insertPost reqData : ', rawData)
-	if(loginUser.isNotExist() || loginUser.isNotEqualById(userId)) return redirector.main()
+	if(loginUser.isNotEqualById(userId)) return redirector.main()
 	
 	blogBoardService.insertPostAndIncreaseCategoryCount(new Done(dataFn, redirector.catch), post);
 	function dataFn(insertedPost) {
@@ -196,7 +196,7 @@ blogBoardController.updateBlogBoardData = function(req,res) {
 	post.addFilePath(filePath);
 	
 	debug('updatePost reqData : ', rawData)
-	if(loginUser.isNotExist() || loginUser.isNotEqualById(userId)) return redirector.main()
+	if(loginUser.isNotEqualById(userId)) return redirector.main()
 	
 	blogBoardService.updatePostAndCategoryId(new Done(dataFn, redirector.catch), post, originCategoryId);
 	function dataFn(insertedPost) {
@@ -214,7 +214,7 @@ blogBoardController.deletePost = function (req, res) {
 	  , writerId = rawData.writerId
 	  , postNum = rawData.postNum
       
-	if(loginUser.isNotExist() || loginUser.isNotEqualById(writerId)) return res.send(Status.makeError(writerId + ' can not delete this post'))
+	if(loginUser.isNotEqualById(writerId)) return res.send(Status.makeError(writerId + ' can not delete this post'))
 		
 	blogBoardService.deletePost(new Done(dataFn, redirector.catch), postNum);
 	function dataFn(status) {
@@ -229,7 +229,7 @@ blogBoardController.increaseVote = function (req, res) {
 	  , loginUser = requestParser.getLoginUser(req)
 	  , loginUserId = loginUser._id;
 	
-	if(loginUser.isNotExist() ) return res.send('must login');
+	if(loginUser.isAnnoymous() ) return res.send('must login');
 	
 	blogBoardService.increaseVote(new Done(dataFn, redirector.catch), postNum, loginUserId);
 	function dataFn(status) {
@@ -266,14 +266,7 @@ function _sendHistoryView(req, res, viewPath) {
 		})
 		 .catch(redirector.catch)
 }
-//	
-//	errPage : function(req, res) {
-//		var redirector = new Redirector(res)
-//		var rawData = requestParser.getRawData(req)
-//		redirector.catch(rawData);
-//	}
 /*    helper   */
-
 //test
 function _test(req, res) {
 	req.session.passport.user = {_id: '6150493-github'

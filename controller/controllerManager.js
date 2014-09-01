@@ -14,9 +14,10 @@ var controllers = [
                   , require('./blogBoard/blogBoardController.js')
                   , require('./blogBoard/fileController.js')
                   
-                  , require('./userController.js')
-                  , require('./authController.js')
-                  , require('./adminController.js')
+                  , require('./user/userController.js')
+                  , require('./user/authController.js')
+                  
+                  , require('./admin/adminController.js')
                   
               ];
 

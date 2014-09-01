@@ -15,6 +15,8 @@ var mongoose = require('mongoose')
 ///// 참조변수
 var _ = require('underscore')
 	,H = require('../common/helper.js')
+	,Done = H.Done
+	,Status = require('./util/Status')
 	,_db = mongoose.model('User', userSchema);
 
 //// init
@@ -27,8 +29,13 @@ var userDAO = module.exports = {};
  * 
  * */
 /* remove */
+//사용하나?
 userDAO.removeOne = function (done, user) {
 	var where = {_id: user._id};
+	_remove(done, where)
+};
+userDAO.removeById = function (done, id) {
+	var where = {_id: id};
 	_remove(done, where)
 };
 userDAO.removeAll = function (done) {
@@ -36,6 +43,9 @@ userDAO.removeAll = function (done) {
 	_remove(done, where)
 };
 function _remove(done, where) {
+	done.hook4dataFn(function (data) {
+		return Status.makeForRemove(data)
+	})
 	_db.remove(where, done.getCallback());
 }
 /* find */
@@ -61,40 +71,21 @@ userDAO.findById = function (done, id) {
 	_db.findOne(where,select).exec(callback);
 };
 
-// TODO:현재사용안함 비밀번호 필요시 다시볼것
-userDAO.findByUser = function (done, loginUser) {
-	var loginId = loginUser.getId()
-	  , loginPw = loginUser.getPassword();
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn() || function() {};// 에러무시.
-	
-	if(!(H.exist([loginId,loginPw]))) return dataFn('loging user need id and pw');
-	
-	H.call4promise(userDAO.findById, loginId)
-	 .then(function(data) {
-		 if(!(H.exist(data))) {
-			 return dataFn('not found by id : ' +loginId);
-		 } 
-		 
-		 var user = User.createBy(data)
-		   , pw = user.getPassword();
-		 
-		 if(!(loginPw == pw)) 
-			 return dataFn('pw is fail');
-		 else
-			 dataFn(user);
-	 }) 
-	 .catch(errFn);
-}
-
-userDAO.findOrCreateByUser = function (done, loginUser) {
+userDAO.findOrCreate = function (done, loginUser) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();
 	
 	H.call4promise(userDAO.findById, loginUser.getId())
 	 .then(function (user) {
-		 if(user.isAnnoymous()) { return userDAO.insertOne(done, loginUser); }
-		 else return dataFn(user);
+		 if(user.isAnnoymous())  
+			 return H.call4promise(userDAO.insertOne, loginUser); 
+		 else 
+			 return user;
+	 })
+	 .then(function (user) {
+		//반환값이 필요없는 비동기작업. 그러나 위의작업 후에 시작되야함.
+		dataFn(user)
+		userDAO.increaseVisitCount(Done.makeEmpty(errFn), user._id)
 	 })
 	 .catch(errFn);
 };
@@ -108,19 +99,30 @@ function _create(done, user) {
 	_db.create(user, done.getCallback());
 }
 /* update */
-//TODO: 업데이트할 데이터에 User를 통채로 주므로 업데이트 하지말아야할 데이터는 잘 걸러서 줘야한다. 
+
 userDAO.update = function(done, user) {
-	if(!(H.exist(user._id))) throw new Error('_id은 필수').stack;
 	var where = {_id : user._id}
-		,data = user;
+	  , data = { name : user.name
+			   , photo : user.photo
+			   , email : user.email
+			   }
 	
 	_update(done, where, data);
 };
+userDAO.increaseVisitCount = function(done, id) {
+	var where = {'_id' : id}
+	  , data = {$inc : {visitCount : 1}};
+	
+	_update(done, where, data);
+};
+
 function _update(done, where, data, config) {
-	if(!(H.exist(done))) throw new Error('done need').stack;
-	//TODO: writeConcern 는 무엇을 위한 설정일까. 
+	done.hook4dataFn(function (result) {
+		console.log('update', result)
+		return Status.makeForUpdate(result)
+	})
 	var config = config || {upsert: false , multi:true}//매치되는 doc없으면 새로 생성안해.//매치되는 doc 모두 업데이트
-		,callback = done.getCallback();
+	  , callback = done.getCallback();
 	_db.update(where, data, config).exec(callback);
 }
 

@@ -25,11 +25,13 @@ $$namespace.include(function(require, module){
 	CategoryView.prototype.get$insertForm = function() { return $(CATEGORY_INSERT_FORM_ID) }
 	CategoryView.prototype.get$deleteForm = function() { return $(CATEGORY_DELETE_FORM_ID) }
 	
+	//사용안하는듯?
 	CategoryView.prototype.isRoot = function (categoryId) {
 		if(categoryId == ROOT_ID) return true
 		else return false;
 	}
 	
+	//현재 사이드프레임만 효과부여됨.
 	CategoryView.prototype.assignEffect = function (id) {
 		var all$btns = this.get$btns4find()
 		if(!id) {return viewUtil.removeAllBgColor(all$btns)}

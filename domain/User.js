@@ -10,6 +10,7 @@ var User = module.exports = function User() {
 		this[key] = null;
 	}
 	this.created = Date.now();
+	this.visitCount = 0;
 };
 
 
@@ -26,16 +27,15 @@ User.createBy= function(model) {
 User.getSchema = function () {
 	return {
         '_id' : String,
-//        'password' : String,
         'name' : String,
         'photo' : String,
         'email' : String,
-        'created' : Date
+        'created' : Date,
+        'visitCount' : Number
 		};
 };
 /* helper */
 
-//이거사용하나?
 User.isAnnoymousId = function (userId) {
 	if(userId == User.ANNOYMOUS_ID) 
 		return true;
@@ -48,11 +48,7 @@ User.getAnnoymousUser = function () {
 	return user;
 }
 
-
 /* instance method */
-//User.prototype.getPassword = function () {
-//	return this.password;
-//}
 User.prototype.getId = function () {
 	return this._id;
 }
@@ -79,6 +75,3 @@ User.prototype.isAnnoymous = function () {
 	else 
 		return false;
 };
-//User.prototype.getPassword = function () {
-//	return this._password;
-//}

@@ -11,7 +11,9 @@ $$namespace.include(function (require, module) {
 		this.controllerManager = controllerManager
 	}
 	//main 
-	// 주소로 접속할 경우 어떤 center가 올지모르기에 모두 초기화해야한다.
+	// TODO:주소로 접속할 경우 어떤 center가 올지모르기에 모두 초기화해야한다.
+	// 페이지를 감싸는 영역을 만들어놓고, 그 영역이 있으면 초기화하도록 하면되겠네.
+	// 전체적으로 적용가능하겠네. 하지만. 변경사항이 많아지니....미루자.
 	ReStarter.prototype.main = function () {
 		//top
 		this.nav()
@@ -20,6 +22,15 @@ $$namespace.include(function (require, module) {
 		this.listOfBlogBoard()
 		this.insertOfBlogBoard()
 		this.detailOfBlogBoard()
+		
+		//admin
+		this.admin()
+	}
+	
+	ReStarter.prototype.admin = function () {
+		this.controllerManager.onHandlerAboutAdmin()
+		var blogMap = blogRepository.getBlogMap()
+		this.viewManager.assignEffectAboutAdmin(blogMap)
 	}
 	//topframe
 	ReStarter.prototype.nav = function () {
