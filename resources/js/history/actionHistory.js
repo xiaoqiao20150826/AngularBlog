@@ -7,27 +7,31 @@
 $$namespace.include(function (require, module) {
 	var H = require('util/helper')
 	var Action = require('history/Action')
+	var blogRepository = require('repository/blogRepository')
 	
+	//TODO: 히스토리가 쌓일수록 속도는 느려질것같은데..
 	var browserHistory = window.history
 	  , location = window.location
 	  , firstUrl = location.href
 	  , actions = {}
+	  , blogMaps = {}
 	  , actionCount = 0
 	
 	var actionHistory = module.exports = {}
 	
-	actionHistory.init = function () {
+	actionHistory.init = function (firstAction) {
 		$(window).on('popstate', this.backOrFowardCallback)
 		actions = {}
 		actionCount = 0;
 		
+		this.firstAction = firstAction
 	}
-	actionHistory.getFirstAction = function () {
-		var action = new Action(function() {
-			location.href = firstUrl;
-		})
-		return action;
-	}
+//	actionHistory.getFirstAction = function () {
+//		var action = new Action(function() {
+//			location.href = firstUrl;
+//		})
+//		return action;
+//	}
 	//title은 거의 사용안함.
 	actionHistory.save = function (action, url, title) {
 		if(this.isCallByBackOrFowardCallback()) return ;
@@ -36,6 +40,7 @@ $$namespace.include(function (require, module) {
 		  , url = url || '/blog'
 				  
 		actions[key] = action;
+		blogMaps[key] = _.clone(blogRepository.getBlogMap())
 		
 		return browserHistory.pushState(key, title, url)
 	}
@@ -45,11 +50,12 @@ $$namespace.include(function (require, module) {
 		var e = $e.originalEvent
 		  , key = e.state
 		  , action = actions[key]
-		 
+		  , blogMap = blogMaps[key]
 		console.log('back key ',key )
-		console.log('state ',browserHistory.state)
-		if(H.notExist(action)) {action = actionHistory.getFirstAction() } 
-		
+		console.log('back blogMap ',blogMap)
+		if(H.notExist(action)) {action = actionHistory.firstAction } 
+
+		blogRepository.setBlogMap(blogMap)
 		action.run();
 		
 		actionHistory.isCallingBackOrFowardCallback = false;

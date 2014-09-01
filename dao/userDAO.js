@@ -93,7 +93,7 @@ userDAO.findOrCreateByUser = function (done, loginUser) {
 	
 	H.call4promise(userDAO.findById, loginUser.getId())
 	 .then(function (user) {
-		 if(user.isNotExist()) { return userDAO.insertOne(done, loginUser); }
+		 if(user.isAnnoymous()) { return userDAO.insertOne(done, loginUser); }
 		 else return dataFn(user);
 	 })
 	 .catch(errFn);
@@ -101,20 +101,12 @@ userDAO.findOrCreateByUser = function (done, loginUser) {
 /* insert */
 userDAO.insertOne = function(done, user) {
 	done.hook4dataFn(User.createBy);
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn();
 	
-	H.call4promise([_create], user)
-	 .then(function(data) {
-		 var user = User.createBy(data);
-		 dataFn(user);
-	 })
-	 .catch(errFn);
-	
-	function _create(done, user) {
-		_db.create(user, done.getCallback());
-	}
+	_create(done, user)
 };
+function _create(done, user) {
+	_db.create(user, done.getCallback());
+}
 /* update */
 //TODO: 업데이트할 데이터에 User를 통채로 주므로 업데이트 하지말아야할 데이터는 잘 걸러서 줘야한다. 
 userDAO.update = function(done, user) {

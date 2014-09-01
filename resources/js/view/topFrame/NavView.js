@@ -13,9 +13,10 @@ $$namespace.include(function(require, module){
 	NavView.prototype.get$btns = function() {return $(NAV_BTNS) }
 	
 	NavView.prototype.assignEffect = function ($selectedBtn) {
-		if(!$selectedBtn || !($selectedBtn instanceof $)) return; //없으면하지마.처음로딩시 없음.
-		
 		var all$btns = this.get$btns()
+		if(!$selectedBtn || !($selectedBtn instanceof $)) { return viewUtil.removeAllActive(all$btns) }
+		
+		
 		viewUtil.assignActiveTo$btn($selectedBtn, all$btns)
 	}
 	

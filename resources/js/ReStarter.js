@@ -5,7 +5,6 @@
 
 $$namespace.include(function (require, module) {
 	var blogRepository = require('repository/blogRepository')
-	  , actionHistory = require('history/actionHistory.js')
 	
 	var ReStarter = module.exports = function (viewManager, controllerManager) {
 		this.viewManager = viewManager
@@ -14,8 +13,6 @@ $$namespace.include(function (require, module) {
 	//main 
 	// 주소로 접속할 경우 어떤 center가 올지모르기에 모두 초기화해야한다.
 	ReStarter.prototype.main = function () {
-		actionHistory.init()
-
 		//top
 		this.nav()
 		

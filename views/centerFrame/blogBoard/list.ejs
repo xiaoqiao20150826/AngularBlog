@@ -4,7 +4,7 @@
 	
 	 	<% 
 		var loginUser = blog.loginUser
-		if(loginUser.isExist()) {
+		if(!loginUser.isAnnoymous()) {
 		%>
 		<div class="row col-sm-11">
 			<a id ='blogBoard-insertView' class="btn btn-default pull-right" href="javascript:">입력</a>

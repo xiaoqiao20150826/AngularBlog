@@ -19,15 +19,17 @@ $$namespace.include(function(require, module) {
 		var app = this.app
 		  , answerView = this.answerView
 		  , $insertForm = answerView.get$insertForm()
-		  , $replyViewBtns = answerView.get$replyViewBtns()
+		  , $insertViewBtns = answerView.get$insertViewBtns()
 		  , $updateViewBtns = answerView.get$updateViewBtns()
+		  , $deleteBtns = answerView.get$deleteBtns()
 		
 		app.onSubmit($insertForm, this.checkInsertAnswer1(answerView))
-		app.onClick($replyViewBtns, this.showInsertView1(answerView))
+		app.onClick($insertViewBtns, this.showInsertView1(answerView))
 		app.onClick($updateViewBtns, this.showUpdateView1(answerView))
+		app.onClick($deleteBtns, this.deleteAnswer1(answerView) )
 	}
 	
-	//update도 이걸로.
+	//update, insert의 공통기능 체크하고 서버로 요청 후 reRendering
 	AnswerController.prototype.checkInsertAnswer1 = function (answerView) {
 		var reStarter = this.app.getReStarter()
 		
@@ -47,23 +49,13 @@ $$namespace.include(function(require, module) {
 			
 			ajax.call(callback, url, queryMap)
 			function callback (html) {
-				if(_isErrMessage(html)) { return alert(html); } 
+				if(_isErrorByMessage(html)) { return alert(html); } 
 				
 				divUtil.replaceAnswerDiv(html)
 			    reStarter.answerOfBlogBoard()
 			}
 			return e.preventDefault(); 
 		}
-		//단순히 password값 유무로 판단. 노드가 있을경우 기본값이 ''
-	}
-	function _isAnnoymous(writer) {
-		if(writer != undefined) return true;
-		else return false;
-	}
-	function _isErrMessage(html) {
-		var message = html.slice(0,10)
-		if(message.indexOf('error') != -1) return true;
-		else return false;
 	}
 	
 	//누구에게 무엇을 어디에 어떻게
@@ -72,16 +64,16 @@ $$namespace.include(function(require, module) {
 		var app = this.app
 		  , reStarter = app.getReStarter()
 		return function (e) {
-			var $replyViewBtn = $(this)
-			  , currentNum = $replyViewBtn.data().currentnum 
-			  , insertDivHtml = answerView.getInsertDivHtml()
-			  , $currentDiv4InsertView = answerView.find$currentDiv4InsertView($replyViewBtn)
+			var $insertViewBtn = $(this)
+			  , currentNum = $insertViewBtn.data().currentnum 
+			  , insertViewHtml = answerView.getInsertViewDivHtml()
+			  , $currentDiv4InsertView = answerView.find$currentDiv4InsertView($insertViewBtn)
 			  , cancelFn = self.cancel1($currentDiv4InsertView)
 			  
 			if($currentDiv4InsertView.html() ) { return cancelFn(e) }
 			
 			//else 인서트뷰 대입하고 대한 정보삽입.
-			$currentDiv4InsertView.html(insertDivHtml);
+			$currentDiv4InsertView.html(insertViewHtml);
 			var $input4answerNum = answerView.find$input4answerNum($currentDiv4InsertView)
 			$input4answerNum.val(currentNum)
 			reStarter.answerOfBlogBoard()
@@ -119,7 +111,37 @@ $$namespace.include(function(require, module) {
 		}
 	}
 	
-	//
+	AnswerController.prototype.deleteAnswer1 = function (answerView) {
+		  var reStarter = this.app.getReStarter()		
+		return function (e) {
+			var $deleteBtn = $(this)
+			  , ds = $deleteBtn.data()
+			  , writer = ds.writer
+			  , data = { num: ds.currentnum
+				       , userId: ds.userid
+				       , writer: ds.writer
+				       , postNum: ds.postnum
+				       , includedNums : ds.includednums
+				       }
+			
+			var yes = confirm("Do you realy want to delete reply?");
+			if(!yes) return e.preventDefault();
+			
+			if(_isAnnoymous(writer)) {data.password = prompt('input password')}
+			
+			ajax.call(dataFn, '/blogBoard/answer/delete', data)  
+			function dataFn (html) {
+				if(_isErrorByMessage(html)) { return alert(html); } 
+				
+				divUtil.replaceAnswerDiv(html)
+			    reStarter.answerOfBlogBoard()
+			}
+			return e.preventDefault();
+		}
+	}
+	
+	
+	//공통기능
 	AnswerController.prototype._tempRowHtml = '';
 	AnswerController.prototype.cancel1 = function ($div) {
 		var self = this
@@ -133,6 +155,19 @@ $$namespace.include(function(require, module) {
 			self._tempRowHtml = ''
 			return e.preventDefault();
 		}
+	}
+	
+	//helper
+//	서버에서 html대신 에러메시지를 받을 경우.
+	function _isErrorByMessage(html) {
+		var message = html.slice(0,10)
+		if(message.indexOf('error') != -1) return true;
+		else return false;
+	}
+	//writer가 있는지 유무로 판단.
+	function _isAnnoymous(writer) {
+		if( !(writer == undefined || writer == "") ) return true;
+		else return false;
 	}
 	
 });

@@ -12,7 +12,6 @@ $$namespace.include(function(require, module){
 	  , ROOT_ID = 'root'
 		  
 	var CategoryView = module.exports = function CategoryView() {
-		// 이건 초기 효과 주지말자. rootId를 찾기가 곤란하고, 없어도 될것같음.
 	}
 	
 	CategoryView.prototype.getDataMap = function($categoryBtn) {
@@ -33,8 +32,10 @@ $$namespace.include(function(require, module){
 	
 	CategoryView.prototype.assignEffect = function (id) {
 		var all$btns = this.get$btns4find()
-		  , $btn = viewUtil.find$btn(all$btns, id, 'id')
+		if(!id) {return viewUtil.removeAllBgColor(all$btns)}
+		
 		  
+		var $btn = viewUtil.find$btn(all$btns, id, 'id')
 		viewUtil.assignBgColorTo$btn($btn, all$btns)
 	}
 });

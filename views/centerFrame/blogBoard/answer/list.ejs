@@ -15,10 +15,10 @@
 		function eachFn(answer, deep, hasChild, parentAnswer) {
 			var user = answer.user
 			  , offsetValue = (deep > 0) ? 1 : 0
-			  , hasHr = (deep == 0) ? true : false
+			  , isFirstDeep = (deep == 0) ? true : false
 	%>
 			<!-- 	row -->
-			<% if(hasHr) { %> <hr>   <% } %>	
+			<% if(isFirstDeep) { %> <hr>   <% } %>	
 			<% include ./row.ejs %>
 	
 	<%				

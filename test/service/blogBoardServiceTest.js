@@ -74,6 +74,7 @@ describe('blogService', function () {
 			var errFn = H.testCatch1(nextTest);
 			blogService.getJoinedPost(new H.Done(dataFn, errFn), post.num);
 			function dataFn(e_post) {
+//				console.log(e_post)
 				should.equal(e_post.num, post.num);
 				should.equal(e_post.answers.pop().num, 2);
 				nextTest();

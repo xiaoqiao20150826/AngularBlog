@@ -47,12 +47,12 @@ answerService.getRootOfAnswerTree = function (done, postNum) {
 // 조인한 후, 트리화 시킨다.
 function answersJoinUsersAndTreeAnswers (users, answers) {
     var joinedAnswerByUser = answersJoinUsers(answers, users)
+    
     var answerJoiner = new Joiner(joinedAnswerByUser, 'answerNum', 'answers')
-      , rootOfTree = answerJoiner.treeTo(Answer.makeRoot(), 'num');
     
-    debug('rootOfAnswersTree :', rootOfTree)
+	answerJoiner.setKey4aggregateToParent('num', ',', 'includedNums') //부모로모아. 포함된(나 + 자식) num을.
     
-    return rootOfTree;
+    return answerJoiner.treeTo(Answer.makeRoot(), 'num');
 }
 function answersJoinUsers(answers, users) {
 	//user가 있거나, id에 해당하는 유저가 없다면. 익명유저이어라. 
@@ -125,6 +125,38 @@ answerService.updateAnswer = function(done, answer) {
 		return answerDAO.update(done, answer)
 	}
 }
-answerService.deleteAnswer = function(done, answerNum) {
-	answerDAO.removeAllOfNum(done, answerNum);
+answerService.deleteAnswer = function(done, answer, includedNums) {
+	var dataFn = done.getDataFn()
+	  , errFn = done.getErrFn()
+	  , currentNum = answer.num
+	  , postNum = answer.postNum
+	  
+	if(answer.isAnnoymous()) {
+		return  H.call4promise(answerDAO.findByNum, currentNum)
+				 .then(function (findedAnswer) {
+					 debug('pw ',answer.password, findedAnswer.password)
+					 if(answer.password != findedAnswer.password) 
+						 return dataFn(Status.makeError('password is not equal'))
+					 else 
+						 return answerService.deleteAnswerAndDecreasePostCount(done, postNum, includedNums);
+				 })
+				 .catch(errFn)
+	} else {
+		return answerService.deleteAnswerAndDecreasePostCount(done, postNum, includedNums);
+	}
 }
+answerService.deleteAnswerAndDecreasePostCount = function(done, postNum, includedNums) {
+	var dataFn = done.getDataFn()
+	  , errFn = done.getErrFn();
+	var answerCount = includedNums.length
+	
+	H.all4promise([  
+	                 [answerDAO.removeAllOfNum, includedNums]
+	              ,  [postDAO.decreaseAnswerCount, postNum, answerCount]
+				 ])
+				 .then(function(args){
+				 	 var status = args[0];
+				   	 return dataFn(status);
+				 })
+				 .catch(errFn);
+};

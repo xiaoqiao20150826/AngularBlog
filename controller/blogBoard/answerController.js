@@ -19,7 +19,7 @@ answerController.mapUrlToResponse = function(app) {
 		app.post('/blogBoard/answer/update', this.updateAnswer);
 		
 		app.post('/blogBoard/answer/updateView', this.sendUpdateView);
-		app.get('/blogBoard/answer/delete', this.delete);
+		app.post('/blogBoard/answer/delete', this.deleteAnswer);
 		
 }	
 answerController.insertAnswer = function(req, res) {
@@ -29,7 +29,7 @@ answerController.insertAnswer = function(req, res) {
 	  , postNum = Number(rawData.postNum) //주의
 	  , answer = Answer.createBy(rawData)
 	  
-	if(loginUser.isAnnoymous() ) {//익명사용자일경우 answer는 필수데이터 가져야해.
+	if(answer.isAnnoymous() ) {//익명사용자일경우 answer는 필수데이터 가져야해.
 		if(answer.hasNotData4annoymous()) return res.send('annoymous user should have password and writer');
 	}  
 	
@@ -55,14 +55,13 @@ answerController.updateAnswer = function(req, res) {
 	var redirector = new Redirector(res)
 	var loginUser = requestParser.getLoginUser(req)
 	, rawData = requestParser.getRawData(req)
-	, userId = rawData.userId
 	, postNum = Number(rawData.postNum) //주의
 	, answer = Answer.createBy(rawData)
 	
-	if(loginUser.isAnnoymous() ) {//익명사용자일경우 answer는 필수데이터 가져야해.
+	if(answer.isAnnoymous() ) {//익명사용자일경우 answer는 필수데이터 가져야해.
 		if(answer.hasNotData4annoymous()) return res.send('error : annoymous user should have password and writer');
 	} else {
-		if(loginUser.isNotEqualById(userId) ) return res.send('error : loginUser should same wirter')
+		if(loginUser.isNotEqualById(answer.userId) ) return res.send('error : loginUser should same wirter')
 	}  
 	
 	debug('answer to update : ',answer)
@@ -107,16 +106,40 @@ answerController.sendUpdateView = function (req, res) {
      
 }
 
-answerController.delete = function(req, res) {
+answerController.deleteAnswer = function(req, res) {
+	var redirector = new Redirector(res)
 	var loginUser = requestParser.getLoginUser(req)
 	  , rawData = requestParser.getRawData(req)
-	  , userId = rawData.userId
-	  , num = rawData.num;
-//	if(loginUser.isNotEqualById(writer)) return redirector.post(postNum)	
-	if(loginUser.isNotExist() || loginUser.isNotEqualById(userId)) return _redirectCurrentPost(rawData, res);
+	  , postNum = Number(rawData.postNum)
+	  
+	var answer = Answer.createBy(rawData) //주의
+	  , includedNums = _.compact(rawData.includedNums.split(',') )
 	
-	answerService.deleteAnswer(new Done(dataFn, catch1(res)), num); 
-	function dataFn() {
-		_redirectCurrentPost(rawData, res)
-	}
+	if(answer.isAnnoymous() ) {//익명사용자일경우 answer는 필수데이터 가져야해.
+		if(answer.hasNotData4annoymous()) return res.send('error : annoymous user should have password and writer');
+	} else {
+		if(loginUser.isNotEqualById(answer.userId) ) return res.send('error : loginUser should same wirter')
+	}  
+	
+	H.call4promise(answerService.deleteAnswer, answer, includedNums) 
+	 .then(function (status) {
+		if(status.isError()) {
+			res.send(status.getMessage())
+			return null;
+		} else {
+			return H.call4promise(answerService.getRootOfAnswerTree, postNum)
+		}
+	 })
+	 .then(function (rootOfAnswerTree) {
+		if(!rootOfAnswerTree) return;
+		
+		var answers = rootOfAnswerTree.answers 
+		var blog = { 'loginUser' : loginUser
+				, 'answers' : answers
+				, 'postNum' : postNum
+				, 'scriptletUtil' : scriptletUtil
+		}
+		res.render('./centerFrame/blogBoard/answer/list.ejs', {blog: blog} )
+	 })
+	 .catch(redirector.catch)
 }

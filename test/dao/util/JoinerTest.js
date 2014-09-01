@@ -7,7 +7,7 @@ var should = require('should')
 var debug = require('debug')('test:domain:JoinerTest')
   , log = console.log;
 
-var	Joiner= require('../../dao/util/Joiner.js');
+var	Joiner= require('../../../dao/util/Joiner.js');
 var count=0;
 describe('Joiner', function() {
 
@@ -51,7 +51,7 @@ describe('Joiner', function() {
 		})
 		it('should take root from childs', function() {
 			var root4search = {_id:'root'}
-			joiner.setKey4sumToParent('count')
+			joiner.setKey4aggregateToParent('count')
 			var root = joiner.treeTo(root4search, '_id')
 			debug('root from childs', root)
 			should.equal(root.count, 8)
@@ -61,7 +61,7 @@ describe('Joiner', function() {
 			var root4search = {_id:'root'}
 			  , allJoiner = new Joiner(allList,'parentId', childsKey)
 			  , root = allJoiner.findNode(root4search, '_id')
-			allJoiner.setKey4sumToParent('count')
+			allJoiner.setKey4aggregateToParent('count')
 			  
 			var rootOfTree = allJoiner.treeTo(root, '_id')
 			debug('rootOfTree from allList', rootOfTree)
@@ -72,19 +72,18 @@ describe('Joiner', function() {
 			var root4search = {_id:'root'}
 			, allJoiner = new Joiner(allList,'parentId', childsKey)
 			, root = allJoiner.findNode(root4search, '_id')
-			allJoiner.setKey4sumToParent('_id', ',')
+			allJoiner.setKey4aggregateToParent('_id', ',','test')
 			
 			var rootOfTree = allJoiner.treeTo(root, '_id')
-			should.equal(rootOfTree._id.split(',').length, 9)
+			should.equal(rootOfTree.test.split(',').length, 9)
 		})
 		it('should take root been sum name', function() {
 			var root4search = {_id:'root'}
 			, allJoiner = new Joiner(allList,'parentId', childsKey)
 			root = allJoiner.findNode(root4search, '_id')
-			allJoiner.setKey4sumToChild('name', ' > ')
+			allJoiner.setKey4aggregateToChild('name', ' > ', 'test')
 			var rootOfTree = allJoiner.treeTo(root, '_id')
-//			console.log(rootOfTree.childs[0].childs[0], 'root > name1 > name3')
-			should.equal(rootOfTree.childs[0].childs[0].name, 'root > name1 > name3')
+			should.equal(rootOfTree.childs[0].childs[0].test, 'root > name1 > name3')
 		})
 		it('재귀함수',function () {
 			var a = 1;

@@ -33,10 +33,6 @@ var Joiner = module.exports = function Joiner(childList, referenceKey, childsKey
 	this.cachedIndex = {};
 	this.isCache = false;
 	this.hasRelation = _hasRelation;
-	this.hookChildToBind = _hookChildToBind;
-	
-	this.key4sumToParent = null;
-	
 };
 Joiner.prototype.setIdentifierKey = function (identifierKey) {
 	this.identifierKey = identifierKey;
@@ -60,64 +56,69 @@ Joiner.prototype.findNode = function (root, key) {
 	}
 	return root
 }
-
-Joiner.prototype.setKey4sumTo = function (key4sumTo, delimiter, isToChild) {
+Joiner.prototype.setKey4aggregateToParent = function (key4aggregateToParent, delimiter, keyToBeAggregate) {
+	return this.setKey4aggregate(key4aggregateToParent, delimiter, keyToBeAggregate, false)
+}
+Joiner.prototype.setKey4aggregateToChild = function (key4aggregateToChild, delimiter, keyToBeAggregate) {
+	return this.setKey4aggregate(key4aggregateToChild, delimiter, keyToBeAggregate, true)
+}
+//key4aggregate의 값을 delimiter로 구분하여 whereKey에 isToChild(자식이나 부모를 향하여) 합.
+Joiner.prototype.setKey4aggregate = function (key4aggregate, delimiter, keyToBeAggregate, isToChild) {
 	this.delimiter = delimiter || 0
-	
-	if(isToChild) {
-		this.key4sumToChild = key4sumTo;
-		var referenceKey = this.referenceKey
-		if(key4sumTo == referenceKey) throw console.error(referenceKey +' and ' +key4sumTo + ' should not equal');
-		
-		this.hookChildToBind = function(child, node) {
-			child[key4sumTo] = node[key4sumTo] + delimiter + child[key4sumTo];
-			return child;
-		}
-		return;
-	} else {
-		this.key4sumToParent = key4sumTo;
-		return;
-	} 
-		
+	this.keyToBeAggregate = keyToBeAggregate || key4aggregate
+
+	//자식에 대해서. 부모에 대해서. 키가 존재하면 집합을 수행함.
+	if(isToChild) 
+		this.key4aggregateToChild = key4aggregate;
+	else 
+		this.key4aggregateToParent = key4aggregate;
 }
-Joiner.prototype.setKey4sumToParent = function (key4sumToParent, delimiter) {
-	return this.setKey4sumTo(key4sumToParent, delimiter, false)
-}
-Joiner.prototype.setKey4sumToChild = function (key4sumToChild, delimiter) {
-	return this.setKey4sumTo(key4sumToChild, delimiter, true)
-	
-}
+
 Joiner.prototype.treeTo = function (root, identifierKey) {
-	var key4sumToParent = this.key4sumToParent
+	var key4aggregateToParent = this.key4aggregateToParent
+	  , keyToBeAggregate = this.keyToBeAggregate
 	  , delimiter = this.delimiter
 	  
 	this.isCache = true;
 	this.identifierKey = identifierKey || this.identifierKey;
-	var rootOfTree = this.getBindedNodeByChilds(root, key4sumToParent, delimiter);
+	var rootOfTree = this.getBindedNodeByChilds(root, key4aggregateToParent, delimiter, keyToBeAggregate);
 	return rootOfTree;
 }
 
-Joiner.prototype.getBindedNodeByChilds = function (node, key4sumToParent,  delimiter) {
+Joiner.prototype.getBindedNodeByChilds = function (node, key4aggregateToParent,  delimiter, keyToBeAggregate) {
 	var childsKey = this.childsKey;
 	var childsToBind = this.getChildsToBindToNode(node);
 	if(_.isEmpty(childsToBind) ) return node;
 	else {
 		var newChildsToBind = []
 		
-		if(key4sumToParent) {var count = node[key4sumToParent] || 0}
+		// 집합 초기값 
+		if(key4aggregateToParent) { var value4aggregate = node[key4aggregateToParent] || 0 }
 		
 		for(var i in childsToBind) {
 			var newNode = childsToBind[i];
-			var newChild =  this.getBindedNodeByChilds(newNode, key4sumToParent, delimiter);
+			var newChild =  this.getBindedNodeByChilds(newNode, key4aggregateToParent, delimiter, keyToBeAggregate);
 			
-			if(key4sumToParent) { count = count + delimiter +newChild[key4sumToParent]}
+			if(key4aggregateToParent) {
+				var value4aggregateOfChild = newChild[key4aggregateToParent]
+				  , value4ToBeAggregateOfChild = newChild[keyToBeAggregate]
+				
+				//집합의 값을 위한 키와 저장을 위한 키가 다르다.
+				if(key4aggregateToParent != keyToBeAggregate) {
+					if(value4ToBeAggregateOfChild) value4aggregateOfChild = value4ToBeAggregateOfChild
+				}
+				
+				value4aggregate = value4aggregate + delimiter + value4aggregateOfChild
+			}
+			
 			
 			newChildsToBind.push(newChild);
 		}
 		
-		node[childsKey] = newChildsToBind;
+		node[childsKey] = newChildsToBind; //실제바인딩.
 		
-		if(key4sumToParent) { node[key4sumToParent] = count}
+		//집합의 값
+		if(key4aggregateToParent) { node[keyToBeAggregate] =  value4aggregate }
 		
 		return node;
 	}
@@ -147,14 +148,13 @@ Joiner.prototype.getChildsToBindToNode = function (node) {
 	  , referenceKey = this.referenceKey
 	  , childList = this.childList
 	  , hasRelation = this.hasRelation
-	  , hookChildToBind = this.hookChildToBind
 	
 	var childsToBindToNode = []
 	for(var i in childList) {
 		if(this.isCached(i)) continue;
 		var child = childList[i];
 		if(hasRelation(child[referenceKey], node[identifierKey]) ) {
-			childsToBindToNode.push(hookChildToBind(child, node));
+			childsToBindToNode.push(this.hookChildToBind(child, node));
 			this.cacheIndex(i);
 		}
 	}
@@ -170,10 +170,25 @@ Joiner.prototype.cacheIndex = function (index) {
 		this.cachedIndex[index] = true;
 	}
 }
+Joiner.prototype.hookChildToBind = function (child, node) {
+	var key4aggregateToChild = this.key4aggregateToChild
+	  , delimiter = this.delimiter
+	  , keyToBeAggregate = this.keyToBeAggregate
+	
+	if(!key4aggregateToChild) { return child; }
+	
+	var value4aggregateOfNode = node[key4aggregateToChild]
+	  , value4ToBeAggregateOfNode = node[keyToBeAggregate]
+	
+	//집합의 값을 위한 키와 저장을 위한 키가 다르다.
+	if(key4aggregateToChild != keyToBeAggregate) {
+		if(value4ToBeAggregateOfNode) value4aggregateOfNode = value4ToBeAggregateOfNode
+	}
+	
+	child[keyToBeAggregate] = value4aggregateOfNode + delimiter + child[key4aggregateToChild];
+	return child;
+}
 function _hasRelation(childValue, rootValue) {
 	if(U.equal(childValue, rootValue)) return true;
 	else return false;
-}
-function _hookChildToBind(child, node) {
-	return child;
 }

@@ -35,9 +35,10 @@ describe('answerService', function () {
 	describe('#getJoinedAnswers', function( ) {
 		it('should take realAnswers by postNum', function (nextTest) {
 			var errFn = H.testCatch1(nextTest);
-			answerService.getJoinedAnswers(new H.Done(dataFn, errFn), postNum);
+			answerService.getRootOfAnswerTree(new H.Done(dataFn, errFn), postNum);
 			
-			function dataFn(answers) {
+			function dataFn(root) {
+				var answers = root.answers
 				debug('joinedAnswers :', answers)
 				should.equal(answers[1].user, answers[1].answers.pop().user)
 				var lowAnswer = answers[1].answers[0]
@@ -48,8 +49,9 @@ describe('answerService', function () {
 		})
 		it('should take emptyanswer by wrong answerNum', function (nextTest) {
 			var errFn = H.testCatch1(nextTest);
-			answerService.getJoinedAnswers(new H.Done(dataFn, errFn), 22);
-			function dataFn(e_answers) {
+			answerService.getRootOfAnswerTree(new H.Done(dataFn, errFn), 22);
+			function dataFn(root) {
+				var e_answers = root.answers
 				debug('answers empty ',e_answers)
 				should.equal(e_answers.length,0);
 				nextTest();

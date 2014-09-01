@@ -64,6 +64,8 @@ User.prototype.isEqualById = function (userId) {
 	if (this.isExist() && (this._id == userId) ) return true;
 	else return false;
 }
+
+//..이건 익명판별을 하게 만들었으니 없어져야해.
 User.prototype.isExist = function () {
 	if(this._id == null || this.name == null) return false;
 	else return true;

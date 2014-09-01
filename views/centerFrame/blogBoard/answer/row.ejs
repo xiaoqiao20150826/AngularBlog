@@ -10,14 +10,14 @@
 		console.log(user._id)
 		if(user.isAnnoymous()) {
 	%>	
-		<a href="/answer/delete?num=<%=answer.num %>&postNum=<%=answer.postNum %>&userId=<%=answer.userId%>" class="pull-right">
+		<a href="javascript:" class="pull-right answer-delete" data-currentnum='<%=answer.num %>' data-userid='<%=answer.userId %> ' data-writer='<%= answer.writer || "" %> ' data-postnum='<%= answer.postNum%>'  data-includednums='<%= answer.includedNums || ""%>' >
 			<i class="glyphicon glyphicon-remove"></i>
 		</a>
 		<a type="button" href='javascript:' class="answer-updateView pull-right"  data-currentnum='<%=answer.num %>' >
 			<i class="glyphicon glyphicon-edit"></i>
 		</a>
 	<% } else if(loginUser.isEqualById(user._id)){ %>	
-		<a href="/answer/delete?num=<%=answer.num %>&postNum=<%=answer.postNum %>&userId=<%=answer.userId%>" class="pull-right">
+		<a href="javascript:" class="pull-right answer-delete" data-currentnum='<%=answer.num %>' data-userid='<%=answer.userId %>' data-writer='<%= answer.writer || ""%>' data-postnum='<%= answer.postNum%>' data-includednums='<%= answer.includedNums || "" %>' >
 			<i class="glyphicon glyphicon-remove"></i>
 		</a>
 		<a type="button" href='javascript:' class="answer-updateView pull-right"   data-currentnum='<%=answer.num %>' >
@@ -26,7 +26,7 @@
 	
 	<% } %>
 	
-		<a type="button" href='javascript:' data-currentnum='<%=answer.num %>' class="pull-right answer-replyView" >
+		<a type="button" href='javascript:' data-currentnum='<%=answer.num %>' class="pull-right answer-insertView" >
 			replay
 		</a>
 		

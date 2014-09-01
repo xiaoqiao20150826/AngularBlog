@@ -113,26 +113,12 @@ describe('aAnswerDAO', function() {
 			a_answer.content = 'content_update';
 			
 			answerDAO.update(new H.Done(dataFn), a_answer);
-			function dataFn(bool) {
-				should.equal(bool, success);
+			function dataFn(status) {
+				should.equal(status.isSuccess(), success);
 				answerDAO.findByNum(new H.Done(dataFn2), num);
 				function dataFn2(model) {
 					var e_answer = Answer.createBy(model);
 					_equals(a_answer, e_answer);
-					nextCase();
-				}
-			}
-		});
-		it('should increase vote', function(nextCase) {
-			var num = 2, success = 1
-				,testArray = [num, num, num, num]
-				,a_count=testArray.length;
-			H.asyncLoop(testArray,answerDAO.incVote, new H.Done(dataFn));
-			function dataFn() {
-				answerDAO.findByNum(new H.Done(dataFn2), num);
-				function dataFn2(model) {
-					var e_answer = Answer.createBy(model);
-					should.equal(a_count, e_answer.vote);
 					nextCase();
 				}
 			}

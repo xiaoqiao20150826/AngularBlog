@@ -40,15 +40,14 @@ categoryService.getRootOfCategoryTree = function (done, allCategories) {
 		return dataFn(rootOfTree)
 	 }
 }
-categoryService.categoriesToTree = function (categories, key4sumTo, delimiter, isToChild) {
+categoryService.categoriesToTree = function (categories, key4aggregate, delimiter, isToChild) {
 	var isToChild = isToChild || false;
 	var root = Category.makeRoot()
-	  , categoryJoiner = Category.getJoiner4sumTo(categories, key4sumTo, delimiter, isToChild)
-	  
+	  , categoryJoiner = new Joiner(categories, 'parentId', 'categories')
+	categoryJoiner.setKey4aggregate(key4aggregate, delimiter, null, isToChild) 
+	
 	root = categoryJoiner.findNode(root)
-	var rootOfTree = categoryJoiner.treeTo(root)
-//	debug('getRootOfCategoryTree : ',rootOfTree)
-	return rootOfTree
+	return categoryJoiner.treeTo(root, 'id')
 } 
 
 

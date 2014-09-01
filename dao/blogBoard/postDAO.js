@@ -174,7 +174,8 @@ postDAO.increaseAnswerCount = function(done, num) {
 	_update(done, where, data);
 };
 postDAO.decreaseAnswerCount = function(done, num, answerCount) {
-	var minusAnswerCount = _minusNumber(answerCount);
+	var answerCount = answerCount || 1
+	  , minusAnswerCount = _minusNumber(answerCount);
 	var where = {num : num}
 	,data = {$inc:{answerCount:minusAnswerCount}};
 	_update(done, where, data);

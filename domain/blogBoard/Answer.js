@@ -3,6 +3,7 @@
 var _ = require('underscore')
 var H = require('../../common/helper.js')
 
+var User = require('../User.js')
 //////////////////
 var Answer = module.exports = function Answer() {
 	var o = Answer.getSchema();
@@ -17,7 +18,7 @@ var Answer = module.exports = function Answer() {
 Answer.createBy= function(model) {
 	if(model == null) return new Answer(); 
 	else return H.createTargetFromSources(Answer, model, function(answer) {
-		if(!(H.exist(answer.userId))) answer.userId = 'annoymous';
+		if(!(H.exist(answer.userId))) answer.userId = User.ANNOYMOUS_ID;
 	});
 };
 
@@ -75,7 +76,7 @@ Answer.prototype.setAnswers = function(answers) {
 }
 //writer가있으면.
 Answer.prototype.isAnnoymous = function() {
-	if(H.exist(this.writer)) return true;
+	if(H.exist(this.writer) || this.userId == User.ANNOYMOUS_ID) return true;
 	else return false;
 }
 Answer.prototype.hasNotData4annoymous = function () {

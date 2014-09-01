@@ -44,8 +44,8 @@ answerDAO.removeAllByPostNum = function (done, postNum) {
 	_remove(done, where);
 };
 //댓글의 댓글까지 삭제.
-answerDAO.removeAllOfNum = function (done, answerNum) {
-	var where = {$or : [{num: answerNum}, {answerNum: answerNum} ]}
+answerDAO.removeAllOfNum = function (done, allNums) {
+	var where = {num: {$in : allNums} }
 	_remove(done, where);
 };
 answerDAO.removeAll = function (done) {
@@ -125,11 +125,6 @@ answerDAO.update = function(done, answer) {
 			   , writer: answer.writer 
 			   }
 	
-	_update(done, where, data);
-};
-answerDAO.incVote = function(done, num) {
-	var where = {num : num}
-		,data = {$inc:{vote:1}};
 	_update(done, where, data);
 };
 // private

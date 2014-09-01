@@ -74,7 +74,7 @@ blogBoardService.getJoinedPostsByUsersAndCategories = function (done, posts, all
 
 	var userIds = Post.getUserIds(posts)
 	
-	//side-effect : 모든 자식의 title을 부모로 모으기 위함.
+	//side-effect : 루트부터..자식을 향해서.  모든 title을 모음
 	var isToChild = true
 	categoryService.categoriesToTree(allCategories, 'title', ' > ', isToChild) 
 	

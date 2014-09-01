@@ -21,7 +21,7 @@ var testSuites = [
                   , './common/utilTest.js'
                   , './common/scriptletUtilTest.js'
                   
-                  , './domain/JoinerTest.js'
+                  , './dao/util/JoinerTest.js'
                   
                   , './dao/seqTest.js'
                   , './dao/postTest.js'

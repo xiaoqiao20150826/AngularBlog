@@ -4,7 +4,6 @@
 var _ = require('underscore');
 var H = require('../../common/helper.js');
 
-var Joiner = require('../../dao/util/Joiner')
 
 var ROOT_ID = 'root'
 var Category = module.exports = function () {
@@ -38,19 +37,6 @@ Category.getAllId = function () {
 Category.isRoot = function(categoryId) {
 	if(categoryId == Category.rootId || categoryId == ROOT_ID || _.isEmpty(categoryId)) return true;
 	else return false;
-}
-
-Category.getJoiner4sumToChild = function getJoiner4sumToChild(categories, key4sumTo, delimiter) {
-	return Category.getJoiner4sumTo(categories, key4sumTo, delimiter, true)
-}
-Category.getJoiner4sumToParent = function (categories, key4sumTo, delimiter) {
-	return Category.getJoiner4sumTo(categories, key4sumTo, delimiter, false)
-}
-Category.getJoiner4sumTo = function (categories, key4sumTo, delimiter, isToChild) { 
-	var categoryJoiner = new Joiner(categories, 'parentId', 'categories')
-	categoryJoiner.setIdentifierKey('id')
-	categoryJoiner.setKey4sumTo(key4sumTo, delimiter, isToChild)
-	return categoryJoiner
 }
 
 

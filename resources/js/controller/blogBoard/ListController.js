@@ -153,28 +153,7 @@ ListController.prototype.clickInsertViewBtn1 = function(listView) {
 		
 		return e.preventDefault(); //버블링방지
 	}
-}
-
-	
-	
-	
-//	listController.increaseVote = function (e, app) {
-//		var ds = this.dataset
-//		  , data = {userId:ds.userid, postNum:ds.postnum}
-//		
-//		H.ajaxCall(dataFn, "post","/ajax/increaseVote", data)
-//		return e.preventDefault();
-//		
-//		function dataFn(message) {
-//			blogDetailView.increaseOrNone(message)
-//			var $voteButton = blogDetailView.get$voteButton()
-//			$voteButton.unbind('click')
-//			app.onClick($voteButton, function() {
-//				blogDetailView.alreadyVote()
-//			});
-//		}
-//	}
-	
+}	
 });
 
 //@ sourceURL=/controller/blogBoard/ListController.js

@@ -35,6 +35,9 @@ $$namespace.include(function(require, module){
 		all$btns.removeClass(effectClass);
 		$btn.addClass(effectClass);
 	}
+	//
+	viewUtil.removeAllActive = function ($allBtns) { $allBtns.removeClass(CLASS_ACTIVE); } 
+	viewUtil.removeAllBgColor = function ($allBtns) { $allBtns.removeClass(CLASS_BG_COLOR); } 
 	
 	viewUtil.equalNodeName = function (node, nodeName) {
 		if(node.nodeName && node.nodeName == nodeName) return true;

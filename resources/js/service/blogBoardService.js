@@ -27,6 +27,11 @@ $$namespace.include(function (require, module ) {
 	blogBoardService.initPager = function () {
 		blogRepository.initPager();
 	}
+	//이름요상한
+	blogBoardService.getFirstListHtml = function (done) {
+		blogRepository.init()
+		blogBoardService.getListHtml(done)
+	}
 	blogBoardService.getListHtml = function (done) {
 		var blogMap = blogRepository.getBlogMap()
 		  , tab = blogMap.tab
@@ -37,6 +42,7 @@ $$namespace.include(function (require, module ) {
 		requestData.sorter = tab.sorter
 		requestData.pageNum = pager.pageNum
 		requestData.categoryId = category.id
+		console.log('요청',category)
 		ajax.call(dataFn,"/blogBoard/List", requestData);
 		function dataFn(html) {
 			return done(html)

@@ -47,7 +47,7 @@ $$namespace.include(function(require, module) {
 					reStarter.listOfBlogBoard()
 				}, url);
 			} 
-			navView.assignEffect($navBtn)
+			navView.assignEffect($navBtn) // 클릭된 버튼으로 직접 효과를 부여하기에 상태저장안해도됨.
 			return e.preventDefault(); //버블링방지
 		} 
 	}
