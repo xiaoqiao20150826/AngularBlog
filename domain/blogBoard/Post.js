@@ -37,24 +37,30 @@ Post.createBy= function(model) {
 };
 
 Post.getUserIds = function (posts) {
-	var result = [];
-	var key = 'userId';
-	for(var i in posts) {
-		var post = posts[i];
-		if(H.exist(post[key])) {
-			result.push(post[key]);
-		}
-	}
-	return result;
+	return _findValuesAboutKey(posts, 'userId')
 }
+Post.getNums = function (posts) {
+	return _findValuesAboutKey(posts, 'num')
+}
+Post.getFilePaths = function (posts) {
+	var values = _findValuesAboutKey(posts, 'filePaths')
+	return _.compact(_.flatten(values))
+}
+//post에 categoryId 조인할때
 Post.getCategoryIds = function (posts) {
+	return _findValuesAboutKey(posts, 'categoryId')
+}
+//delete할때.
+Post.getCategoryIdAndCountMap = function (posts) {
+	var categoryIds = Post.getCategoryIds(posts)
+	return _.countBy(_.compact(categoryIds))
+}
+function _findValuesAboutKey(posts, key) {
 	var result = [];
-	var key = 'categoryId';
 	for(var i in posts) {
-		var post = posts[i];
-		if(H.exist(post[key])) {
-			result.push(post[key]);
-		}
+		var post = posts[i]
+		  , value = post[key]
+		if(H.exist(value) ) { result.push(value); }
 	}
 	return result;
 }

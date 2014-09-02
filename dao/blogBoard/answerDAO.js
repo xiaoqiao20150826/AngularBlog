@@ -42,7 +42,11 @@ answerDAO.removeByUserId = function (done, userId) {
 	var where = {'userId': userId}
 	_remove(done, where);
 };
-
+answerDAO.removeByPostNums = function (done, postNums) {
+	var where = {postNum: {$in : postNums} }
+	_remove(done, where);
+};
+//이거사용하나요.
 answerDAO.removeAllByPostNum = function (done, postNum) {
 	var where = { postNum: postNum}
 	_remove(done, where);

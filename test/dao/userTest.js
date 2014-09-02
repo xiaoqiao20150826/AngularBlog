@@ -85,12 +85,12 @@ describe('userDAO', function() {
 			}
 		});
 	});
-	describe('$findOrCreateByUser', function() {
+	describe('$findOrCreate', function() {
 		it('should take count with where', function(nextTest) {
 			var passportData = {_id : 'id999' , name : 'name999', photo : 'photo999', email : 'email', provider : 'provider'}
 			var a_user = User.createBy(passportData);
 			
-			userDAO.findOrCreateByUser(new H.Done(dataFn, H.testCatch1(nextTest)), a_user);
+			userDAO.findOrCreate(new H.Done(dataFn, H.testCatch1(nextTest)), a_user);
 			function dataFn(user) {
 				_equals(a_user, user);
 				nextTest();
@@ -117,11 +117,10 @@ describe('userDAO', function() {
 			a_user.email = 'update_email';
 			
 			userDAO.update(new H.Done(dataFn), a_user);
-			function dataFn(bool) {
-				should.equal(bool, success);
+			function dataFn(status) {
+				should.equal(status.isSuccess(), true);
 				userDAO.findById(new H.Done(dataFn2), a_user._id);
-				function dataFn2(model) {
-					var e_user = User.createBy(model);
+				function dataFn2(e_user) {
 					_equals(a_user, e_user);
 					nextTest();
 				}

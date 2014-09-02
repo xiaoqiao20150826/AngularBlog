@@ -148,7 +148,7 @@ blogBoardService.insertPostAndIncreaseCategoryCount = function(done, post, file)
    	 })
 	 .catch(errFn);
 };
-
+//단일
 blogBoardService.deletePost = function (done, postNum) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn()
@@ -180,6 +180,45 @@ blogBoardService.deletePost = function (done, postNum) {
 		 return dataFn(errorStatus)
 	 })
 }
+
+//다중
+blogBoardService.deletePostsByUserId = function (done, userId) {
+	var dataFn = done.getDataFn()
+	  , errFn = done.getErrFn()
+	  , successStatus = Status.makeSuccess()
+	  , errorStatus = Status.makeError()
+	  
+	//포스트들과 그 댓글들, 파일들 삭제 하고 관련된 카테고리 감소.
+	return H.call4promise(postDAO.findByUserId, userId)
+	.then(function(posts){
+			if(_.isEmpty(posts)) return dataFn(successStatus);
+			
+			var postNums = Post.getNums(posts)
+			  , filePaths = Post.getFilePaths(posts)
+			  , categoryIdAndCountMap = Post.getCategoryIdAndCountMap(posts)
+			
+			return H.all4promise([
+			                        [postDAO.removeByUserId, userId]
+			                      , [answerDAO.removeByPostNums, postNums]
+			                      , [localFile.deleteFiles, filePaths]
+			                      , [categoryDAO.decreasePostCountByIdAndCountMap, categoryIdAndCountMap]
+			                      ])
+		})
+		.then(function (statuses) {
+			debug('#deletePostByUserId statusMap', statuses)
+			if(_.isEmpty(statuses)) return dataFn(Status.makeError('not exist to delete some'))
+			
+			for(var i in statuses) {
+				var status = statuses[i]
+				if(status.isError()) return dataFn(status.appendMessage('#deletePostByUserId' + i +' delete fail')) 
+			}
+			return dataFn(successStatus)
+		})
+		.catch(function eachErrFn(err) {
+			return dataFn(Status.makeError('#deletePostByUserId' + err))
+		})
+}
+
 
 blogBoardService.updatePostAndCategoryId = function (done, post, originCategoryId) {
 	var dataFn = done.getDataFn()

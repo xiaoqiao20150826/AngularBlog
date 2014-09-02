@@ -77,6 +77,10 @@ postDAO.findByNum = function (done, num) {
 	var where = {'num': num};
 	postDAO.findOne(done, where)
 };
+postDAO.findByUserId = function (done, userId) {
+	var where = {'userId': userId};
+	postDAO.find(done, where)
+};
 postDAO.findOne = function (done, where, select) {
 	done.hook4dataFn(Post.createBy);
 	var where = where || {}

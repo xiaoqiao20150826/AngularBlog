@@ -45,7 +45,7 @@ asyncSuporter.asyncLoop = function (someList ,contextAndAsyncFn, done) {
 
 /* promise 사용위한 랩퍼 */
 //then, catch로 외부에서 콜백함수를(doneFn, errFn) 을 받는다.
-//asyncFn(callback , args.... ) 이런 형태의 함수에 사용.
+	//asyncFn(callback , args.... ) 이런 형태의 함수에 사용.
 asyncSuporter.call4promise = function (contextAndAsyncFn /*...args*/) {
 	var args = _.toArray(_.rest(arguments));
 	var context, asyncFn;

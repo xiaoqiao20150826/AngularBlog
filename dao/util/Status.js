@@ -61,4 +61,5 @@ Status.prototype.getMessage = function () {
 }
 Status.prototype.appendMessage = function (message) {
 	if(this.message) this.message = this.message + '   '+ message
+	return this
 }

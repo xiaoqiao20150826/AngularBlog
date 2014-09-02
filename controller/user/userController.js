@@ -14,6 +14,7 @@ var User = require('../../domain/User')
   , answerDAO = require('../../dao/blogBoard/answerDAO')
   , postDAO = require('../../dao/blogBoard/postDAO')
 var categoryService = require('../../service/blogBoard/categoryService')
+  , blogBoardService = require('../../service/blogBoard/blogBoardService')
   
 var userController = module.exports = {}
 userController.mapUrlToResponse = function(app) {
@@ -95,9 +96,10 @@ userController.update = function (req,res) {
 	 .catch(redirector.catch)
 }
 //TODO: 글,댓글 살리고 싶으면 탈퇴회원 미리 만들어서 그 정보로 변경 시켜.
-//TODO:파일도 삭제해야해. 유저폴더에 있는 파일전부...!
-//post정보도 삭제. ㅡㅡ 카테고리.
+//      err시 되돌리기....를 생각하면 더 어려워진다.
 
+// answer, post별개로 삭제한 이유는 혹시나 비동기 행동으로 인해 
+// 이미 지운것을 또 지우려할때 에러날까봐. (아닌가. 없는것을 지우려하는것은 괜찮긴한데)
 userController.delete = function (req,res) {
 	var redirector = new Redirector(res)
 	var loginUser = requestParser.getLoginUser(req)
@@ -105,18 +107,28 @@ userController.delete = function (req,res) {
 	, userId = rawData.userId
 	
 	if(loginUser.isNotEqualById(userId)) return redirector.main()
-	H.call4promise(userDAO.removeById, userId)
+	
+	H.call4promise(userDAO.removeById, userId) //
 	 .then(function (status) {
-		if(status.isError()) return  res.send('remove fail')
-		
-		return H.all4promise([
-		                       [postDAO.removeByUserId, userId]  
-		                     , [answerDAO.removeByUserId, userId]
-		                    ])
+		if(status.isError()) 
+			return status.appendMessage('failed remove user');
+		else
+			return H.call4promise(blogBoardService.deletePostsByUserId, userId)
 	})
-	.then(function (args) {
+	.then(function(status){ 
+		if(status.isError()) 
+			return status.appendMessage('failed remove post');
+		else
+			return H.call4promise(answerDAO.removeByUserId, userId)
+	})
+	.then(function (status) {
+		if(status.isError()) {
+			status.appendMessage('failed remove answer')
+			console.log(status.getMessage()); //현재는 메시지만 기록하고 아래단계로감.
+		}
+		
 		req.session.passport.user = null
-		redirector.main()	
+		return redirector.main()	
 	})
 	.catch(redirector.catch)
 }

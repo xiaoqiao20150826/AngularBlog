@@ -172,6 +172,43 @@ categoryDAO.decreasePostCountById = function(done, id) {
 	
 	_update(done, where, data);
 };
+
+categoryDAO.decreasePostCountByIdAndCountMap = function(done, idAndCountMap) {
+	var dataFn = done.getDataFn()
+	  , successStatus = Status.makeSuccess()
+	  , categoryIds = _.keys(idAndCountMap)
+	  
+	var idAndCountList = _.map(categoryIds, function(v, i){
+		return {id : v, count : idAndCountMap[v]}
+	})
+	debug('idAndCountList', idAndCountList)  
+	H.asyncLoop(idAndCountList , categoryDAO.decreasePostCountByIdAndCount, new Done(lastCallback, eachErrFn))
+	
+	function lastCallback(statuses) {
+		if(_.isEmpty(statuses)) return dataFn(successStatus)
+		
+		for(var i in statuses) {
+			var status = statuses[i]
+			if(status.isError()) return dataFn(status.appendMessage('category'+i+' delete fail')) 
+		}
+		
+		return dataFn(successStatus)
+	}
+	function eachErrFn(err) {
+		return dataFn(Status.makeError('err :'+ err))
+	}
+};
+categoryDAO.decreasePostCountByIdAndCount = function(done, idAndCount) {
+	var where = {_id : idAndCount.id}
+	  , data = {$inc : {postCount : (idAndCount.count * -1) }};
+	var dataFn = done.getDataFn()
+	done.setErrFn(function (err) {
+		return dataFn(Status.makeError('$decreasePostCountByIdAndCount faile', err))
+	})
+	_update(done, where, data);
+};
+
+
 categoryDAO.updateTitleByCategory = function(done, category, newTitle) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();

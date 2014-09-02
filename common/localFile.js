@@ -121,38 +121,38 @@ localFile.deleteFileAndDeleteFolderIfNotExistFile = function (done, filePath) {
 	        .catch(errFn)
 }
 
+//
 localFile.deleteFiles = function (done, filePaths) {
 	var dataFn = done.getDataFn()
 	  , successStatus = Status.makeSuccess()
-	  , errorStatus = Status.makeError()
+	  
 	H.asyncLoop(filePaths , localFile.delete, new Done(lastCallback, eachErrFn))
 	
 	function lastCallback(statues) {
 		debug('deleteFiles statues : ', statues)
 		if(_.isEmpty(statues)) return dataFn(successStatus)
 		
-		_.each(statues, function (status,i) {
-			if(status.isError()) return dataFn(errorStatus) 
-		})
+		for(var i in statues) {
+			var status = statues[i] 
+			if(status.isError()) { return dataFn(status.appendMessage('file'+i+' delete fail')) }
+		}
 		
 		return dataFn(successStatus)
 	}
 	function eachErrFn(err) {
-		return dataFn(errorStatus)
+		return console.error('should not call', err)
 	}
 }
 localFile.delete = function(done, fileUrl) {
 	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn()
-	  
-	done.hook4dataFn(function () { return Status.makeSuccess('success.. no arg')})
+	
+	done.hook4dataFn(function () { return Status.makeSuccess('success')})
 	done.setErrFn(errFn4notFoundFile)  
 	function errFn4notFoundFile(err) {
 		if(err) {
-			if (err.code == 'ENOENT')  
-				return dataFn(Status.makeError('fail'));
-			else 
-				return errFn(err); 
+			if (err.code == 'ENOENT')  return dataFn(Status.makeError('fail'));
+			
+			return dataFn(Status.makeError('err : ', err) ); 
 		}
 	}
 	
