@@ -18,7 +18,7 @@
 
 var config = module.exports = {};
 //공통 설정.
-config.port = 3000;
+config.port = process.env.PORT || 3000; //
 config.rootDir = __dirname;
 config.imgDir = __dirname + '\\resources\\img';
 
