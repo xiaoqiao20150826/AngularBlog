@@ -7,7 +7,7 @@ var oauthConfig = module.exports = {
 		param : {
 			clientID : passportConfig.facebook.id,
 			clientSecret : passportConfig.facebook.secret,
-			callbackURL : passportConfig.host + "/auth/facebook/callback",
+			callbackURL : config.host + "/auth/facebook/callback",
 			scope : ['read_stream', 'email'] ,
 			profileFields : ['id', 'displayName', 'gender', 'photos', 'emails']  
 		}
@@ -17,7 +17,7 @@ var oauthConfig = module.exports = {
 		param : {
 			consumerKey : passportConfig.twitter.id,
 			consumerSecret : passportConfig.twitter.secret,
-			callbackURL : passportConfig.host + "/auth/twitter/callback",
+			callbackURL : config.host + "/auth/twitter/callback",
 		}
 	},
 	github : {
@@ -25,7 +25,7 @@ var oauthConfig = module.exports = {
 		param : {
 			clientID : passportConfig.github.id,
 			clientSecret : passportConfig.github.secret,
-			callbackURL : passportConfig.host + "/auth/github/callback",
+			callbackURL : config.host + "/auth/github/callback",
 			scope : 'user'
 		}
 	},
@@ -34,7 +34,7 @@ var oauthConfig = module.exports = {
 		param : {
 			clientID: passportConfig.google.id,
 		    clientSecret: passportConfig.google.secret,
-		    callbackURL : passportConfig.host + "/auth/google/callback",
+		    callbackURL : config.host + "/auth/google/callback",
 		    scope : [
 		             'https://www.googleapis.com/auth/userinfo.profile',
 		             'https://www.googleapis.com/auth/userinfo.email'
@@ -46,7 +46,7 @@ var oauthConfig = module.exports = {
 		param : {
 			clientID: passportConfig.linkedin.id,
 		    clientSecret: passportConfig.linkedin.secret,
-		    callbackURL: passportConfig.host + "auth/linkedin/callback",
+		    callbackURL: config.host + "/auth/linkedin/callback",
 		    scope: ['r_emailaddress', 'r_basicprofile']
 		}
 	}

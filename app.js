@@ -14,7 +14,6 @@ var _config = require('./config.js')
 //  - 미들웨어는 요청에 대한 처리 후 다음에 전달.
 app.configure(function () {
 	app.use(express.favicon());
-	app.use(express.logger('dev'));    //
 	app.use(express.bodyParser());     //form 전송시 분석.
 	app.use(express.methodOverride()); //post _method 골라줌.
 	/////////////////////session 및 passport////////////////////////////////////////
@@ -51,6 +50,9 @@ app.configure(function () {
 
 //4. 개발모드일 경우만 에러 핸들러 추가.
 app.configure(_config.mode, function () {
+	if(_config.mode == 'production') {
+		app.use(express.logger('production'));    //
+	}
 	app.use(express.errorHandler());
 })
 

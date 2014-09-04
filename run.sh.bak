@@ -1,0 +1,24 @@
+#! /bin/sh -x
+
+# exec variable
+export NODE_ENV=test
+
+# passport
+export PASSPORT_FACEBOOK_ID=717438024968384
+export PASSPORT_FACEBOOK_SECRET=dc50031853d3c00c25b3a69a2116728d
+
+export PASSPORT_TWITTER_ID=1RdSoEtx7gF6HpqQHIVfIl9Sp
+export PASSPORT_TWITTER_SECRET=CKyCUFIL7KGlOZet69ViKC4VWAde74tqjCsudNoY5Nq0DP1TMg
+
+export PASSPORT_GITHUB_ID=7203d6d7fcbda1a3cb74
+export PASSPORT_GITHUB_SECRET=ca91ff48fdf358639d51a5c9056e7ad8ac5cebc3
+
+export PASSPORT_GOOGLE_ID=917517471539-ook27tnh8jogllbluonvbj23uqgp5am4.apps.googleusercontent.com
+export PASSPORT_GOOGLE_SECRET=00tjJUoikbHDYURoXpqmFLhG
+
+export PASSPORT_LINKEDIN_ID=75bnyvlr8v938l
+export PASSPORT_LINKEDIN_SECRET=6lTauQ9Bhf7asQaC
+
+
+DEBUG=nodeblog:* node --debug-brk app
+exit 0

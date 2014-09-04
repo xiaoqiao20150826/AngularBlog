@@ -52,11 +52,11 @@ config.mode = _env.NODE_ENV || DEVELOPMENT;
 		}
 	else if(config.mode == DEVELOPMENT) {
 		config.db = 'mongodb://localhost/nodeblog';  
-		config.host = 'http://localhost' + ':' + config.port
+		config.host = 'http://nodeblog.com' + ':' + config.port
 		}
 	else {
 		config.db = 'mongodb://localhost/test';
-		config.host = 'http://localhost' + ':' + config.port
+		config.host = 'http://nodeblog.com' + ':' + config.port
 	}
 	
 	console.log('mode is '+ config.mode)
