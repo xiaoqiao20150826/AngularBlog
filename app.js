@@ -63,12 +63,17 @@ var server = http.createServer(app).listen(_config.port, function() {
 		var H = require('./common/helper')
 		var initDataCreater = require('./initDataCreater')
 		
+		console.log('_config.db', _config.db)
 		H.call4promise(initDataCreater.create)
 		 .then(function dataFn () {
+			 	console.log('--------- start success ----------')
 				console.log('Express server listening on port ' + _config.port);
 				console.log('db :  ' + _config.db);	
 		 })
-		 .catch(function(err) {console.error(err,new Error().stack)})
+		 .catch(function(err) {
+			 console.log('---- db error-----')
+			 console.error(err,new Error().stack)
+		 })
 	});
 });
 

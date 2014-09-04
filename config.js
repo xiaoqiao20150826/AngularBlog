@@ -24,8 +24,8 @@ config.rootDir = __dirname;
 config.imgDir = __dirname + '\\resources\\img';
 
 //mongolab
-config.mongolabId = _env.MONGOLAB_ID || ''
-config.mongolabPw = _env.MONGOLAB_PW || ''
+config.mongolabId = _env.MONGOLAB_ID
+config.mongolabPw = _env.MONGOLAB_PW
 
 //passport api key
 config.passport = {}
@@ -55,7 +55,7 @@ config.mode = _env.NODE_ENV || DEVELOPMENT;
 		config.host = 'http://elfmagic86.herokuapp.com';
 		}
 	else {
-		config.db = 'mongodb://localhost/test';
+		config.db = 'mongodb://localhost/test';  
 		config.host = 'http://nodeblog.com' + ':' + config.port
 	}
 	
