@@ -24,7 +24,7 @@ pathUtil.getLocalFilePath = function (userId, fileName) {
 	return config.imgDir + '/'+ userId + '/'+ fileName
 }
 pathUtil.getUrlByLocalFilePath = function (localPath) {
-	localPath = localPath.replace(/\\/g, '/')
+	var localPath = localPath.replace(/\\/g, '/')
 	
 	var url = localPath.slice(localPath.indexOf('/resource'))
 	return url;
