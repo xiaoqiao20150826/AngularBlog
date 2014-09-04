@@ -63,18 +63,25 @@ localFile.read = function(done, fileUrl, option) {
 }
 localFile.copyNoThrow = function(done, fromFileUrl, toFileUrl, option) {
 	var dataFn = done.getDataFn();
-	done.setErrFn(function() {
+	done.setErrFn(function(err) {
+		debug('copyNoThrow err', err)
 		dataFn(null);
+		
 	})
 	localFile.copy(done, fromFileUrl, toFileUrl, option)
 }
 
 localFile.copy = function(done, fromFileUrl, toFileUrl, option) {
+	var dataFn = done.getDataFn();
 	H.call4promise(localFile.read, fromFileUrl, option)
 	 .then(function(data) {
 //		 이미지를 읽을때 debug하면 무한반복됨. 이게 뭔일이냐.
 //		 debug('read data :', data)
-		 localFile.createEx(done, toFileUrl, data, option);
+		 debug('fromFileUrl and data is exist', fromFileUrl  )
+		 if(H.notExist(data)) 
+			 return dataFn(null)
+		 else 
+			 return localFile.createEx(done, toFileUrl, data, option);
 	 })
 	 .catch(done.getErrFn());
 }
