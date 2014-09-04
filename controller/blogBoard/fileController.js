@@ -36,7 +36,7 @@ var fileController = module.exports = {
  		if(!localFile.existFile(file)) return dataFn(null);
  		//file저장 및 업데이트.
  		var urls = pathUtil.getToAndFromFileUrl(file, userId);
- 		
+ 		debug('upload file urls', urls)
 		H.call4promise(localFile.copyNoDuplicate, urls.from , urls.to, type)
 		 .then(function(savedFileUrl) {
 			debug('saved file url : ', savedFileUrl)
