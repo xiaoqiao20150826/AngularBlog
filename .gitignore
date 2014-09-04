@@ -25,6 +25,4 @@ build/Release
 node_modules
 
 # api keys and secrets
-common/auth/oauth-config.js
-config.js
-
+*.sh

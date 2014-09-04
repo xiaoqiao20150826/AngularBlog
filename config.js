@@ -17,27 +17,50 @@
 
 
 var config = module.exports = {};
+var _env = process.env
 //공통 설정.
-config.port = process.env.PORT || 3000; //
+config.port = _env.PORT || 3000; //
 config.rootDir = __dirname;
 config.imgDir = __dirname + '\\resources\\img';
+
+//mongolab
+config.mongolabId = _env.MONGOLAB_ID || ''
+config.mongolabPw = _env.MONGOLAB_PW || ''
+
+//passport api key
+config.passport = {}
+config.passport.facebook = {'id' : _env.PASSPORT_FACEBOOK_ID, 'secret': _env.PASSPORT_FACEBOOK_SECRET}
+config.passport.twitter = {'id' : _env.PASSPORT_TWITTER_ID, 'secret': _env.PASSPORT_TWITTER_SECRET}
+config.passport.github = {'id' : _env.PASSPORT_GITHUB_ID, 'secret': _env.PASSPORT_GITHUB_SECRET}
+config.passport.google = {'id' : _env.PASSPORT_GOOGLE_ID, 'secret': _env.PASSPORT_GOOGLE_SECRET}
+config.passport.linkedin = {'id' : _env.PASSPORT_LINKEDIN_ID, 'secret': _env.PASSPORT_LINKEDIN_SECRET}
 
 // sequenceId
 config.sequenceIdMap = {}
 config.sequenceIdMap.post = 'post'
 config.sequenceIdMap.answer = 'answer'
 	
-//모드에 따라 달라지는 설정.
+// 환경변수 mode에 따라 config 값을 변화시킨다.
 var PRODUCTION = 'production'
   , DEVELOPMENT = 'development'
-  , TEST = 'test';
+  , TEST = 'test'
+config.mode = _env.NODE_ENV || DEVELOPMENT;
 (function () {
-	config.mode = process.env.NODE_ENV || DEVELOPMENT;
-	console.log(config.mode+ ' mode');
-	if(config.mode == PRODUCTION) {config.db = ' mongodb://asdf:asdf@ds035310.mongolab.com:35310/nodeblog'}
-	else if(config.mode == DEVELOPMENT) {config.db = 'mongodb://localhost/nodeblog';  }
+	if(config.mode == PRODUCTION) {
+		config.db = 'mongodb://'+config.mongolabId+':'+config.mongolabPw+'@ds035310.mongolab.com:35310/nodeblog'
+		config.host = 'http://elfmagic86.herokuapp.com';
+		}
+	else if(config.mode == DEVELOPMENT) {
+		config.db = 'mongodb://localhost/nodeblog';  
+		config.host = 'http://localhost' + ':' + config.port
+		}
 	else {
 		config.db = 'mongodb://localhost/test';
+		config.host = 'http://localhost' + ':' + config.port
 	}
+	
+	console.log('mode is '+ config.mode)
+	console.log('db is '+ config.db)
+	console.log('host is '+ config.host)
 })()
 
