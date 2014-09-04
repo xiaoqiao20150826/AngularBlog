@@ -28,15 +28,16 @@ config.sequenceIdMap.post = 'post'
 config.sequenceIdMap.answer = 'answer'
 	
 //모드에 따라 달라지는 설정.
-var DEVELOPMENT = 'development'
+var PRODUCTION = 'production'
+  , DEVELOPMENT = 'development'
   , TEST = 'test';
 (function () {
 	config.mode = process.env.NODE_ENV || DEVELOPMENT;
 	console.log(config.mode+ ' mode');
-	if(config.mode == DEVELOPMENT) {
-		config.db = ' mongodb://asdf:asdf@ds035310.mongolab.com:35310/nodeblog'
-	} else if(config.mode == TEST) {
-		config.db = 'mongodb://localhost/nodeblog';
+	if(config.mode == PRODUCTION) {config.db = ' mongodb://asdf:asdf@ds035310.mongolab.com:35310/nodeblog'}
+	else if(config.mode == DEVELOPMENT) {config.db = 'mongodb://localhost/nodeblog';  }
+	else {
+		config.db = 'mongodb://localhost/test';
 	}
 })()
 
