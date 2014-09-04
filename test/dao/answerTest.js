@@ -23,7 +23,7 @@ var _postNum = 2;
 describe('aAnswerDAO', function() {
 	var _answers,_answer;
 	before(function(nextCase) {
-		mongoose.connect('mongodb://localhost/test',function() {
+		mongoose.connect('mongodb://asdf:asdf@ds035310.mongolab.com:35310/nodeblog',function() {
 			_insertTestData(nextCase);
 		});
 	});

@@ -34,9 +34,9 @@ var DEVELOPMENT = 'development'
 	config.mode = process.env.NODE_ENV || DEVELOPMENT;
 	console.log(config.mode+ ' mode');
 	if(config.mode == DEVELOPMENT) {
-		config.db = ' mongodb://asdf:asdf@ds035310.mongolab.com:35310/nodeblog'
+		config.db = 'mongodb://localhost/nodeblog'
 	} else if(config.mode == TEST) {
-		config.db = 'mongodb://localhost/nodeblog';
+		config.db = 'mongodb://localhost/test';
 	}
 })()
 

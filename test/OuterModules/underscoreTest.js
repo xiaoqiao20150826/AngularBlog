@@ -78,13 +78,14 @@ describe('underscore', function() {
 			})
 		})
 		describe('#etc', function () {
-			it('#union', function () {
+			// union이었는데...업데이트하니 객체를 무시? 동작이 좀 이상함.
+			it('#flatten', function () {
 				var a = {a:1};
 				var b = {b:1};
 				var c = [4,5];
 				var d = [6,2];
-				should.equal(_.union(a,b,c,d).length, 6)
-				should.deepEqual(_.compact(_.union(null,'sss')), ['sss'])
+				should.equal(_.flatten([a,b,c,d]).length, 6)
+				should.deepEqual(_.compact(_.flatten([null,'sss'])), ['sss'])
 			})
 			it('#isEmpty', function () {
 				var  k = {

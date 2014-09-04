@@ -38,7 +38,7 @@ asyncSuporter.asyncLoop = function (someList ,contextAndAsyncFn, done) {
 	function _iterator(eachVal) {
 		return function(saveDataAndNextDo) {
 			var done = new Done(saveDataAndNextDo, eachErrFn, Done.ASYNC);
-			asyncFn.apply(context, _.union(done, eachVal)); 
+			asyncFn.apply(context, _.flatten([done, eachVal])); 
 		};
 	}
 }
@@ -61,7 +61,8 @@ asyncSuporter.call4promise = function (contextAndAsyncFn /*...args*/) {
 	  , done = new Done(_dataFn, _errFn);
 	
 //	asyncFn.apply(context, _.union(done, args)); //union시 중복값이 사라짐. pager는 같은값이전달되기도하는데..
-	asyncFn.apply(context, [done].concat(args));
+//	asyncFn.apply(context, _.flatten([done,args]) ); // args에 배열이 전달되면 평평해져버려.
+	asyncFn.apply(context, [done].concat(args) ); //왜 push가 아닌 concat이지.같은가?
 	return deferred.promise;
 	
 	function _errFn(err){ deferred.reject(err)};
@@ -95,7 +96,7 @@ asyncSuporter.all = function (done, asyncMethodAndArgsList) {
 		var eachDataFn = indexedEachDataFn(i)
 		  , eachDone = new Done(eachDataFn, errFn)
 		var asyncMethod = _.first(asyncMethodAndArgs)
-		  , args = _.union(eachDone, _.rest(asyncMethodAndArgs))
+		  , args = _.flatten([eachDone, _.rest(asyncMethodAndArgs)])
 		if(!_.isFunction(asyncMethod)) return console.error(''+ asyncMethod+ ' must be function' + new Error().stack)
 //		debug(i+ ':'+'args of asyncMethod :' +args)
 		asyncMethod.apply(null, args)
@@ -146,7 +147,7 @@ asyncSuporter.bindRest = function (contextOrMethod /* ...rest args */) {
 	// arg와 다른 arg가 있다면... 애매해지네.
 	return function bindedMethod(done /* ...args*/) {
 		if(!Done.isDoneInstance(done)) throw console.error('must need done for async call'+new Error().stack)
-		var allArgs = _.union(done, argsOfRest)
+		var allArgs = _.flatten([done, argsOfRest])
 		return method.apply(context, allArgs);
 	} 
 }

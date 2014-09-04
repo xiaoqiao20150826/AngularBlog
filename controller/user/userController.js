@@ -109,17 +109,17 @@ userController.delete = function (req,res) {
 	if(loginUser.isNotEqualById(userId)) return redirector.main()
 	
 	H.call4promise(userDAO.removeById, userId) //
-	 .then(function (status) {
-		if(status.isError()) 
-			return status.appendMessage('failed remove user');
-		else
-			return H.call4promise(blogBoardService.deletePostsByUserId, userId)
-	})
 	.then(function(status){ 
 		if(status.isError()) 
 			return status.appendMessage('failed remove post');
 		else
 			return H.call4promise(answerDAO.removeByUserId, userId)
+	})
+	 .then(function (status) {
+		if(status.isError()) 
+			return status.appendMessage('failed remove user');
+		else
+			return H.call4promise(blogBoardService.deletePostsByUserId, userId)
 	})
 	.then(function (status) {
 		if(status.isError()) {

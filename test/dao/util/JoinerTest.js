@@ -21,8 +21,8 @@ describe('Joiner', function() {
 			nodesTwoDeep = [{_id:'node3', parentId:'node1' , name:'name3' , count:1}, {_id:'node4', parentId:'node1' , name:'name4' , count:1}]
 			nodesTwoDeep2 = [{_id:'node5', parentId:'node2' , name:'name5' , count:1}, {_id:'node6', parentId:'node2' , name:'name6' , count:1}]
 			nodesThreeDeep = [{_id:'node7', parentId:'node5' , name:'name7' , count:1}, {_id:'node8', parentId:'node5' , name:'name8' , count:1}]
-			childList = _.union(nodesOneDeep, nodesTwoDeep, nodesTwoDeep2, nodesThreeDeep)
-			allList = _.union(root, nodesOneDeep, nodesTwoDeep, nodesTwoDeep2, nodesThreeDeep)
+			childList = _.flatten([nodesOneDeep, nodesTwoDeep, nodesTwoDeep2, nodesThreeDeep])
+			allList = _.flatten([root, nodesOneDeep, nodesTwoDeep, nodesTwoDeep2, nodesThreeDeep])
 			
 			childsKey = 'childs'
 			joiner = new Joiner(childList,'parentId', childsKey);
@@ -100,7 +100,7 @@ describe('Joiner', function() {
 		it('should get tree by answers', function() {
 			var answers = [{num:1, answerNum:'root'}, {num:2, answerNum:'root'}, {num:3, answerNum:'root'}]
 			  , lowAnswers = [{num:4, answerNum:1}, {num:5, answerNum:1}];
-			var allAnswers = _.union(answers, lowAnswers)
+			var allAnswers = _.flatten([answers, lowAnswers])
 			  , root = {num:'root'}
 			var joiner = new Joiner(allAnswers, 'answerNum', 'answers');
 			
