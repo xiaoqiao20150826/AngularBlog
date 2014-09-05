@@ -60,6 +60,8 @@ Status.prototype.getMessage = function () {
 	return message;
 }
 Status.prototype.appendMessage = function (message) {
-	if(this.message) this.message = this.message + '   '+ message
+	if(!this.message) this.message = '' 
+		
+	this.message = this.message + ' '+ message
 	return this
 }

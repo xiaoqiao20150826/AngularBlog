@@ -52,7 +52,7 @@ config.mode = _env.NODE_ENV || DEVELOPMENT;
 		}
 	else if(config.mode == DEVELOPMENT) {
 		config.db = 'mongodb://localhost/nodeblog';  
-		config.host = 'http://elfmagic86.herokuapp.com';
+		config.host = 'http://nodeblog.com' + ':' + config.port
 		}
 	else {
 		config.db = 'mongodb://localhost/test';  

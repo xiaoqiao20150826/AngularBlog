@@ -95,11 +95,21 @@ asyncSuporter.all = function (done, asyncMethodAndArgsList) {
 		
 		var eachDataFn = indexedEachDataFn(i)
 		  , eachDone = new Done(eachDataFn, errFn)
-		var asyncMethod = _.first(asyncMethodAndArgs)
-		  , args = _.flatten([eachDone, _.rest(asyncMethodAndArgs)])
+		
+		var contextAndAsyncFn = _.first(asyncMethodAndArgs)
+		var context, asyncMethod;
+		if(_.isArray(contextAndAsyncFn)) {
+			asyncMethod = contextAndAsyncFn.pop();
+			context = contextAndAsyncFn.pop();
+		} else {
+			context = null;
+			asyncMethod = contextAndAsyncFn;
+		}
 		if(!_.isFunction(asyncMethod)) return console.error(''+ asyncMethod+ ' must be function' + new Error().stack)
+		
+		var args = _.flatten([eachDone, _.rest(asyncMethodAndArgs)])
 //		debug(i+ ':'+'args of asyncMethod :' +args)
-		asyncMethod.apply(null, args)
+		asyncMethod.apply(context, args)
 	})
 	
 	function indexedEachDataFn(index) {

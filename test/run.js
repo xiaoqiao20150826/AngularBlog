@@ -5,6 +5,7 @@
  * 
  */
 
+process.env.NODE_ENV='test'
 
 var testSuites = [
                     './OuterModules/underscoreTest.js'

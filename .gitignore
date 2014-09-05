@@ -26,3 +26,4 @@ node_modules
 
 # api keys and secrets
 *.sh
+*.bak
