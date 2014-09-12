@@ -31,7 +31,8 @@ describe('mongoDb 연동 a postDAO ', function() {
 		it('여러번 호출시 값 일치하는지 확인',function (asyncDone) {
 			H.asyncLoop([1,1,1,1] , [_seq,_seq.getNext], new H.Done(endDone, asyncDone))
 				function endDone(results) {
-	  				var seqObj = results.pop();
+//					console.log(results)
+	  				var seqObj = results[3];
 	  				should.equal(seqObj.seq, 4);
 	  				asyncDone();
 				}

@@ -6,20 +6,24 @@ var H = require('../../common/helper.js')
 var User = require('../User.js')
 //////////////////
 var Answer = module.exports = function Answer() {
-	var o = Answer.getSchema();
-	for(var key in o) {
-		this[key] = null;
-	}
-	this.created = Date.now();
+	this._id = null 
+    this.num = 0
+    this.created= Date.now();
+    this.content = ''
+    this.userId = User.ANNOYMOUS_ID;
+    this.writer = ''
+    this.postNum = 0
+    this.answerNum = 0
+    this.password = ''
 };
 
 /* static method */
 /* 생성자 */
 Answer.createBy= function(model) {
-	if(model == null) return new Answer(); 
-	else return H.createTargetFromSources(Answer, model, function(answer) {
-		if(!(H.exist(answer.userId))) answer.userId = User.ANNOYMOUS_ID;
-	});
+	if(model == null) 
+		return new Answer(); 
+	else 
+		return H.createTargetFromSources(Answer, model)
 };
 
 Answer.getAnswerNums = function (answers) {
@@ -48,23 +52,9 @@ Answer.getUserIds = function (answers) {
 Answer.makeRoot = function () {
 	rootAnswer = new Answer();
 	rootAnswer.created = '';
-	rootAnswer.num = null;
 	rootAnswer.answers = [];
 	return rootAnswer;
 }
-
-Answer.getSchema = function () {
-	return {
-        'num' : Number,
-        'created' : Date,
-        'content' : String,
-        'userId' : String,
-        'writer' : String,
-        'postNum' : Number,
-        'answerNum' : Number,
-        'password' : String
-		};
-};
 
 
 /* instance method */

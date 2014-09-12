@@ -10,8 +10,8 @@ $$namespace.include(function(require, module){
 	
 	var INSERT_FILE_BTN = '#blogBoard-insertFile'
 	  , INSERT_FORM = '#blogBoard-insertForm'
-	  , FILE_URLS_NODE = '#blogBoard-fileUrls'
-      , FILE_LIST_NODE = '#blogBoard-fileList'
+	  , FILE_URLS_VIEW_NODE = '#blogBoard-fileUrlsView'
+      , FILE_INFOES_STRING_INPUT = '#blogBoard-fileInfoesString'
     
     var ORIGIN_CATEGORY_NODE = '#blogBoard-originCategory'
       , SELECT_PICKER_NODE = '.selectpicker'
@@ -22,8 +22,8 @@ $$namespace.include(function(require, module){
 	}
 	InsertView.prototype.get$insertFileBtn = function () { return $(INSERT_FILE_BTN) }
 	InsertView.prototype.get$insertForm = function () {	return $(INSERT_FORM) }
-	InsertView.prototype.get$fileUrlsNode = function () {	return $(FILE_URLS_NODE) }
-	InsertView.prototype.get$fileListNode = function () {	return $(FILE_LIST_NODE) }
+	InsertView.prototype.get$fileInfoesStringInput = function () {	return $(FILE_INFOES_STRING_INPUT) }
+	InsertView.prototype.get$fileUrlsViewNode = function () {	return $(FILE_URLS_VIEW_NODE) }
 	
 	//update를 위한 것인데 나중에 기능이 더 생기면 분리하자.
 	InsertView.prototype.selectCurrentCategory = function () {

@@ -2,13 +2,15 @@
  * GET users listing.
  */
 
+var debug = require('debug')('nodeblog:controller:userController')
 var _ = require('underscore');
 
 var H = require('../../common/helper.js')
   , scriptletUtil = require('../../common/util/scriptletUtil')
   , requestParser = require('../util/requestParser.js')
   , Redirector = require('../util/Redirector')
-
+  
+var Transaction = require('../../dao/util/transaction/Transaction')
 var User = require('../../domain/User')
   , userDAO = require('../../dao/userDAO')
   , answerDAO = require('../../dao/blogBoard/answerDAO')
@@ -108,27 +110,23 @@ userController.delete = function (req,res) {
 	
 	if(loginUser.isNotEqualById(userId)) return redirector.main()
 	
-	H.call4promise(userDAO.removeById, userId) //
-	.then(function(status){ 
-		if(status.isError()) 
-			return status.appendMessage('failed remove post');
-		else
-			return H.call4promise(answerDAO.removeByUserId, userId)
+	
+	var transaction = new Transaction()
+	transaction.atomic(function () {
+		return H.all4promise([
+								[userDAO.removeById, userId]
+							  , [answerDAO.removeByUserId, userId]
+							  , [blogBoardService.deletePostsByUserId, userId]
+				])
+				.then(function (statuses) {
+				    debug('s',statuses)
+				    req.session.passport.user = null
+				    return redirector.main()
+				})
+				.catch(function (err) {
+					debug('delete err ',err)
+					transaction.rollback() // err시 롤백
+					return redirector.catch(err)
+				})
 	})
-	 .then(function (status) {
-		if(status.isError()) 
-			return status.appendMessage('failed remove user');
-		else
-			return H.call4promise(blogBoardService.deletePostsByUserId, userId)
-	})
-	.then(function (status) {
-		if(status.isError()) {
-			status.appendMessage('failed remove answer')
-			console.log(status.getMessage()); //현재는 메시지만 기록하고 아래단계로감.
-		}
-		
-		req.session.passport.user = null
-		return redirector.main()	
-	})
-	.catch(redirector.catch)
 }

@@ -8,6 +8,8 @@
  *        동적타입언어이므로.. 타입체크 기능을 넣고 직접 코딩해야 할 듯.
  */
 
+//  debug 값은 모든 ~4promise의 에러를 확인을 위해 독립적으로 사용한다. 
+var debug = require('debug')('error')
 var U = require('./util/util.js')
   , _ = require('underscore');
 
@@ -141,7 +143,8 @@ Done.prototype.hook4dataFn = function (hookFn) {
 //private 
 /////////////////////////////////////////////////
 function _defaultErrFn(err) {
-	return console.error('default catch '+ err)
+	debug(err)
+	return
 }
 
 /*
@@ -160,7 +163,8 @@ function _nomalTemplate2(errFn, dataFn) {
 		
 		if(U.exist(err)) return errFn(err);
 		if(U.exist(dataFn)) {return dataFn(data);}
-		console.trace('nomalTempalte : 아무처리도 않됨');
+		
+		return console.error('nomalTempalte : 아무처리도 않됨');
 	};
 };
 

@@ -17,19 +17,19 @@ initDataCreater.create= function (done) {
 	  , postSequenceId = sequenceIdMap.post
 	  , answerSequenceId = sequenceIdMap.answer
 	
-	H.all4promise([
-	                [Sequence.makeFor, postSequenceId]
-	              , [Sequence.makeFor, answerSequenceId]
-	              , [categoryDAO.createRoot]
-    ])
-     .then(function() {
-    	 dataFn()
-     })
-     .catch(errFn)
+	return H.all4promise([
+			                [Sequence.makeFor, postSequenceId]
+			              , [Sequence.makeFor, answerSequenceId]
+			              , [categoryDAO.createRoot]
+		    ])
+		     .then(function() {
+		    	 dataFn()
+		     })
+		     .catch(errFn)
 }
 //테스트를위해.
 initDataCreater.removeAll = function (done) {
-	H.all4promise([ categoryDAO.removeAll , Sequence.removeAll ])
-	 .then(done.getDataFn()) 
-	 .catch(done.getErrFn()) 
+	return H.all4promise([ categoryDAO.removeAll , Sequence.removeAll ])
+			 .then(done.getDataFn()) 
+			 .catch(done.getErrFn()) 
 }

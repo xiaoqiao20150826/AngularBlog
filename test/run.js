@@ -8,6 +8,7 @@
 process.env.NODE_ENV='test'
 
 var testSuites = [
+                  //단순히 결과값 실험해보는 것은 포함하지 않음.
                     './OuterModules/underscoreTest.js'
                   , './OuterModules/pathTest.js'
                   , './OuterModules/qTest.js'
@@ -15,7 +16,8 @@ var testSuites = [
                   
                   ,'./testHelperTest.js'
                   
-                  , './common/localFileTest.js'
+                  , './common/file/localFileTest.js'
+                  
                   , './common/asyncSuporterTest.js'
                   , './common/pagerTest.js'
                   , './common/DoneTest.js'
@@ -23,6 +25,12 @@ var testSuites = [
                   , './common/scriptletUtilTest.js'
                   
                   , './dao/util/JoinerTest.js'
+                  
+                  , './dao/util/transaction/CreateCanclerTest.js'
+                  , './dao/util/transaction/HookerTest.js'
+                  , './dao/util/transaction/RemoveCanclerTest.js'
+                  , './dao/util/transaction/UpdateCanclerTest.js'
+                  , './dao/util/transaction/TransactionTest.js'
                   
                   , './dao/seqTest.js'
                   , './dao/postTest.js'

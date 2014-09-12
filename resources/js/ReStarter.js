@@ -25,39 +25,46 @@ $$namespace.include(function (require, module) {
 		
 		//admin
 		this.admin()
+		console.log('restart main')
 	}
 	
 	ReStarter.prototype.admin = function () {
 		this.controllerManager.onHandlerAboutAdmin()
 		var blogMap = blogRepository.getBlogMap()
 		this.viewManager.assignEffectAboutAdmin(blogMap)
+		console.log('restart admin')
 	}
 	//topframe
 	ReStarter.prototype.nav = function () {
 		this.controllerManager.onHandlerAboutNav()
 		var blogMap = blogRepository.getBlogMap()
 		this.viewManager.assignEffectAboutNav(blogMap)
+		console.log('restart nav')
 	}
 	//centerFrame 
 	ReStarter.prototype.listOfBlogBoard = function () {
 		this.controllerManager.onHandlerAboutListOfBlogBoard()
 		var blogMap = blogRepository.getBlogMap()
 		this.viewManager.assignEffectAboutListOfBlogBoard(blogMap)
+		console.log('restart listOfBlogBoard')
 	}
 	ReStarter.prototype.insertOfBlogBoard = function () {
 		this.controllerManager.onHandlerAboutInsertOfBlogBoard()
 		var blogMap = blogRepository.getBlogMap()
 		this.viewManager.assignEffectAboutInsertOfBlogBoard(blogMap)
+		console.log('restart insertOfBlogBoard')
 	}
 	//answer포함
 	ReStarter.prototype.detailOfBlogBoard = function () {
 		this.controllerManager.onHandlerAboutDetailOfBlogBoard()
 		var blogMap = blogRepository.getBlogMap()
 		this.viewManager.assignEffectAboutDetailOfBlogBoard(blogMap)
+		console.log('restart detailOfBlogBoard')
 	}
 	ReStarter.prototype.answerOfBlogBoard = function () {
 		this.controllerManager.onHandlerAboutAnswerOfBlogBoard()
 		var blogMap = blogRepository.getBlogMap()
 		this.viewManager.assignEffectAboutAnswerOfBlogBoard(blogMap)
+		console.log('restart answerOfBlogBoard')
 	}
 })

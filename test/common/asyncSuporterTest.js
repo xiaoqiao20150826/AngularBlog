@@ -154,6 +154,24 @@ describe('asyncSuporter', function () {
 		})
 		
 	})
+	//졸려서 좀  대충만듬......
+	describe('#syncAll4promise', function () {
+		successFn = asyncFn1(true)
+		it('should success',function (nextTest) {
+			asyncSuporter.syncAll4promise([  [successFn , 3]
+									       , [successFn, 4]
+									       , [successFn, 5]
+									       , [successFn, 6]
+									     ])
+									     .then(function (args) {
+//									    	 console.log(args)
+									    	 should.equal(args[2], 5)
+									    	 nextTest()
+									     })
+		})
+
+		
+	})
 	describe('#bindRest' , function() {
 		it('should call binded function from args and context', function () {
 			var context = { name: 'context' 
@@ -191,8 +209,7 @@ function returnData(done /* ... args*/) {
 	  , args = _.toArray(_.rest(arguments));
 	setTimeout(function () {
 		var err = null
-//		, data = 'callback data, args : '+args +' count : '+ (++count) ;
-		,data = args;
+		  , data = args
 		callback(err, data);
 	}, 100);
 };

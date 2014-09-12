@@ -15,6 +15,9 @@ Redirector.prototype.main = function () {
 	return this.res.redirect('/');
 }
 
+Redirector.prototype.errorPage = function (status) {
+	return this.res.send(status.getMessage())
+}
 Redirector.prototype.catch = function (error) {
 	console.error('err : ', error)
 	return this.res.send(error)

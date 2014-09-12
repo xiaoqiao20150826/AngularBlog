@@ -10,13 +10,15 @@
 var debug = require('debug')('nodeblog:dao:postDAO')
 
 var Post = require('../../domain/blogBoard/Post.js')
-  , Status = require('../util/Status.js')
+  , Status = require('../../common/Status.js')
   , Sequence = require('../Sequence.js')
   , Q = require('q');
 var Pager = require('../../common/Pager.js');
 
 var mongoose = require('mongoose')
   , Schema = mongoose.Schema
+  , ObjectId4Schema = Schema.ObjectId
+  , ObjectId = mongoose.Types.ObjectId
   , postSchema = new Schema(getSchema());
 
 ///// 참조변수
@@ -51,7 +53,8 @@ postDAO.removeAll = function (done) {
 	
     var _seq = Sequence.getForPost()
     
-	return H.all4promise([ H.bindRest([_seq,_seq.remove])
+	return H.all4promise([
+	                       [[_seq, _seq.remove] ]
 	                     , [_remove, {}]
 	                     ])
 			.then(dataFn)
@@ -59,9 +62,9 @@ postDAO.removeAll = function (done) {
 };
 function _remove(done, where) {
 	var where = where || {}
-	done.hook4dataFn(function (data) {
-		debug('remove arg ', arguments)
-		return Status.makeForRemove(data);
+	done.hook4dataFn(function (result) {
+		debug('remove arg ', result)
+		return Status.makeForRemove(result);
 	});
 	_db.remove(where, done.getCallback());
 }
@@ -125,7 +128,7 @@ postDAO.insertOne = function(done, post) {
 	
 	return H.call4promise([_seq, _seq.getNext])
 	 		.then(function __work1(data) {
-				if(!(H.exist(data.seq))) throw new Error('fail to get next seq').stack;
+				if(!(H.exist(data.seq))) return console.error('fail to get next seq');
 				post.setNum(data.seq);
 				return H.call4promise(_create, post);
 	 		 })
@@ -135,6 +138,9 @@ postDAO.insertOne = function(done, post) {
 
 function _create(done, data) {
 	done.hook4dataFn(Post.createBy);
+	
+	if(!data._id) data._id = new ObjectId()
+	
 	_db.create(data, done.getCallback());
 }
 /* update */
@@ -145,20 +151,14 @@ postDAO.update = function(done, post) {
 		        		 , content : post.content
 		        		 , categoryId : post.categoryId
 		        		  }
-				, $addToSet : { filePaths : {$each:  post.filePaths}  } 
+				, $addToSet : { fileInfoes : {$each:  post.fileInfoes}  } 
 				}
-	if(!(H.exist(post.num))) throw new Error('num은 필수').stack;
+	if(!(H.exist(post.num))) return console.error('num은 필수');
 	_update(done, where, data);
 };
 postDAO.updateReadCount = function(done, num) {
 	var where = {num : num}
 		,data = {$inc:{readCount:1}};
-	_update(done, where, data);
-};
-//안쓸껄
-postDAO.updateFilePaths = function(done, num, filePath) {
-	var where = {num : num}
-	,data = {$addToSet: { filePaths : filePath } };
 	_update(done, where, data);
 };
 
@@ -194,15 +194,15 @@ function _minusNumber(number) {
 }
 // private
 function _update(done, where, data, config) {
-	done.hook4dataFn(function (post) {
-		debug('update arg ', arguments)
-		return Status.makeForUpdate(post);
+	done.hook4dataFn(function (result) {
+		debug('update arg ', result)
+		return Status.makeForUpdate(result);
 	});
 	
 	//TODO: writeConcern 는 무엇을 위한 설정일까. //매치되는 doc없으면 새로 생성안해.//매치되는 doc 모두 업데이트
 	var config = config || {upsert: false , multi:true}
 		,callback = done.getCallback();
-	_db.update(where, data, config).exec(callback);
+	_db.update(where, data, config, callback);
 }
 
 /* etc..count */
@@ -255,7 +255,6 @@ postDAO.findGroupedPostsByDate = function (done) {
 // array는 sort할수있지만 map으로 사용하는 object는 sort안됨.
 //  - 그래서 오름차순임. 1,2,3...
 function _reGroup(model) {
-	debug('groupedPostsByDate origin :', model)
 	//reduce말고 each하되 공통 저장소사용해도 됨.
 	var groupedPostsByDate = _.reduce(model, function(memo, o){
 			var count = o.count
@@ -300,13 +299,14 @@ function _reGroup(model) {
 /* helper */		
 function getSchema() {
 	return {
+		'_id': {type:ObjectId4Schema}, // default로 값을 할당하면 create 후 id가 반환되지않는다.
         'num' : Number,
         'created' : Date,
         'readCount' : Number,
         'answerCount' : Number,
         'vote' : Number,
         'votedUserIds' : Array,
-        'filePaths' : Array,
+        'fileInfoes' : Array,
         'title' : String,
         'content' : String,
         'userId' : String,  // 참조

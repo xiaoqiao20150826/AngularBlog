@@ -10,19 +10,62 @@ var should = require('should')
   , _ = require('underscore')
   , H = require('../../../testHelper.js')
   , Done = H.Done
+  
+var initDataCreater = require('../../../../initDataCreater.js')
 var User = require('../../../../domain/User.js')
   , userDAO = require('../../../../dao/userDAO.js')
+  , Post = require('../../../../domain/blogBoard/Post.js')
+  , postDAO = require('../../../../dao/blogBoard/postDAO.js')
+  , Answer = require('../../../../domain/blogBoard/Answer.js')
+  , answerDAO = require('../../../../dao/blogBoard/answerDAO.js')
 
 describe('Transaction', function() {
+	var initDatas= null
+	var initUser1 = null
+	var initPost1 = null
+	var initAnswer1 = null
+	
 	before(function (nextTest) {
 		mongoose.connect('mongodb://localhost/test',function() {
-			nextTest()
+			H.call4promise(initDataCreater.create)
+			 .then(function() {
+					var user1 = User.createBy({_id:'user1', name:'name1'})
+					  , user2 = User.createBy({_id:'user2', name:'name2'})
+					var post1 = Post.createBy({content:'post1'})
+					  , post2 = Post.createBy({content:'post2'})
+				    var answer1 = Answer.createBy({content:'answer1'})
+					  , answer2 = Answer.createBy({content:'answer2'})				 
+				 
+					//순서있게 들어가야함.  
+					return H.syncAll4promise([ 
+							                [userDAO.insertOne, user1]
+							              , [userDAO.insertOne, user2] 
+							              , [answerDAO.insertOne, answer1]
+							              , [answerDAO.insertOne, answer2] 
+							              , [postDAO.insertOne, post1]
+							              , [postDAO.insertOne, post2] 
+							 ])
+							 .then(function dataFn(args) {
+								 should.equal(args[1]._id, 'user2')
+								 initDatas = args
+								 initUser1 = args[0]
+								 initAnswer1 = args[2]
+								 initPost1 = args[4]
+								 nextTest()
+							 })
+			 })
+			 .catch(nextTest)
 		})
 	})
 	after(function(nextTest) {
 		var errFn = H.testCatch1(nextTest);
 		
-		H.call4promise(userDAO.removeAll)
+		H.all4promise([
+		                [ [userDAO, userDAO.removeAll]  ]
+		              , [ [postDAO, postDAO.removeAll]  ]
+		              , [ [answerDAO, answerDAO.removeAll]  ]
+				      , [ initDataCreater.removeAll]
+        ])
 		.then(function() {
 			mongoose.disconnect(function() {
 				nextTest();
@@ -31,28 +74,76 @@ describe('Transaction', function() {
 		.catch(errFn);
 	});
 	it('should success by insert', function (nextTest) {
-		var tran = new Transaction();
+//		should.equal(mongoose.Model.create.name, 'create4transaction')
+		var tran = new Transaction()
+		
+		
+		tran.atomic(function () {
+			tran.rollback()
+			var user1 = H.deepClone(initUser1)
+			user1.name = '23324'
+			
+		    var answer1 = H.deepClone(initAnswer1)
+		    answer1.context = 'wefweff'
+		    	
+			var post1 = H.deepClone(initPost1)
+		    post1.context = 'wefweff'		    	
+		    return H.all4promise([
+					                    [ [answerDAO, answerDAO.update], answer1  ]
+					                  , [ [userDAO, userDAO.update], user1  ]
+					                  , [ [postDAO, postDAO.update], post1  ]
 
-		tran.start()
-		
-		should.equal(mongoose.Model.create.name, 'create4transaction')
-		
-		var user = User.createBy({_id:'user', name:'name'})
-		  , user2 = User.createBy({_id:'user2', name:'name'})
-		
-		H.all4promise([ [userDAO.insertOne, user], [userDAO.insertOne, user2] ] )
-		 .then(function dataFn(args) {
-			 should.equal(args[1]._id, 'user2')
-			 return H.call4promise([tran, tran.rollback])
-		 })
-		 .then(function (status) {
-			 should.equal(status.isSuccess(), true)
-			 nextTest()
-		 })
-		 .catch(H.testCatch1(nextTest))
-		
-		tran.end()
-		
-		should.equal(mongoose.Model.create.name, 'create')
+					])
+					.then(function () {
+						var post3 = Post.createBy({content:'post3'})			
+						var user3 = User.createBy({_id:'user3', name:'name3'})
+						  
+						return H.all4promise([
+								                 [postDAO.insertOne, post3]
+								               , [ [postDAO, postDAO.removeAll]  ]
+								               , [userDAO.insertOne, user3]
+						                    ])
+					})
+				    .then(function () {
+				    	var answer3 = Answer.createBy({content:'answer3'})	    	
+				    	return H.all4promise([
+								                [ [userDAO, userDAO.removeAll]  ]
+								              , [ [answerDAO, answerDAO.removeAll]  ]
+								              , [answerDAO.insertOne, answer3]
+			// 					              , [ initDataCreater.removeAll] //이건 테스트용이다. 여기서 사용하면 중복예외나오게 만든다....올바른사용이 아님. 
+								])
+				    })
+				    
+		  })
+		    .then(function (status) {
+//		    	console.log('result atomic', status)
+		    	should.equal(status.isSuccess(), true)
+			    return H.all4promise([
+				                        [ [userDAO, userDAO.find] , {}]
+				                      , [ [postDAO, postDAO.find] , {}]
+				                      , [ [answerDAO, answerDAO.find], {} ]
+	                     ])
+	                     .then(function (args) {
+//	                    	 console.log(args)
+	                    	 var user1 = _.min(args[0], function (each) {return each.name.charCodeAt(4) })
+	                    	 var post1 = _.min(args[1], function (each) {return each.num })
+	                    	 var answer1 = _.min(args[2], function (each) {return each.num })
+	                    	 
+//	                    	 console.log(user1._id)
+//	                    	 console.log(post1.content)
+//	                    	 console.log(answer1.content)
+	                    	 should.equal(initUser1._id, user1._id)
+	                    	 should.equal(initUser1.name, user1.name)
+	                    	 should.equal(initPost1._id.id, post1._id.id)
+	                    	 should.equal(initPost1.content, post1.content)
+	                    	 should.equal(initAnswer1._id.id, answer1._id.id)
+	                    	 should.equal(initAnswer1.content, answer1.content)
+	                    	 nextTest()
+	                     })
+
+		    })
+		    .catch(function (err) {
+	             console.error('catch ', err)
+	        })   
 	})
-});
+})

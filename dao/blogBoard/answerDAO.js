@@ -6,15 +6,17 @@
 /* 초기설정 (외부참조 설정 및 초기화) */
 // 외부 참조
 var Answer = require('../../domain/blogBoard/Answer.js')
-    ,Status = require('../util/Status.js')
 	,Sequence = require('../Sequence.js')
-	,Q = require('q');
+	,Q = require('q')
 var mongoose = require('mongoose')
-	,Schema = mongoose.Schema
-	,answerSchema = new Schema(Answer.getSchema());
+  , Schema = mongoose.Schema
+  , ObjectId4Schema = Schema.ObjectId
+  , ObjectId = mongoose.Types.ObjectId
+  , answerSchema = new Schema(getSchema())
 
 var _ = require('underscore')
   , H = require('../../common/helper.js')
+  , Status = require('../../common/Status.js')
   , _db = mongoose.model('Answer', answerSchema)
 
 // 초기화
@@ -60,10 +62,11 @@ answerDAO.removeAll = function (done) {
 	done.hook4dataFn(Answer.createBy);
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();
-	var _seq = Sequence.getForPost()
+	var _seq = Sequence.getForAnswer()
 	
-	return H.all4promise([ H.bindRest([_seq,_seq.remove])
-	                     , [_remove, {} ]
+	return H.all4promise([ 
+	                        [[_seq,_seq.remove] ]
+		                  , [_remove, {}]
 	        ])
 	 		.then(dataFn)
 	 		.catch(errFn);
@@ -110,7 +113,7 @@ answerDAO.findByRange = function (done, postNum, start,end) {
 answerDAO.insertOne = function(done, answer) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn()
-	var _seq = Sequence.getForPost()
+	var _seq = Sequence.getForAnswer()
 	
 	return H.call4promise([_seq,_seq.getNext])
 			.then(function(data) {
@@ -122,6 +125,9 @@ answerDAO.insertOne = function(done, answer) {
 };
 function _create(done, data) {
 	done.hook4dataFn(Answer.createBy);
+	
+	if(!data._id) data._id = new ObjectId()
+	
 	_db.create(data, done.getCallback()); // exec없음.
 }
 /* update */
@@ -143,7 +149,7 @@ function _update(done, where, data, config) {
 	//TODO: writeConcern 는 무엇을 위한 설정일까. //매치되는 doc없으면 새로 생성안해.//매치되는 doc 모두 업데이트
 	var config = config || {upsert: false , multi:true}
 		,callback = done.getCallback();
-	_db.update(where, data, config).exec(callback);
+	_db.update(where, data, config, callback);
 }
 
 /* etc..count */
@@ -154,5 +160,17 @@ answerDAO.getCount = function (done, where) {
 	_db.find(where).count().exec(callback);
 }
 
-
+function getSchema() {
+	return {
+		'_id': {type:ObjectId4Schema}, // default로 값을 할당하면 create 후 id가 반환되지않는다. 
+        'num' : Number,
+        'created' : Date,
+        'content' : String,
+        'userId' : String,
+        'writer' : String,
+        'postNum' : Number,
+        'answerNum' : Number,
+        'password' : String
+		};
+};
 /* helper */		

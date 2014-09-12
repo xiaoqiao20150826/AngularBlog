@@ -11,7 +11,9 @@ var sequenceIdMap = require('../config').sequenceIdMap
 var mongoose = require('mongoose')
   , Schema = mongoose.Schema;
 var _db = mongoose.model('Seq', _getSchema())
-  , H = require('../common/helper.js');
+  , H = require('../common/helper.js')
+  , Status = require('../common/Status.js')
+
 
 function _getSchema() {
 	return {
@@ -33,22 +35,22 @@ Sequence.makeFor = function(done, id) {
 
 	if(sequenceMap[id]) { return dataFn() }
 	
-	H.call4promise([newSequence, newSequence.create])
-	 .then(function () {
-		 sequenceMap[id] = newSequence;
-		 debug('make sequence :', id)
-		 return dataFn();
-	 })
-	 .catch(function (error) {
-		 if(error.code == DUPLICATE_KEY_CODE) {
-			 debug('had been made sequence :', id)
-			 sequenceMap[id] = newSequence;
-			 dataFn();
-			 return;
-		 } else {
-			 return console.error(error)
-		 }
-	 })
+	return H.call4promise([newSequence, newSequence.create])
+			 .then(function () {
+				 sequenceMap[id] = newSequence;
+				 debug('make sequence :', id)
+				 return dataFn();
+			 })
+			 .catch(function (error) {
+				 if(error.code == DUPLICATE_KEY_CODE) {
+					 debug('had been made sequence :', id)
+					 sequenceMap[id] = newSequence;
+					 dataFn();
+					 return;
+				 } else {
+					 return console.error(error)
+				 }
+			 })
 }
 Sequence.getForPost = function() { return Sequence.getInstance(sequenceIdMap.post) }
 Sequence.getForAnswer = function() { return Sequence.getInstance(sequenceIdMap.answer) }
@@ -56,9 +58,6 @@ Sequence.getForAnswer = function() { return Sequence.getInstance(sequenceIdMap.a
 Sequence.getInstance = function(id) {
 	if(!sequenceMap[id]) return console.error('must will make sequence about', id)
 	return sequenceMap[id];
-}
-Sequence.removeAll = function (done) {
-	_db.remove({}, done.getCallback());
 }
 
 // instance method
@@ -76,10 +75,20 @@ Sequence.prototype.getNext = function (done, incNum) {
 	  , callback = done.getCallback();
 	_db.findOneAndUpdate(conditions,update,options, callback);
 };
+Sequence.removeAll = function (done) {
+	_remove(done, {});
+}
 Sequence.prototype.remove = function(done) {
-	done = done || new H.Done(function emptyDataFn() {}) //하는 일이 없다.
-	_db.remove({_id:this._id}, done.getCallback()); 
+	_remove(done, {_id:this._id}); 
 };
+
+function _remove(done, where) {
+	done.hook4dataFn(function (data) {
+		return Status.makeForRemove(data)
+	})
+	_db.remove(where, done.getCallback());
+}
+
 // 보조
 Sequence.prototype.getId = function () {
 	return this._id;

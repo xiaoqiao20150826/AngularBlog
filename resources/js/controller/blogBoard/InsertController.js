@@ -36,7 +36,7 @@ $$namespace.include(function(require, module) {
 			  , inputNode = this
 			  , file = this.files[0]
 			  , size = file.size
-			
+			  , fileName = file.name.slice(0, file.name.indexOf('.'))
 			var maxByte = 2000000;
 			if(size > maxByte) {
 				alert('file size should be max 2MB');
@@ -50,19 +50,42 @@ $$namespace.include(function(require, module) {
 			formData.append('userId', userId)
 			
 			ajax.call4file(dataFn, '/file/upload', formData)
-			function dataFn(fileUrl) {
-				if(!fileUrl) return;
+			function dataFn(statusJsonString) {
+				var status = JSON.parse(statusJsonString)
+				if(status.isError) return alert(status.message);
 				
-				var $fileUrlsNode = insertView.get$fileUrlsNode()
-				  , $fileListNode = insertView.get$fileListNode()
-				  , value = $fileUrlsNode.val();
+				var fileInfo = status.fileInfo
+				  , fileUrl = fileInfo.url
+				  
+				//decode
+				fileInfo = H.decodeURI(fileInfo)  
+				  
+				//fileInfo를 jsonString으로 변환하여 input 값으로 넣기.  
+				var $fileInfoesStringInput = insertView.get$fileInfoesStringInput()
+				  , $fileUrlsViewNode = insertView.get$fileUrlsViewNode()
+				  , fileInfoes = $fileInfoesStringInput.val()
 				
-				value = value + ';' + fileUrl
-				if(value.charAt(0) == ';') {value = value.slice(1)}
+				if(fileInfoes == '') fileInfoes = '[]';
+				fileInfoes = JSON.parse(fileInfoes);
+				fileInfoes.push(fileInfo);
 				
-				$fileUrlsNode.val(value); 
-			    $fileListNode.text(value.replace(/;/g,'\n')); 
-				inputNode.files = null;
+				$fileInfoesStringInput.val(JSON.stringify(fileInfoes));
+
+				var text = $fileUrlsViewNode.text()
+				if(text == '') {
+					$fileUrlsViewNode.text(fileUrl)
+				}
+				else {
+					$fileUrlsViewNode.text(text + '\n' + fileUrl);
+				
+				}
+				
+				// [주의] 아래코드를 추가하지 않으면 form이 파일이 추가되었기에 
+				// 폼이 새롭게 구성되어 추가했던 이벤트가 무용해진다. 
+				inputNode.value = '' 		
+				inputNode.files = null
+				
+				return ;
 			}
 			
 			return e.preventDefault();
@@ -72,8 +95,9 @@ $$namespace.include(function(require, module) {
 	//서버에서 처리되도록 하자. 이건 검증만.
 	InsertController.prototype.checkBeforSubmitForm1 = function ($insertForm) {
 		return function (e) {
-			var queryString = decodeURI($insertForm.serialize())
-			  , queryMap = H.queryStringToMap(queryString)
+			//한글처리확인시. 확인만하는거니... title,content만하면어떨까
+//			var queryString = decodeURI($insertForm.serialize())
+			var queryMap = H.queryStringToMap($insertForm.serialize())
 			  
 			if(H.notExist(queryMap.title)) return H.errorWarning(e,'title should not empty')  
 			if(H.notExist(queryMap.content)) return H.errorWarning(e,'content should not empty')  

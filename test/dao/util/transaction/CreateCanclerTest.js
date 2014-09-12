@@ -33,7 +33,7 @@ describe('Transaction', function() {
 	it('should success by create', function (nextTest) {
 		var originCreate = mongoose.Model.create
 		  , originRemove = mongoose.Model.remove
-		  , createCancler = new CreateCancler(originCreate, originRemove)
+		  , createCancler = new CreateCancler([], originCreate, originRemove)
 		  
 		mongoose.Model.create = createCancler.hookFn()
 		

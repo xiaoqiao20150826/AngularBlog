@@ -21,19 +21,22 @@ var _env = process.env
 //공통 설정.
 config.port = _env.PORT || 3000; //
 config.rootDir = __dirname;
-config.imgDir = __dirname + '\\resources\\img';
 
 //mongolab
 config.mongolabId = _env.MONGOLAB_ID
 config.mongolabPw = _env.MONGOLAB_PW
 
 //passport api key
+// id를 key로 할껄그랬나
 config.passport = {}
 config.passport.facebook = {'id' : _env.PASSPORT_FACEBOOK_ID, 'secret': _env.PASSPORT_FACEBOOK_SECRET}
 config.passport.twitter = {'id' : _env.PASSPORT_TWITTER_ID, 'secret': _env.PASSPORT_TWITTER_SECRET}
 config.passport.github = {'id' : _env.PASSPORT_GITHUB_ID, 'secret': _env.PASSPORT_GITHUB_SECRET}
 config.passport.google = {'id' : _env.PASSPORT_GOOGLE_ID, 'secret': _env.PASSPORT_GOOGLE_SECRET}
 config.passport.linkedin = {'id' : _env.PASSPORT_LINKEDIN_ID, 'secret': _env.PASSPORT_LINKEDIN_SECRET}
+
+//cloudinary
+config.cloudinary = {'name' : _env.CLOUDINARY_NAME, 'key' : _env.CLOUDINARY_KEY, 'secret' : _env.CLOUDINARY_SECRET }
 
 // sequenceId
 config.sequenceIdMap = {}
@@ -46,17 +49,26 @@ var PRODUCTION = 'production'
   , TEST = 'test'
 config.mode = _env.NODE_ENV || DEVELOPMENT;
 (function () {
+	config.isLocal = true;
+	config.imgDir = config.rootDir + '/resources/img'; // local
+	
+	//server
 	if(config.mode == PRODUCTION) {
 		config.db = 'mongodb://'+config.mongolabId+':'+config.mongolabPw+'@ds035310.mongolab.com:35310/nodeblog'
 		config.host = 'http://elfmagic86.herokuapp.com';
-		}
+		config.isLocal = false;
+		config.imgDir = ''
+	}
+	//local
 	else if(config.mode == DEVELOPMENT) {
 		config.db = 'mongodb://localhost/nodeblog';  
 		config.host = 'http://nodeblog.com' + ':' + config.port
-		}
+	}
 	else {
 		config.db = 'mongodb://localhost/test';  
 		config.host = 'http://nodeblog.com' + ':' + config.port
+		config.isLocal = false //test
+		config.imgDir = ''// test
 	}
 	
 	console.log('mode is '+ config.mode)

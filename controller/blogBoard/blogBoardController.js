@@ -2,12 +2,11 @@
 
 /* 초기화 및 클래스 변수 */
 
-var debug = require('debug')('nodeblog:route:blog')
+var debug = require('debug')('nodeblog:controller:blogBoardController')
 var _ = require('underscore')
   , Q = require('q')
 var H = require('../../common/helper.js')
   , Done = H.Done
-  , pathUtil = require('../../common/util/pathUtil')
   
 var requestParser = require('../util/requestParser.js')
   , Cookie = require('../util/Cookie.js')
@@ -169,9 +168,11 @@ blogBoardController.insertBlogBoardData = function(req,res) {
 	var loginUser = requestParser.getLoginUser(req)
 	  , rawData = requestParser.getRawData(req)
 	  , userId = rawData.userId
-	  , filePath = pathUtil.getLocalFilePathByUrl(rawData.fileUrl) 
+	  , fileInfoesString = rawData.fileInfoesString
+	  , fileInfoes = (fileInfoesString == '') ? [] : JSON.parse(fileInfoesString)
+			  
 	var post = Post.createBy(rawData)
-	post.addFilePath(filePath);
+	post.addFileInfoes(fileInfoes);
 
 	debug('insertPost reqData : ', rawData)
 	if(loginUser.isNotEqualById(userId)) return redirector.main()
@@ -180,8 +181,8 @@ blogBoardController.insertBlogBoardData = function(req,res) {
 	function dataFn(insertedPost) {
 //		var postNum = insertedPost.num;
 //		redirector.post(postNum)
-		debug('insertedPost : ', insertedPost)
-		redirector.main()
+//		debug('insertedPost : ', insertedPost)
+		return redirector.main()
 	}
 }
 blogBoardController.updateBlogBoardData = function(req,res) {
@@ -189,11 +190,12 @@ blogBoardController.updateBlogBoardData = function(req,res) {
 	var loginUser = requestParser.getLoginUser(req)
 	, rawData = requestParser.getRawData(req)
 	, userId = rawData.userId
-	, filePath = pathUtil.getLocalFilePathByUrl(rawData.fileUrl)
+	, fileInfoesString = rawData.fileInfoesString
+	, fileInfoes = (fileInfoesString == '') ? [] : JSON.parse(fileInfoesString)
 	, originCategoryId = rawData.originCategoryId
-	
+			  
 	var post = Post.createBy(rawData)
-	post.addFilePath(filePath);
+	post.addFileInfoes(fileInfoes);
 	
 	debug('updatePost reqData : ', rawData)
 	if(loginUser.isNotEqualById(userId)) return redirector.main()
@@ -218,6 +220,7 @@ blogBoardController.deletePost = function (req, res) {
 		
 	blogBoardService.deletePost(new Done(dataFn, redirector.catch), postNum);
 	function dataFn(status) {
+		debug('delete post status : ',status)
 		//TODO:에러 상태라면. 지운데이터 되돌리기라는 등의 처리를 해야할까?
 		return res.send(status.getMessage())
 	 }

@@ -5,13 +5,13 @@
 var _ = require('underscore')
   , should = require('should');
 
-var localFile = require('../../common/localFile.js')
-  , H = require('../testHelper')
+var localFile = require('../../../common/file/localFile.js')
+  , H = require('../../testHelper')
   , Done = H.Done;
   
 var folder = __dirname;
 describe('localFile', function() {
-	var fileUrl = folder + '/temp.txt'
+	var filePath = folder + '/temp.txt'
 	  , dataInFile = '2222lmfelwm3ㅎㅈㄷㅎㄷㅈㅎ w3 3g';
 	
 	var catch1 = H.testCatch1;
@@ -46,20 +46,25 @@ describe('localFile', function() {
 	})
 	describe('#createFile', function() {
 		it('새 파일을 만들고 다음동작을할수있다.', function(nextTest) {
-			localFile.create(new Done(dataFn, catch1(nextTest)), fileUrl, dataInFile)
-			function dataFn(url) {
+			localFile.create(new Done(dataFn, catch1(nextTest)), filePath, dataInFile)
+			function dataFn(status) {
+				var url = status.filePath
 				toDeleteFiles.push(url)
-				should.equal(url , fileUrl);
+				should.equal(status.isSuccess(), true)
+				
+				should.equal(url , filePath);
 				nextTest();
 			}
 		});
 		it('새 파일을 만들 때 폴더가 없다면 새로 만든다.', function(nextTest) {
 			var newFileUrl = folder +'\\'+ 'newFolder' +'\\'+ 'fileName.txt'
 			localFile.createEx(new Done(dataFn, catch1(nextTest)), newFileUrl, dataInFile)
-			function dataFn(url) {
+			function dataFn(status) {
+				var url = status.filePath
 				toDeleteFiles.push(url)
 				toDeleteFolders.push(folder +'\\'+ 'newFolder')
 				
+				should.equal(status.isSuccess(), true)
 				should.equal(url , newFileUrl);
 				nextTest();
 			}
@@ -67,7 +72,7 @@ describe('localFile', function() {
 	})
 	describe('#exists', function() {
 		it('이미 파일이 있는지 확인', function(nextTest) {
-			localFile.exists(new Done(dataFn), fileUrl)
+			localFile.exists(new Done(dataFn), filePath)
 			function dataFn(existFile) {
 				should.equal(existFile, true); //위에서 만들었으니까.
 				nextTest();
@@ -83,7 +88,7 @@ describe('localFile', function() {
 	})
 	describe('#read', function() {
 		it('읽기', function(nextTest) {
-			localFile.read(new Done(dataFn, catch1(nextTest)), fileUrl);
+			localFile.read(new Done(dataFn, catch1(nextTest)), filePath);
 			function dataFn(data) {
 				should.equal(data, dataInFile); //위에서 만들었으니까.
 				nextTest();
@@ -92,11 +97,14 @@ describe('localFile', function() {
 	})
 	describe('#copy', function() {
 		it('복사하기', function(nextTest) {
-			var from = fileUrl
+			var from = filePath
 			  , to = H.pushInMidOfStr(from, 1, '.');
 			localFile.copy(new Done(dataFn, catch1(nextTest)), from, to);
-			function dataFn(url) {
-				toDeleteFiles.push(url);
+			function dataFn(status) {
+				var url = status.filePath
+				toDeleteFiles.push(url)
+				should.equal(status.isSuccess(), true)
+				
 				should.equal(url , to);
 				nextTest();
 			}
@@ -105,17 +113,20 @@ describe('localFile', function() {
 			var from = 'wrongPath'
 			, to = H.pushInMidOfStr(from, 1, '.');
 			localFile.copyNoThrow(new Done(dataFn, catch1(nextTest)), from, to);
-			function dataFn(url) {
-				should.equal(url , null);
+			function dataFn(status) {
+				should.equal(status.isError() , true);
 				nextTest();
 			}
 		})
 		it('복사하되 from이 이미 있다면 다른 이름으로 만든다', function(nextTest) {
-			var from = fileUrl
-			  , to = fileUrl;
+			var from = filePath
+			  , to = filePath;
 			localFile.copyNoDuplicate(new Done(dataFn, catch1(nextTest)), from, to)
-			function dataFn(url) {
-				toDeleteFiles.push(url);
+			function dataFn(status) {
+				var url = status.filePath
+				toDeleteFiles.push(url)
+				should.equal(status.isSuccess(), true)
+				
 				should.equal(url , H.pushInMidOfStr(to, 2, '.'));
 				nextTest();
 			}
@@ -141,8 +152,8 @@ describe('localFile', function() {
 			}
 		})
 		it('파일을 지울때 없는 파일이라면 무시.', function (nextTest) {
-			var fileUrl = folder + '\\a223r23f23.txt'
-			localFile.delete(new Done(dataFn, catch1(nextTest)), fileUrl)
+			var filePath = folder + '\\a223r23f23.txt'
+			localFile.delete(new Done(dataFn, catch1(nextTest)), filePath)
 			function dataFn(status) {
 				should.equal(status.isError(), true)
 				nextTest()

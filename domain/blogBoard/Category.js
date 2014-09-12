@@ -8,6 +8,7 @@ var H = require('../../common/helper.js');
 var ROOT_ID = 'root'
 var Category = module.exports = function () {
 // 왜 _id가 아니라 id인지 기억안나면 mongodb 자료볼것.
+	this._id = null;
 	this.id  = null;//db의 자동 할당된 아이디 사용. 
 	this.title = '';
 	this.postCount = 0;

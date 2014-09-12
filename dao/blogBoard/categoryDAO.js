@@ -6,12 +6,14 @@ var debug = require('debug')('nodeblog:dao:categoryDAO')
 var _ = require('underscore')
   , H = require('../../common/helper.js')
   , Done = H.Done
+  , Status = require('../../common/Status.js')
   , Category = require('../../domain/blogBoard/Category.js')
   , Joiner = require('../util/Joiner.js')
-  , Status = require('../util/Status.js')
 
 var mongoose = require('mongoose')
   , Schema = mongoose.Schema
+  , ObjectId4Schema = Schema.ObjectId
+  , ObjectId = mongoose.Types.ObjectId
   , categorySchema = new Schema(_getSchema())
   , _db = mongoose.model('Category', categorySchema)  
 //////////////////////////////
@@ -154,8 +156,16 @@ categoryDAO.createRoot = function (done) {
 		 errFn(err)
 	 })
 }
+
+//removeCancler test 용
+categoryDAO.insertOne = function(done, category) {
+	_create(done, category)
+};
 function _create(done, data) {
 	done.hook4dataFn(Category.createBy);
+	
+	if(!data._id) data._id = new ObjectId()
+	
 	_db.create(data, done.getCallback());
 };
 
@@ -232,14 +242,14 @@ categoryDAO.updateTitleById = function(done, id, title) {
 	_update(done, where, data);
 };
 function _update(done, where, data, config) {
-	done.hook4dataFn(function (data) {
-		debug('update arg', arguments)
-		return Status.makeForUpdate(data)
+	done.hook4dataFn(function (result) {
+		debug('update arg', result)
+		return Status.makeForUpdate(result)
 	})
 	//TODO: writeConcern 는 무엇을 위한 설정일까. //매치되는 doc없으면 새로 생성안해.//매치되는 doc 모두 업데이트
 	var config = config || {upsert: false , multi:true}
 	   ,callback = done.getCallback();
-	_db.update(where, data, config).exec(callback);
+	_db.update(where, data, config, callback);
 }
 
 		// remove
@@ -277,7 +287,7 @@ categoryDAO.removeById = function (done, id) {
 };
 function _remove(done, where) {
 	done.hook4dataFn(function (data) {
-		debug('remove arg', arguments)
+		debug('remove arg', data)
 		return Status.makeForRemove(data)
 	})
 	_db.remove(where, done.getCallback());
@@ -287,6 +297,7 @@ function _remove(done, where) {
 /* helper */		
 function _getSchema() {
 	return {
+		'_id': {type:ObjectId4Schema}, // default로 값을 할당하면 create 후 id가 반환되지않는다.
         'title' : String,
         'postCount' : Number,
         'parentId' : String,

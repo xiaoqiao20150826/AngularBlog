@@ -5,16 +5,17 @@ var should = require('should')
   , path = require('path')
 
 var H = require('../testHelper.js')
-  , localFile = require('../../common/localFile.js');
 
 var Post = require('../../domain/blogBoard/Post.js')
   , Answer= require('../../domain/blogBoard/Answer.js')
   , Category = require('../../domain/blogBoard/Category.js')
   , User = require('../../domain/User.js')
   
+var Transaction = require('../../dao/util/transaction/Transaction.js')
 var postDAO = require('../../dao/blogBoard/postDAO.js')
   , answerDAO = require('../../dao/blogBoard/answerDAO.js')
-  , userDAO = require('../../dao/userDAO.js');
+  , categoryDAO = require('../../dao/blogBoard/categoryDAO.js')
+  , userDAO = require('../../dao/userDAO.js')
 var blogService = require('../../service/blogBoard/blogBoardService.js')
 var initDataCreater = require('../../initDataCreater')
 // 테스트를 위한 참조, 입력한 데이터에 대한.  
@@ -76,7 +77,8 @@ describe('blogService', function () {
 			function dataFn(e_post) {
 //				console.log(e_post)
 				should.equal(e_post.num, post.num);
-				should.equal(e_post.answers.pop().num, 2);
+//				console.log(e_post.answers)
+				should.equal(e_post.answers.pop().num, 1);
 				nextTest();
 				
 			}
@@ -93,40 +95,22 @@ describe('blogService', function () {
 	describe('#insertPostAndIncreaseCategoryCount', function () {
  		it('should insert post without file', function (nextTest) {
 			var errFn = H.testCatch1(nextTest)
-			  , done = new H.Done(dataFn, errFn);
-			blogService.insertPostAndIncreaseCategoryCount(done, post);
-			function dataFn(post) {
-				should.exist(post);
-				should.deepEqual(post.filePaths, []);
-				nextTest();
-			}
+			var newPost = Post.createBy({content:'newPost', categoryId:post.categoryId})
+			
+			H.call4promise(blogService.insertPostAndIncreaseCategoryCount, newPost)
+			 .then(function dataFn(insertedPost) {
+					should.exist(insertedPost);
+					should.deepEqual(insertedPost.fileInfoes, []);
+					
+					return H.call4promise(categoryDAO.findById, post.categoryId)
+			 })
+			 .then(function (category){
+				 should.equal(category.postCount, 1)
+				 nextTest();
+			 })
+			 .catch(errFn)
 		})
 	})
-//	describe('#deletePostOrFile', function() {
-//		it('should delete post with null filepath', function(nextTest) {
-//			var errFn = H.testCatch1(nextTest)
-//			  , done = new H.Done(dataFn, errFn);
-//			var filepath = null
-//			  , postNum = post.num;
-//			blogService.deletePostOrFile(done, postNum , filepath);
-//			function dataFn() {
-//				//이곳까지와서 nextTest()만 호출하면됨.
-////				console.log('without')
-//				nextTest();
-//			}
-//		})
-//		it('should delete post and file', function(nextTest) {
-//			var errFn = H.testCatch1(nextTest)
-//			, done = new H.Done(dataFn, errFn);
-//			//위에서 삽입했던 데이터 재활용..겸 삭제
-//			blogService.deletePostOrFile(done, _postWithFile4Test.num , _postWithFile4Test.filePaths);
-//			function dataFn() {
-//				//이곳까지와서 nextTest()만 호출하면됨.
-////				console.log('with')
-//				nextTest();
-//			}
-//		})
-//	})
 	describe('#update', function () {
 		it('should success increaseVote', function (nextTest) {
 			var errFn = H.testCatch1(nextTest)
@@ -153,6 +137,19 @@ describe('blogService', function () {
 			}
 		})
 	})
+	describe('delete', function () {
+		it('should run and rollback', function (nextTest) {
+			var errFn = H.testCatch1(nextTest)
+			var postNum = 1
+			H.call4promise(blogService.deletePost, postNum)
+			.then(function (status) {
+				should.equal(status.isSuccess(), true)
+				nextTest()
+			})
+			.catch(errFn)				
+			
+		})
+	})
 });
 
 /* helper */
@@ -174,6 +171,7 @@ function _createAndInsertTestData(nextTest) {
 				post.content = 'postContent1';
 				post.userId = userId;
 				post.categoryId = categoryId
+				post.fileInfoes = []
 				
 				user = new User();
 				user._id = userId;
@@ -195,10 +193,6 @@ function _createAndInsertTestData(nextTest) {
 					         , [ answerDAO.insertOne, answer2]
 					         , [ userDAO.insertOne, user]
 					         ])
-					         .then(function() {
-					        	 var dataInFile = '2222lmfelwm3ㅎㅈㄷㅎㄷㅈㅎ w3 3g';
-					        	 return H.call4promise(localFile.create, testFileUrl, dataInFile);
-					         })
 					         .then(function(url) {
 					        	 testFileUrl = url;
 					        	 nextTest();
@@ -216,9 +210,6 @@ function _deleteAllTestData(nextTest) {
 				 , userDAO.removeAll
 				 , initDataCreater.removeAll
 	])
-	.then(function() {
-		return H.call4promise(localFile.delete, testFileUrl);
-	})
 	.then(function() {
 			mongoose.disconnect(function(d) {
 					nextTest();

@@ -8,12 +8,12 @@
 /* 초기화 및 의존성, 클래스 변수 */
 var H = require('../../common/helper.js')
   , Done = H.Done
+  , Status = require('../../common/Status.js')
   , _ = require('underscore')
   , debug = require('debug')('nodeblog:service:categoryService')
   
 var Category = require('../../domain/blogBoard/Category.js')
   , Joiner = require('../../dao/util/Joiner.js')
-  , Status = require('../../dao/util/Status.js')
 
 var categoryDAO = require('../../dao/blogBoard/categoryDAO.js')
   , postDAO = require('../../dao/blogBoard/postDAO.js')

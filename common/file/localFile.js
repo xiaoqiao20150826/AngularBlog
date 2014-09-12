@@ -6,8 +6,8 @@ var _ = require('underscore')
   , path = require('path')
   , fs = require('fs');
 
-var Status = require('../dao/util/Status') //이것이. 몽고디비를 위한건데. 여기서도 사용.
-var H = require('./helper.js')
+var Status = require('../Status') //이것이. 몽고디비를 위한건데. 여기서도 사용.
+var H = require('../helper.js')
   , Done = H.Done;
   
 /////
@@ -43,29 +43,39 @@ localFile.createFolderIfNotExist = function (dirPath, nextFn) {
 //			fild 관련
 
 //callback(err)로 호출되기에 data는 값이 없지만 dataFn을 통해 다음행동을 할 수 있다.
-//이건 전달하는 data없으니 내가 생성한 fileUrl을 전달함.
-localFile.create = function(done, fileUrl, data, option) {
-	done.hook4dataFn(function() {return fileUrl});
+//이건 전달하는 data없으니 내가 생성한 filePath을 전달함.
+localFile.create = function(done, filePath, data, option) {
+	done.hook4dataFn(function(data) {
+		var status = Status.makeSuccess(data)
+		status.filePath = filePath
+		return status 
+	});
+	
 	var option = option || {encoding:'utf8'};
-	fs.writeFile(fileUrl, data, option, done.getCallback());
+	fs.writeFile(filePath, data, option, done.getCallback());
 }
 
-localFile.createEx = function(done, fileUrl, data, option) {
-	done.hook4dataFn(function() {return fileUrl});
-	var dir = path.dirname(fileUrl)
+localFile.createEx = function(done, filePath, data, option) {
+	done.hook4dataFn(function(data) {
+		var status = Status.makeSuccess(data)
+		status.filePath = filePath
+		return status 
+	});
+	
+	var dir = path.dirname(filePath)
 	localFile.createFolderIfNotExist(dir, function () {
-		localFile.create(done, fileUrl, data, option);
+		localFile.create(done, filePath, data, option);
 	});
 }
-localFile.read = function(done, fileUrl, option) {
+localFile.read = function(done, filePath, option) {
 	var option = option || {encoding:'utf8'}
-	fs.readFile(fileUrl, option, done.getCallback());
+	fs.readFile(filePath, option, done.getCallback());
 }
 localFile.copyNoThrow = function(done, fromFileUrl, toFileUrl, option) {
 	var dataFn = done.getDataFn();
 	done.setErrFn(function(err) {
 		debug('copyNoThrow err', err)
-		dataFn(null);
+		dataFn(Status.makeError(err));
 		
 	})
 	localFile.copy(done, fromFileUrl, toFileUrl, option)
@@ -79,7 +89,7 @@ localFile.copy = function(done, fromFileUrl, toFileUrl, option) {
 //		 debug('read data :', data)
 		 debug('fromFileUrl and data is exist', fromFileUrl  )
 		 if(H.notExist(data)) 
-			 return dataFn(null)
+			 return Status.makeError(fromFileUrl + ' data is not exist')
 		 else 
 			 return localFile.createEx(done, toFileUrl, data, option);
 	 })
@@ -109,8 +119,8 @@ localFile.copyNoDuplicateWithOption = function(done, fromFileUrl, toFileUrl, opt
 	}
 }
 //이 함수는 err가 없어. data만 전달해 그래서 done의 async템플릿 사용은은 애매해.
-localFile.exists = function(done, fileUrl) {
-	fs.exists(fileUrl, done.getDataFn());
+localFile.exists = function(done, filePath) {
+	fs.exists(filePath, done.getDataFn());
 }
 
 //하나짜리 사용안할듯.
@@ -129,52 +139,49 @@ localFile.deleteFileAndDeleteFolderIfNotExistFile = function (done, filePath) {
 }
 
 //
-localFile.deleteFiles = function (done, filePaths) {
-	var dataFn = done.getDataFn()
-	  , successStatus = Status.makeSuccess()
-	  
-	H.asyncLoop(filePaths , localFile.delete, new Done(lastCallback, eachErrFn))
+localFile.deleteFiles = function (lastDone, filePaths) {
+	var lastDataFn = lastDone.getDataFn()
+	  , lastErrFn = lastDone.getErrFn()
 	
-	function lastCallback(statues) {
+	var doneAfterLoop = new Done(dataFn, errFn)  
+	H.asyncLoop(filePaths , localFile.delete, doneAfterLoop)
+	
+	function dataFn(statues) {
 		debug('deleteFiles statues : ', statues)
-		if(_.isEmpty(statues)) return dataFn(successStatus)
-		
-		for(var i in statues) {
-			var status = statues[i] 
-			if(status.isError()) { return dataFn(status.appendMessage('file'+i+' delete fail')) }
-		}
-		
-		return dataFn(successStatus)
+		return lastDataFn(Status.makeSuccess('file delete success'))
 	}
-	function eachErrFn(err) {
-		return console.error('should not call', err)
+	function errFn(err) {
+		return lastErrFn(Status.makeError(err))
 	}
 }
-localFile.delete = function(done, fileUrl) {
+localFile.delete = function(done, filePath) {
 	var dataFn = done.getDataFn()
+	  , errFn = done.getErrFn()
 	
-	done.hook4dataFn(function () { return Status.makeSuccess('success')})
+	done.hook4dataFn(function(data) { return Status.makeSuccess(data) });
 	done.setErrFn(errFn4notFoundFile)  
 	function errFn4notFoundFile(err) {
 		if(err) {
-			if (err.code == 'ENOENT')  return dataFn(Status.makeError('fail'));
+			//없는경우 성공으로 넘기면됨.
+			if (err.code == 'ENOENT')  return dataFn(Status.makeSuccess(''));
 			
-			return dataFn(Status.makeError('err : ', err) ); 
+			return errFn(err); 
 		}
 	}
 	
-	fs.unlink(fileUrl, done.getCallback());
+	fs.unlink(filePath, done.getCallback());
 }
 localFile.deleteOneFolder = function(done, path) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn()
 	
-	done.hook4dataFn(function () { return Status.makeSuccess('success.. no arg')})  
+	done.hook4dataFn(function(data) { return Status.makeSuccess(data) });
 	done.setErrFn(errFn4existFile) 
 	function errFn4existFile(err) {
 		if(err) {
-			if (err.code == 'EBUSY') return dataFn(Status.makeError('fail EBUSY'));
-			if (err.code == 'ENOTEMPTY') return dataFn(Status.makeError('fail ENOTEMPTY'));
+			//파일존재시 삭제하지 안을것이니.. 성공으로.
+			if (err.code == 'EBUSY') return dataFn(Status.makeSuccess('fail EBUSY'));
+			if (err.code == 'ENOTEMPTY') return dataFn(Status.makeSuccess('fail ENOTEMPTY'));
 			
 			return errFn(err); // 그외 
 		}
@@ -183,20 +190,7 @@ localFile.deleteOneFolder = function(done, path) {
 }
 
 ///
-localFile.getToAndFromFileUrl = function (fromFile, imgDir) {
-	var fileName = fromFile.name
-	  , fromFileUrl = fromFile.path //임시저장된 파일위치
-	  , toFileUrl = imgDir + '\\' + fileName;
-	  
-	return {to : toFileUrl, from : fromFileUrl };
-}
-localFile.existFile = function _existFile(file) {
-	if(file.size != 0 )
-		return true;
-	else
-		return false;
-} 
-
+//TODO: 이게 애매하네. 이미지(png등..) 타입인지를 다 확인해야함?
 localFile.isImageType = function (type) {
 	if(!type) return false;
 	

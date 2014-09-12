@@ -1,8 +1,7 @@
 
 var H = require('../../../common/helper')
   
-// 실제작업을하는 인스턴스
-
+// target의 현재시점의 함수를 후킹하고, end시 원상태로 되돌림.
 var Hooker = module.exports = function Hooker(target) {
 	this.target = target
 	this.originFnMap = {}

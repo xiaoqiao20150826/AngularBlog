@@ -7,21 +7,22 @@
 var debug = require('debug')('nodeblog:service:blogBoardService')
 var _ = require('underscore')
 var H = require('../../common/helper.js')
+  , Status = require('../../common/Status.js')
   , path = require('path')
-  , localFile = require('../../common/localFile.js')
+  , fileDAO = require('../../common/file/fileDAO.js')
   , config = require('../../config.js');
 
 var Post = require('../../domain/blogBoard/Post.js')
   , Answer = require('../../domain/blogBoard/Answer.js')
   , Category = require('../../domain/blogBoard/Category.js')
   , User = require('../../domain/User.js')
-  , Status = require('../../dao/util/Status.js')
   , Joiner = require('../../dao/util/Joiner.js')
 
+var Transaction = require('../../dao/util/transaction/Transaction.js')
 var postDAO = require('../../dao/blogBoard/postDAO.js')
    ,answerDAO = require('../../dao/blogBoard/answerDAO.js')
    ,categoryDAO = require('../../dao/blogBoard/categoryDAO.js')
-   , userDAO = require('../../dao/userDAO.js')
+   ,userDAO = require('../../dao/userDAO.js')
    ,answerService = require('./answerService.js')
    ,categoryService = require('./categoryService.js')
 
@@ -83,8 +84,7 @@ blogBoardService.getJoinedPostsByUsersAndCategories = function (done, posts, all
     	 var userJoiner = new Joiner(users, '_id', 'user')
     	   , categoryJoiner = new Joiner(allCategories, 'id', 'category')
     	 
-    	 
-    	 joinedPosts = userJoiner.joinTo(posts, 'userId', User.getAnnoymousUser());
+    	 joinedPosts = userJoiner.joinTo(posts, 'userId', function() {return User.getAnnoymousUser()} );
     	 joinedPosts = categoryJoiner.joinTo(joinedPosts, 'categoryId');
     	 
     	 return dataFn(joinedPosts)
@@ -105,7 +105,7 @@ blogBoardService.getJoinedPost = function (done, postNum) {
 	 .then(function (args) {
 		 var joinedPost = args[0]
 		   , joinedAnswers = args[1].answers
-		 
+//		 console.log(joinedAnswers)  
 		 joinedPost.setAnswers(joinedAnswers);
 	 	 debug('joinedPost :', joinedPost)
 	 	 
@@ -121,7 +121,7 @@ blogBoardService.getJoinedPostByUser = function (done, postNum) {
 	return H.call4promise(postDAO.findByNum, postNum)
 	 .then(function (post) {
 		 _post = post;
-		 return H.call4promise([userDAO.findById], post.getUserId());
+		 return H.call4promise(userDAO.findById, post.getUserId());
      })
 	 .then(function (user) {
 		if(_.isEmpty(_post)) return console.error('not found By '+postNum + new Error().stack);
@@ -132,7 +132,7 @@ blogBoardService.getJoinedPostByUser = function (done, postNum) {
 	.catch(errFn)
 }
 
-blogBoardService.insertPostAndIncreaseCategoryCount = function(done, post, file) {
+blogBoardService.insertPostAndIncreaseCategoryCount = function(done, post) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();
 	
@@ -152,71 +152,71 @@ blogBoardService.insertPostAndIncreaseCategoryCount = function(done, post, file)
 blogBoardService.deletePost = function (done, postNum) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn()
-	  , successStatus = Status.makeSuccess()
-	  , errorStatus = Status.makeError()
 	
-	H.call4promise(postDAO.findByNum, postNum)
-	 .then(function(post){
-		 var filePaths = post.filePaths
-		   , categoryId = post.categoryId
-		 
-		 return H.all4promise([
-				                 [postDAO.removeByPostNum, postNum]
-				               , [answerDAO.removeAllByPostNum, postNum]
-				               , [localFile.deleteFiles, filePaths]
-				               , [categoryDAO.decreasePostCountById, categoryId]
-				              ])
-	 })
-	 .then(function (statusMap) {
-		 	debug('statusMap', statusMap)
-			if(_.isEmpty(statusMap)) return dataFn(Status.makeError('not exist to delete some'))
-			
-			_.each(statusMap, function (status,i) {
-				if(status.isError()) return dataFn(errorStatus) 
-			})
-			return dataFn(successStatus)
-	 })
-	 .catch(function eachErrFn(err) {
-		 return dataFn(errorStatus)
-	 })
+	var transaction = new Transaction()   
+	transaction.atomic(function () {
+		return H.call4promise(postDAO.findByNum, postNum)
+				.then(function(post){
+					var fileInfoes = post.fileInfoes
+					, categoryId = post.categoryId
+					
+					//상태변화(update,delete) 함수들은 모두 status반환.
+					return H.all4promise([
+					                        [postDAO.removeByPostNum, postNum]
+					                      , [answerDAO.removeAllByPostNum, postNum]
+					                      , [categoryDAO.decreasePostCountById, categoryId]
+					                      , [fileDAO.deleteByFileInfoes, fileInfoes]
+					                      ])
+
+				})
+				.then(function (statuses) {
+				    debug('s',statuses)
+					return dataFn(Status.makeSuccess('remove all in post '+postNum))
+				})
+				.catch(function (err) {
+					debug('delete err ',err)
+					transaction.rollback() // err시 롤백
+					return errFn(err)
+				})
+	})
 }
 
 //다중
+//포스트들과 그 댓글들, 파일들 삭제 하고 관련된 카테고리 감소.
 blogBoardService.deletePostsByUserId = function (done, userId) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn()
-	  , successStatus = Status.makeSuccess()
-	  , errorStatus = Status.makeError()
-	  
-	//포스트들과 그 댓글들, 파일들 삭제 하고 관련된 카테고리 감소.
-	return H.call4promise(postDAO.findByUserId, userId)
-	.then(function(posts){
-			if(_.isEmpty(posts)) return dataFn(successStatus);
-			
-			var postNums = Post.getNums(posts)
-			  , filePaths = Post.getFilePaths(posts)
-			  , categoryIdAndCountMap = Post.getCategoryIdAndCountMap(posts)
-			
-			return H.all4promise([
-			                        [postDAO.removeByUserId, userId]
-			                      , [answerDAO.removeByPostNums, postNums]
-			                      , [localFile.deleteFiles, filePaths]
-			                      , [categoryDAO.decreasePostCountByIdAndCountMap, categoryIdAndCountMap]
-			                      ])
-		})
-		.then(function (statuses) {
-			debug('#deletePostByUserId statusMap', statuses)
-			if(_.isEmpty(statuses)) return dataFn(Status.makeError('not exist to delete some'))
-			
-			for(var i in statuses) {
-				var status = statuses[i]
-				if(status.isError()) return dataFn(status.appendMessage('#deletePostByUserId' + i +' delete fail')) 
-			}
-			return dataFn(successStatus)
-		})
-		.catch(function eachErrFn(err) {
-			return dataFn(Status.makeError('#deletePostByUserId' + err))
-		})
+
+	var transaction = new Transaction()   
+	transaction.atomic(function () {  
+		return H.call4promise(postDAO.findByUserId, userId)
+				.then(function(posts){
+					if(_.isEmpty(posts)) return Status.makeSuccess('not exist to delete post')
+					
+					var postNums = Post.getNums(posts)
+					, fileInfoes = Post.getFileInfoes(posts)
+					, categoryIdAndCountMap = Post.getCategoryIdAndCountMap(posts)
+					
+					return H.all4promise([
+					                        [postDAO.removeByUserId, userId]
+					                      , [answerDAO.removeByPostNums, postNums]
+					                      , [categoryDAO.decreasePostCountByIdAndCountMap, categoryIdAndCountMap]
+					                      , [fileDAO.deleteByFileInfoes, fileInfoes]
+					                      ])
+				})
+				.then(function (statuses) {
+					debug('s',statuses)
+					if(!_.isArray(statuses)) return dataFn(statuses)
+				    
+					return dataFn(Status.makeSuccess('remove post by '+userId) )
+				})
+				.catch(function (err) {
+					debug('delete err ',err)
+					transaction.rollback() // err시 롤백
+					return errFn(err)
+				})
+	})
+	
 }
 
 

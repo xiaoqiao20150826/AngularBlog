@@ -6,18 +6,18 @@
 
 var H = require('../../common/helper.js')
   , _ = require('underscore')
-  , pathUtil = require('../../common/util/pathUtil')
   
 var User = require('../User.js')
   
 
 //////////////////
 var Post = module.exports = function Post() {
+	this._id = null;
 	this.num = 0;
 	this.readCount = 0;
 	this.vote = 0;
 	this.votedUserIds = [];
-	this.filePaths = [];  // 저장할때 로컬의 절대 주소로 .지우기쉽게.
+	this.fileInfoes = [];  
 	this.title = '';
 	this.content = '';
 	this.created = Date.now();
@@ -42,8 +42,9 @@ Post.getUserIds = function (posts) {
 Post.getNums = function (posts) {
 	return _findValuesAboutKey(posts, 'num')
 }
-Post.getFilePaths = function (posts) {
-	var values = _findValuesAboutKey(posts, 'filePaths')
+//
+Post.getFileInfoes = function (posts) {
+	var values = _findValuesAboutKey(posts, 'fileInfoes')
 	return _.compact(_.flatten(values))
 }
 //post에 categoryId 조인할때
@@ -90,42 +91,14 @@ Post.prototype.setAnswers = function (answers) {
 	this.answerCount = answers.length;
 };
 
-Post.prototype.addFilePath = function (filePaths) {
-	if(!_.isArray(filePaths)) filePaths = [filePaths]
-	this.filePaths = filePaths;
+Post.prototype.addFileInfoes = function (fileInfoes) {
+	if(!_.isArray(fileInfoes)) fileInfoes = [fileInfoes]
+	this.fileInfoes = fileInfoes;
 };
-// update를 위해 [a,b,c] -> 'urlA;urlB;urlC;'
-Post.prototype.getFileNames = function (filePath) {
-	var filePaths = this.filePaths
-	if(!_.isArray(filePaths)) filePaths = [filePaths]
-	
-	var fileNames=[]
-	for(var i in filePaths) {
-		var filePath = filePaths[i]
-		  , fileName = pathUtil.getFileName(filePath)
-		  
-		  fileNames.push(fileName)
-	}
-	
-	return fileNames
-}
-Post.prototype.getUrlStringsOfFile = function () {
-	var filePaths = this.filePaths
-	if(!_.isArray(filePaths)) filePaths = [filePaths]
-	var urlStrings = ''
-	for(var i in filePaths) {
-		var filePath = filePaths[i]
-		  , url = pathUtil.getUrlByLocalFilePath(filePath)
-		  
-		  urlStrings =  urlStrings +  ';' + url
-	}
-	if(urlStrings.charAt(0) == ';') {urlStrings = urlStrings.slice(1)}
-	return urlStrings
-}
 
 // etc
 Post.prototype.hasFile = function () {
-	if(!_.isEmpty(this.filePaths))
+	if(!_.isEmpty(this.fileInfoes))
 		return true
 	else
 		return false;

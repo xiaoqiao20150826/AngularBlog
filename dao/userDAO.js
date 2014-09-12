@@ -16,7 +16,7 @@ var mongoose = require('mongoose')
 var _ = require('underscore')
 	,H = require('../common/helper.js')
 	,Done = H.Done
-	,Status = require('./util/Status')
+	,Status = require('../common/Status')
 	,_db = mongoose.model('User', userSchema);
 
 //// init
@@ -118,12 +118,12 @@ userDAO.increaseVisitCount = function(done, id) {
 
 function _update(done, where, data, config) {
 	done.hook4dataFn(function (result) {
-		console.log('update', result)
 		return Status.makeForUpdate(result)
 	})
 	var config = config || {upsert: false , multi:true}//매치되는 doc없으면 새로 생성안해.//매치되는 doc 모두 업데이트
 	  , callback = done.getCallback();
-	_db.update(where, data, config).exec(callback);
+	  
+	_db.update(where, data, config, callback);
 }
 
 /* etc..count */

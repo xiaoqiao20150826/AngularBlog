@@ -8,11 +8,11 @@ var _ = require('underscore')
 
 var H = require('../../common/helper.js')
   , config = require('../../config.js')
+  , Status = require('../../common/Status.js')
 
 var Answer = require('../../domain/blogBoard/Answer.js')
   , User = require('../../domain/User.js')
   , Joiner = require('../../dao/util/Joiner.js')
-  , Status = require('../../dao/util/Status.js')
 
 var answerDAO = require('../../dao/blogBoard/answerDAO.js')
   , postDAO = require('../../dao/blogBoard/postDAO.js')
@@ -36,7 +36,7 @@ answerService.getRootOfAnswerTree = function (done, postNum) {
 	 		.then(function (answers) {
 	 			_answers = answers
 	 			var userIds = Answer.getUserIds(_answers);
-	 	    	return H.call4promise([userDAO.findByIds], userIds);
+	 	    	return H.call4promise(userDAO.findByIds, userIds);
 	 		})
 			 .then(function (users) {
 				 var rootOfTree = answersJoinUsersAndTreeAnswers(users, _answers)
@@ -76,7 +76,7 @@ answerService.getJoinedAnswer = function (done, currentAnswerNum) {
 		    	 if(answer.isAnnoymous()) 
 		    		 return null;
 		    	 else
-		    		 return H.call4promise([userDAO.findById], answer.userId)
+		    		 return H.call4promise(userDAO.findById, answer.userId)
 		     })
 		      .then(function (user) {
 		    	  if(user == null) {

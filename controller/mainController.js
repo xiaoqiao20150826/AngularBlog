@@ -1,7 +1,7 @@
 
 /* 초기화 및 클래스 변수 */
 
-var debug = require('debug')('nodeblog:route:blog')
+var debug = require('debug')('nodeblog:controller:main')
 var _ = require('underscore')
   , Q = require('q')
 var H = require('../common/helper.js')
@@ -42,8 +42,8 @@ mainController.sendBlogBoardListView  = function (req, res) {
 	  , categoryId = Category.isRoot(rawData.categoryId) ? Category.getRootId() : rawData.categoryId
 	  , loginUser = requestParser.getLoginUser(req)
 	
-	console.log('pageNum',pageNum, _.isNumber(pageNum))
-	debug('list rawData ',rawData)  
+//	console.log('pageNum',pageNum, _.isNumber(pageNum))
+	debug('/ rawData ',rawData)  
 	var errFn = redirector.catch;
 	H.call4promise(blogBoardService.getFullList, pageNum, sorter, categoryId)
      .then(function dataFn(blogBoard) {
@@ -58,8 +58,8 @@ mainController.sendBlogBoardListView  = function (req, res) {
 				  , loginUser : loginUser 
 				  , scriptletUtil : scriptletUtil
 				  };
-		
-		res.render('./wholeFrame/blogBoard/list.ejs', {blog : blog});
+//       	debug('/ blog ',blog)
+		return res.render('./wholeFrame/blogBoard/list.ejs', {blog : blog});
 	})
      .catch(errFn)
 }

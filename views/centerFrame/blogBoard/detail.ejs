@@ -25,21 +25,23 @@
 			<div class="row-fluid">
 			<%
 			if(post.hasFile()) {
-				  var fileNames = post.getFileNames()
+				  var fileInfoes = post.fileInfoes
 			%>
 				<footer class="row">
 					<div class='pull-right'>
 						<div class='row-fluid'>download</div>
 							<%
 								
-								for(var i in fileNames) {
-								var fileName = fileNames[i]
+								for(var i in fileInfoes) {
+								var fileInfo = fileInfoes[i]
 							%>
-							 	<form action="/file/download" method="post" >
-									<input name="userId" value="<%= user._id%>" style="display:none">
-									<input name="fileName" value="<%= fileName%>" style="display:none">
-								 	<input class='btn btn-link' type="submit" value='<%=fileName%>'>
-								</form>
+<!-- 							 	<form action="/file/download" method="post" > -->
+<!-- 									<input name="fileUrl" value="<%= fileInfo.url%>" style="display:none"> -->
+<!-- 								 	<input class='btn btn-link' type="submit" value='<%=fileInfo.name%>'> -->
+<!-- 								</form> -->
+								<div>
+								<a href = '<%= fileInfo.url %>' download='<%= fileInfo.name%>'><%= fileInfo.name%></a>
+								</div>
 							<%
 								}
 							%>

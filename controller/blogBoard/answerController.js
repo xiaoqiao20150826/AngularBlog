@@ -1,6 +1,6 @@
 
 /* 초기화 및 클래스 변수 */
-var debug = require('debug')('route:answer')
+var debug = require('debug')('nodeblog:controller:answer')
 
 var _ = require('underscore')
   , H = require('../../common/helper.js')

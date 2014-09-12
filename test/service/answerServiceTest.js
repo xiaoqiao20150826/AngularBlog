@@ -40,9 +40,9 @@ describe('answerService', function () {
 			function dataFn(root) {
 				var answers = root.answers
 				debug('joinedAnswers :', answers)
-				should.equal(answers[1].user, answers[1].answers.pop().user)
-				var lowAnswer = answers[1].answers[0]
-				should.equal(lowAnswer.num,5)
+				should.equal(answers[0].user, answers[0].answers.pop().user)
+				var lowAnswer = answers[0].answers[0]
+				should.equal(lowAnswer.num,4)
 				should.equal(lowAnswer.answerNum, 2 )
 				nextTest();
 			}
@@ -52,6 +52,7 @@ describe('answerService', function () {
 			answerService.getRootOfAnswerTree(new H.Done(dataFn, errFn), 22);
 			function dataFn(root) {
 				var e_answers = root.answers
+//				console.log(root)
 				debug('answers empty ',e_answers)
 				should.equal(e_answers.length,0);
 				nextTest();
@@ -131,9 +132,10 @@ function _createAndInsertTestData(nextTest) {
 	var done = new H.Done(function() {}, errFn);
 	
 	mongoose.connect('mongodb://localhost/test',function() {
+		//순서를 지켜야해
 		H.call4promise(initDataCreater.create)
 		 .then(function() {
-			H.all4promise([ [postDAO.insertOne, post]
+			H.syncAll4promise([ [postDAO.insertOne, post]
 					      , [answerDAO.insertOne, answer]
  						  , [answerDAO.insertOne, answer2]
 						  , [answerDAO.insertOne, answer3]
