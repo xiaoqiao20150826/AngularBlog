@@ -7,7 +7,7 @@
 	var loginUser = blog.loginUser;
 %>
 
- <form action="/blogBoard/insert" method="post" enctype="multipart/form-data" name="writeForm" class="form-horizontal"  id='blogBoard-insertForm'  role="form">
+ <form action="/blogBoard/insert" method="post"  name="writeForm" class="form-horizontal"  id='blogBoard-insertForm'  role="form">
    <div class="form-group">
       <label class="col-sm-2 control-label">
          Id
@@ -41,13 +41,16 @@
    </div>
    <div class="form-group">
 	    <label class="col-sm-2 control-label">File input</label>
-	    <div class="col-sm-10">
-	    	<input type="text" id="blogBoard-fileInfoesString" name='fileInfoesString' style="display:none"> 
-	    	<input type="file" id= 'blogBoard-insertFile' data-userId='<%= loginUser._id%>'>
-	    </div>
+
+		<div class="col-sm-10">
+			<input type="file" id= 'blogBoard-insertFile' data-userId='<%= loginUser._id%>'>
+		    <input type="text" id="blogBoard-fileInfoesString" name='fileInfoesString' style="display:none">
+		</div>      	    
+		<textarea class='col-sm-offset-2 col-sm-10 row' id='blogBoard-fileUrlsView' style='height:70px' disabled></textarea>
+	    
    </div>
-   <textarea class='col-sm-offset-2 col-sm-10 row' id='blogBoard-fileUrlsView' style='height:70px' disabled></textarea>
+   
    <button type="submit" class="btn btn-default pull-right">Submit</button>
 </form>
-</div>      
-      
+</div>
+

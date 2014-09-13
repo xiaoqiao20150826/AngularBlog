@@ -1,60 +1,57 @@
 /**
  * Module dependencies.
  */
-var express = require('express'),
-	http = require('http'),
-	path = require('path'),
-	mongoose = require('mongoose'),
-	passport = require('./common/auth/oauth-passport.js'); //설정된 passport.
-
-var _config = require('./config.js')
-  , app = express();
-
+var express = require('express')
+  ,	http = require('http')
+  ,	path = require('path')
+  ,	mongoose = require('mongoose')
+  ,	passport = require('./common/auth/oauth-passport.js') //설정된 passport.
+var _config = require('./config.js')		
+  , app = express()
+var cookieParser = require('cookie-parser')
+  , bodyParser = require('body-parser')
+  , cookieSession = require('cookie-session')
+  , multer = require('multer')
 //1. middleware 설정. 순서주의
 //  - 미들웨어는 요청에 대한 처리 후 다음에 전달.
-app.configure(function () {
-	app.use(express.favicon());
-	app.use(express.bodyParser());     //form 전송시 분석.
-	app.use(express.methodOverride()); //post _method 골라줌.
-	/////////////////////session 및 passport////////////////////////////////////////
-	app.use(express.cookieParser());
-	app.use(express.session({ secret: 'secret'}));
-	
-	app.set('passport', passport);
-	app.use(passport.initialize());
-	app.use(passport.session());
-	//////////////////////////
-	app.use(app.router); // controller
-	
-	//config를 app를 통해 접근하기 위한 설정
-	app.set('config', _config);
-})
+app.use(express.favicon());
+app.use(bodyParser.urlencoded({extended:true}))  //for application/json
+   .use(bodyParser.json())						// for application/x-www-form-urlencoded
+   .use(multer({dest : './tempFiles/'}) )          // for mutipart-formdata 로컬에서 임시파일 지우기 구현안했음
+/////////////////////session 및 passport////////////////////////////////////////
+app.use(cookieParser());
+app.use(cookieSession({ secret: 'secret'}));
+
+app.set('passport', passport);
+app.use(passport.initialize());
+app.use(passport.session());
+//////////////////////////
+app.use(app.router); // controller
+
+//config를 app를 통해 접근하기 위한 설정
+app.set('config', _config);
 
 //2. url과 controller를 연결해준다. 
-app.configure(function () {
-	var controllerManager = require('./controller/controllerManager.js');
-	controllerManager.mapUrlToResponse(app); //동적자원 매핑
-	
-	app.use('/resources',express.static(path.join(__dirname, '/resources'))); 	//정적자원 매핑
-})
+var controllerManager = require('./controller/controllerManager.js');
+controllerManager.mapUrlToResponse(app); //동적자원 매핑
+
+app.use('/resources',express.static(path.join(__dirname, '/resources'))); 	//정적자원 매핑
 
 //3. 뷰 엔진설정
-app.configure(function () {
-	var ejsEngine = require('ejs-locals');
-	 
-	app.set('views', __dirname + '/views');
-	app.set('view engine', 'ejs');
-	app.set('view options', { layout:false, root: __dirname + '/main' } );
-	app.engine('ejs',ejsEngine);
-});
+var ejsEngine = require('ejs-locals');
+ 
+app.set('views', __dirname + '/views');
+app.set('view engine', 'ejs');
+app.set('view options', { layout:false, root: __dirname + '/main' } );
+app.engine('ejs',ejsEngine);
 
-//4. 개발모드일 경우만 에러 핸들러 추가.
-app.configure(_config.mode, function () {
+//3. test모드일 경우만 에러 핸들러 추가.
+if(_config.mode == 'test') { 
 	if(_config.mode == 'production') {
 		app.use(express.logger('production'));    //
 	}
 	app.use(express.errorHandler());
-})
+}
 
 //4. 서버 열고 디비 연결. + 필요 테이블 생성.
 

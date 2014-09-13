@@ -7,7 +7,7 @@
 	 ,  post = blog.post
 %>
 
- <form action="/blogBoard/update" method="post" enctype="multipart/form-data" name="writeForm" class="form-horizontal"  id='blogBoard-insertForm'  role="form">
+ <form action="/blogBoard/update" method="post" name="writeForm" class="form-horizontal"  id='blogBoard-insertForm'  role="form">
  	<input name="num" type="text" value="<%= post.num%>" style="display:none">
  	<input name="originCategoryId" type="text" value="<%= post.categoryId%>" id='blogBoard-originCategory' style="display:none">
  

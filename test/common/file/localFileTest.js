@@ -147,7 +147,7 @@ describe('localFile', function() {
 			var folderHasFile = folder;
 			localFile.deleteOneFolder(new Done(dataFn, catch1(nextTest)), folderHasFile)
 			function dataFn(status) {
-				should.equal(status.isError(), true)
+				should.equal(status.isSuccess(), true)
 				nextTest()
 			}
 		})
@@ -155,7 +155,7 @@ describe('localFile', function() {
 			var filePath = folder + '\\a223r23f23.txt'
 			localFile.delete(new Done(dataFn, catch1(nextTest)), filePath)
 			function dataFn(status) {
-				should.equal(status.isError(), true)
+				should.equal(status.isSuccess(), true)
 				nextTest()
 			} 
 		})

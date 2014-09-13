@@ -19,15 +19,16 @@ fileDAO.save = function (done, fromFile, userId) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn()
 	
-	var originalFileName = fromFile.originalFilename
+	var originalFileName = fromFile.originalname
 	  , fileName = originalFileName.slice(0,originalFileName.indexOf('.'))
 	  , fromFilePath = fromFile.path
     
 	var toFilePath = ''
 	if(config.isLocal) {
+		fromFilePath = config.rootDir +'/'+fromFilePath.replace(/\\/g ,'/')
 		toFilePath = config.imgDir + '/' + userId + '/' + originalFileName  
 		
-		H.call4promise(localFile.copyNoDuplicate, fromFilePath, toFilePath, fromFile.type)
+		H.call4promise(localFile.copyNoDuplicate, fromFilePath, toFilePath, fromFile.mimetype)
 		 .then(function (status) {
 			 if(status.isError()) return errFn(status)
 			 

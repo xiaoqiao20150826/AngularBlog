@@ -67,8 +67,8 @@ config.mode = _env.NODE_ENV || DEVELOPMENT;
 	else {
 		config.db = 'mongodb://localhost/test';  
 		config.host = 'http://nodeblog.com' + ':' + config.port
-		config.isLocal = false //test
-		config.imgDir = ''// test
+//		config.isLocal = false //test
+//		config.imgDir = ''// test
 	}
 	
 	console.log('mode is '+ config.mode)

@@ -12,7 +12,16 @@ var SUCCESS = 'success'
 //all success 만들어말어?
 var Status = module.exports = function Status(status, message) {
 	  this.status = status || 'success';
-	  this.message = message || '';
+	  
+	  this.message = _saveMessage(message)
+}
+function _saveMessage(message) {
+	if(U.notExist(message)) return ''
+	
+	if(_.isString(message)) return message
+	if(message.stack) return message.stack
+	
+	return message //이경우는 뭐지.
 }
 
 Status.makeError = function (message) {return new Status(ERROR, message)}
