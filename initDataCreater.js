@@ -2,7 +2,6 @@
  * 
  */
 var config = require('./config')
-var Status = require('./common/Status')
 var Done = require('./common/Done')
  ,  H = require('./common/helper')
  ,  Sequence = require('./dao/Sequence')
@@ -23,8 +22,8 @@ initDataCreater.create= function (done) {
 			              , [Sequence.makeFor, answerSequenceId]
 			              , [categoryDAO.createRoot]
 		    ])
-		     .then(function(statuses) {
-		    	 return dataFn(Status.reduceOne(statuses))
+		     .then(function(args) {
+		    	 return dataFn(null)
 		     })
 		     .catch(errFn)
 }

@@ -45,7 +45,7 @@ Sequence.makeFor = function(done, id) {
 				 if(error.code == DUPLICATE_KEY_CODE) {
 					 debug('had been made sequence :', id)
 					 sequenceMap[id] = newSequence;
-					 dataFn();
+					 dataFn(null);
 					 return;
 				 } else {
 					 return console.error(error)

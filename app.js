@@ -56,19 +56,16 @@ if(_config.mode == 'test') {
 //4. 서버 열고 디비 연결. + 필요 테이블 생성.
 
 var server = http.createServer(app).listen(_config.port, function() {
-	mongoose.connect(_config.db, function() {
+	mongoose.connect(_config.db, function(err, data) {
 		var H = require('./common/helper')
 		var initDataCreater = require('./initDataCreater')
 		
-		console.log('_config.db', _config.db)
+		if(err) return console.log('mongo err : ', err)
+		
 		H.call4promise(initDataCreater.create)
-		 .then(function dataFn (status) {
-			 	if(status.isError()) return console.log(status.getMessage())
-			 	
-			 	console.log('init : ', status.getMessage())
+		 .then(function dataFn () {
 			 	console.log('--------- start success ----------')
 				console.log('Express server listening on port ' + _config.port);
-				console.log('db :  ' + _config.db);	
 		 })
 		 .catch(function(err) {
 			 console.log('---- db error-----')
