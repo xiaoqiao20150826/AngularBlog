@@ -61,8 +61,10 @@ config.mode = _env.NODE_ENV || DEVELOPMENT;
 	}
 	//local
 	else if(config.mode == DEVELOPMENT) {
-		config.db = 'mongodb://localhost/nodeblog';  
-		config.host = 'http://nodeblog.com' + ':' + config.port
+		config.db = 'mongodb://'+config.mongolabId+':'+config.mongolabPw+'@ds035310.mongolab.com:35310/nodeblog'
+		config.host = 'http://elfmagic86.herokuapp.com';
+		config.isLocal = false;
+		config.imgDir = ''
 	}
 	else {
 		config.db = 'mongodb://localhost/test';  
