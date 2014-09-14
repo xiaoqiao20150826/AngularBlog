@@ -62,7 +62,10 @@ var server = http.createServer(app).listen(_config.port, function() {
 		
 		console.log('_config.db', _config.db)
 		H.call4promise(initDataCreater.create)
-		 .then(function dataFn () {
+		 .then(function dataFn (status) {
+			 	if(status.isError()) return console.log(status.getMessage())
+			 	
+			 	console.log('init : ', status.getMessage())
 			 	console.log('--------- start success ----------')
 				console.log('Express server listening on port ' + _config.port);
 				console.log('db :  ' + _config.db);	
