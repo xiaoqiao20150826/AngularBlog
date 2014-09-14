@@ -51,6 +51,7 @@ config.mode = _env.NODE_ENV || DEVELOPMENT;
 (function () {
 	config.isLocal = true;
 	config.imgDir = config.rootDir + '/resources/img'; // local
+	config.tempFilesDir = './tempFiles/';
 	
 	//server
 	if(config.mode == PRODUCTION) {
@@ -69,6 +70,7 @@ config.mode = _env.NODE_ENV || DEVELOPMENT;
 	else {
 		config.db = 'mongodb://localhost/test';  
 		config.host = 'http://nodeblog.com' + ':' + config.port
+		config.tempFilesDir = '../tempFiles/';
 //		config.isLocal = false //test
 //		config.imgDir = ''// test
 	}
