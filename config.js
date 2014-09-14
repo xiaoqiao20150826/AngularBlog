@@ -70,11 +70,17 @@ config.mode = _env.NODE_ENV || DEVELOPMENT;
 	else {
 		//db test용
 //		config.db = 'mongodb://'+config.mongolabId+':'+config.mongolabPw+'@ds035310.mongolab.com:35310/nodeblog'
+//		config.isLocal = false //cloudinary test
+//		config.imgDir = ''// cloudinary test
 		config.db = 'mongodb://localhost/test';  
 		config.host = 'http://nodeblog.com' + ':' + config.port
 		config.tempFilesDir = '../tempFiles/';
-//		config.isLocal = false //cloudinary test
-//		config.imgDir = ''// cloudinary test
+		
+		config.passport.facebook = {'id' : _env.LOCAL_PASSPORT_FACEBOOK_ID, 'secret': _env.LOCAL_PASSPORT_FACEBOOK_SECRET}
+		config.passport.twitter = {'id' : _env.LOCAL_PASSPORT_TWITTER_ID, 'secret': _env.LOCAL_PASSPORT_TWITTER_SECRET}
+		config.passport.github = {'id' : _env.LOCAL_PASSPORT_GITHUB_ID, 'secret': _env.LOCAL_PASSPORT_GITHUB_SECRET}
+		config.passport.google = {'id' : _env.LOCAL_PASSPORT_GOOGLE_ID, 'secret': _env.LOCAL_PASSPORT_GOOGLE_SECRET}
+		config.passport.linkedin = {'id' : _env.LOCAL_PASSPORT_LINKEDIN_ID, 'secret': _env.LOCAL_PASSPORT_LINKEDIN_SECRET}
 	}
 	
 	console.log('mode is '+ config.mode)

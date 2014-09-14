@@ -26,7 +26,7 @@ var oauthConfig = module.exports = {
 			clientID : passportConfig.github.id,
 			clientSecret : passportConfig.github.secret,
 			callbackURL : config.host + "/auth/github/callback",
-			scope : 'user'
+			scope : 'user:email'
 		}
 	},
 	google : {
