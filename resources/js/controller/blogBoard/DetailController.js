@@ -38,10 +38,11 @@ $$namespace.include(function(require, module) {
 			  
 			var data = {postNum:ds.postnum};  
 			ajax.call(callback, '/blogBoard/increaseVote', data)
-			function callback(message) {
-				if(message.indexOf('success') != -1) { $voteBtn.text('★ Vote '+(++voteCount)); }
+			function callback(statusOfJsonString) {
+				var status = JSON.parse(statusOfJsonString)
+				if(status.isSuccess) { $voteBtn.text('★ Vote '+(++voteCount)); }
 				
-				return alert(message); 
+				return alert(status.message); 
 			}
 			return e.preventDefault();
 		}

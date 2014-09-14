@@ -134,18 +134,20 @@ answerService.deleteAnswer = function(done, answer, includedNums) {
 	if(answer.isAnnoymous()) {
 		return  H.call4promise(answerDAO.findByNum, currentNum)
 				 .then(function (findedAnswer) {
-					 debug('pw ',answer.password, findedAnswer.password)
+					 debug('annoymous writer of answer ; pw ',answer.password, findedAnswer.password)
 					 if(answer.password != findedAnswer.password) 
 						 return dataFn(Status.makeError('password is not equal'))
 					 else 
-						 return answerService.deleteAnswerAndDecreasePostCount(done, postNum, includedNums);
+						 return answerService.deleteAnswerAndDecreaseAnswerCount(done, postNum, includedNums);
 				 })
 				 .catch(errFn)
 	} else {
-		return answerService.deleteAnswerAndDecreasePostCount(done, postNum, includedNums);
+		return answerService.deleteAnswerAndDecreaseAnswerCount(done, postNum, includedNums);
 	}
 }
-answerService.deleteAnswerAndDecreasePostCount = function(done, postNum, includedNums) {
+
+
+answerService.deleteAnswerAndDecreaseAnswerCount = function(done, postNum, includedNums) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();
 	var answerCount = includedNums.length
@@ -154,9 +156,8 @@ answerService.deleteAnswerAndDecreasePostCount = function(done, postNum, include
 	                 [answerDAO.removeAllOfNum, includedNums]
 	              ,  [postDAO.decreaseAnswerCount, postNum, answerCount]
 				 ])
-				 .then(function(args){
-				 	 var status = args[0];
-				   	 return dataFn(status);
+				 .then(function(statuses){
+				   	 return dataFn(Status.reduceOne(statuses));
 				 })
 				 .catch(errFn);
 };

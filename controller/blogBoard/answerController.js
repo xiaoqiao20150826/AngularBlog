@@ -115,7 +115,7 @@ answerController.deleteAnswer = function(req, res) {
 	var answer = Answer.createBy(rawData) 
 	  , includedNums = _.compact(rawData.includedNums.split(',') )
 	
-	if(answer.isAnnoymous() ) {// writer가 익명사용자일경우 answer는 필수데이터 가져야해.
+	if(answer.isAnnoymous() ) {// writer가 있을 경우 익명사용자이다
 		if(answer.hasNotData4annoymous()) return res.send('error : annoymous user should have password and writer');
 	} else {
 		if(loginUser.isNotEqualById(answer.userId) ) return res.send('error : loginUser should same wirter')

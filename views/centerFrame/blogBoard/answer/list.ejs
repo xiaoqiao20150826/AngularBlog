@@ -16,6 +16,9 @@
 			var user = answer.user
 			  , offsetValue = (deep > 0) ? 1 : 0
 			  , isFirstDeep = (deep == 0) ? true : false
+			
+<!-- 			이게 참..애매하네..   -->
+			if(!answer.includedNums ) answer.includedNums = answer.num			  
 	%>
 			<!-- 	row -->
 			<% if(isFirstDeep) { %> <hr>   <% } %>	

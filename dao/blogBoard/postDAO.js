@@ -63,7 +63,6 @@ postDAO.removeAll = function (done) {
 function _remove(done, where) {
 	var where = where || {}
 	done.hook4dataFn(function (result) {
-		debug('remove arg ', result)
 		return Status.makeForRemove(result);
 	});
 	_db.remove(where, done.getCallback());
@@ -195,7 +194,6 @@ function _minusNumber(number) {
 // private
 function _update(done, where, data, config) {
 	done.hook4dataFn(function (result) {
-		debug('update arg ', result)
 		return Status.makeForUpdate(result);
 	});
 	

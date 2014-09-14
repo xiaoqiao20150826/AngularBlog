@@ -27,6 +27,7 @@ function _saveMessage(message) {
 Status.makeError = function (message) {return new Status(ERROR, message)}
 Status.makeSuccess = function (message) {return new Status(SUCCESS, message)}
 
+// TODO: 아래둘. 어차피 성공에 대한 dataFn의 후처리함수인데... 그냥 없에고 간단히 할까.
 Status.makeForUpdate = function (successAndFail) {
 	if(_.isNumber (successAndFail)) {
 		if(successAndFail > 0) return new Status.makeSuccess('update '+ successAndFail);

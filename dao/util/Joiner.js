@@ -67,7 +67,7 @@ Joiner.prototype.setKey4aggregate = function (key4aggregate, delimiter, keyToBeA
 	this.delimiter = delimiter || 0
 	this.keyToBeAggregate = keyToBeAggregate || key4aggregate
 
-	//자식에 대해서. 부모에 대해서. 키가 존재하면 집합을 수행함.
+	//집합 방향을 자식,부모 중 결정.
 	if(isToChild) 
 		this.key4aggregateToChild = key4aggregate;
 	else 

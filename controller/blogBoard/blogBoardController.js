@@ -234,10 +234,11 @@ blogBoardController.increaseVote = function (req, res) {
 	
 	if(loginUser.isAnnoymous() ) return res.send('must login');
 	
-	blogBoardService.increaseVote(new Done(dataFn, redirector.catch), postNum, loginUserId);
-	function dataFn(status) {
-		res.send(status.message);
-	 }
+	H.call4promise(blogBoardService.increaseVote, postNum, loginUserId)
+	 .then(function (status) {
+		 return res.send(status.toJsonString())
+	 })
+	 .catch(redirector.catch)
 }
 blogBoardController.sendHistoryView4ajax = function (req, res) {
 	_sendHistoryView(req, res, './centerFrame/blogBoard/history.ejs')

@@ -17,7 +17,7 @@ var cookieParser = require('cookie-parser')
 app.use(express.favicon());
 app.use(bodyParser.urlencoded({extended:true}))  //for application/json
    .use(bodyParser.json())						// for application/x-www-form-urlencoded
-   .use(multer({dest : './tempFiles/'}) )          // for mutipart-formdata 로컬에서 임시파일 지우기 구현안했음
+   .use(multer({dest : '../tempFiles/'}) )          // for mutipart-formdata 로컬에서 임시파일 지우기 구현안했음
 /////////////////////session 및 passport////////////////////////////////////////
 app.use(cookieParser());
 app.use(cookieSession({ secret: 'secret'}));

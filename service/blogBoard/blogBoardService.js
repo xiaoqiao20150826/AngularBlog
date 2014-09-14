@@ -239,17 +239,21 @@ blogBoardService.increaseReadCount = function(done, postNum, cookie) {
 		postDAO.updateReadCount(done, postNum);
 	}
 }
+//TODO: increaseVote를 call4promsie로 호출중인데.아래 postDAO.updatevoteand... 에서 promise를 반환하지 않았다.
+//      안될줄알았는데.. dataFn으로 반환하니 된다. 햇갈리네.
 blogBoardService.increaseVote = function(done, postNum, userId) {
-	var errFn = done.getErrFn();
+	var dataFn = done.getDataFn()
+	  , errFn = done.getErrFn()
+
 	var where = {num:postNum, votedUserIds:userId};
-	H.call4promise(postDAO.findOne, where)
-	 .then(function(post) {
-		 var failIncreaseVote = -1; //넌 이미 투표했다
-		 if(!(post.isEmpty())) return done.return(Status.makeError('already voted'));
-		 
-		 postDAO.updateVoteAndVotedUserId(done, postNum, userId)
-	 })
-	 .catch(errFn);
+	return  H.call4promise(postDAO.findOne, where)
+			 .then(function(post) {
+				 var failIncreaseVote = -1; //넌 이미 투표했다
+				 if(!(post.isEmpty())) return dataFn(Status.makeError('already voted'));
+				 
+				 return postDAO.updateVoteAndVotedUserId(done, postNum, userId)
+			 })
+			 .catch(errFn);
 }
 
 
