@@ -230,17 +230,17 @@ postDAO.getCount = function (done, categoryIds) {
 
 postDAO.findGroupedPostsByDate = function (done) {
 	done.hook4dataFn(_reGroup);
-	var project = {$project : { _id:0
-							  , y:{$year:'$created'}
-							  , m:{$month:'$created'}
-							  , d:{$dayOfMonth:'$created'}
-	                          , post:'$$ROOT' 
+	var project = {'$project' : { _id:0   //필드포함 안시키는..
+							  , y:{'$year':'$created'}
+							  , m:{'$month':'$created'}
+							  , d:{'$dayOfMonth':'$created'}
+	                          , post:{num:'$num',title:'$title'} 
 	                          } 
 				  }
 //	  , match = { $match : {'post.userId': userId}} //이건 봐서...빼던가 하던가.
 	  , group = { $group : { _id:{ year:'$y', month: '$m', dayOfMonth :'$d' }
-						   , count:{ $sum :1 }
-						   , posts:{ $push : '$post'}
+						   , count:{ '$sum' :1 }
+						   , posts:{ '$push' : '$post'}
 	  					   }
 				 }
 //	  , sort = { $sort : {'_id.year' : -1, '_id.month' : -1, '_id.dayOfMonth' : -1 }}

@@ -258,5 +258,5 @@ blogBoardService.increaseVote = function(done, postNum, userId) {
 
 
 blogBoardService.findGroupedPostsByDate = function (done) {
-	postDAO.findGroupedPostsByDate(done);
+	return postDAO.findGroupedPostsByDate(done);
 } 
