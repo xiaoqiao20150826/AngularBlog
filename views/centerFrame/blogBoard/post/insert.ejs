@@ -6,11 +6,10 @@
 <%
 	var loginUser = blog.loginUser;
 %>
-
  <form action="/blogBoard/insert" method="post"  name="writeForm" class="form-horizontal"  id='blogBoard-insertForm'  role="form">
    <div class="form-group">
       <label class="col-sm-2 control-label">
-         Id
+         <p class='pull-left'>Id</p>
       </label>
       <div class="col-sm-10">
          <input name="userId" type="text" 
@@ -19,25 +18,22 @@
       </div>
    </div>
    <div class="form-group">
-      <label class="col-sm-2 control-label">category</label>
+      <label class="col-sm-2 control-label"><p class='pull-left'>category</p></label>
       <div class="col-sm-10">
          <% include ../../../part/categorySelector.ejs %>
       </div>
    </div>
    <div class="form-group">
-      <label class="col-sm-2 control-label">Title</label>
+      <label class="col-sm-2 control-label"><p class='pull-left'>Title</p></label>
       <div class="col-sm-10">
          <input class="form-control" name="title" type="text"
             placeholder="title"  >
       </div>
    </div>
    <div class="form-group">
-      <label class="col-sm-2 control-label">Content</label>
-      <div class="col-sm-10">
+      
+      <% include ../../../../resources/lib/editor/editor.ejs %>
       <textarea class="col-sm-12" name="content"></textarea><!--/textarea로 닫지않으면 아래 태그가 이상해짐  -->	
-<!--          <input class="form-control" id="content" type="text"  -->
-<!--             value="content"> -->
-      </div>
    </div>
    <div class="form-group">
 	    <label class="col-sm-2 control-label">File input</label>

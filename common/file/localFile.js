@@ -9,7 +9,8 @@ var _ = require('underscore')
 var Status = require('../Status') //이것이. 몽고디비를 위한건데. 여기서도 사용.
 var H = require('../helper.js')
   , Done = H.Done;
-  
+
+var iconv = require('iconv-lite')
 /////
 var localFile = module.exports = {};
 
@@ -69,6 +70,17 @@ localFile.createEx = function(done, filePath, data, option) {
 }
 localFile.read = function(done, filePath, option) {
 	var option = option || {encoding:'utf8'}
+	fs.readFile(filePath, option, done.getCallback());
+}
+//한글로 읽기 , binary로 읽고, 버퍼에 담고, euc-kr로 디코드
+localFile.readKr = function(done, filePath) {
+	var option = option || {encoding:'binary'}
+	
+	done.hook4dataFn(function(data) {
+		 var buf = new Buffer(data, 'binary');
+		 return iconv.decode(buf, 'euc-kr')
+	})
+	
 	fs.readFile(filePath, option, done.getCallback());
 }
 localFile.copyNoThrow = function(done, fromFileUrl, toFileUrl, option) {
@@ -187,6 +199,16 @@ localFile.deleteOneFolder = function(done, path) {
 		}
 	}  
 	fs.rmdir(path, done.getCallback());
+}
+//기타
+localFile.stat = function(done, filePath) {
+	//atime : 접근날짜, ctime: create날짜, mtime: 수정한날짜.
+	return fs.stat(filePath, done.getCallback())
+}
+
+// 이건 신기하게 한글도 읽어주고.. 띄워쓰기도 구분하고. 
+localFile.fileNamesInFolder = function(done, dirPath) {
+	return fs.readdir(dirPath, done.getCallback())
 }
 
 ///

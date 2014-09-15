@@ -44,7 +44,7 @@ asyncSuporter.call4promise = function (contextAndAsyncFn /*...args*/) {
 
 asyncSuporter.syncAll4promise = function (asyncMethodAndArgsList) {
 	if(!_.isArray(asyncMethodAndArgsList)) return console.error(asyncMethodAndArgsList + ' : firstArg must be array');
-	return this.call4promise(this.syncAll, asyncMethodAndArgsList)
+	return asyncSuporter.call4promise(asyncSuporter.syncAll, asyncMethodAndArgsList)
 }
 
 // 비동기함수를 동기함수처럼 순차적으로 호출.
@@ -82,7 +82,7 @@ asyncSuporter.callOne = function (done, asyncMethodAndArgs) {
 
 asyncSuporter.all4promise = function (asyncMethodAndArgsList) {
 	if(!_.isArray(asyncMethodAndArgsList)) throw new Error('arguments must be array');
-	return this.call4promise(this.all, asyncMethodAndArgsList)
+	return asyncSuporter.call4promise(asyncSuporter.all, asyncMethodAndArgsList)
 }
 // all
 // # 전제
@@ -149,6 +149,7 @@ asyncSuporter.all = function (lastDone, asyncMethodAndArgsList) {
 
 
 /////////////
+//TODO: 이거 이름이 잘못됨. 동기식루프임.
 /* 비동기 함수 호출을 위한 루프 */
 //1) someList의 각 원소를 인자로하여 비동기함수를 수행한다
 //2) 모든 호출 후  done을 수행한다. 각 비동기함수에서 수행된 datas가 인자로 전달된다. 
@@ -156,7 +157,7 @@ asyncSuporter.all = function (lastDone, asyncMethodAndArgsList) {
 //4) endDone(err, datas){}...
 //** __eachDone이 data만을 가지는 이유는 asyncFn이 done만을 받기 때문이다.(즉, err처리는 비동기 함수 내부에서 수행된다).
 //    
-asyncSuporter.asyncLoop = function (someList, contextAndAsyncFn, lastDone) {
+asyncSuporter.asyncLoop = function (someList, contextAndAsyncFn, lastDone, isOrder) {
 	var target = getContextAndAsyncMethod(contextAndAsyncFn)
 	  , context = target.context
 	  , asyncMethod = target.asyncMethod
@@ -169,12 +170,13 @@ asyncSuporter.asyncLoop = function (someList, contextAndAsyncFn, lastDone) {
 	
 	var lastDataFn = lastDone.getDataFn()
 	  , lastErrFn = lastDone.getErrFn()
-	  
-	return asyncSuporter.syncAll4promise(argOfAll4promise)
-						.then(function (args) {
-							lastDataFn(args)
-						})
-						.catch(lastErrFn)
+	
+	var loop4all = (isOrder) ? asyncSuporter.syncAll4promise : asyncSuporter.all4promise
+	return loop4all(argOfAll4promise)
+					.then(function (args) {
+						lastDataFn(args)
+					})
+					.catch(lastErrFn)
 }
 
 

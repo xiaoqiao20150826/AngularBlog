@@ -27,7 +27,7 @@ userController.mapUrlToResponse = function(app) {
 	app.post('/user/:userId/update', this.update)
 	app.post('/user/:userId/delete', this.delete)
 }
-userController.userView = function (req, res) {
+userController.loginUserView = function (req, res) {
 	var redirector = new Redirector(res)
 	var loginUser = requestParser.getLoginUser(req)
 	  , rawData = requestParser.getRawData(req)
@@ -38,11 +38,36 @@ userController.userView = function (req, res) {
 	H.call4promise(categoryService.getRootOfCategoryTree)
 	 .then(function (rootOfCategoryTree) {
 		 	var blog = { loginUser: loginUser
+		 			   , user : loginUser
 		 			   , rootOfCategoryTree : rootOfCategoryTree
 		 			   , scriptletUtil : scriptletUtil
 		 			   };
 		 	
 			return res.render('./wholeFrame/user/list.ejs',{blog : blog});
+	 })
+	 .catch(redirector.catch)
+}
+userController.userView = function (req, res) {
+	var redirector = new Redirector(res)
+	var loginUser = requestParser.getLoginUser(req)
+	  , rawData = requestParser.getRawData(req)
+	  , userId = rawData.userId
+	
+	H.all4promise([
+	                [categoryService.getRootOfCategoryTree]
+	              , [userDAO.findById, userId]
+	             ])
+	 .then(function (args) {
+		 var rootOfCategoryTree = args[0]
+		   , user = args[1]
+		 	
+	 	var blog = { 'loginUser' : loginUser
+				   , 'user' : user
+	 			   , rootOfCategoryTree : rootOfCategoryTree
+	 			   , scriptletUtil : scriptletUtil
+	 			   };
+	 	
+		return res.render('./wholeFrame/user/list.ejs',{blog : blog});
 	 })
 	 .catch(redirector.catch)
 }
@@ -65,12 +90,6 @@ userController.updateView = function (req, res) {
 	})
 	.catch(redirector.catch)
 	
-}
-userController.loginUserView = function (req, res) {
-	var loginUser = requestParser.getLoginUser(req)
-	  , userId = loginUser._id;
-	
-	return res.redirect('/user/'+ userId);
 }
 
 userController.update = function (req,res) {

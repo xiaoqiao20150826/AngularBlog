@@ -59,7 +59,7 @@ Pager.prototype.make4view = function (currentPageNum, maxPageCount) {
 var Pager4view = function (pageCount, currentPageNum,  maxPageCount) {
 	this.pageCount = pageCount;
 	this.currentPageNum = currentPageNum;
-	this.maxPageCount = maxPageCount || 2;
+	this.maxPageCount = maxPageCount || 5;
 	
 }
 

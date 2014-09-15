@@ -1,0 +1,206 @@
+@CHARSET "EUC-KR";
+
+#editorContainer {
+	dispaly: inline-block;
+	width: 100%;
+	height: 500px;
+}
+/*1. editor  */
+#editor {
+	display: block;
+	margin: 0 auto;
+	padding: 0;
+	width: 98%;
+	height: 98%;
+}
+/*1.1 barContainer  */
+#editor .barContainer {
+	display: block;
+	margin: 1% auto;
+	padding: 0;
+	width: 98%;
+	background-color: white;
+}
+
+.barContainer .bar {
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+	background-color: black;
+}
+
+.bar .case {
+	display: inline-block;
+	margin: 0 auto;
+	padding: 0;
+	width: 30px;
+	height: 30px; /*하드코딩  */
+	text-align: center;
+	vertical-align: bottom;
+	background-color: black;
+}
+
+.bar #lineStyle {
+	width: 50px;
+} /*lineStyle만 크기변경*/
+.case:hover {
+	color: black;
+	background-color: white;
+	cursor: pointer;
+}
+
+.case:hover .item {
+	color: black;
+	background-color: white;
+	cursor: pointer;
+}
+
+.bar .wall {
+	display: inline-block;
+	border-left: thin dotted white;
+	width: 0;
+	height: 30px; /*값하드코딩  */
+}
+
+.bar .nonClick .item {
+	color: gray;
+	cursor: default;
+}
+
+.bar .nonClick:HOVER {
+	color: gray;
+	background-color: black;
+	cursor: default;
+}
+
+.bar .nonClick:HOVER .item {
+	color: gray;
+	background-color: black;
+	cursor: default;
+}
+
+.case .item {
+	display: inline;
+	color: white;
+	background-color: black;
+}
+
+
+
+/*drop down -default  */
+.dropdown .caret { color: white;}
+.dropdown-menu {
+	background-color: black;
+	position: absolute;
+	display: none;
+}
+
+.dropdown-menu .dropdown-item {
+	background-color: black;
+	color: white;
+	display: block;
+}
+.dropdown-title {
+	font-size: 15pt;
+	font-weight: bold;
+}
+/*drop down -fontSize  */
+#fontSize .dropdown-item:HOVER {
+	background-color: white;
+	color: black;
+	cursor: pointer;
+}
+
+#fontSize .dropdown-menu {
+	overflow-y: scroll;
+}
+/*drop down -fontColor  */
+#fontColor .dropdown-menu {
+	width: 200px;
+	height: 100px;
+	margin: 0;
+	padding: 0;
+}
+
+#fontColor .dropdown-item {
+	display: inline-block;
+	float: left;
+	margin: 0;
+	padding: 0;
+	width: 12px;
+	height: 12px;
+	border: 1px solid black;
+	background-color: red;
+}
+
+#fontColor:HOVER .dropdown-menu {
+	cursor: default;
+}
+
+#fontColor .dropdown-item:HOVER {
+	border-color: white;
+	cursor: pointer;
+}
+
+/*drop down -#backgroundColor  */
+#backgroundColor .dropdown-menu {
+	width: 200px;
+	height: 100px;
+	margin: 0;
+	padding: 0;
+}
+
+#backgroundColor .dropdown-item {
+	display: inline-block;
+	float: left;
+	margin: 0;
+	padding: 0;
+	width: 12px;
+	height: 12px;
+	border: 1px solid black;
+}
+
+#backgroundColor:HOVER .dropdown-menu {
+	cursor: default;
+}
+
+#backgroundColor .dropdown-item:HOVER {
+	border-color: white;
+	cursor: pointer;
+}
+
+/*drop down -#lineStyle  */
+#lineStyle .dropdown-menu {
+	margin: 0;
+	padding: 0;
+	width: 0;
+	height: 0;
+}
+
+#lineStyle .dropdown-item {
+	display: block;
+	float: left;
+	margin: 0;
+	padding: 0;
+	border: 1px solid white;
+	background-color: white;
+	color: black;
+}
+
+#lineStyle:HOVER .dropdown-menu {
+	cursor: default;
+}
+
+#lineStyle .dropdown-item:HOVER {
+	border-color: black;
+	cursor: pointer;
+}
+/*1.2 content Frame까지. 컨텐트 관련은 EdidtorContent.css로.  */
+#editor #editorContent {
+	display: block;
+	width: 98%;
+	height: 88%;
+	margin: 1% auto;
+	padding: 0;
+	background-color: white;
+}

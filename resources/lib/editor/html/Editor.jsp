@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+<!--font awesome  -->
+<link rel="stylesheet"
+	href="/resources/lib/font-awesome-4.0.3/css/font-awesome.min.css">
+<!-- style -->
+<link rel="stylesheet" href="/resources/css/editor/Editor.css">
+
+
+<!-- all module load -->
+<script type="text/javascript" src="/resources/lib/jquery1.11.js"
+	charset="utf-8"></script>
+<script type="text/javascript" src="/resources/lib/ModuleLoader.js "
+	charset="utf-8"></script>
+</head>
+<body>
+	<div id=editorContainer>
+		<!--Editor element  -->
+		<div id="editor">
+			<!--  barContainer -->
+			<div class="barContainer">
+				<!-- bar :  font,size, etc... -->
+				<ul class="bar">
+					<li class="case basic-btn" id="bold" title="굵게 (Ctrl+B)"
+						style="font-weight: bold;"><i class="item fa fa-bold"></i></li>
+					<li class="case basic-btn" id="italic" title="기울임 (Ctrl+l)"
+						style="font-style: italic;"><i class="item fa fa-italic"></i>
+					</li>
+					<li class="case basic-btn" id="underline" title="밑줄 (Ctrl+U)"
+						style="text-decoration: underline;"><i
+						class="item fa fa-underline"></i></li>
+					<li class="case basic-btn" id="strikeThrough"
+						title="취소선 (Ctrl+D)" style="text-decoration: line-through;">
+						<i class="item fa fa-strikethrough"></i>
+					</li>
+					<li class="case dropdown-btn" id="fontSize" title="text-size">
+						<i class="item fa fa-text-height"></i> <i
+						class="item fa fa-sort-asc"></i>
+						<ul class="dropdown-menu">
+							<!--스크립트로 생성.  -->
+						</ul>
+					</li>
+					<li class="case dropdown-btn" id="fontColor"><span
+						class="item dropdown-title" style="color: red;">A</span> <i
+						class="item fa fa-sort-asc"></i>
+						<ul class="dropdown-menu">
+							<li class="dropdown-item" style="background-color: #FF0000;"></li>
+							<li class="dropdown-item" style="background-color: #FF5E00;"></li>
+							<li class="dropdown-item" style="background-color: #FFBB00;"></li>
+							<li class="dropdown-item" style="background-color: #FFE400;"></li>
+							<li class="dropdown-item" style="background-color: #ABF200;"></li>
+							<li class="dropdown-item" style="background-color: #1FDA11;"></li>
+							<li class="dropdown-item" style="background-color: #00D8FF;"></li>
+							<li class="dropdown-item" style="background-color: #0055FF;"></li>
+							<li class="dropdown-item" style="background-color: #0900FF;"></li>
+							<li class="dropdown-item" style="background-color: #6600FF;"></li>
+							<li class="dropdown-item" style="background-color: #FF00DD;"></li>
+							<li class="dropdown-item" style="background-color: #FF007F;"></li>
+							<li class="dropdown-item" style="background-color: #000000;"></li>
+							<li class="dropdown-item" style="background-color: #FFFFFF;"></li>
+							<li class="dropdown-item" style="background-color: #FFD8D8;"></li>
+							<li class="dropdown-item" style="background-color: #FAE0D4;"></li>
+							<li class="dropdown-item" style="background-color: #FAECC5;"></li>
+							<li class="dropdown-item" style="background-color: #FAF4C0;"></li>
+							<li class="dropdown-item" style="background-color: #E4F7BA;"></li>
+							<li class="dropdown-item" style="background-color: #CEFBC9;"></li>
+							<li class="dropdown-item" style="background-color: #D4F4FA;"></li>
+							<li class="dropdown-item" style="background-color: #D9E5FF;"></li>
+							<li class="dropdown-item" style="background-color: #DAD9FF;"></li>
+							<li class="dropdown-item" style="background-color: #E8D9FF;"></li>
+							<li class="dropdown-item" style="background-color: #FFD9FA;"></li>
+							<li class="dropdown-item" style="background-color: #FFD9EC;"></li>
+							<li class="dropdown-item" style="background-color: #F6F6F6;"></li>
+							<li class="dropdown-item" style="background-color: #EAEAEA;"></li>
+							<li class="dropdown-item" style="background-color: #FFA7A7;"></li>
+							<li class="dropdown-item" style="background-color: #FFC19E;"></li>
+							<li class="dropdown-item" style="background-color: #FFE08C;"></li>
+							<li class="dropdown-item" style="background-color: #FAED7D;"></li>
+							<li class="dropdown-item" style="background-color: #CEF279;"></li>
+							<li class="dropdown-item" style="background-color: #B7F0B1;"></li>
+							<li class="dropdown-item" style="background-color: #B2EBF4;"></li>
+							<li class="dropdown-item" style="background-color: #B2CCFF;"></li>
+							<li class="dropdown-item" style="background-color: #B5B2FF;"></li>
+							<li class="dropdown-item" style="background-color: #D1B2FF;"></li>
+							<li class="dropdown-item" style="background-color: #FFB2F5;"></li>
+							<li class="dropdown-item" style="background-color: #FFB2D9;"></li>
+							<li class="dropdown-item" style="background-color: #D5D5D5;"></li>
+							<li class="dropdown-item" style="background-color: #BDBDBD;"></li>
+							<li class="dropdown-item" style="background-color: #F15F5F;"></li>
+							<li class="dropdown-item" style="background-color: #F29661;"></li>
+							<li class="dropdown-item" style="background-color: #F2CB61;"></li>
+							<li class="dropdown-item" style="background-color: #E5D85C;"></li>
+							<li class="dropdown-item" style="background-color: #BCE55C;"></li>
+							<li class="dropdown-item" style="background-color: #86E57F;"></li>
+							<li class="dropdown-item" style="background-color: #5CD1E5;"></li>
+							<li class="dropdown-item" style="background-color: #6699FF;"></li>
+							<li class="dropdown-item" style="background-color: #6B66FF;"></li>
+							<li class="dropdown-item" style="background-color: #A366FF;"></li>
+							<li class="dropdown-item" style="background-color: #F261DF;"></li>
+							<li class="dropdown-item" style="background-color: #F261AA;"></li>
+							<li class="dropdown-item" style="background-color: #A6A6A6;"></li>
+							<li class="dropdown-item" style="background-color: #8C8C8C;"></li>
+							<li class="dropdown-item" style="background-color: #CC3D3D;"></li>
+							<li class="dropdown-item" style="background-color: #CC723D;"></li>
+							<li class="dropdown-item" style="background-color: #CCA63D;"></li>
+							<li class="dropdown-item" style="background-color: #C4B73B;"></li>
+							<li class="dropdown-item" style="background-color: #9FC93C;"></li>
+							<li class="dropdown-item" style="background-color: #47C83E;"></li>
+							<li class="dropdown-item" style="background-color: #3DB7CC;"></li>
+							<li class="dropdown-item" style="background-color: #4174D9;"></li>
+							<li class="dropdown-item" style="background-color: #4641D9;"></li>
+							<li class="dropdown-item" style="background-color: #7E41D9;"></li>
+							<li class="dropdown-item" style="background-color: #D941C5;"></li>
+							<li class="dropdown-item" style="background-color: #D9418D;"></li>
+							<li class="dropdown-item" style="background-color: #747474;"></li>
+							<li class="dropdown-item" style="background-color: #5D5D5D;"></li>
+							<li class="dropdown-item" style="background-color: #980000;"></li>
+							<li class="dropdown-item" style="background-color: #993800;"></li>
+							<li class="dropdown-item" style="background-color: #997000;"></li>
+							<li class="dropdown-item" style="background-color: #998A00;"></li>
+							<li class="dropdown-item" style="background-color: #6B9900;"></li>
+							<li class="dropdown-item" style="background-color: #2F9D27;"></li>
+							<li class="dropdown-item" style="background-color: #008299;"></li>
+							<li class="dropdown-item" style="background-color: #003399;"></li>
+							<li class="dropdown-item" style="background-color: #050099;"></li>
+							<li class="dropdown-item" style="background-color: #3D0099;"></li>
+							<li class="dropdown-item" style="background-color: #990085;"></li>
+							<li class="dropdown-item" style="background-color: #99004C;"></li>
+							<li class="dropdown-item" style="background-color: #4C4C4C;"></li>
+							<li class="dropdown-item" style="background-color: #353535;"></li>
+							<li class="dropdown-item" style="background-color: #670000;"></li>
+							<li class="dropdown-item" style="background-color: #662500;"></li>
+							<li class="dropdown-item" style="background-color: #664B00;"></li>
+							<li class="dropdown-item" style="background-color: #665C00;"></li>
+							<li class="dropdown-item" style="background-color: #476600;"></li>
+							<li class="dropdown-item" style="background-color: #22741C;"></li>
+							<li class="dropdown-item" style="background-color: #005766;"></li>
+							<li class="dropdown-item" style="background-color: #002266;"></li>
+							<li class="dropdown-item" style="background-color: #030066;"></li>
+							<li class="dropdown-item" style="background-color: #290066;"></li>
+							<li class="dropdown-item" style="background-color: #660058;"></li>
+							<li class="dropdown-item" style="background-color: #660033;"></li>
+							<li class="dropdown-item" style="background-color: #212121;"></li>
+							<li class="dropdown-item" style="background-color: #000000;"></li>
+						</ul></li>
+					<li class="case dropdown-btn" id="backgroundColor"><span
+						class="item dropdown-title" style="background-color: red">A</span>
+						<i class="item fa fa-sort-asc"></i>
+						<ul class="dropdown-menu">
+							<li class="dropdown-item" style="background-color: #FF0000;"></li>
+							<li class="dropdown-item" style="background-color: #FF5E00;"></li>
+							<li class="dropdown-item" style="background-color: #FFBB00;"></li>
+							<li class="dropdown-item" style="background-color: #FFE400;"></li>
+							<li class="dropdown-item" style="background-color: #ABF200;"></li>
+							<li class="dropdown-item" style="background-color: #1FDA11;"></li>
+							<li class="dropdown-item" style="background-color: #00D8FF;"></li>
+							<li class="dropdown-item" style="background-color: #0055FF;"></li>
+							<li class="dropdown-item" style="background-color: #0900FF;"></li>
+							<li class="dropdown-item" style="background-color: #6600FF;"></li>
+							<li class="dropdown-item" style="background-color: #FF00DD;"></li>
+							<li class="dropdown-item" style="background-color: #FF007F;"></li>
+							<li class="dropdown-item" style="background-color: #000000;"></li>
+							<li class="dropdown-item" style="background-color: #FFFFFF;"></li>
+							<li class="dropdown-item" style="background-color: #FFD8D8;"></li>
+							<li class="dropdown-item" style="background-color: #FAE0D4;"></li>
+							<li class="dropdown-item" style="background-color: #FAECC5;"></li>
+							<li class="dropdown-item" style="background-color: #FAF4C0;"></li>
+							<li class="dropdown-item" style="background-color: #E4F7BA;"></li>
+							<li class="dropdown-item" style="background-color: #CEFBC9;"></li>
+							<li class="dropdown-item" style="background-color: #D4F4FA;"></li>
+							<li class="dropdown-item" style="background-color: #D9E5FF;"></li>
+							<li class="dropdown-item" style="background-color: #DAD9FF;"></li>
+							<li class="dropdown-item" style="background-color: #E8D9FF;"></li>
+							<li class="dropdown-item" style="background-color: #FFD9FA;"></li>
+							<li class="dropdown-item" style="background-color: #FFD9EC;"></li>
+							<li class="dropdown-item" style="background-color: #F6F6F6;"></li>
+							<li class="dropdown-item" style="background-color: #EAEAEA;"></li>
+							<li class="dropdown-item" style="background-color: #FFA7A7;"></li>
+							<li class="dropdown-item" style="background-color: #FFC19E;"></li>
+							<li class="dropdown-item" style="background-color: #FFE08C;"></li>
+							<li class="dropdown-item" style="background-color: #FAED7D;"></li>
+							<li class="dropdown-item" style="background-color: #CEF279;"></li>
+							<li class="dropdown-item" style="background-color: #B7F0B1;"></li>
+							<li class="dropdown-item" style="background-color: #B2EBF4;"></li>
+							<li class="dropdown-item" style="background-color: #B2CCFF;"></li>
+							<li class="dropdown-item" style="background-color: #B5B2FF;"></li>
+							<li class="dropdown-item" style="background-color: #D1B2FF;"></li>
+							<li class="dropdown-item" style="background-color: #FFB2F5;"></li>
+							<li class="dropdown-item" style="background-color: #FFB2D9;"></li>
+							<li class="dropdown-item" style="background-color: #D5D5D5;"></li>
+							<li class="dropdown-item" style="background-color: #BDBDBD;"></li>
+							<li class="dropdown-item" style="background-color: #F15F5F;"></li>
+							<li class="dropdown-item" style="background-color: #F29661;"></li>
+							<li class="dropdown-item" style="background-color: #F2CB61;"></li>
+							<li class="dropdown-item" style="background-color: #E5D85C;"></li>
+							<li class="dropdown-item" style="background-color: #BCE55C;"></li>
+							<li class="dropdown-item" style="background-color: #86E57F;"></li>
+							<li class="dropdown-item" style="background-color: #5CD1E5;"></li>
+							<li class="dropdown-item" style="background-color: #6699FF;"></li>
+							<li class="dropdown-item" style="background-color: #6B66FF;"></li>
+							<li class="dropdown-item" style="background-color: #A366FF;"></li>
+							<li class="dropdown-item" style="background-color: #F261DF;"></li>
+							<li class="dropdown-item" style="background-color: #F261AA;"></li>
+							<li class="dropdown-item" style="background-color: #A6A6A6;"></li>
+							<li class="dropdown-item" style="background-color: #8C8C8C;"></li>
+							<li class="dropdown-item" style="background-color: #CC3D3D;"></li>
+							<li class="dropdown-item" style="background-color: #CC723D;"></li>
+							<li class="dropdown-item" style="background-color: #CCA63D;"></li>
+							<li class="dropdown-item" style="background-color: #C4B73B;"></li>
+							<li class="dropdown-item" style="background-color: #9FC93C;"></li>
+							<li class="dropdown-item" style="background-color: #47C83E;"></li>
+							<li class="dropdown-item" style="background-color: #3DB7CC;"></li>
+							<li class="dropdown-item" style="background-color: #4174D9;"></li>
+							<li class="dropdown-item" style="background-color: #4641D9;"></li>
+							<li class="dropdown-item" style="background-color: #7E41D9;"></li>
+							<li class="dropdown-item" style="background-color: #D941C5;"></li>
+							<li class="dropdown-item" style="background-color: #D9418D;"></li>
+							<li class="dropdown-item" style="background-color: #747474;"></li>
+							<li class="dropdown-item" style="background-color: #5D5D5D;"></li>
+							<li class="dropdown-item" style="background-color: #980000;"></li>
+							<li class="dropdown-item" style="background-color: #993800;"></li>
+							<li class="dropdown-item" style="background-color: #997000;"></li>
+							<li class="dropdown-item" style="background-color: #998A00;"></li>
+							<li class="dropdown-item" style="background-color: #6B9900;"></li>
+							<li class="dropdown-item" style="background-color: #2F9D27;"></li>
+							<li class="dropdown-item" style="background-color: #008299;"></li>
+							<li class="dropdown-item" style="background-color: #003399;"></li>
+							<li class="dropdown-item" style="background-color: #050099;"></li>
+							<li class="dropdown-item" style="background-color: #3D0099;"></li>
+							<li class="dropdown-item" style="background-color: #990085;"></li>
+							<li class="dropdown-item" style="background-color: #99004C;"></li>
+							<li class="dropdown-item" style="background-color: #4C4C4C;"></li>
+							<li class="dropdown-item" style="background-color: #353535;"></li>
+							<li class="dropdown-item" style="background-color: #670000;"></li>
+							<li class="dropdown-item" style="background-color: #662500;"></li>
+							<li class="dropdown-item" style="background-color: #664B00;"></li>
+							<li class="dropdown-item" style="background-color: #665C00;"></li>
+							<li class="dropdown-item" style="background-color: #476600;"></li>
+							<li class="dropdown-item" style="background-color: #22741C;"></li>
+							<li class="dropdown-item" style="background-color: #005766;"></li>
+							<li class="dropdown-item" style="background-color: #002266;"></li>
+							<li class="dropdown-item" style="background-color: #030066;"></li>
+							<li class="dropdown-item" style="background-color: #290066;"></li>
+							<li class="dropdown-item" style="background-color: #660058;"></li>
+							<li class="dropdown-item" style="background-color: #660033;"></li>
+							<li class="dropdown-item" style="background-color: #212121;"></li>
+							<li class="dropdown-item" style="background-color: #000000;"></li>
+						</ul></li>
+				</ul>
+				<span class="wall"></span>
+				<!--문장 위치  -->
+				<ul class="bar">
+					<li class="case basic-btn" id="JustifyLeft" title="align-left">
+						<i class="item fa fa-align-left"></i>
+					</li>
+					<li class="case basic-btn" id="JustifyCenter" title="align-center">
+						<i class="item fa fa-align-center"></i>
+					</li>
+					<li class="case basic-btn" id="JustifyRight" title="align-right">
+						<i class="item fa fa-align-right"></i>
+					</li>
+
+					<li class="case basic-btn" id="JustifyFull" title="align-justfy">
+						<i class="item fa fa-align-justify"></i>
+					</li>
+				</ul>
+				<span class="wall"></span>
+				<!-- line 왼쪽 마진 추가.  -->
+				<ul class="bar">
+					<li class="case inOutdent-btn" id="indent" title="들여쓰기">
+						<i class="item fa fa-indent"></i>
+					</li>
+					<li class="case inOutdent-btn" id="outdent" title="내어쓰기">
+						<i class="item fa fa-outdent"></i>
+					</li>
+					<li class="case lineHeight-btn" id="height" title="들여쓰기">
+						<i class="item fa fa-arrows-v"></i>
+					</li>
+					<li class="case lineHeight-btn" id="reveseHeight"
+						title="내어쓰기"><i class="item fa fa-arrows-v">R</i></li>
+				</ul>
+				<span class="wall"></span>
+				<ul class="bar">
+					<li class="case lineStyle-btn" id="lineStyle" title="LineStyle">
+						<span class="item">Line</span> <i class="item fa fa-sort-asc"></i>
+						<ul class="dropdown-menu">
+							<li class="dropdown-item"
+								style="text-align: center; margin-left: 4em; line-height: 1.3; background-color: red; color: rgb(71, 200, 62); font-size: 27pt; text-decoration: underline; font-style: italic; font-weight: bold;"><p
+									style="margin-left: 4em; line-height: 1.3;">
+									<span
+										style="text-align: center; background-color: red; color: rgb(71, 200, 62); font-size: 27pt; text-decoration: underline; font-style: italic; font-weight: bold;">ABCDE</span>
+								<p></li>
+							<li class="dropdown-item">ABCDE</li>
+							<li class="dropdown-item">ABCDE</li>
+							<li class="dropdown-item">ABCDE</li>
+							<li class="dropdown-item">ABCDE</li>
+						</ul>
+					</li>
+				</ul>
+				<span class="wall"></span>
+				<!-- image -->
+				<ul class="bar">
+					<li class="case imageUpload-btn" id="imageUpload"><i
+						class="item fa fa-picture-o"></i> <input type="file"
+						name="imageFile" id="nodeOfInputFile" style="display: none" /></li>
+				</ul>
+				<span class="wall"></span>
+				<!--undo, redo  -->
+				<ul class="bar">
+					<li class="nonClick case undoRedo-btn" id="undo" title="undo">
+						<i class=" item  fa fa-undo"></i>
+					</li>
+					<li class="nonClick case undoRedo-btn" id="redo" title="redo">
+						<i class="item  fa fa-repeat"></i>
+					</li>
+				</ul>
+
+			</div>
+			<!--content  -->
+			<iframe id="editorContent"></iframe>
+
+		</div>
+	</div>
+	<!-- run-->
+
+	<script type="text/javascript">
+	(function(){
+		new com.kang.ModuleLoader("/resources/js/editor/EditorModules.js");
+		//필요 라이브러리만 로드하고 실행은 다른곳에서 함.
+	})();
+	</script>
+</body>
+</html>

@@ -6,7 +6,7 @@
 		var loginUser = blog.loginUser;
 		var post = blog.post
 		  , user = post.user;
-		  
+		 
 	%>
 	<article class="row">
 		<div class="span8">
@@ -19,7 +19,7 @@
 			</div>
 			<div class="row-fluid">
 				<section class="span8">
-					<p ><%= post.content%></p>
+					<p ><%=  post.content %></p>
 				</section>
 			</div>
 			<div class="row-fluid">
@@ -50,7 +50,7 @@
 			<% } %>
 				<footer class="span8" style="padding:0">
 			<%
-				if(loginUser.isExist()) {
+				if(!loginUser.isAnnoymous()) {
 			%>
 					<p>
 						<div class=" col-sm-offset-5">
@@ -64,7 +64,7 @@
 					<p>
 
 						<img src='<%=user.photo %>' class="img-circle" alt='img'
-							style="width: 20px"> by <a href="#"><%= user.name%></a> | <i
+							style="width: 20px"> by <a href="/user/<%=user._id%>"><%= user.name%></a> | <i
 							class="icon-calendar"></i> <%= post.created.toLocaleDateString()%> | <i class="icon-tags"></i> Tags : <a href="#"><span
 							class="label label-info">안했음</span></a>
 					</p>

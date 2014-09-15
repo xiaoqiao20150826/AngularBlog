@@ -70,8 +70,8 @@ config.mode = _env.NODE_ENV || DEVELOPMENT;
 	else {
 		//db test용
 		config.host = 'http://nodeblog.com' + ':' + config.port
-		config.db = 'mongodb://'+config.mongolabId+':'+config.mongolabPw+'@ds035310.mongolab.com:35310/nodeblog'
-//		config.db = 'mongodb://localhost/test';  
+		config.db = 'mongodb://localhost/nodeblog';  
+//		config.db = 'mongodb://'+config.mongolabId+':'+config.mongolabPw+'@ds035310.mongolab.com:35310/nodeblog'
 //		config.isLocal = false //cloudinary test
 //		config.imgDir = ''// cloudinary test
 		config.tempFilesDir = '../tempFiles/';
