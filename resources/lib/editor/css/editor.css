@@ -5,6 +5,7 @@
 	width: 100%;
 	height: 500px;
 }
+
 /*1. editor  */
 #editor {
 	display: block;
@@ -204,3 +205,4 @@
 	padding: 0;
 	background-color: white;
 }
+

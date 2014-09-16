@@ -7,48 +7,38 @@ $$namespace.include(function (require, module) {
 	var dropHelper = require('/event/dropHelper')
 	  , eventHelper = require('/event/eventHelper')
 	
-	var lineStyle = module.exports = {
-		init : function(editor) {
-			this._editor = editor;
-			this._btnNode = editor.getEditorElementById(ID);
-			this._menuNode = dropHelper.getMenuElement(this._btnNode);
+	var lineStyle = module.exports = {}
+	
+	lineStyle.init = function(editor) {
+		this._editor = editor;
+		
+		var lineStyleNode = editor.getEditorElementById(ID)
+		  , itemClassName = '.' + dropHelper.getItemClassName()
+		  , $lineStyleItems = $(lineStyleNode).find(itemClassName)
+		
+		$lineStyleItems.on('click', _callback1(editor));  
+	}
+	
+	function _callback1(_editor) {
+		var editor = _editor;
+		
+		return function (e) {
+			var event =e || window.evnet 
+			  , $itemNode = $(this)
 			
-			var eventType = eventHelper.EVENT.click;
-			this.addAction(eventType);
-		},
-
-		addAction : function(eventType) {
-			var btnNode = this._btnNode,
-				data = {self:btnNode, menu:this._menuNode},
-				bindedCallBack = this.callBack.bind(this, data),
-				useCapture = false;
-				
-			btnNode.addEventListener(eventType, bindedCallBack, useCapture);	
-		},
-		callBack : function(data, e) {
-			var event =e || window.evnet, 
-				target = e.target || e.srcElement,
-				editor = this._editor;
-			
-			//하위메뉴에서 전파되었을경우.
-			if(dropHelper.isItemNode(target)) {
-				var pNode = target.firstChild,
-					spanNode = pNode.firstElementChild;
-				var pNodeStyle = pNode.style.cssText,
-					spanNodeStyle = spanNode.style.cssText;
-				var lines = editor.updateSelectedLine(pNodeStyle);
+				var $pNode = $itemNode.find('p').first()
+				  , $spanNode = $itemNode.find('span').first()
+				var pNodeStyle = $pNode.attr('style')
+				  , spanNodeStyle = $spanNode.attr('style')
+				var lines = editor.updateSelectedLine(pNodeStyle)
 				
 				editor.saveAndFocus();
 				editor.updateNodesInLines(lines,spanNodeStyle);
-				dropHelper.openAndClose(data.menu);//menu창 닫고,열고. 기본동작임.
-			} else {
-				dropHelper.openAndClose(data.menu);//menu창 닫고,열고. 기본동작임.
-			};
-			
 			
 			//전파종료.
-			eventHelper.stop(event);
+			return ;
 		}
+	}
 		
-	};
 });
+//@ sourceURL=editor/event/button/lineStyle.js

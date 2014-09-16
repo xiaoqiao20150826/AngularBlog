@@ -16,10 +16,9 @@ $$namespace.include(function (require, module) {
 	                , require('button/inOutdent')
 	                , require('button/lineHeight')
 	                , require('button/lineStyle')
-	                , require('button/image')
 	                  
 	                , require('content/imageListener')
-	                , require('content/keyListner')
+	                , require('content/keyListener')
 	                ];
 	
 	var ButtonManager = module.exports = function ButtonManager(editor) {

@@ -56,9 +56,10 @@ $$namespace.include(function(require, module) {
 				
 				var fileInfo = status.fileInfo
 				  , fileUrl = fileInfo.url
-				  
 				//decode
-				fileInfo = H.decodeURI(fileInfo)  
+				fileInfo = H.decodeURI(fileInfo)
+				
+				$$editor.insertImageToContent(fileInfo.url); // content에 이미지노드 삽입
 				  
 				//fileInfo를 jsonString으로 변환하여 input 값으로 넣기.  
 				var $fileInfoesStringInput = insertView.get$fileInfoesStringInput()
@@ -95,13 +96,12 @@ $$namespace.include(function(require, module) {
 	//서버에서 처리되도록 하자. 이건 검증만.
 	InsertController.prototype.checkBeforSubmitForm1 = function ($insertForm) {
 		return function (e) {
-			//한글처리확인시. 확인만하는거니... title,content만하면어떨까
-//			var queryString = decodeURI($insertForm.serialize())
+			$$editor.insertContentToTextarea();
+			
 			var queryMap = H.queryStringToMap($insertForm.serialize())
-			  
 			if(H.notExist(queryMap.title)) return H.errorWarning(e,'title should not empty')  
-			if(H.notExist(queryMap.content)) return H.errorWarning(e,'content should not empty')  
-
+			if(H.notExist(queryMap.content)) return H.errorWarning(e,'content should not empty')
+			
 			return ; //본래 역할 수행.
 		}
 	}

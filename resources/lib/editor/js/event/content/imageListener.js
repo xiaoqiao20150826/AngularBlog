@@ -99,7 +99,7 @@ $$namespace.include(function (require, module) {
 			
 			
 	};
-	
-	
-	
 });
+
+
+//@ sourceURL=/lib/editor/event/content/imageListener.js

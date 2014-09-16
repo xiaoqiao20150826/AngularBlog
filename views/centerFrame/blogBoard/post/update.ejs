@@ -37,9 +37,8 @@
    <div class="form-group">
       <label class="col-sm-2 control-label">Content</label>
       <div class="col-sm-10">
-      <textarea class="col-sm-12" name="content"><%= post.content%></textarea><!--/textarea로 닫지않으면 아래 태그가 이상해짐  -->	
-<!--          <input class="form-control" id="content" type="text"  -->
-<!--             value="content"> -->
+      <textarea class="col-sm-12" name="content" style="display:none"><%= post.content%></textarea>
+      <% include ../../../../resources/lib/editor/editor.ejs %>
       </div>
    </div>
    <%  

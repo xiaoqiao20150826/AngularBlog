@@ -61,7 +61,10 @@ $$namespace.include(function (require, module) {
 				return true;
 			else
 				return false;
-		}
+		},
+		getItemClassName : function () {return DROP.itemClassName}
+		
+		
 
 	};
 });

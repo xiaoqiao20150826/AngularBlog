@@ -1,7 +1,7 @@
 
 /**
- * class Editor
- * ¿¡µğÅÍÀÇ ³»¿ëÁ¶ÀÛÀº ¿©±â¼­ÇÏÀÚ.
+ *  class Editor
+ *  
  */
 
 $$namespace.include(function(require, module) {
@@ -20,10 +20,11 @@ $$namespace.include(function(require, module) {
 	  , RangeManager = require('part/RangeManager')
 	  , ButtonManager = require('event/ButtonManager')
 	
-	var Editor = module.exports = function Editor(id, frameId) {
-		this._id = id || DEFAULT_ID;
-		this._frameId = frameId || DEFAULT_FRAME_ID;
-		
+	var Editor = module.exports = function Editor(textareaName) {
+		if(!textareaName) throw 'textareaName should be exist for insert and update'
+		this._id = DEFAULT_ID;
+		this._frameId = DEFAULT_FRAME_ID;
+		this._textareaName = textareaName;
 		this._contentFrame = document.getElementById(this._frameId);
 		if(!(this._contentFrame)) throw id+" must be id of frame";
 		
@@ -34,7 +35,7 @@ $$namespace.include(function(require, module) {
 		
 		this._history = new History(this);
 		this._rangeManager = new RangeManager(this);
-		this._btnManager = new ButtonManager(this); //TODO: ÀÏ°ü¼º. »ı¼º½Ã ´©±¸´Â new´©±¸´Â ±×³ÉÀÌ¶ó´Ï.
+		this._btnManager = new ButtonManager(this); //TODO: ì¼ê´€ì„±. ìƒì„±ì‹œ ëˆ„êµ¬ëŠ” newëˆ„êµ¬ëŠ” ê·¸ëƒ¥ì´ë¼ë‹ˆ.
 		
 		this._init();
 	};
@@ -44,13 +45,18 @@ $$namespace.include(function(require, module) {
 	Editor.prototype.getContentFrame = function() {return this._contentFrame;	};
 	Editor.prototype.getContentDoc = function() {return this._contentDoc;	};
 	Editor.prototype.getContentBody = function() {return this._contentBody;	};
+	Editor.prototype.getTextareaContent = function() {
+		var query = 'textarea[name="' + this._textareaName + '"]' 
+		return document.querySelector(query);
+	};
+	
 	
 	Editor.prototype.getHistory = function() {return this._history;	};
 	Editor.prototype.getDecorator = function() {return this._decorator;	};
 	Editor.prototype.getRangeManager = function() {return this._rangeManager;	};
 	
 	Editor.prototype.getCaretedContent = function() {
-		return this._rangeManager.getTemperalyCaretedContent(); //´Ü¾î È®ÀÎ ÇØ¾ßÇÔ..
+		return this._rangeManager.getTemperalyCaretedContent(); //ë‹¨ì–´ í™•ì¸ í•´ì•¼í•¨..
 	};
 	Editor.prototype.getEditorElementsByClassName = function (className) {
 		var editorId = "#"+this._id;
@@ -74,14 +80,14 @@ $$namespace.include(function(require, module) {
 	};
 	Editor.prototype.updateNodesInLines = function(lines,style) {
 		var	rangeManager = this._rangeManager;
-		//1. µ¥ÄÚ·¹ÀÌÆ®,
+		//1. ë°ì½”ë ˆì´íŠ¸,
 		var range = rangeManager.getCaretedRange();
 		this._decorator.decorateAllNodeInLines(lines,style);
 		rangeManager.updateRange(range); 
 	};
 	Editor.prototype.updateSelectedLine = function(style) {
 		var	rangeManager = this._rangeManager;
-		//1. µ¥ÄÚ·¹ÀÌÆ®, 
+		//1. ë°ì½”ë ˆì´íŠ¸, 
 		var range = rangeManager.getCurrentRange();
 		var lines = this._decorator.decorateLineBy(range,style);
 		
@@ -89,11 +95,11 @@ $$namespace.include(function(require, module) {
 	};
 	Editor.prototype.updateSelectedNodes = function(style) {
 		var	rangeManager = this._rangeManager;
-		//1. µ¥ÄÚ·¹ÀÌÆ®, 
+		//1. ë°ì½”ë ˆì´íŠ¸, 
 		var range = rangeManager.getCurrentRange();
 		var textNodes = this._decorator.decorateNodesBy(range,style);
 		
-//		2. ¹üÀ§ ¾÷µ¥ÀÌÆ®
+//		2. ë²”ìœ„ ì—…ë°ì´íŠ¸
 		rangeManager.updateRange(textNodes);
 	};
 	//------------------------------------------------
@@ -106,23 +112,56 @@ $$namespace.include(function(require, module) {
 		this._contentBody.innerHTML = contentData.innerHTML;
 		this._rangeManager.updateRange(contentData.range);
 	};
+	Editor.prototype.isInitContent = function () {
+		var $contentBody = $(this._contentBody)
+		  , $childrens = $contentBody.children()
+		  , childsLength = $childrens.length
+		
+		if(childsLength == 1) { //pë…¸ë“œê°€ í•˜ë‚˜ì´ê³ .
+			var text = $childrens.text()
+			if(text == "") return true;
+			else return false;
+		}
+		return false;
+	}
 	//--------------------------------------------------
 	
-	//------------------------helper	
 	Editor.prototype._init = function _init() {
-		this._btnManager.assignEvent()
+		//TODO : ë¦¬í™í† ë§ - ê° ì‘ì—… ë¶„ë¦¬í•´ì•¼ì§€.
+		var initText = this.getTextareaContent().value
+		if(!(initText == '' || initText == undefined)) this.getContentBody().innerHTML = initText
 		
+		this._btnManager.assignEvent()
 		var node = this._contentDoc.getElementsByTagName('p')[0];
 		var range =this._rangeManager.getDefaultRange(node);
 		this._rangeManager.updateRange(range);
+		
 		this.focus();
 	};
 	
-	//------------------ ¿ÜºÎ¿¡¼­ »ç¿ëµÇ´Â µµ¿ì¹ÌÇÔ¼ö ------------------	
-	Editor.prototype.contentToTextArea = function (textAreaNode) {
+	//------------------------helper	
+	// ì™¸ë¶€ apië“¤...ì¸ë° ì´ë¦„ë„ ê·¸ë ‡ê³ ..ì¢€ ê·¸ë ‡ë„¤..
+	//submit(for insert) í•  ë•Œ textareaì— ê°’ ë„£ê¸° ìœ„í•¨.
+	Editor.prototype.insertContentToTextarea = function () {
 		var bodyNode = this.getContentBody();
-		var text = bodyNode.innerHTML;
-		textAreaNode.value = text;
+		var text = String(bodyNode.innerHTML);
+		if("<p>â€‹</p>"== text) return text == '';
+		
+		return this.getTextareaContent().value = text;
 	};
-
+	
+	Editor.prototype.insertImageToContent = function (imageUrl) {
+        var rangeManager = this.getRangeManager() 
+    	  , range = rangeManager.getCurrentRange()			
+    	
+    	var imgNode = document.createElement("img");
+    	imgNode.setAttribute("src",imageUrl);
+    	imgNode.setAttribute("style","width:100px;");
+    	
+    	return range.commonAncestorContainer.parentNode.appendChild(imgNode);
+	}
+	
+	
+	
 });
+//@ sourceURL=editor/Editor.js

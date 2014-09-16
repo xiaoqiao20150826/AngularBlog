@@ -7,7 +7,6 @@
 <link rel="stylesheet" href="/resources/lib/editor/lib/fontAwesome/css/font-awesome.min.css">
 <!-- style -->
 <link rel="stylesheet" href="/resources/lib/editor/css/editor.css">
-<link rel="stylesheet" href="/resources/lib/editor/css/editorContent.css">
 
 <script type="text/javascript" src="/resources/lib/editor/lib/jquery/jquery-2.0.0.min.js" charset="utf-8"></script>
 </head>
@@ -39,7 +38,7 @@
 						</ul>
 					</li>
 					<li class="case dropdown-btn dropdown" id="fontColor">
-						<span class="item dropdown-title dropdown-toggle" data-toggle="dropdown" style="color: white;">A</span><b class="caret"></b>
+						<span class="item dropdown-title dropdown-toggle" data-toggle="dropdown" style="color: blue;">A</span><b class="caret"></b>
 						<ul class="dropdown-menu">
 							<li class="dropdown-item" style="background-color: #FF0000;"></li>
 							<li class="dropdown-item" style="background-color: #FF5E00;"></li>
@@ -141,7 +140,7 @@
 							<li class="dropdown-item" style="background-color: #000000;"></li>
 						</ul></li>
 					<li class="case dropdown-btn dropdown" id="backgroundColor">
-					<span class="item dropdown-title dropdown-toggle" data-toggle="dropdown" style="color: white;">A</span><b class="caret"></b>
+					<span class="item dropdown-title dropdown-toggle" data-toggle="dropdown" style="color: yellow;">A</span><b class="caret"></b>
 						<ul class="dropdown-menu">
 							<li class="dropdown-item" style="background-color: #FF0000;"></li>
 							<li class="dropdown-item" style="background-color: #FF5E00;"></li>
@@ -275,28 +274,27 @@
 				</ul>
 				<span class="wall"></span>
 				<ul class="bar">
+<!-- 					이름.. -->
 					<li class="case lineStyle-btn dropdown" id="lineStyle" title="LineStyle">
-						<span class="item">form</span><b class="caret  dropdown-toggle"   data-toggle="dropdown" ></b>
+						<span class="item dropdown-toggle" data-toggle="dropdown">style</span>
+						<b class="caret dropdown-toggle"  data-toggle="dropdown"></b>
 						<ul class="dropdown-menu">
-							<li class="dropdown-item"
-								style="text-align: center; margin-left: 4em; line-height: 1.3; background-color: red; color: rgb(71, 200, 62); font-size: 27pt; text-decoration: underline; font-style: italic; font-weight: bold;"><p
-									style="margin-left: 4em; line-height: 1.3;">
-									<span
-										style="text-align: center; background-color: red; color: rgb(71, 200, 62); font-size: 27pt; text-decoration: underline; font-style: italic; font-weight: bold;">ABCDE</span>
-								<p></li>
-							<li class="dropdown-item">ABCDE</li>
-							<li class="dropdown-item">ABCDE</li>
-							<li class="dropdown-item">ABCDE</li>
-							<li class="dropdown-item">ABCDE</li>
+							<li class="dropdown-item" style="display:block">
+							<p style="line-height: 1.3; background-color: yellow; color: rgb(71, 200, 62); font-size: 27pt; text-decoration: underline; font-style: italic; font-weight: bold;">
+								<span style="line-height: 0.5; background-color: blue; color: rgb(71, 200, 0); font-size: 10pt; ">
+								ABCDE
+								</span>
+							<p>
+							</li>
+							<li class="dropdown-item" style="display:block">
+							<p style="text-align: left; background-color: gray; color: rgb(71, 200, 62); font-size: 27pt; text-decoration: underline; font-style: italic; font-weight: bold;">
+								<span style="background-color: yellow; color: rgb(71, 21, 0); font-size: 16pt; ">
+								ABCDE
+								</span>
+							<p>
+							</li>
 						</ul>
 					</li>
-				</ul>
-				<span class="wall"></span>
-				<!-- image -->
-				<ul class="bar">
-					<li class="case imageUpload-btn" id="imageUpload"><i
-						class="item fa fa-picture-o"></i> <input type="file"
-						name="imageFile" id="nodeOfInputFile" style="display: none" /></li>
 				</ul>
 				<span class="wall"></span>
 				<!--undo, redo  -->

@@ -166,3 +166,5 @@ $$namespace.include(function (require, module) {
 //	selection.extend(afterRange.sNode.parentNode,1);	
 //	selection.setBaseAndExtent(afterRange.sNode, afterRange.sOffset, afterRange.eNode, afterRange.eOffset);	
 });
+
+//@ sourceURL=editor/event/content/RangeManager.js

@@ -109,31 +109,61 @@ $$namespace.include(function (require, module) {
 				}
 				wrappedTextNode = this._wrapTextNodeToSpanNode(textNode,start,end);
 				var spanNode = wrappedTextNode.parentNode;
-				styleAppender.appendStyleToElement(spanNode,style);				//TODO: 성능 : 리플로우 리페인팅이 일어남..
+				styleAppender.appendStyleToElement(spanNode, style);				//TODO: 성능 : 리플로우 리페인팅이 일어남..
 				
 				decoretedNodes.push(wrappedTextNode);
 //				decoretedNodes.push(spanNode);
 			}
+			
 			return decoretedNodes;
 		},
-		
+		// 한개의 텍스트 노드만 oldNode로 전달되겠지.
 		_wrapTextNodeToSpanNode : function (oldNode, startOffset, endOffset) {
 			var parent = oldNode.parentNode,
 				text = oldNode.nodeValue,
 				startLoc = 0, endLoc = text.length,
 				middleSpan=null, leftTextNode=null, rightTextNode=null;
 			
-			if( __isSame(startOffset,startLoc) && __isSame(endOffset,endLoc) 
-					&& __isSame(oldNode.nextSibling,null) &&__isSame(parent.nodeName,"SPAN")) {
-				return oldNode;
+			//이건 .. 
+			//텍스트노드가 하나이고 부모가 이미 span이야.
+			if( __isSame(startOffset,startLoc) && __isSame(endOffset,endLoc) &&__isSame(parent.nodeName,"SPAN") ) {
+				// 형제가 없다면 그냥 내 span을 사용하면됨. 
+				if(__isSame(oldNode.nextSibling,null) ) return oldNode;
+				//형제가 있다면 감싸고 olNode랑 바꾸자.
+//				if(!__isSame(oldNode.nextSibling,null) ) {
+//					__replaceAllTextNodes(parent.parentNode)
+//					
+//					function __replaceAllTextNodes(node) {
+//						var parentNode = node.parentNode
+//						  , cssText = parentNode.style.cssText
+//						var childNodes = parentNode.childNodes
+//						var frag = document.createDocumentFragment();
+//						
+//						for(var i in childNodes) {
+//							var childNode = childNodes[i]
+//							if(childNode.nodeType == 3) {
+//								var text = childNode.textContent
+//								var	newSpan = nodeDecorator._createSpanNodeByText(text, cssText)
+//								childNode = newSpan
+//							}
+//							//
+//							frag.appendChild(childNode)
+//						}
+//						var node = parentNode.parentNode
+//						node.replaceChild(frag, parentNode)
+//					}
+//					
+//					return oldNode
+//				}
 			}
 			
+			var cssText = parent.style.cssText
 			if(__isSame(startOffset,endOffset)) { //offset이 같음.
 				var offset = startOffset;
 				if(__isSame(startLoc,endLoc)) { // loc도 같음. 아에 비어있는 경우인가?
 					throw "여기 도달할수가 없음.  ";
 				} else { //loc가 다르다. 즉, 중간은 빈스팬 나머지는 뭐그럼.
-					middleSpan = this._createSpanNodeByText("");
+					middleSpan = this._createSpanNodeByText("", cssText);
 					middleSpan.innerHTML = "&#8203";////TODO: 캐럿이 말을안들어서..이 상 한 거 넣 었 다!;
 					leftTextNode = document.createTextNode(text.slice(0,offset)),
 					rightTextNode =document.createTextNode(text.slice(offset));
@@ -142,22 +172,22 @@ $$namespace.include(function (require, module) {
 				
 			} else { //offset이 다르다.
 				if(__isSame(startOffset,startLoc)) { //왼쪽이 new  l l l
-					middleSpan = this._createSpanNodeByText(text.slice(0,endOffset)),
+					middleSpan = this._createSpanNodeByText(text.slice(0,endOffset), cssText),
 					rightTextNode = document.createTextNode(text.slice(endOffset));
 					__replaceNode(oldNode,null,middleSpan,rightTextNode);
 				}else if(__isSame(endOffset, endLoc)) { //오른쪽
-					middleSpan = this._createSpanNodeByText(text.slice(startOffset)),
+					middleSpan = this._createSpanNodeByText(text.slice(startOffset), cssText),
 					leftTextNode = document.createTextNode(text.slice(0,startOffset));
 					__replaceNode(oldNode,leftTextNode,middleSpan,null);
 				} else {
 				//중간에있어.
-					middleSpan = this._createSpanNodeByText(text.slice(startOffset, endOffset));
+					middleSpan = this._createSpanNodeByText(text.slice(startOffset, endOffset), cssText);
 					leftTextNode = document.createTextNode(text.slice(0,startOffset)),
 					rightTextNode = document.createTextNode(text.slice(endOffset));
 					__replaceNode(oldNode,leftTextNode,middleSpan,rightTextNode);
 				}
+				
 			}
-			
 			return middleSpan.firstChild;
 			//////////////helper
 			function __isSame(start, end) {
@@ -182,13 +212,16 @@ $$namespace.include(function (require, module) {
 			
 			
 		},
-		_createSpanNodeByText : function (text) {
+		_createSpanNodeByText : function (text, cssText) {
 			var	span = document.createElement('span'),
 				textEl = document.createTextNode(text);
 			span.appendChild(textEl);
+			span.style.cssText = cssText;
 			return span;
 		}
 		
 	};
 	
 });
+
+//@ sourceURL=editor/event/part/nodeDecorator.js
