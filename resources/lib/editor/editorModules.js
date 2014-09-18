@@ -3,10 +3,13 @@
 	// 
 	var modules = [
 	                  "/resources/lib/editor/js/iframeContent.js",
+
+	                  "/resources/lib/editor/js/util/helper.js",
 	                  
 	                  "/resources/lib/editor/js/part/treeSearcher.js",
 	                  "/resources/lib/editor/js/part/styleAppender.js",//
 	                  "/resources/lib/editor/js/part/nodeDecorator.js",
+	                  "/resources/lib/editor/js/part/rangeDecorator.js",
 	                  "/resources/lib/editor/js/part/History.js",//
 	                  "/resources/lib/editor/js/part/RangeManager.js",//
 	                  

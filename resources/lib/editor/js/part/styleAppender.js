@@ -5,8 +5,19 @@ $$namespace.include(function (require, module) {
 	 */
 	var COMPUTED_KEYS = ["height","width","left"];//right,top,bottom,위치,크기등.
 	
+	var H = require('/js/util/helper.js')
+	
 	var styleAppender = module.exports = {}
 	//이게 아마 스팬노드만 올꺼야.
+	styleAppender.appendStyleToElements = function(elements, style) {
+		if(!H.isArray(elements)) elements = [elements]
+		var length = elements.length
+		
+		for(var i =0,max =length; i<max; ++i) {
+			var element = elements[i]
+			this.appendStyleToElement(element,style)
+		}
+	}
 	styleAppender.appendStyleToElement = function(element,style) {
 		var elementStyle = element.style,
 			styleMap = this._getStyleMap(style);
@@ -15,47 +26,16 @@ $$namespace.include(function (require, module) {
 			var value = styleMap[key]
 			  , elementValue = elementStyle[key]
 			if(elementValue != "undefined" ) { //element에 없는 키값 넣을때 undefined
-				if(_isEqualStyleOfParentSpan(element, key)) {
-					var parentElement = element.parentElement
-					  , childrenElements = parentElement.children //element만.
-					  
-					this._setOneStyleToElements(parentElement, key, value)
-					this._setOneStyleToElements(childrenElements, key, value)
-				}
-				else {
-					this._setOneStyleToElements(element, key, value)
-				}
+				if(this._mustBeComputedKey(key)) { //계산해야되는 숫자같은값 가진넘들..
+					value = this._getComputedValue(elementValue, value);
+					elementStyle[key] = value;
+				} else { //아니라면 토글하자.
+					if(elementValue == value) value = ''; 
+					elementStyle[key] = value;
+				}				
 			}
 		};
 	}
-	//부모가 span이면서 같은 style값을 갖고 있어.
-	function _isEqualStyleOfParentSpan(element, key) {
-		var parentElement = element.parentElement
-		  , nodeName = parentElement.nodeName
-		  , parentStyleValue = parentElement.style[key]
-		var styleValue= element.style[key]
-		
-		if(nodeName =='SPAN' && parentStyleValue == styleValue) return true;
-		else return false;
-	}
-	
-	styleAppender._setOneStyleToElements  = function (elements, key, value) {
-		if(!(elements instanceof Array || elements instanceof HTMLCollection) ) elements = [elements]
-		
-		for(var i=0, max=elements.length; i<max; ++i) {
-			var element = elements[i]
-			var elementStyle = element.style
-			  , elementValue = elementStyle[key]
-			if(this._mustBeComputedKey(key)) { //계산해야되는 숫자같은값 가진넘들..
-				value = this._getComputedValue(elementValue, value);
-				elementStyle[key] = value;
-			} else { //아니라면 토글하자.
-				if(elementValue == value) value = ''; 
-				elementStyle[key] = value;
-			}	
-		}
-	}
-	
 	styleAppender._mustBeComputedKey = function _mustBeComputedKey(key) {
 		for(var i in COMPUTED_KEYS) {
 			var computedKey = COMPUTED_KEYS[i];
@@ -117,6 +97,62 @@ $$namespace.include(function (require, module) {
 		return styleMap;
 	} 
 	
+	//새로추가한 것.
+	
+	styleAppender.getInheritedSytleMap = function ($node) {
+		var $spans = _findParentSpanBeforeLine($node)
+		var styleMap = _reduceStyles($spans)
+		return styleMap
+	}
+	function _findParentSpanBeforeLine($node) {
+		var nodes = []
+		findParent($node)
+		
+		return $(nodes)
+		
+		function findParent($node) {
+			if(H.isSpan($node)) nodes.push($node[0])
+			if(H.isEmpty($node) || H.isLine($node)) return;
+			
+			return findParent($node.parent())	
+		}
+	}
+	function _reduceStyles($spans) {
+		var styleMap = {}
+		var spansLength = $spans.length; //조심 그냥하면 무한...루프
+		for(var i=0,max = spansLength; i<max; ++i) {
+			var span = $spans[i]
+			var cssMap = _getCssMap(span)
+			_addStyle(styleMap, cssMap)
+		}
+		// a에게 b의 값을 단순히 덮어쓰기. 중복시에는 최상위인 마지막노드의 값이 들어가게.
+		return styleMap;
+		
+		function _getCssMap (node) {
+			var cssText = span.style.cssText
+			  , lastSemicolonIndex = cssText.lastIndexOf(';')
+			cssText = cssText.slice(0, lastSemicolonIndex) //마지막 세미콜론없에기
+			
+			var cssStrings = cssText.split(';')
+			var cssMap = {}
+			for(var i=0,max = cssStrings.length; i<max; ++i) {
+				var cssString = cssStrings[i]
+				var pair = cssString.split(':')
+				if(pair.length != 2) {continue}//이상해질수도있어.
+				var key = pair[0].trim()
+				  , value = pair[1].trim()
+				cssMap[key] = value
+			}
+			return cssMap
+		}
+		function _addStyle(a, b) {
+			var keys = Object.keys(b)
+			for(var i in keys) {
+				var key = keys[i]
+				a[key] = b[key]
+			}
+		}
+	}
 });
 
 

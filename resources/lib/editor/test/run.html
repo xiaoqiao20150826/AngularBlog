@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+<link rel="stylesheet" href="./lib/mocha/mocha.css" />
+</head>
+<body>
+<div id="mocha"></div>
+
+<script src="./lib/jquery-2.0.0.min.js"></script>
+<script src="./lib/namespace/$$namespace.js"></script>
+<script>
+(function () {
+ 	//TODO: load가 promise를 반환했다면...then으로 좀더 깔끔한. 구조를 만들었을텐데	
+	var modules = [
+	               //lib
+	 			  , "./lib/underscore-min.js"
+	 			  , "./lib/chai/chai.js"
+	 			  , "./lib/htmlLoger.js"
+	 			  //test lib
+	 			  ,"./lib/mocha/mocha.js"
+	 			  //target
+	         	  , '../js/part/rangeDecorator.js'
+	         	  , '../js/part/styleAppender.js'
+	         	  , '../js/part/treeSearcher.js'
+	         	  , '../js/util/helper.js'
+	              ]
+	              
+	$$namespace.load(modules, function () {
+		mocha.setup('bdd');
+		
+		//testsuite load and run After ready for test 
+		var testModules = [
+		                    './part/rangeDecoratorTest.js'
+		                  , './part/styleAppenderTest.js'
+		                  ]
+		$$namespace.load(testModules, function () {
+			mocha.run();
+		})
+	})
+	
+})()
+
+</script>
+</body>
+</html>

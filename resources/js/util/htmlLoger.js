@@ -8,8 +8,8 @@
 (function() {
 	var s = '';
 	if(window.$$namespace) {
-		$$namespace.include(function(exports) {
-			htmlLoger(exports)
+		$$namespace.include(function(require, module) {
+			htmlLoger(module.exports)
 		})
 	} else {
 		htmlLoger(this.window);

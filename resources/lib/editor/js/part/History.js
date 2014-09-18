@@ -7,7 +7,7 @@ $$namespace.include(function (require, module) {
 	/*
 	 * static field, dependency
 	 */
-	var	MAX_LENGTH = 20;
+	var	MAX_LENGTH = 7;
 	
 	
 	/*

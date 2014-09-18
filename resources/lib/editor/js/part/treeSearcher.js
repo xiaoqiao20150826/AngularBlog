@@ -9,6 +9,8 @@ $$namespace.include(function (require, module) {
 	/*
 	 * private static field
 	 */
+	var H = require('js/util/helper.js')
+	
 	var count = 0;
 	var treeSearcher = module.exports = {
 		
@@ -35,7 +37,9 @@ $$namespace.include(function (require, module) {
 				
 				//형제 노드에서 찾지 못했다면 부모노드에서 탐색.
 				if(!find) {
-					if(startNode != null && this._isRangeEditor(startNode)) {
+					console.log('s'+startNode)
+					if(this.isInEditor(startNode)) {
+//					if(startNode != null && this._isRangeEditor(startNode)) {
 						var parentNode = startNode.parentNode;
 						this._visited.push(parentNode); //현재노드의 형제가 모두 방문되었다면 그 부모가 방문되었다는 것으로 생각한다. 이전형제를 찾지않기위해서.
 														//다음턴에는 부모의 형제부터 찾아봄. 
@@ -73,11 +77,14 @@ $$namespace.include(function (require, module) {
 				
 				return beFind; //형제노드를 모두검색했는데 찾지 못했다. or 찾았다는 것을 시작노드에게 알려준다..
 		},
-		_isRangeEditor : function (node) {
-			if(node.parentNode.nodeName =="HTML") 
-				return false;
-			else
+		isInEditor : function (node) {
+			if(H.notExist(node)) return false;
+			
+			var parentNode = node.parentNode
+			if(H.exist(parentNode) && (parentNode.nodeName !="BODY" || parentNode.nodeName !="HTML")) // body?로해야하지않을까 
 				return true;
+			else
+				return false;
 		},
 		_isVisited : function(node) { //TODO:성능이.. 자바의 set같은거있나?
 			for(var i=0,max=this._visited.length; i<max; ++i) {

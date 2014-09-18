@@ -79,28 +79,27 @@ $$namespace.include(function(require, module) {
 		this._contentDoc.execCommand(cmd, bool, value);
 	};
 	Editor.prototype.updateNodesInLines = function(lines,style) {
-		var	rangeManager = this._rangeManager;
-		//1. 데코레이트,
-		var range = rangeManager.getCaretedRange();
+		var	rangeManager = this._rangeManager
+		  , range = rangeManager.getCaretedRange()
+		
 		this._decorator.decorateAllNodeInLines(lines,style);
+		//재설정해야되나?
 		rangeManager.updateRange(range); 
 	};
 	Editor.prototype.updateSelectedLine = function(style) {
-		var	rangeManager = this._rangeManager;
-		//1. 데코레이트, 
-		var range = rangeManager.getCurrentRange();
-		var lines = this._decorator.decorateLineBy(range,style);
-		
+		var	rangeManager = this._rangeManager
+		  , range = rangeManager.getCurrentRange()
+		  , lines = this._decorator.decorateLineByRange(range,style)
+		//범위재설정이 필요없구나.
 		return lines;
 	};
 	Editor.prototype.updateSelectedNodes = function(style) {
-		var	rangeManager = this._rangeManager;
-		//1. 데코레이트, 
-		var range = rangeManager.getCurrentRange();
-		var textNodes = this._decorator.decorateNodesBy(range,style);
+		var	rangeManager = this._rangeManager
+		  , range = rangeManager.getCurrentRange()
+		  , startAndEndNodes = this._decorator.decorateNodesByRange(range,style)
 		
 //		2. 범위 업데이트
-		rangeManager.updateRange(textNodes);
+		rangeManager.updateRange(startAndEndNodes);
 	};
 	//------------------------------------------------
 	Editor.prototype.saveAndFocus = function() {
