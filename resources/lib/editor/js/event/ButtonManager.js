@@ -14,6 +14,7 @@ $$namespace.include(function (require, module) {
 	                , require('button/fontColor')
 	                , require('button/undoRedo')
 	                , require('button/inOutdent')
+	                , require('button/imageUpload.js')
 	                , require('button/lineHeight')
 	                , require('button/lineStyle')
 	                  

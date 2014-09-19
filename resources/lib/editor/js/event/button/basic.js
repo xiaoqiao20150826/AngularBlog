@@ -39,7 +39,7 @@ $$namespace.include(function (require, module) {
 				if(!(target.id)) { //자식이다.그렇다면
 					target = target.parentNode;
 				}
-				if(target.id.indexOf('Justify') != -1 ) {
+				if(target.id.indexOf('Justify') != -1 ) { //줄단위에서 왼쪽오른쪽이동할때사용함.
 					editor.updateSelectedNodeByExecCommand.apply(editor,data.args);
 					editor.saveAndFocus();
 				} else {

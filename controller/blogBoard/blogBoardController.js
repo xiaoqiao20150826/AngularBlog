@@ -71,18 +71,25 @@ blogBoardController.sendBlogBoardList = function (req, res) {
 		
 		debug('list rawData ',rawData)  
 		var errFn = redirector.catch;
-		H.call4promise(blogBoardService.getFullList, pageNum, sorter, categoryId)
+		  
+		H.all4promise([
+		                 [blogBoardService.getFullList, pageNum, sorter, categoryId]
+		               , [categoryService.getRootOfCategoryTree]
+		 ])
          .then(function dataFn(args) {
-           	var posts = args.posts
-           	  , pager = args.pager.make4view(pageNum)
+        	var postsAndPager = args[0]
+        	  , rootOfCategoryTree = args[1]
+           	var posts = postsAndPager.posts
+           	  , pager = postsAndPager.pager.make4view(pageNum)
 
   			var blog = {posts : posts
   					  , pager : pager
-  					  , loginUser : loginUser 
+  					  , loginUser : loginUser
+  					  , rootOfCategoryTree : rootOfCategoryTree
   					  , scriptletUtil : scriptletUtil
   					  };
   			
-  			res.render('./centerFrame/blogBoard/list.ejs', {blog : blog});
+  			res.render('./centerFrame/blogBoardList.ejs', {blog : blog});
   		})
          .catch(errFn)
 }
@@ -133,7 +140,7 @@ blogBoardController.detailView = function(req, res) {
 	_detailView(req,res,'./wholeFrame/blogBoard/detail.ejs')
 }
 blogBoardController.detailView4ajax = function(req, res) {
-	_detailView(req,res,'./centerFrame/blogBoard/detail.ejs')
+	_detailView(req,res,'./centerFrame/blogBoardDetail.ejs')
 }
 function _detailView(req, res, viewPath) {
 	var redirector = new Redirector(res)
@@ -241,7 +248,7 @@ blogBoardController.increaseVote = function (req, res) {
 	 .catch(redirector.catch)
 }
 blogBoardController.sendHistoryView4ajax = function (req, res) {
-	_sendHistoryView(req, res, './centerFrame/blogBoard/history.ejs')
+	_sendHistoryView(req, res, './centerFrame/blogBoardHistory.ejs')
 }
 blogBoardController.sendHistoryView = function (req, res) {
 	_sendHistoryView(req, res, './wholeFrame/blogBoard/history.ejs')

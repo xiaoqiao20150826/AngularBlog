@@ -96,17 +96,7 @@ describe('rangeDecorator', function () {
 			expect($line1.children().children().length).to.equal(5)
 			expect($line1.children().children()[3]).to.equal($span4[0])
 		})
-		// Ä³·µ!
-		it('#decroateByRange should be run', function () {
-			$parentSpan1.text("")
-			$parentSpan1.append([$text1,$span1,$span2,$span3])
-			$line1.append($parentSpan1)
-			var range = { startContainer: $text1[0], endContainer: $text1[0]
-				        , startOffset:1, endOffset:1 }
-			
-			var spans = rangeDecorator.decorateSpanByRange(range)
-			expect(spans[0].textContent).to.equal('')
-		})
+
 		//one span in line1...
 		it('#decroateByRange should be run', function () {
 			$parentSpan1.append([$text1,$span1,$span2,$span3,$text2])
@@ -175,6 +165,39 @@ describe('rangeDecorator', function () {
 			expect($line2.children()[line2last].style['background-color']).to.equal('red')
 			expect(startAndEndTextNode[0].textContent).to.equal('xt1')
 			expect(startAndEndTextNode[1].textContent).to.equal('tex')
+		})
+		///////  °¡¿îµ¥ Ä³·µ!
+		it('#decroateByRange should be run by caret', function () {
+			$parentSpan1.text("")
+			$parentSpan1.append([$text1,$span1,$span2,$span3])
+			$line1.append($parentSpan1)
+			var range = { startContainer: $text1[0], endContainer: $text1[0]
+				        , startOffset:1, endOffset:1 }
+			
+			var spans = rangeDecorator.decorateSpanByRange(range)
+			expect(spans[0].textContent).to.equal('')
+		})
+		// ¿ÞÂÊ Ä³·µ
+		it('#decroateByRange should be run by caret', function () {
+			$parentSpan1.text("")
+			$parentSpan1.append([$text1,$span1,$span2,$span3])
+			$line1.append($parentSpan1)
+			var range = { startContainer: $text1[0], endContainer: $text1[0]
+			, startOffset:0, endOffset:0 }
+			
+			var spans = rangeDecorator.decorateSpanByRange(range)
+			expect(spans[0].textContent).to.equal('')
+		})
+		// ¿À¸¥ÂÊÄ³·µ.
+		it('#decroateByRange should be run by caret', function () {
+			$parentSpan1.text("")
+			$parentSpan1.append([$text1,$span1,$span2,$span3])
+			$line1.append($parentSpan1)
+			var range = { startContainer: $text1[0], endContainer: $text1[0]
+			, startOffset:4, endOffset:4 }
+			
+			var spans = rangeDecorator.decorateSpanByRange(range)
+			expect(spans[0].textContent).to.equal('')
 		})
 	})
 	

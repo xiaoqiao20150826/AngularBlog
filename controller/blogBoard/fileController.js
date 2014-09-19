@@ -19,7 +19,8 @@ var fileController = module.exports = {
 	uploadByClient : function(req, res) {
  		var redirector = new Redirector(res)
 		var rawData = requestParser.getRawData(req)
-		  , userId = rawData.userId
+		  , loginUser = requestParser.getLoginUser(req)
+		  , userId = loginUser._id
 		  , fromFile = _.first(_.toArray(req.files))//TODO: 현재하나뿐. 파일업로드 안해도 빈거들어감
 		
  		if(!fileDAO.existFile(fromFile)) return dataFn('error : file size is '+ fromFile.size);

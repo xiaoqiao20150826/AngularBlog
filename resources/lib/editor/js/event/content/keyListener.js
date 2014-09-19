@@ -4,36 +4,36 @@
 
 $$namespace.include(function (require, module) {
 
-	/*
-	 * static field, dependency
-	 */
-	var __KEY = {
-		ENTER: '13',
-		DELETE: '46',
-		SPACE: '32',
-		BACKSPACE: '8',
-		TAB: '9',
-		PASTE: '86', //+ ctrl
-		CUT: '88' //+ ctrl
-	};
+
 	
-	/*
-	 * constructor , instance field
-	 */
 	
-	var eventHelper = require('/event/eventHelper')
+	var H = require('util/helper')
+	  , keyUtil = require('event/content/keyUtil.js')
+	var eventHelper = require('/event/eventHelper.js')
 	  , EVENT = eventHelper.EVENT
 	
 	var keyListener = module.exports = {}
+	
 	keyListener.init = function(editor) {
 		var contentBody = editor.getContentBody()
 		
+		$('body').on(EVENT.keydown, _blockBackspaceOfPage)
+		
 		$(contentBody).on(EVENT.keydown, _saveHisoryAndEtc1(editor))
 	}
+	//잘못해서 뒤로가지 않도록.
+	function _blockBackspaceOfPage(event) {
+		if(keyUtil.isBackSpace({code: event.keyCode})) {
+			return eventHelper.stop(event)
+		}
+	}
+	
 	function _saveHisoryAndEtc1(_editor) {
 		var editor = _editor
+		var history = editor.getHistory()
+		var updateAndStop = updateAndStop1(editor, eventHelper)
 		return function (event) {
-			var history = editor.getHistory()
+			
 			var downKey = {
 		            code: event.keyCode,
 		            ctrl: event.ctrlKey || (event.keyCode === 17),
@@ -41,44 +41,52 @@ $$namespace.include(function (require, module) {
 		            shift: event.shiftKey || (event.keyCode === 16)
 		    };
 			
-			if(_isBackSpace(downKey) && editor.isInitContent()) return eventHelper.stop(event);
+			if(keyUtil.isBackSpace(downKey)) {
+				if(!_isToDoBackspace(editor)) return eventHelper.stop(event) 
+				//그외 기본동작
+			}
+			//TODO: 제대로 만드려면 이벤트를 코드로 실행할수있도록 손봐야함.
+			if(keyUtil.isUndo(downKey)) { return history.undo();} //히스토리만 순서주의
 			
-			_saveHistory(downKey, history);
+			if(keyUtil.isKeyToSaveHistory(downKey)) { history.save();}
 			
-//			_blockBackSpace()
+			if(keyUtil.isBold(downKey)) { return updateAndStop('font-weight:bold', event);}
+			if(keyUtil.isItalic(downKey)) { return updateAndStop('font-style:italic', event);}
+			if(keyUtil.isUnderline(downKey)) { return updateAndStop('text-decoration:underline', event);}
+			if(keyUtil.isLineThrough(downKey)) { return updateAndStop('text-decoration:line-through', event);}
+			
 		}
 	}
-	function _saveHistory(key, history) {
-		if(_isKeyToSaveHistory(key)) {
-			history.save();
-		}	
+	function updateAndStop1(editor, eventHelper) {
+		return function (cssText, event) {
+			editor.updateSelectedNodes(cssText)
+			return eventHelper.stop(event)
+		}
 	}
-	var _modifiedContent = false;
-	function _isKeyToSaveHistory(key) {
-		var modified = _modifiedContent;
-		if (key.code == 229) {return false; }; // ignore mouse click in ff.
+	//backspace가 기본동작해야되는지.
+	function _isToDoBackspace(editor) {
+		var $lines = editor.get$lines()
+		if($lines.length < 1) throw 'someting wrong..';
+		if($lines.length > 2) return true;
+		
+			
+		var firstLine = $lines[0]
+		  , childNodes = firstLine.childNodes
 		  
-		if (modified && (key.code == __KEY.ENTER || key.code == __KEY.SPACE || key.code == __KEY.TAB)) {
-			this._modifiedContent = false;
-			return true;
-		} else if (_isBackSpace(key)) {
-            return true;
-        } else if ((key.code == __KEY.PASTE || key.code == __KEY.CUT) && key.ctrl) {
-            return true;
-        } else if (modified && ((key.code > 32 && key.code < 41) && key.shift) || (key.code == 65 && key.ctrl)) {   // shift + arrow,  home, end,  etc..  / select all
-        	this._modifiedContent = false;
-        	return true;
-        } else if (key.ctrl || key.alt || (key.shift && key.code == 16)) {
-            return false;
-        } else {
-        	this._modifiedContent = true;
-        }
+		if(childNodes.length > 1) return true; // 1개에 대해서만..작업하자.
+		
+		//이제 이시점에서는 하나의 라인, 하나의 노드(span혹은 텍스트)만 있어
+		var textOrSpanNode = childNodes[0]
+		if(!H.isTextNode(textOrSpanNode)) { if(textOrSpanNode.childNodes.length > 1 ) return true; }
+		
+		var oneTextNode = editor.getCurrentSelection().baseNode
+		 ,  text = oneTextNode.textContent;  
+		if(text.length > 1) return true; //한개의 char에 대해서만... 
+	    
+		oneTextNode.textContent = editor.getCaretChar();
+		return false; //이때만 기본동작하면 안됨.
 	}
-	//       check
-	function _isBackSpace(key) {
-		if(key.code == __KEY.DELETE || key.code == __KEY.BACKSPACE) return true;
-		else return false;
-	}
+	
 	
 });
 

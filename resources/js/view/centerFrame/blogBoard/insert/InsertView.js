@@ -8,8 +8,7 @@ $$namespace.include(function(require, module){
 	var viewUtil = require('/view/viewUtil')
 
 	
-	var INSERT_FILE_BTN = '#blogBoard-insertFile'
-	  , INSERT_FORM = '#blogBoard-insertForm'
+	var INSERT_FORM = '#blogBoard-insertForm'
 	  , FILE_URLS_VIEW_NODE = '#blogBoard-fileUrlsView'
       , FILE_INFOES_STRING_INPUT = '#blogBoard-fileInfoesString'
     
@@ -20,7 +19,6 @@ $$namespace.include(function(require, module){
 	
 	InsertView.prototype.init = function () {
 	}
-	InsertView.prototype.get$insertFileBtn = function () { return $(INSERT_FILE_BTN) }
 	InsertView.prototype.get$insertForm = function () {	return $(INSERT_FORM) }
 	InsertView.prototype.get$fileInfoesStringInput = function () {	return $(FILE_INFOES_STRING_INPUT) }
 	InsertView.prototype.get$fileUrlsViewNode = function () {	return $(FILE_URLS_VIEW_NODE) }

@@ -15,24 +15,21 @@ $$namespace.include(function(require, module) {
 		this.app = app;
 		this.insertView = insertView
 		
+		app.setImageUploadCallback(this.uploadFile1(insertView))
 	}
 	InsertController.prototype.onHandler = function () {
 		var app = this.app
 		
 		var insertView = this.insertView
-		  , $insertFileBtn = insertView.get$insertFileBtn()
 		  , $insertForm = insertView.get$insertForm()
-		
-		app.onChange($insertFileBtn, this.uploadFile1(insertView) )
 		
 		app.onSubmit($insertForm, this.checkBeforSubmitForm1($insertForm) )
 		
 	}
 	
 	InsertController.prototype.uploadFile1 = function(insertView) {
-		return function (e) {
+		return function (e, editor) {
 			var $btn = $(this)
-			  , userId = $btn.data().userid
 			  , inputNode = this
 			  , file = this.files[0]
 			  , size = file.size
@@ -47,7 +44,6 @@ $$namespace.include(function(require, module) {
 			
 			var formData = new FormData()
 			formData.append('file', file);
-			formData.append('userId', userId)
 			
 			ajax.call4file(dataFn, '/file/upload', formData)
 			function dataFn(statusJsonString) {
@@ -59,7 +55,7 @@ $$namespace.include(function(require, module) {
 				//decode
 				fileInfo = H.decodeURI(fileInfo)
 				
-				$$editor.insertImageToContent(fileInfo.url); // content에 이미지노드 삽입
+				editor.insertImageToContent(fileInfo.url); // content에 이미지노드 삽입
 				  
 				//fileInfo를 jsonString으로 변환하여 input 값으로 넣기.  
 				var $fileInfoesStringInput = insertView.get$fileInfoesStringInput()

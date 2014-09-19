@@ -1,5 +1,6 @@
 /**
  * 캐럿과 범위 둘을 컨트롤.
+ * TODO: 여기서 싱글캐럿(실제의), 캐럿된(히스토리를 위해 임시로 표시한). 두단어가 혼용됨.
  */
 
 $$namespace.include(function (require, module) {
@@ -25,19 +26,19 @@ $$namespace.include(function (require, module) {
 		if(range instanceof Array) {
 			range = this._getRangeByTextNodes(range);
 		}
-		if(range.isCaretedRange) {
+		if(range.isCaretedRange) { //햇갈리는이름. 이거 히스토리를 위해 임시로 넣은 캐럿 .말하는것이다. 
 			range = this._getRangeByCaretedRange(range);
 			this.deleteCarets();
 		}
 		var	selection = this.getCurrentSelection(),
 			newRange = document.createRange();
-//		if(range.isSingleCaret) {
-//			newRange.selectNodeContents(range.sNode);//단일노드, 범위선택 
-//			newRange.collapse(false); //위에서 범위를 캐럿으로(마지막 위치)
-//		} else {
+		if(range.isSingleCaret) {
+			newRange.selectNodeContents(range.sNode);//단일노드, 범위선택 
+			newRange.collapse(false); //위에서 범위를 캐럿으로(마지막 위치)
+		} else {
 			newRange.setStart(range.sNode, range.sOffset);
 			newRange.setEnd(range.eNode, range.eOffset);			
-//		}
+		}
 
 		selection.removeAllRanges();
 		selection.addRange(newRange);
@@ -108,22 +109,29 @@ $$namespace.include(function (require, module) {
 	 */
 	//-----------------create
 	RangeManager.prototype._createRange= function(sNode,eNode,sOffset,eOffset) {
+		var caretChar = this._editor.getCaretChar()
 		var result = {sNode: sNode, eNode: eNode || sNode,
 					  sOffset: sOffset || 0, eOffset:eOffset || sOffset, 
 					  isCaretedRange:false,
 					  isSingleCaret:false};
-		result.isSingleCaret = __isSingleCaret(result);
 		result.isCaretedRange = __isCaretedRange(result);
+		result.isSingleCaret = __isSingleCaret(result, caretChar);
 		return result;
-		function __isCaretedRange(r) {
+		function __isCaretedRange(r) {//이거 임의로 표시한 캐럿말하는거 ㅡㅡ
 			if(r.sNode == null && r.eNode == null) 
 				return true;
 			else
 				return false;
 		};
-		function __isSingleCaret(r) {
-			if(r.sNode == r.eNode && r.sOffset==r.eOffset)
+		function __isSingleCaret(r, caretChar) { // 텍스트노드 그냥 비교해도 같다 표시되나보군.
+			if(r.sNode == null && r.eNode == null) return false;
+				
+			var isOneChar = ((r.eOffset - r.sOffset) == 1)
+			if(r.sNode == r.eNode && isOneChar) {
+				var char = r.sNode.textContent.charAt(0)
+				if(char == caretChar)
 				return true;
+			}
 			else
 				return false;
 		};
@@ -135,7 +143,7 @@ $$namespace.include(function (require, module) {
 		}
 		var sTextNode = nodes[0],
 			eTextNode = nodes[nodes.length-1],
-			sOffset =0, eOffset = eTextNode.nodeValue.length;
+			sOffset =0, eOffset = eTextNode.textContent.length;
 		
 		return this._createRange(sTextNode, eTextNode, sOffset, eOffset);
 	};
@@ -162,9 +170,6 @@ $$namespace.include(function (require, module) {
 		return carets;
 	};
 
-//	selection.collapse(afterRange.sNode.parentNode,0);
-//	selection.extend(afterRange.sNode.parentNode,1);	
-//	selection.setBaseAndExtent(afterRange.sNode, afterRange.sOffset, afterRange.eNode, afterRange.eOffset);	
 });
 
 //@ sourceURL=editor/event/content/RangeManager.js

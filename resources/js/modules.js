@@ -67,6 +67,6 @@
 		
 		$$namespace.load(modules, function (require, loadedModules) {
 			var app = require('app.js')
-			app.run();
+			window.$$nodeblog = app.run(); //어플리케이션 인스턴스반환
 		});
 })();

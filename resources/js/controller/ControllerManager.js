@@ -39,6 +39,7 @@ $$namespace.include(function (require, module) {
 	ControllerManager.prototype.onHandlerAboutDetailOfBlogBoard = function () {
 		this.detailController.onHandler()
 		this.answerController.onHandler()
+		this.listController.onHandler()
 	}
 	ControllerManager.prototype.onHandlerAboutAnswerOfBlogBoard = function () {
 		this.answerController.onHandler()

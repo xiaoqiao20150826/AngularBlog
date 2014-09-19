@@ -43,14 +43,20 @@ $$namespace.include(function (require, module) {
 	App.prototype.getControllerManager = function() {return this.controllerManager}
 	App.prototype.getReStarter = function() {return this.reStarter}
 	
+	App.prototype.setImageUploadCallback = function (method) {
+		this.imageUploadCallback = method
+	}
+	App.prototype.getImageUploadCallback = function() {
+		return this.imageUploadCallback
+	}
+	
 ///////// 실행자	
 	var app = module.exports = {} 
 	app.run = function () {
 		var application = new App();
 		application.init();
-		return ;
+		return application;
 	}
-	
 })
 
 //@ sourceURL=app.js

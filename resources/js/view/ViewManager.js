@@ -46,6 +46,7 @@ $$namespace.include(function (require, module) {
 	ViewManager.prototype.assignEffectAboutDetailOfBlogBoard = function (blogMap) {
 		this.detailView.assignEffect(blogMap)
 		this.answerView.assignEffect(blogMap)
+		this.listView.assignEffect(blogMap)
 	}
 	ViewManager.prototype.assignEffectAboutAnswerOfBlogBoard = function (blogMap) {
 		this.answerView.assignEffect(blogMap)

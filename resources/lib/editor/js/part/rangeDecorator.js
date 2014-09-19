@@ -56,20 +56,22 @@ $$namespace.include(function(require, module) {
 		for(var i =0, max = length; i<max; ++i) {
 			var textNode = textNodes[i]
 		      , offset = _getOffset(textNode, i, length, startOffset, endOffset)
-		      , canIndefendentFromParent = _canIndefendentFromParent(textNodes, i, length)
-			var selectedSpanNode = this.wrapTextNodeToSpanNode($(textNode), offset.start, offset.end, canIndefendentFromParent)
+		      , canIndefendentFromParent = _canIndefendentFromParent(textNodes, i, length, offset)
+		      , isCaret = _isCaret(offset, length)
+			var selectedSpanNode = this.wrapTextNodeToSpanNode($(textNode), offset.start, offset.end, canIndefendentFromParent, isCaret)
 			spanNodes.push(selectedSpanNode)
 		}
 		return spanNodes;
 	} 
 	//textNode까지 span화해서 부모에게서 독립해도되냐고 물어보는거.
 	// 부모가 span이고, 다음 작업을 위한 형제가 없어야함.
-	function _canIndefendentFromParent(textNodes, i, length) {
+	function _canIndefendentFromParent(textNodes, i, length, offset) {
 		var $currentTextNode = $(textNodes[i])
 		  , $currentParent = $currentTextNode.parent()
+
+		if(H.isLine($currentParent)) return false; //부모가 라인이면 무조건안됨.  
 		  
-		var startIndex = i+1;  
-//		if(length == 1 && !H.isSpan($currentParent)) return false;
+		var startIndex = i+1;
 		if(startIndex >= length) return true;
 		
 		for(var j =startIndex, max = length; j<max; ++j) {
@@ -79,6 +81,10 @@ $$namespace.include(function(require, module) {
 		}
 		
 		return true;
+	}
+	function _isCaret(offset, length) {
+		if(length == 1 && (offset.start == offset.end)) return true
+		else return false;
 	}
 	function _getOffset(textNode, index, nodeCount, start, end) {
 		if(nodeCount == 0) throw new Error(spanNodes + 'somting wrong....').stack;
@@ -94,9 +100,9 @@ $$namespace.include(function(require, module) {
 	}
 	
 	//	//wrapTextNodeToSpanNode start
-	rangeDecorator.wrapTextNodeToSpanNode = function($textNode, startOffset, endOffset, canIndefendentFromParent) {
+	rangeDecorator.wrapTextNodeToSpanNode = function($textNode, startOffset, endOffset, canIndefendentFromParent, isCaret) {
 		var $parent = $textNode.parent()
-		var texts = this.filteredTextNodes($textNode, startOffset, endOffset)
+		var texts = this.filteredTextNodes($textNode, startOffset, endOffset, isCaret)
 		  , spanNodes = this.textsToSpanNodes(texts);
 		
 		this.replaceNode($(spanNodes), $textNode, canIndefendentFromParent)
@@ -153,7 +159,9 @@ $$namespace.include(function(require, module) {
 		var spanNodes = []
 		for(var i in texts) {
 			var text = texts[i]
-			spanNodes.push(H.createSpanNode(text))
+			  , newSpanNode = H.createSpanNode(text)
+			if(text == "") newSpanNode.innerHTML = "&#8203;" //[중요]캐럿을 위해 꼭 필요하다.
+			spanNodes.push(newSpanNode)
 		}
 		return spanNodes
 	}
