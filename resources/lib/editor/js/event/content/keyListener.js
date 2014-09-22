@@ -24,14 +24,15 @@ $$namespace.include(function (require, module) {
 	//잘못해서 뒤로가지 않도록.
 	function _blockBackspaceOfPage(event) {
 		if(keyUtil.isBackSpace({code: event.keyCode})) {
-			return eventHelper.stop(event)
+			if(event.target.nodeName == 'INPUT') return // 기본동작수행
+			else return eventHelper.stop(event)
 		}
 	}
 	
 	function _saveHisoryAndEtc1(_editor) {
 		var editor = _editor
 		var history = editor.getHistory()
-		var updateAndStop = updateAndStop1(editor, eventHelper)
+		var updateAndStop = updateAndStop1(editor, eventHelper, history)
 		return function (event) {
 			
 			var downKey = {
@@ -47,7 +48,6 @@ $$namespace.include(function (require, module) {
 			}
 			//TODO: 제대로 만드려면 이벤트를 코드로 실행할수있도록 손봐야함.
 			if(keyUtil.isUndo(downKey)) { return history.undo();} //히스토리만 순서주의
-			
 			if(keyUtil.isKeyToSaveHistory(downKey)) { history.save();}
 			
 			if(keyUtil.isBold(downKey)) { return updateAndStop('font-weight:bold', event);}
@@ -57,8 +57,9 @@ $$namespace.include(function (require, module) {
 			
 		}
 	}
-	function updateAndStop1(editor, eventHelper) {
+	function updateAndStop1(editor, eventHelper, history) {
 		return function (cssText, event) {
+			history.save();
 			editor.updateSelectedNodes(cssText)
 			return eventHelper.stop(event)
 		}

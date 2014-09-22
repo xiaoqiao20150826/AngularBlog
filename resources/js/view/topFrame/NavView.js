@@ -7,10 +7,12 @@ $$namespace.include(function(require, module){
 	var viewUtil = require('/view/util/viewUtil')
 	
 	var NAV_BTNS = '.nav-btn'
+	  , SEARCH_FORM= '#search-form'
 	
 	var NavView = module.exports = function NavView() {}
 	
 	NavView.prototype.get$btns = function() {return $(NAV_BTNS) }
+	NavView.prototype.get$searchForm = function() {return $(SEARCH_FORM) }
 	
 	NavView.prototype.assignEffect = function ($selectedBtn) {
 		var all$btns = this.get$btns()

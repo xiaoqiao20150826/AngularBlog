@@ -94,9 +94,9 @@ $$namespace.include(function(require, module) {
 		return function (e) {
 			$$editor.insertContentToTextarea();
 			
-			var queryMap = H.queryStringToMap($insertForm.serialize())
-			if(H.notExist(queryMap.title)) return H.errorWarning(e,'title should not empty')  
-			if(H.notExist(queryMap.content)) return H.errorWarning(e,'content should not empty')
+			var formMap = H.formDataToMap($insertForm)
+			if(H.notExist(formMap.title)) return H.errorWarning(e,'title should not empty')  
+			if(H.notExist(formMap.content)) return H.errorWarning(e,'content should not empty')
 			
 			return ; //본래 역할 수행.
 		}

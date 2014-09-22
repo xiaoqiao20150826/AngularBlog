@@ -24,6 +24,9 @@ $$namespace.include(function (require, module ) {
 	blogBoardService.savePost = function (post) {
 		blogRepository.savePost(post);
 	}
+	blogBoardService.saveSearcher = function (searcher) {
+		blogRepository.saveSearcher(searcher);
+	}
 	blogBoardService.initPager = function () {
 		blogRepository.initPager();
 	}
@@ -42,6 +45,8 @@ $$namespace.include(function (require, module ) {
 		requestData.sorter = tab.sorter
 		requestData.pageNum = pager.pageNum
 		requestData.categoryId = category.id
+		requestData.searcher = blogMap.searcher
+		
 		console.log('요청',category)
 		ajax.call(dataFn,"/blogBoard/List", requestData);
 		function dataFn(html) {

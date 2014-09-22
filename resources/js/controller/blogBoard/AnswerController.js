@@ -23,37 +23,37 @@ $$namespace.include(function(require, module) {
 		  , $updateViewBtns = answerView.get$updateViewBtns()
 		  , $deleteBtns = answerView.get$deleteBtns()
 		
-		app.onSubmit($insertForm, this.checkInsertAnswer1(answerView))
+		app.onSubmit($insertForm, this.ajaxToInsertAnswerBy1(answerView))
 		app.onClick($insertViewBtns, this.showInsertView1(answerView))
 		app.onClick($updateViewBtns, this.showUpdateView1(answerView))
 		app.onClick($deleteBtns, this.deleteAnswer1(answerView) )
 	}
-	
-	//update, insert의 공통기능 체크하고 서버로 요청 후 reRendering
-	AnswerController.prototype.checkInsertAnswer1 = function (answerView) {
+	//update, insert의 공통기능 체크하고 ajax요청 후  reRendering
+	AnswerController.prototype.ajaxToInsertAnswerBy1 = function (answerView) {
 		var reStarter = this.app.getReStarter()
 		
 		return function (e) {
+			
 			var $insertForm = answerView.get$insertForm()
 			  , url = $insertForm.attr('action')
-			var queryString = decodeURI($insertForm.serialize())
-			  , queryMap = H.queryStringToMap(queryString)
-			  , password = queryMap.password
-			  , writer = queryMap.writer
+			var formMap = H.formDataToMap($insertForm)  
+			  , password = formMap.password
+			  , writer = formMap.writer
 			  
 			if(_isAnnoymous(writer) ) {
 				if(H.notExist(writer)) return H.errorWarning(e,'writer should not empty')
 				if(H.notExist(password)) return H.errorWarning(e,'password should not empty')
 			}
-			if(H.notExist(queryMap.content) ) return H.errorWarning(e,'content should not empty')  
+			if(H.notExist(formMap.content) ) return H.errorWarning(e,'content should not empty')  
 			
-			ajax.call(callback, url, queryMap)
+			ajax.call(callback, url, formMap)
 			function callback (html) {
 				if(_isErrorByMessage(html)) { return alert(html); } 
 				
 				divUtil.replaceAnswerDiv(html)
 			    reStarter.answerOfBlogBoard()
 			}
+			
 			return e.preventDefault(); 
 		}
 	}

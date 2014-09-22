@@ -32,7 +32,7 @@ var blogBoardService = module.exports = {};
 
 /* functions */
 //get  posts, pager, categories
-blogBoardService.getFullList = function (done, curPageNum, sorter, categoryId) {
+blogBoardService.getFullList = function (done, curPageNum, sorter, categoryId, searcher) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();
 	
@@ -47,7 +47,7 @@ blogBoardService.getFullList = function (done, curPageNum, sorter, categoryId) {
 		    	categoryIds = _categoryIds
 		    	result.allCategories = _allCategories;
 		    	
-		    	return H.call4promise(postDAO.getPager, curPageNum, _categoryIds)
+		    	return H.call4promise(postDAO.getPager, curPageNum, _categoryIds, searcher)
 	        })
 		    .then(function (pager) {
 		    	var _categoryIds = categoryIds
@@ -55,7 +55,7 @@ blogBoardService.getFullList = function (done, curPageNum, sorter, categoryId) {
 		    	result.pager = pager;
 		    	
 		    	var rowNums = pager.getStartAndEndRowNumBy(curPageNum)
-		    	return H.call4promise(postDAO.findByRange, rowNums.start, rowNums.end, sorter, _categoryIds);
+		    	return H.call4promise(postDAO.findByRange, rowNums.start, rowNums.end, sorter, _categoryIds, searcher);
 		    })
 		     .then(function (posts) {
 			     var _allCategories = H.deepClone(result.allCategories)

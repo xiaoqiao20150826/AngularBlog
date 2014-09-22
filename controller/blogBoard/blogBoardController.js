@@ -67,13 +67,14 @@ blogBoardController.sendBlogBoardList = function (req, res) {
 		  , pageNum = _.isEmpty(rawData.pageNum) ? FIRST_PAGE_NUM : rawData.pageNum  
 		  , sorter = _.isEmpty(rawData.sorter) ? SORTER_NEWEST: rawData.sorter
 		  , categoryId = Category.isRoot(rawData.categoryId) ? Category.getRootId() : rawData.categoryId
+		  , searcher = _.isEmpty(rawData.searcher) ? null : rawData.searcher
 		  , loginUser = requestParser.getLoginUser(req)
 		
 		debug('list rawData ',rawData)  
 		var errFn = redirector.catch;
 		  
 		H.all4promise([
-		                 [blogBoardService.getFullList, pageNum, sorter, categoryId]
+		                 [blogBoardService.getFullList, pageNum, sorter, categoryId, searcher]
 		               , [categoryService.getRootOfCategoryTree]
 		 ])
          .then(function dataFn(args) {

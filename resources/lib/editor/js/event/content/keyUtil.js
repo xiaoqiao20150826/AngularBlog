@@ -1,5 +1,5 @@
 /**
- * 
+ * isKeyToSaveHistory daum에디터에서 가져온 부분.
  */
 
 $$namespace.include(function (require, module) {
@@ -42,25 +42,25 @@ $$namespace.include(function (require, module) {
 	}
 	
 	
-	var _modifiedContent = false;
+	var _isModifiedContent = false;
 	keyUtil.isKeyToSaveHistory = function _isKeyToSaveHistory(key) {
-		var modified = _modifiedContent;
 		if (key.code == 229) {return false; }; // ignore mouse click in ff.
 		  
-		if (modified && (key.code == __KEY.ENTER || key.code == __KEY.SPACE || key.code == __KEY.TAB)) {
-			this._modifiedContent = false;
+		if (_isModifiedContent && (key.code == __KEY.ENTER || key.code == __KEY.SPACE || key.code == __KEY.TAB)) {
+			_isModifiedContent = false;
 			return true;
 		} else if (this.isBackSpace(key)) {
             return true;
         } else if ((key.code == __KEY.PASTE || key.code == __KEY.CUT) && key.ctrl) {
             return true;
-        } else if (modified && ((key.code > 32 && key.code < 41) && key.shift) || (key.code == 65 && key.ctrl)) {   // shift + arrow,  home, end,  etc..  / select all
-        	this._modifiedContent = false;
+        } else if (_isModifiedContent && ((key.code > 32 && key.code < 41) && key.shift) || (key.code == 65 && key.ctrl)) {   // shift + arrow,  home, end,  etc..  / select all
+        	_isModifiedContent = false;
         	return true;
         } else if (key.ctrl || key.alt || (key.shift && key.code == 16)) {
             return false;
         } else {
-        	this._modifiedContent = true;
+        	_isModifiedContent = true;
+        	return false;
         }
-	}
+ 	}
 })

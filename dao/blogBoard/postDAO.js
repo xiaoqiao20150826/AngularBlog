@@ -90,14 +90,15 @@ postDAO.findOne = function (done, where, select) {
 	   ,callback = done.getCallback();
 	_db.findOne(where,select).exec(callback);
 };
-postDAO.findByRange = function (done, start, end, sorter, categoryIds) {
+postDAO.findByRange = function (done, start, end, sorter, categoryIds, searcher) {
 	done.hook4dataFn(Post.createBy);
-	var where = {}
+	var where = where || {} 
 		,select = {}
 		,sorter = _getSorter(sorter)
 		,callback = done.getCallback();
 	
-	if(!_.isEmpty(categoryIds) ) where.categoryId = {$in : categoryIds } 
+	if(!_.isEmpty(categoryIds) ) where.categoryId = {$in : categoryIds }
+	if(!_.isEmpty(searcher) ) where = _getWhereBySearcher(where, searcher)  
 	
 	var startNum = start - 1; // 배열스타일의 인덱스라 실제 개수와 일치시키기위해 -1 한다.
 	var limitNum = end- startNum;
@@ -118,6 +119,13 @@ function _getSorter(sorterStr) {
 	if(!sorter) sorter = sorters['newest'];
 	return sorter;
 }
+//현재는 title만 정규식으로..
+function _getWhereBySearcher (originWhere, searcher) {
+	var where = originWhere || {}
+	where.title = new RegExp(searcher)
+	return where
+}
+
 /* insert */
 postDAO.insertOne = function(done, post) {
 	var dataFn = done.getDataFn()
@@ -205,11 +213,11 @@ function _update(done, where, data, config) {
 
 /* etc..count */
 //where는 검색 조건을 구할 경우 필요.
-postDAO.getPager = function (done, curPageNum, categoryIds) {
+postDAO.getPager = function (done, curPageNum, categoryIds, searcher) {
 	var dataFn = done.getDataFn()
 	  , errFn = done.getErrFn();
 	
-	return H.call4promise(postDAO.getCount, categoryIds)
+	return H.call4promise(postDAO.getCount, categoryIds, searcher)
 	        .then(function (allRowCount) {
 		    	var pager = new Pager(allRowCount)
 		    	
@@ -217,12 +225,12 @@ postDAO.getPager = function (done, curPageNum, categoryIds) {
 	        })
 	        .catch(errFn)
 }
-postDAO.getCount = function (done, categoryIds) {
+postDAO.getCount = function (done, categoryIds, searcher) {
 	var where = {}
 	  , callback = done.getCallback();
 		
 	if(!_.isEmpty(categoryIds)) where.categoryId = {$in : categoryIds}
-	
+	if(!_.isEmpty(searcher) ) where = _getWhereBySearcher(where, searcher)  
 	
 	_db.find(where).count().exec(callback);
 }

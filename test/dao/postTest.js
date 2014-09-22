@@ -88,6 +88,7 @@ describe('aPostDAO', function() {
 				nextTest();
 			};
 		})
+
 	});
 	
 	describe('#insertOne()', function() {
@@ -221,7 +222,18 @@ function _createTempPosts() {
 	posts[7].created = "2014-04-11T04:04:33.131Z"
 	posts[8].created = "2014-07-31T04:04:33.131Z"
 	posts[9].created = "2014-07-31T04:04:33.131Z"
-	
+
+	posts[0].title = "title 1"
+	posts[1].title = "title 2"
+	posts[2].title = "title 3"
+	posts[3].title = "title 4"
+	posts[4].title = "title 5"
+		
+	posts[5].title = "title 6"
+	posts[6].title = "title 7"
+	posts[7].title = "title 8"
+	posts[8].title = "title 9"
+	posts[9].title = "title 10"		
 	return posts;
 }
 function _insertTestData(nextTest) {

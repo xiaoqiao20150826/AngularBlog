@@ -27,7 +27,6 @@ config.mongolabId = _env.MONGOLAB_ID
 config.mongolabPw = _env.MONGOLAB_PW
 
 //passport api key
-// id를 key로 할껄그랬나
 config.passport = {}
 config.passport.facebook = {'id' : _env.PASSPORT_FACEBOOK_ID, 'secret': _env.PASSPORT_FACEBOOK_SECRET}
 config.passport.twitter = {'id' : _env.PASSPORT_TWITTER_ID, 'secret': _env.PASSPORT_TWITTER_SECRET}
@@ -47,7 +46,7 @@ config.sequenceIdMap.answer = 'answer'
 var PRODUCTION = 'production'
   , DEVELOPMENT = 'development'
   , TEST = 'test'
-config.mode = _env.NODE_ENV || DEVELOPMENT;
+config.mode = _env.NODE_ENV || TEST;
 (function () {
 	config.isLocal = true;
 	config.imgDir = config.rootDir + '/resources/img'; // local

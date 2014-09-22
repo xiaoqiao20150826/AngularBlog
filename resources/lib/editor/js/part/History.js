@@ -7,7 +7,7 @@ $$namespace.include(function (require, module) {
 	/*
 	 * static field, dependency
 	 */
-	var	MAX_LENGTH = 7;
+	var	MAX_LENGTH = 12;
 	
 	
 	/*
@@ -27,7 +27,7 @@ $$namespace.include(function (require, module) {
 		if(size == MAX_LENGTH) {
 			histories.shift(); // reverse pop()
 		}
-		console.log("undo : " + histories.join(','));
+		console.log("undo");
 		this._undoList.push(caretedContent);
 	};
 	History.prototype.saveRedo = function () {
@@ -37,7 +37,7 @@ $$namespace.include(function (require, module) {
 		if(size == MAX_LENGTH) {
 			histories.shift(); // reverse pop()
 		}
-		console.log("redo : " + histories.join(','));
+		console.log("redo");
 		this._redoList.push(caretedContent);
 	};
 	//--------------------do

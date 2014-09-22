@@ -123,9 +123,8 @@ $$namespace.include(function(require, module) {
 			var post = new Post(num)
 			  , action = new Action([this, clickDetailViewBtn], e);
 			
+			blogBoardService.savePost(post); //순서주의 이전에 선택된 포스트를 기억하기위함.
 			actionHistory.save(action, url);
-			blogBoardService.savePost(post);
-			
 			
 			ajax.call(callback, url);
 			function callback(html) {

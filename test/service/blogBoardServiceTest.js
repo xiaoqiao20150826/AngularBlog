@@ -150,6 +150,10 @@ describe('blogService', function () {
 			
 		})
 	})
+	//블로그 제목으로만 간단히 검색.
+	describe('search', function () {
+		
+	})
 });
 
 /* helper */
