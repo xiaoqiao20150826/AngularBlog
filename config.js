@@ -54,14 +54,14 @@ config.mode = _env.NODE_ENV || TEST;
 	
 	//server
 	if(config.mode == PRODUCTION) {
-		config.db = 'mongodb://'+config.mongolabId+':'+config.mongolabPw+'@ds035310.mongolab.com:35310/nodeblog'
+		config.db = 'mongodb://'+config.mongolabId+':'+config.mongolabPw+'@ds039550.mongolab.com:39550/nodeblog'
 		config.host = 'http://elfmagic86.herokuapp.com';
 		config.isLocal = false;
 		config.imgDir = ''
 	}
 	//local
 	else if(config.mode == DEVELOPMENT) {
-		config.db = 'mongodb://'+config.mongolabId+':'+config.mongolabPw+'@ds035310.mongolab.com:35310/nodeblog'
+		config.db = 'mongodb://'+config.mongolabId+':'+config.mongolabPw+'@ds039550.mongolab.com:39550/nodeblog'
 		config.host = 'http://elfmagic86.herokuapp.com';
 		config.isLocal = false;
 		config.imgDir = ''
@@ -69,8 +69,8 @@ config.mode = _env.NODE_ENV || TEST;
 	else {
 		//db test용
 		config.host = 'http://nodeblog.com' + ':' + config.port
-		config.db = 'mongodb://localhost/nodeblog';  
-//		config.db = 'mongodb://'+config.mongolabId+':'+config.mongolabPw+'@ds035310.mongolab.com:35310/nodeblog'
+//		config.db = 'mongodb://localhost/nodeblog';  
+		config.db = 'mongodb://'+config.mongolabId+':'+config.mongolabPw+'@ds039550.mongolab.com:39550/nodeblog'
 //		config.isLocal = false //cloudinary test
 //		config.imgDir = ''// cloudinary test
 		config.tempFilesDir = '../tempFiles/';

@@ -2,11 +2,10 @@
  *  WorkHistory의 텍스트를 테스트 데이터로 DB에 삽입 
  */
 
-
-var local_db = 'mongodb://localhost/nodeblog'
+var config = require('./config.js')
+//var local_db = 'mongodb://localhost/nodeblog'
 //  , remote_db = 'mongodb://'+config.mongolabId+':'+config.mongolabPw+'@ds035310.mongolab.com:35310/nodeblog'
-	
-var db = local_db	
+var db = 'mongodb://asdf:asdf@ds039550.mongolab.com:39550/nodeblog'	
 var mongoose = require('mongoose')
 
 var _ = require('underscore')
@@ -36,7 +35,6 @@ mongoose.connect(db, function(err, data) {
 		var Post = require('./domain/blogBoard/Post')
 		  , Category = require('./domain/blogBoard/Category')
 		  , userId = '6150493-github'
-			
 		return  H.all4promise([ [localFile.stat, filePath]
 							  , [localFile.readKr, filePath]
 				 ])
@@ -49,7 +47,7 @@ mongoose.connect(db, function(err, data) {
 					               , 'categoryId' : Category.getRootId()
 					               }
 					 
-					 var post = Post.createBy(rawData)  
+					 var post = Post.createBy(rawData)
 					 return dataFn(post)
 				 })
 				 .catch(_catch)
@@ -80,7 +78,6 @@ mongoose.connect(db, function(err, data) {
 			 return H.asyncLoop(posts, blogBoardService.insertPostAndIncreaseCategoryCount, new H.Done(closeConnect, _catch), true)
 		}
 		function closeConnect(result) {
-//			console.log(result)
 			mongoose.connection.close(function () {
 				  //연결종료가아니라 프로세스종료를 해야지 lock이안생기는데..
 			      console.log('Mongoose default connection disconnected through app termination');

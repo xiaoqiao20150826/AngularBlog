@@ -147,7 +147,6 @@ function _create(done, data) {
 	done.hook4dataFn(Post.createBy);
 	
 	if(!data._id) data._id = new ObjectId()
-	
 	_db.create(data, done.getCallback());
 }
 /* update */

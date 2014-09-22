@@ -22,6 +22,7 @@ var keys4tempValue = ['title','content'];
 //-------------------------------
 describe('aPostDAO', function() {
 	var _posts,_post;
+	this.timeout(10000) // timeout setting
 	before(function(nextTest) {
 		mongoose.connect('mongodb://localhost/test',function() {
 			_insertTestData(nextTest);

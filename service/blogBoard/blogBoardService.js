@@ -137,7 +137,6 @@ blogBoardService.insertPostAndIncreaseCategoryCount = function(done, post) {
 	  , errFn = done.getErrFn();
 	
 	var categoryId = post.categoryId;
-	
 	H.all4promise([ 
 	                [postDAO.insertOne ,post]
 	              , [categoryService.increasePostCountById, categoryId]
