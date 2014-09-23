@@ -102,7 +102,11 @@ asyncSuporter.all = function (lastDone, asyncMethodAndArgsList) {
 		if(!_.isArray(asyncMethodAndArgs)) asyncMethodAndArgs = [asyncMethodAndArgs]
 		
 		var eachDataFn = indexedEachDataFn(i)
-		var eachErrFn = function (err) { return eachDataFn(Status.makeError(err)) }
+		var eachErrFn = function (err) {
+			var errorStatus = Status.makeError(err)
+			errorStatus.error = err
+			return eachDataFn(errorStatus) 
+		}
 		var eachDone = new Done(eachDataFn, eachErrFn)
 		
 		var contextAndAsyncFn = _.first(asyncMethodAndArgs)
@@ -214,13 +218,13 @@ function lastCallback4statuses1(lastDone) {
 		var errorStatus = Status.makeError()
 		  , hasError = false
 		var datas = []
-		
+		var errors = [];
 		for(var i in statuses) {
 			var status = statuses[i]
 //			console.log('s',status)
-			if(status.isError()) {	
+			if(status.isError()) {
+				errors.push(status.error) //여기에 error의 참조가 담겨있다.
 				hasError = true
-				errorStatus.appendMessage('arg['+i+'] : '+status.message) 	
 			}
 			if(status.isSuccess()) {
 				//all4promise에서 생성된 status라면 data만 반환 
@@ -229,7 +233,7 @@ function lastCallback4statuses1(lastDone) {
 			}
 		}
 		if(hasError) 
-			return lastErrFn(errorStatus.getMessage()) //에러처리함수로가자.
+			return lastErrFn(errors) //에러처리함수로가자.
 		else
 			return lastDataFn(datas) //성공했을때만 성공함수로가고.
 	}

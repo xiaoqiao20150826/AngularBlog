@@ -1,5 +1,8 @@
 /**
- *  WorkHistory의 텍스트를 테스트 데이터로 DB에 삽입 
+ *  WorkHistory의 텍스트를 테스트 데이터로 DB에 삽입
+ *  
+ *  TODO: 로컬은 잘되는데. mongolab에 직접 넣을 경우 길이가 길면..
+ *        연결오류가 나버린다. 왜그런지 모르겠다.....
  */
 
 var config = require('./config.js')

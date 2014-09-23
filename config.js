@@ -26,7 +26,7 @@ config.rootDir = __dirname;
 config.mongolabId = _env.MONGOLAB_ID
 config.mongolabPw = _env.MONGOLAB_PW
 
-//passport api key
+//passport api key 
 config.passport = {}
 config.passport.facebook = {'id' : _env.PASSPORT_FACEBOOK_ID, 'secret': _env.PASSPORT_FACEBOOK_SECRET}
 config.passport.twitter = {'id' : _env.PASSPORT_TWITTER_ID, 'secret': _env.PASSPORT_TWITTER_SECRET}
@@ -69,17 +69,18 @@ config.mode = _env.NODE_ENV || TEST;
 	else {
 		//db test용
 		config.host = 'http://nodeblog.com' + ':' + config.port
-//		config.db = 'mongodb://localhost/nodeblog';  
-		config.db = 'mongodb://'+config.mongolabId+':'+config.mongolabPw+'@ds039550.mongolab.com:39550/nodeblog'
+		config.db = 'mongodb://localhost/nodeblog';  
+//		config.db = 'mongodb://'+config.mongolabId+':'+config.mongolabPw+'@ds039550.mongolab.com:39550/nodeblog'
 //		config.isLocal = false //cloudinary test
 //		config.imgDir = ''// cloudinary test
 		config.tempFilesDir = '../tempFiles/';
 		
-		config.passport.facebook = {'id' : _env.LOCAL_PASSPORT_FACEBOOK_ID, 'secret': _env.LOCAL_PASSPORT_FACEBOOK_SECRET}
-		config.passport.twitter = {'id' : _env.LOCAL_PASSPORT_TWITTER_ID, 'secret': _env.LOCAL_PASSPORT_TWITTER_SECRET}
-		config.passport.github = {'id' : _env.LOCAL_PASSPORT_GITHUB_ID, 'secret': _env.LOCAL_PASSPORT_GITHUB_SECRET}
-		config.passport.google = {'id' : _env.LOCAL_PASSPORT_GOOGLE_ID, 'secret': _env.LOCAL_PASSPORT_GOOGLE_SECRET}
-		config.passport.linkedin = {'id' : _env.LOCAL_PASSPORT_LINKEDIN_ID, 'secret': _env.LOCAL_PASSPORT_LINKEDIN_SECRET}
+		var wrongIdAndPw = 'canNotUsePassportIfUseThis';
+		config.passport.facebook = {'id' : _env.LOCAL_PASSPORT_FACEBOOK_ID || wrongIdAndPw, 'secret': _env.LOCAL_PASSPORT_FACEBOOK_SECRET || wrongIdAndPw}
+		config.passport.twitter = {'id' : _env.LOCAL_PASSPORT_TWITTER_ID || wrongIdAndPw, 'secret': _env.LOCAL_PASSPORT_TWITTER_SECRET || wrongIdAndPw}
+		config.passport.github = {'id' : _env.LOCAL_PASSPORT_GITHUB_ID || wrongIdAndPw, 'secret': _env.LOCAL_PASSPORT_GITHUB_SECRET || wrongIdAndPw}
+		config.passport.google = {'id' : _env.LOCAL_PASSPORT_GOOGLE_ID || wrongIdAndPw, 'secret': _env.LOCAL_PASSPORT_GOOGLE_SECRET || wrongIdAndPw}
+		config.passport.linkedin = {'id' : _env.LOCAL_PASSPORT_LINKEDIN_ID || wrongIdAndPw, 'secret': _env.LOCAL_PASSPORT_LINKEDIN_SECRET || wrongIdAndPw}
 	}
 	
 	console.log('mode is '+ config.mode)

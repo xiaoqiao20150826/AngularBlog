@@ -47,7 +47,9 @@ User.getAnnoymousUser = function () {
 	user.created = undefined;
 	return user;
 }
-
+User.getTester = function () {
+	return User.createBy({_id:'testUser',name:'testUser',photo:'http://res.cloudinary.com/elfmagic86-herokuapp-com/image/upload/v1410263571/sample.jpg', email:''})
+}
 /* instance method */
 User.prototype.getId = function () {
 	return this._id;

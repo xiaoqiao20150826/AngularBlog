@@ -12,6 +12,7 @@ var requestParser = require('./util/requestParser.js')
   , Redirector = require('./util/Redirector.js')
   , scriptletUtil = require('../common/util/scriptletUtil.js')
   
+var User = require('../domain/User.js')
 var Post = require('../domain/blogBoard/Post.js')
   , Category = require('../domain/blogBoard/Category')
   , blogBoardService = require('../service/blogBoard/blogBoardService')
@@ -67,13 +68,9 @@ mainController.sendBlogBoardListView  = function (req, res) {
 
 //test
 function _test(req, res) {
-	req.session.passport.user = {_id: '6150493-github'
-		                       , name: 'kangil'
-		                       , photo: 'https://avatars.githubusercontent.com/u/6150493'
-		                       , email: 'ee@dd.com'
-		                    	 };
+	req.session.passport.user = User.getTester()
 	res.redirect('/');
 }
 function _seeCookie(req, res) {
     res.send(req.headers);
-}
+}[]

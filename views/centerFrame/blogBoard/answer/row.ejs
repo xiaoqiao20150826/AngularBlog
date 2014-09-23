@@ -1,9 +1,9 @@
-<div class="answer-row media col-sm-offset-<%=offsetValue%>" data-num='<%= answer.num %>'>	
+<div class="answer-row media col-sm-offset-<%=offsetValue%>" data-num='<%= answer.num %>'>
 	<a class="pull-left" href="#"> 
 		<img class="media-object" src="<%= user.photo %>" style="width:60px">
 	</a>
 	<div class="media-body">
-		<span class="name"><a href="#"><%= user.name %></a></span>
+		<span class="name"><a href="/user/<%=user._id%>"><%=user.name %></a></span>
 		<span class="date"><%= answer.created.toLocaleDateString() %></span>
 	
 	<%	
@@ -37,8 +37,11 @@
 			
 				if(parentUser) {
 			%>
-				<span class="name"><a href="#">
-				@&nbsp;<%= parentUser.name %>&nbsp;&nbsp;&nbsp;</a></span>
+				<span class="name">
+					<a href="/user/<%=parentUser._id%>">
+						@<%= parentUser.name %>&nbsp;&nbsp;&nbsp;
+					</a>
+				</span>
 			<%
 				}
 			%>

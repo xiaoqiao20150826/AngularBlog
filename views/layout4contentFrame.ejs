@@ -29,22 +29,22 @@
 
   <body>
 	<!--   	nav-bar -->
-    <div class="container  col-lg-12">
+    <div class="container  col-xs-12">
   		<% include ./topFrame/nav.ejs  %>
     </div>
 	<!--  else  --> 	
-    <div class="container  col-sm-12" id = 'centerFrame' >
-    	<div id = 'contentFrame' class="col-sm-9">
+    <div class="container  col-xs-12" id = 'centerFrame' >
+    	<div class="col-sm-9 col-xs-12" id = 'contentFrame' >
 	    	<!-- centerFrame -->
 	    	<%- body -%>
 	   	</div>
 	   	<!--sideFrame  -->
-		<div class="col-sm-3 hidden-xs hidden-sm">
+		<div class="col-sm-3 hidden-xs">
 			<% include ./sideFrame/sideLayout.ejs %>
 		</div>	
     </div><!--/.container-->
     
-    <div class="container  col-lg-12">
+    <div class="container  col-sm-12 hidden-xs">
 	    <!-- footer -->
 	    <hr>
    		<% include ./bottomFrame/footer.ejs %>    

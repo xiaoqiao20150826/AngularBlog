@@ -11,6 +11,7 @@ var H = require('../../common/helper.js')
   , requestParser = require('../util/requestParser.js')
   , Redirector = require('../util/Redirector.js')
   , categoryService = require('../../service/blogBoard/categoryService.js')
+var User = require('../../domain/User.js')
   
   
 var admin = module.exports = {
@@ -25,7 +26,7 @@ var admin = module.exports = {
 		var redirector = new Redirector(res)
 		var loginUser = requestParser.getLoginUser(req)
 		
-		if(_isNotAdmin(loginUser))  return redirector.main();
+		if(!_isAdmin(loginUser))  return redirector.main();
 		
 		var done = new Done(dataFn, redirector.catch);
 		categoryService.getRootOfCategoryTree(done);
@@ -46,7 +47,7 @@ var admin = module.exports = {
 		  , parentId = rawData.parentId;
 		
 		debug('insertCategory : rawData : ', rawData);
-		if(_isNotAdmin(loginUser))  return redirector.main();
+		if(!_isAdmin(loginUser))  return redirector.main();
 		
 		var done = new Done(dataFn, redirector.catch);
 		categoryService.insertCategory(done, parentId, newTitle)
@@ -62,7 +63,7 @@ var admin = module.exports = {
 		  , categoryId = rawData.categoryId;
 		
 		debug('deleteCategory - rawData : ', rawData);
-		if(_isNotAdmin(loginUser))  return redirector.main();
+		if(!_isAdmin(loginUser))  return redirector.main();
 		
 		var done = new Done(dataFn, redirector.catch);
 		categoryService.removeCategoryAndRemoveCategoryIdOfPost(done, categoryId)
@@ -73,9 +74,13 @@ var admin = module.exports = {
 	}
 
 };
-function _isNotAdmin(loginUser) {
-	if(loginUser.isNotEqualById(_getAdminId()) ) return true;
-	else return false;
+// admin 과 test 유저가 카테고리 조작가능.
+function _isAdmin(loginUser) {
+	var testerId = User.getTester()._id
+	if(loginUser.isEqualById(_getAdminId() )) return true;
+	if(loginUser.isEqualById(testerId)) return true;
+		
+	return false;
 }
 function _getAdminId() {
 	return '6150493-github';
