@@ -3,13 +3,11 @@
 		<img class="media-object" src="<%= user.photo %>" style="width:60px">
 	</a>
 	<div class="media-body">
-		<span class="name"><a href="/user/<%=user._id%>"><%=user.name %></a></span>
-		<span class="date"><%= answer.created.toLocaleDateString() %></span>
-	
 	<%	
-		
 		if(user.isAnnoymous()) {
-	%>	
+	%>
+		<span class="name"><%= answer.writer %></span>
+		<span class="date"><%= answer.created.toLocaleDateString() %></span>	
 		<a href="javascript:" class="pull-right answer-delete" data-currentnum='<%=answer.num %>' data-userid='<%=answer.userId %> ' data-writer='<%= answer.writer || "" %> ' data-postnum='<%= answer.postNum%>'  data-includednums='<%= answer.includedNums || ""%>' >
 			<i class="glyphicon glyphicon-remove"></i>
 		</a>
@@ -17,7 +15,8 @@
 			<i class="glyphicon glyphicon-edit"></i>
 		</a>
 	<% } else if(loginUser.isEqualById(user._id)){%>	
-	
+		<span class="name"><a href="/user/<%=user._id%>"><%=user.name %></a></span>
+		<span class="date"><%= answer.created.toLocaleDateString() %></span>
 		<a href="javascript:" class="pull-right answer-delete" data-currentnum='<%=answer.num %>' data-userid='<%=answer.userId %>' data-writer='<%= answer.writer || ""%>' data-postnum='<%= answer.postNum%>' data-includednums='<%= answer.includedNums || "" %>' >
 			<i class="glyphicon glyphicon-remove"></i>
 		</a>
@@ -34,15 +33,23 @@
 		<p>
 			<% 
 				var parentUser = parentAnswer ? parentAnswer.user : null
-			
 				if(parentUser) {
+					if(parentUser.isAnnoymous()) {
+			%>
+				<span class="name">
+					@<%= parentAnswer.writer%>&nbsp;&nbsp;&nbsp;
+				</span>
+			<%
+				
+				 }	else {
 			%>
 				<span class="name">
 					<a href="/user/<%=parentUser._id%>">
-						@<%= parentUser.name %>&nbsp;&nbsp;&nbsp;
+						@<%= parentUser.name%>&nbsp;&nbsp;&nbsp;
 					</a>
 				</span>
-			<%
+			<%		
+					}
 				}
 			%>
 			<%= answer.content %>

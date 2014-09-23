@@ -34,6 +34,7 @@ answerController.insertAnswer = function(req, res) {
 	}  
 	
 	debug('answer to insert : ',answer)
+	
 	H.call4promise(answerService.insertAnswerAndIncreasePostCount, answer)
 	 .then(function (insertedAnswer) {
 		 return H.call4promise(answerService.getRootOfAnswerTree, postNum) 

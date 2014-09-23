@@ -33,7 +33,7 @@ userController.loginUserView = function (req, res) {
 	  , rawData = requestParser.getRawData(req)
 	  , userId = rawData.userId
 	
-	if(loginUser.isNotEqualById(userId)) return redirector.main()
+	if(loginUser.isNotEqualById(userId) || loginUser.isAnnoymous()) return redirector.main()
 	
 	H.call4promise(categoryService.getRootOfCategoryTree)
 	 .then(function (rootOfCategoryTree) {
@@ -53,6 +53,8 @@ userController.userView = function (req, res) {
 	  , rawData = requestParser.getRawData(req)
 	  , userId = rawData.userId
 	
+	if(loginUser.isNotEqualById(userId) || loginUser.isAnnoymous()) return redirector.main()  
+	  
 	H.all4promise([
 	                [categoryService.getRootOfCategoryTree]
 	              , [userDAO.findById, userId]

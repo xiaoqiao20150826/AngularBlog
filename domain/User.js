@@ -44,7 +44,7 @@ User.isAnnoymousId = function (userId) {
 };
 User.getAnnoymousUser = function () {
 	var user = User.createBy({_id:User.ANNOYMOUS_ID, name:User.ANNOYMOUS_ID, photo:'', email:''})
-	user.created = undefined;
+	user.created = undefined; // 이유가있나
 	return user;
 }
 User.getTester = function () {
@@ -54,6 +54,7 @@ User.getTester = function () {
 User.prototype.getId = function () {
 	return this._id;
 }
+
 User.prototype.isNotEqualById = function (userId) {
 	return !this.isEqualById(userId);
 }
@@ -63,7 +64,6 @@ User.prototype.isEqualById = function (userId) {
 	else return false;
 }
 
-//..이건 익명판별을 하게 만들었으니 없어져야해.
 User.prototype.isExist = function () {
 	if(this._id == null || this.name == null) return false;
 	else return true;
