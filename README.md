@@ -1,6 +1,6 @@
 # Demo
  + [homepage](http://elfmagic86.herokuapp.com/)
- + sign in testUser url :  /test
+ + log in testUser url :  /test
  + admin page related category  :  /admin
 
 ---
