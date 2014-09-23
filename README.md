@@ -2,6 +2,7 @@
  + [homepage](http://elfmagic86.herokuapp.com/)
  + sign in testUser url :  /test
  + admin page related category  :  /admin
+
 ---
 
 # Features
@@ -14,6 +15,7 @@
  + file upload and download(using cloudinary. some slow.)
  + Social login( github, twitter, facebook, linkedin, google)
  + javascript loader and editor
+
 ---
 
 # How to test in local
@@ -24,6 +26,8 @@
  5. [open page](http://localhost:3000/)
    * should be used chrome for right run
 
+---
+
 # Development Environment
  - OS : windows7
  - AppServer : nodejs
@@ -32,12 +36,11 @@
  - Browser : chrome
  - WebFramework : express(view: ejs)
  - UI : BootStrap
-
  - Test framework : mocha (+shouldjs)
-
  - IDE : eclipse(use only code editor)
-
  - DebugingTool : node-inspector + chrome browser
 
+---
+
 # etc
- - 현재 상태에 대해서는 Work-History의 최신 날짜의 기록을 확인.
+ - 현재 작업 상태에 대해서는 Work-History의 최신 날짜의 기록을 확인.
