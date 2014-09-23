@@ -1,12 +1,10 @@
 # Demo
----
  + [homepage](http://elfmagic86.herokuapp.com/)
  + sign in testUser url :  /test
  + admin page related category  :  /admin
 ---
 
 # Features
----
  + blog board (CRUD, search)
  + blog board comments
  + blog category
@@ -19,31 +17,27 @@
 ---
 
 # How to test in local
- 1.  ## Required in local
-   + nodejs
-   + mongodb
-   + 
- 2. ##
- ''''
-이렇게하는게맞나
-> ''''
+ 1. git clone https://github.com/elfmagic86/NodeBlog
+ 2. cd NodeBlog
+ 3. npm install
+ 4. node app
+ 5. [open page](http://localhost:3000/)
+   * should be used chrome for right run
 
-# 개발 환경.
+# Development Environment
  - OS : windows7
  - AppServer : nodejs
- - AppClient : chrome
  - DbServer : mongodb
  - DbClient : mongoose
+ - Browser : chrome
  - WebFramework : express(view: ejs)
  - UI : BootStrap
+
  - Test framework : mocha (+shouldjs)
 
- - IDE : eclipse(코드 편집기로만 사용)
+ - IDE : eclipse(use only code editor)
 
  - DebugingTool : node-inspector + chrome browser
- - Debuging && Run 실행 도구 : mingw32(windows에서 git 사용하기 위해 사용되는 도구[도스콘솔? 무엇이라 칭해야할지 모르겠다 [20140707])
 
-# 기타
- - 진행 상태 : 아직 멀음.
-
-
+# etc
+ - 현재 상태에 대해서는 Work-History의 최신 날짜의 기록을 확인.
