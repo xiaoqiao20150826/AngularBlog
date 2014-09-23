@@ -14,15 +14,17 @@
 		<a type="button" href='javascript:' class="answer-updateView pull-right"  data-currentnum='<%=answer.num %>' >
 			<i class="glyphicon glyphicon-edit"></i>
 		</a>
-	<% } else if(loginUser.isEqualById(user._id)){%>	
+	<% } else { %>	
 		<span class="name"><a href="/user/<%=user._id%>"><%=user.name %></a></span>
 		<span class="date"><%= answer.created.toLocaleDateString() %></span>
+		<%if(loginUser.isEqualById(user._id)) { %>
 		<a href="javascript:" class="pull-right answer-delete" data-currentnum='<%=answer.num %>' data-userid='<%=answer.userId %>' data-writer='<%= answer.writer || ""%>' data-postnum='<%= answer.postNum%>' data-includednums='<%= answer.includedNums || "" %>' >
 			<i class="glyphicon glyphicon-remove"></i>
 		</a>
 		<a type="button" href='javascript:' class="answer-updateView pull-right"   data-currentnum='<%=answer.num %>' >
 			<i class="glyphicon glyphicon-edit"></i>
 		</a>
+		<%}%>
 	
 	<% } %>
 	
