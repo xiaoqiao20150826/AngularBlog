@@ -632,7 +632,7 @@
 		var moduleManager = this.moduleManager
 		  , path = this.path
 		  , filePath = path.getFilePath(modulePath);
-		console.log(filePath)
+//		console.log(filePath)
 		moduleManager.start(modulePath);
         var promise = $.ajax({
 				               'type': "GET"

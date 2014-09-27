@@ -29,6 +29,9 @@ describe('path', function() {
 		})
 	})
 	describe('transform path if local path', function () {
+		var currentDir = path.getLocalDirAboutCurrentPage()
+		  , parentDir = currentDir.slice(0, currentDir.lastIndexOf('/'))
+		  , parentOfParentDir = parentDir.slice(0, parentDir.lastIndexOf('/'))
 		it('should get name and dirpath', function () {
 			expect(path.getModuleName('../welkfn/awefwef.js')).to.equal('awefwef.js')
 			expect(path.getModuleName('/awefwef.js')).to.equal('awefwef.js')
@@ -39,18 +42,18 @@ describe('path', function() {
 			expect(path.getDirOfModulePath('../../../a/f/wef.js')).to.equal('/../../../a/f/')
 		})
 		it('should merge dirpath and localDir', function () {
-			expect(path.getLocalDirByModulePath('../../ewnk/es.js')).to.equal('D:/java/_Workspace/work4node/NodeBlog/resources/ewnk')
-			expect(path.getLocalDirByModulePath('../ewnk/es.js')).to.equal('D:/java/_Workspace/work4node/NodeBlog/resources/js/ewnk')
-			expect(path.getLocalDirByModulePath('./ewnk/e.js')).to.equal('D:/java/_Workspace/work4node/NodeBlog/resources/js/test/ewnk')
-			expect(path.getLocalDirByModulePath('/ewnk/e.js')).to.equal('D:/java/_Workspace/work4node/NodeBlog/resources/js/test/ewnk')
-			expect(path.getLocalDirByModulePath('ewnk/e.js')).to.equal('D:/java/_Workspace/work4node/NodeBlog/resources/js/test/ewnk')
+			expect(path.getLocalDirByModulePath('../../ewnk/es.js')).to.equal(parentOfParentDir+'/ewnk')	
+			expect(path.getLocalDirByModulePath('../ewnk/es.js')).to.equal(parentDir + '/ewnk')
+			expect(path.getLocalDirByModulePath('./ewnk/e.js')).to.equal(currentDir + '/ewnk')
+			expect(path.getLocalDirByModulePath('/ewnk/e.js')).to.equal(currentDir + '/ewnk')
+			expect(path.getLocalDirByModulePath('ewnk/e.js')).to.equal(currentDir + '/ewnk')
 		})
 		it('should get localPath', function () {
-			expect(path.getLocalPath('../../ewnk/es.js')).to.equal('D:/java/_Workspace/work4node/NodeBlog/resources/ewnk/es.js')
-			expect(path.getLocalPath('../ewnk/es.js')).to.equal('D:/java/_Workspace/work4node/NodeBlog/resources/js/ewnk/es.js')
-			expect(path.getLocalPath('./ewnk/es.js')).to.equal('D:/java/_Workspace/work4node/NodeBlog/resources/js/test/ewnk/es.js')
-			expect(path.getLocalPath('/ewnk/es.js')).to.equal('D:/java/_Workspace/work4node/NodeBlog/resources/js/test/ewnk/es.js')
-			expect(path.getLocalPath('ewnk/es.js')).to.equal('D:/java/_Workspace/work4node/NodeBlog/resources/js/test/ewnk/es.js')
+			expect(path.getLocalPath('../../ewnk/es.js')).to.equal(parentOfParentDir+'/ewnk/es.js')
+			expect(path.getLocalPath('../ewnk/es.js')).to.equal(parentDir + '/ewnk/es.js')
+			expect(path.getLocalPath('./ewnk/es.js')).to.equal(currentDir + '/ewnk/es.js')
+			expect(path.getLocalPath('/ewnk/es.js')).to.equal(currentDir + '/ewnk/es.js')
+			expect(path.getLocalPath('ewnk/es.js')).to.equal(currentDir + '/ewnk/es.js')
 		})
 	})
 	describe('transform path in server', function () {
@@ -109,7 +112,7 @@ describe('path', function() {
 	    	var modulePaths = [testModulePath1, testModulePath2];
 	    	
 	    	var modulePath = path.getMostSimilaireModulePathWithNoThrow(modulePaths,modulePathOne);
-	    	log(modulePath)
+	    	expect(modulePath).to.equal(null)
 	    })
 	})
 })

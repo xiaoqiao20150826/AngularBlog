@@ -1,1 +1,1 @@
-web: DEBUG=nodeblog:* node --debug app.js
+web: DEBUG=error node app.js
