@@ -1,4 +1,4 @@
-
+﻿
 
 /* 초기화 및 클래스 변수 */
 
@@ -90,7 +90,7 @@ blogBoardController.sendBlogBoardList = function (req, res) {
   					  , scriptletUtil : scriptletUtil
   					  };
   			
-  			res.render('./centerFrame/blogBoardList.ejs', {blog : blog});
+  			res.render('./centerFrame/blogBoardList', {blog : blog});
   		})
          .catch(errFn)
 }
