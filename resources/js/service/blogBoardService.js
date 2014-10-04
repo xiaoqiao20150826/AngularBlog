@@ -47,7 +47,6 @@ $$namespace.include(function (require, module ) {
 		requestData.categoryId = category.id
 		requestData.searcher = blogMap.searcher
 		
-		console.log('요청',category)
 		ajax.call(dataFn,"/blogBoard/List", requestData);
 		function dataFn(html) {
 			return done(html)

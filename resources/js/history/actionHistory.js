@@ -51,11 +51,9 @@ $$namespace.include(function (require, module) {
 		  , key = e.state
 		  , action = actions[key]
 		  , blogMap = blogMaps[key]
-		console.log('back key ',key )
-		console.log('back blogMap ',blogMap)
-		if(H.notExist(action)) {action = actionHistory.firstAction } 
-
-		blogRepository.setBlogMap(blogMap)
+		if(H.notExist(action)) {action = actionHistory.firstAction }
+		
+		if(blogMap) { blogRepository.replaceBlogMap(blogMap); }
 		action.run();
 		
 		actionHistory.isCallingBackOrFowardCallback = false;

@@ -14,7 +14,6 @@ $$namespace.include(function(require, module) {
 		var viewManager = this.app.getViewManager()
 		  , adminView = viewManager.getAdminView()
 		
-		  console.log('-----------')
 		app.onSubmit(adminView.get$insertFormOfCategory(), this.insertFormOfCategory1(adminView))
 		app.onSubmit(adminView.get$deleteFormOfCategory(), this.deleteFormOfCategory1(adminView))
 	}

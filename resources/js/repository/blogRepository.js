@@ -57,11 +57,12 @@ $$namespace.include(function (require, module) {
 	blogRepository.getBlogMap = function () {
 		return blogMap;
 	}
-	blogRepository.setBlogMap = function (_blogMap) {
-		var prevPost = blogMap.post
-		
-		blogMap = _blogMap
-		blogMap.post = prevPost
+	// 히스토리에서 이전 상태로 되돌릴때 사용.
+	blogRepository.replaceBlogMap = function (prevBlogMap) {
+		//post는 현재의 상태를 사용해야 한다. 이전 값은 암것도없는..상태이여.
+		var currentPost = blogMap.post
+		blogMap = prevBlogMap
+		blogMap.post = currentPost
 	}
 	
 })

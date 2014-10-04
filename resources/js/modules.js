@@ -3,11 +3,8 @@
 
 (function(){
 	var modules = [
-	               // 외부 모듈
-	                "/resources/lib/underscore-min.js" 
-	               
       	           // 사용자 모듈
-	              , "/resources/js/util/helper.js"
+	                "/resources/js/util/helper.js"
 	              , "/resources/js/util/ajax.js"
 	              , "/resources/js/util/eventBinder.js"
 
