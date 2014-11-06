@@ -1,4 +1,8 @@
 eclipse.preferences.version=1
+encoding//resources/app/$$c.js=UTF-8
+encoding//resources/app/app.js=UTF-8
+encoding//resources/app/main.js=UTF-8
+encoding//resources/app/state/StateManager.js=UTF-8
 encoding//resources/js=UTF-8
 encoding//resources/lib/editor=EUC-KR
 encoding//resources/lib/editor/editorModules.js=UTF-8

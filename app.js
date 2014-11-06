@@ -40,9 +40,10 @@ app.use('/resources',express.static(path.join(__dirname, '/resources'))); 	//정
 //3. 뷰 엔진설정
 var ejsEngine = require('ejs-locals');
  
-app.set('views', __dirname + '/views');
+//app.set('views', __dirname + '/views');
+app.set('views', __dirname + '/resources/app/view'); //위치를 프론트엔드로 변경.
 app.set('view engine', 'ejs');
-app.set('view options', { layout:false, root: __dirname + '/main' } );
+app.set('view options', { layout:false, root: __dirname + '/main' } );   //이건 뭐지.
 app.engine('ejs',ejsEngine);
 
 //3. test모드일 경우만 에러 핸들러 추가.

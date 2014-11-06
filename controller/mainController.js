@@ -60,7 +60,7 @@ mainController.sendBlogBoardListView  = function (req, res) {
 				  , scriptletUtil : scriptletUtil
 				  };
 //       	debug('/ blog ',blog)
-		return res.render('./wholeFrame/blogBoard/list.ejs', {blog : blog});
+		return res.render('./index.ejs', {blog : blog});
 	})
      .catch(errFn)
 }
@@ -73,4 +73,4 @@ function _test(req, res) {
 }
 function _seeCookie(req, res) {
     res.send(req.headers);
-}[]
+}

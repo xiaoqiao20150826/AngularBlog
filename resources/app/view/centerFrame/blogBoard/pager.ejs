@@ -1,0 +1,36 @@
+
+	<meta charset="utf-8">
+	<!--pager  -->
+	<div class='row col-sm-offset-3'>
+		<ul class="pagination">
+			<li class="blogPager" data-aquo='first' data-pagenum=1><a href='javascript:'>&laquo;</a></li>
+		<%
+		var pager = blog.pager
+		  , startPageNum = pager.startPageNum
+		  , endPageNum = pager.endPageNum
+		  , pageCount = pager.pageCount
+		  , leftPageNum = pager.leftPageNum
+		  , rightPageNum = pager.rightPageNum
+
+	 	  if(leftPageNum) { 
+		%>
+		
+		 	<li class="blogPager" data-pagenum="<%=leftPageNum%>"><a href='javascript:'>...</a></li>
+		<% 		
+          }
+		  for(var i=startPageNum, max = endPageNum+1; i < max; ++i) {
+		%>
+		  		<li class="blogPager" data-index="<%=i-1%>" data-pagenum="<%=i%>"><a href='javascript:'><%= i %></a></li>
+		<%
+		  }
+		  if(rightPageNum) { 
+		%>
+			<li class="blogPager" data-pagenum="<%=rightPageNum%>"><a href='javascript:'>...</a></li>
+		<%  }  %>
+		
+		
+			<li class="blogPager" data-aquo='end' data-pagenum='<%=pageCount%>'><a href='javascript:'>&raquo;</a></li>  
+		</ul>
+	</div>
+	
+	<!--end pager   -->

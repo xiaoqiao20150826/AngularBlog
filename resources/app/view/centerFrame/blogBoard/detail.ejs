@@ -1,0 +1,97 @@
+<meta charset="utf-8">
+<div class="col-sm-10 col-sm-offset-1">
+
+	<!-- blog detail -->
+	<%  
+		var loginUser = blog.loginUser;
+		var post = blog.post
+		  , user = post.user;
+		 
+	%>
+	<article class="row">
+		<div class="span8">
+			<div class="row-fluid">
+				<header class="span8">
+					<h3>
+						<strong ><%= post.title%></strong>
+					</h3>
+				</header>
+			</div>
+			<div class="row-fluid" style="overflow:hidden;word-wrap:break-word;">
+				<%- post.content %>
+			</div>
+			<div class="row-fluid">
+			<%
+			if(post.hasFile()) {
+				  var fileInfoes = post.fileInfoes
+			%>
+				<footer class="row">
+					<div class='pull-right'>
+						<div class='row-fluid'>download</div>
+							<%
+								
+								for(var i in fileInfoes) {
+								var fileInfo = fileInfoes[i]
+							%>
+<!-- 							 	<form action="/file/download" method="post" > -->
+<!-- 									<input name="fileUrl" value="<%= fileInfo.url%>" style="display:none"> -->
+<!-- 								 	<input class='btn btn-link' type="submit" value='<%=fileInfo.name%>'> -->
+<!-- 								</form> -->
+								<div>
+								<a href = '<%= fileInfo.url %>' download='<%= fileInfo.name%>'><%= fileInfo.name%></a>
+								</div>
+							<%
+								}
+							%>
+					</div>
+				</footer>
+			<% } %>
+				<footer class="span8" style="padding:0">
+			<%
+				if(!loginUser.isAnnoymous()) {
+			%>
+					<p>
+						<div class=" col-sm-offset-5">
+							<a id="blogDetail-vote" data-postNum="<%=post.num %>" data-votecount="<%=post.vote%>" class="btn btn-default btn-xs">
+						    	★ Vote  <%=post.vote%>
+							</a>
+						</div>
+							
+					</p>
+			<% } %>
+					<p>
+
+						<img src='<%=user.photo %>' class="img-circle" alt='img'
+							style="width: 20px"> by <a href="/user/<%=user._id%>"><%= user.name%></a> | <i
+							class="icon-calendar"></i> <%= post.created.toLocaleDateString()%>
+					</p>
+			<%
+				if(loginUser.isExist() && loginUser.isEqualById(post.userId)) {
+			%>		
+					<p>
+					<div class="row-fluid">
+						<a class="btn btn-default span2  pull-right" id='blogBoard-delete' data-postnum="<%= post.num %>" data-writerid="<%= post.userId%>">
+							delete
+						</a>
+						<a class="btn btn-default span2  pull-right" id='blogBoard-update' data-postnum="<%= post.num %>">edit</a>
+					</div>
+					</p>
+			<%
+				}
+			%>
+				</footer>
+			</div>
+		</div>
+		<!--span8-->
+	</article>
+	<article class="row">
+		<div class="span8">
+		<% blog.postNum = post.num%>
+		<% include ./answer/list.ejs %>
+		</div>
+	</article>
+	
+</div>
+
+
+
