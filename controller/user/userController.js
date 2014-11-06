@@ -17,7 +17,10 @@ var User = require('../../domain/User')
   , postDAO = require('../../dao/blogBoard/postDAO')
 var categoryService = require('../../service/blogBoard/categoryService')
   , blogBoardService = require('../../service/blogBoard/blogBoardService')
+
+////  
   
+/////  
 var userController = module.exports = {}
 userController.mapUrlToResponse = function(app) {
 	app.get('/user/me', this.loginUserView);// 순서주의
@@ -26,7 +29,17 @@ userController.mapUrlToResponse = function(app) {
 	
 	app.post('/user/:userId/update', this.update)
 	app.post('/user/:userId/delete', this.delete)
+	///////
+	app.get('/loginUser', this.loginUser)
 }
+
+userController.loginUser = function (req, res) {
+	var loginUser = requestParser.getLoginUser(req)
+	
+	return res.send(JSON.stringify(loginUser));
+}
+
+//------------   angular before --------------------//
 userController.loginUserView = function (req, res) {
 	var redirector = new Redirector(res)
 	var loginUser = requestParser.getLoginUser(req)

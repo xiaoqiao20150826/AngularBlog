@@ -4,8 +4,9 @@
 
 (function(define, angular) {
 	
-	define([], function () {
-		return ['$stateProvider', '$urlRouterProvider', RouteManager]
+	define(['state/State'], function (State) {
+		
+		return ['$stateProvider', '$urlRouterProvider', setupState1(State)]
 	})
 	
 	/////
@@ -14,40 +15,41 @@
 			        , bottom : 'bottomFrame'
 			        , side 	 : 'sideFrame'
 		}
+	
+	function setupState1(State) {
+		var __viewUrl = 'resources/app/view/'
+		// 모듈화해야지. 뷰 객체 재사용하게 만들어놔야지.
+	    
+		var appState = new State('app')
+							  .url('')
+							  .view(frame.top, __viewUrl+'topFrame/nav.ejs')
+							  .view(frame.center, __viewUrl+'centerFrame/blogBoard/list.ejs')
+							  .view(frame.side, __viewUrl+'sideFrame/category.ejs')
+							  .view(frame.bottom, __viewUrl+'bottomFrame/footer.html')
 		
-		function RouteManager($stateProvider, $urlRouterProvider) {
-			_setState($stateProvider)
-			
-			$urlRouterProvider
-//              .when( '/menu', '/menu/pizza'  ) // Switch to Pizza listing view
-              .otherwise('/');       // Return to the main ordering screen
+		
+		var states = [appState]
+		return function RouteManager($stateProvider, $urlRouterProvider) {
+			_setState($stateProvider, states)
+			_setOtherRouting($urlRouterProvider)
+		} 
+	}
+	
+	//-----------------------------------------------------------------
+	
+	function _setState($stateProvider, states) {
+							 
+		// 등록
+		for(var i in states) {
+			var state = states[i]
+			$stateProvider.state(state);
 		}
-		function _setState($stateProvider) {
-			var __viewUrl = 'resources/app/view/'
-			
-			var appState = new State('app')
-								  .url('')
-								  .view(frame.top, __viewUrl+'topFrame/nav.ejs')
-								  .view(frame.center, __viewUrl+'centerFrame/blogBoard/list.ejs')
-								  .view(frame.side, __viewUrl+'sideFrame/category.ejs')
-								  .view(frame.bottom, __viewUrl+'bottomFrame/footer.html')
-			
-								 
-			// 등록
-			$stateProvider
-			  .state(appState.name, appState);
-		}
-		// State Class
-		function State(name) {
-			this.name = name;
-			this.views = {}
-			return this
-		}
-		State.prototype.url = function(url) { this.url = url;  return this;} 
-		State.prototype.view = function (viewName, viewResource) {
-			//
-			this.views[viewName] = {templateUrl : viewResource }  //template면 직접 내용넣기.
-			return this;
-		}
+	}
+	function _setOtherRouting($urlRouterProvider) {
+		$urlRouterProvider
+//      .when( '/menu', '/menu/pizza'  ) // Switch to Pizza listing view
+		  .otherwise('/');       // Return to the main ordering screen
+	}
+	
 	
 } )(define, angular)

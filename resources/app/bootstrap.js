@@ -2,16 +2,14 @@
  * 
  */
 
-(function($$c, define, angular) {
+(function(define, angular) {
 	//nodeblog setup & run.
 	
-	var M = $$c.modules;
-	
 	define([
-	         M.app.name
+	        'app'
 	],
-	function () {
-		angular.bootstrap( document.getElementsByTagName("html")[0], [ M.app.name ]);
-		
+	function (app, nav) {
+		angular.bootstrap( document.getElementsByTagName("html")[0], [ app ]);
 	})
-})($$c, define, angular)
+	
+})(define, angular)

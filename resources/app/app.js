@@ -1,25 +1,25 @@
 
-(function($$c, define, angular) {
-	var M = $$c.modules
+(function(define, angular) {
 	
 	define([ 
-	         M.uiRouter.name
-	       , M.app.state.StateManager.path + '.js'
+	         'state/StateManager'
+	       , 'controller/CommonController'
+	       , 'service/UserService'
+	       , 'module/nav/nav'
+	       
+	       , 'uiRouter'
 	],
-	
-	function(StateManager) {
+	function(StateManager, CommonController, UserService, nav) {
+		var moduleName = 'app'
+		  , dependencies = [ 'ui.router' , nav]
 		
-		
-		var app = 'app'
-		
-			angular.module(app, ['ui.router'])
-				   .controller('CommonController',['$scope', function($scope){
-					   
-				   }])
-				   .config(StateManager)
-				   .run(function(){})
+		angular.module(moduleName, dependencies)
+			   .config(StateManager)
+			   .service('userService', UserService)
+			   .controller('CommonController', CommonController)
+			   .run(function(){})
 			
 		
-		return app
+		return moduleName;
 	});
-})($$c, define, angular)
+})(define, angular)

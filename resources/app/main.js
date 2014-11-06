@@ -3,31 +3,35 @@
  * 	main
  * 
  */
-(function($$c, require){
-	var M = $$c.modules
+(function(require){
 	
-	// 1. config
-	var paths = {}
-	paths[M.underscore.name] = M.underscore.path
-	paths[M.jQuery.name] = M.jQuery.path
-	paths[M.twitterBootstrap.name] = M.twitterBootstrap.path
-	paths[M.angular.name] = M.angular.path
-	paths[M.uiRouter.name] = M.uiRouter.path
-	//
-	paths[M.bootstrap.name] = M.bootstrap.path
+	var _paths = {}
+	_paths.underscore = "bower_components/underscore/underscore-min";
+	_paths.jQuery = "bower_components/jquery/dist/jquery.min";
+	_paths.twitterBootstrap = "bower_components/bootstrap/dist/js/bootstrap.min";
 	
-	var shim = {}
-	shim[M.uiRouter.name] = M.uiRouter.deps
-    shim[M.bootstrap.name] = M.bootstrap.deps
-	shim[M.app.name] = M.app.deps
+	_paths.angular = "bower_components/angular/angular";
+	_paths.uiRouter = "bower_components/angular-ui-router/release/angular-ui-router";
 	
+	_paths.bootstrap = "bootstrap"
+	
+	var _shim = {}
+	_shim.twitterBootstrap = ['jQuery']
+	_shim.uiRouter = ['angular']
+	_shim.bootstrap = ['angular']
+	
+	// 1. setup
 	require.config({
-					 'paths' : paths
-				   , 'shim'  : shim 
+				     'baseUrl' : "/resources/app/"
+				   , 'paths' : _paths					// 로딩위치+이름
+				   , 'shim'  : _shim					// 의존성 
 	});
 	
-	//2. run
-	require([M.bootstrap.name] ,
+	//2. 의존성 로딩 및 bootstrap
+	var _deps = Object.keys(_paths)
+	
+	require(_deps,
 		function() {
+		console.log('start angular...')
 	})
-})($$c, require)	
+})(require)	
