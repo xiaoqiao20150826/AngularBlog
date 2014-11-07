@@ -1,1 +1,1 @@
-web: DEBUG=error node app.js
+web: DEBUG=error node ./server/app.js
