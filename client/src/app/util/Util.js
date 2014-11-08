@@ -2,9 +2,9 @@
  * 
  */
 
-(function(define, angular) {
+(function(define, angular, _) {
 	
-	define(['underscore'], function(_) {
+	define([], function(_) {
 		
 		return ['$q','$http', '$rootScope',makeUtil];
 	

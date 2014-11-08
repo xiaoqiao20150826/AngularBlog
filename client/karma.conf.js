@@ -7,35 +7,36 @@ module.exports = function(config) {
     // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: '',   
 
-
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['jasmine', 'requirejs'],
+    frameworks: ['jasmine'],
 
 
-    // list of files / patterns to load in the browser
+    // <script..로 바로로딩 혹은 서버에 '이름만 포함'
     files: [
-//             JASMINE,
-//             JASMINE_ADAPTER,
-//             REQUIRE,
-//             REQUIRE_ADAPTER,	
 			/* vendor libraries */
-             {pattern: 'bower_components/**/*.js', included: false},
-//			/* test libraries */
-//			/* application scripts */
-			 {pattern: 'src/**/*.js', included: false},
+				// 전역인것. 선로딩할려구.
+			"bower_components/underscore/underscore-min.js",
+			"bower_components/jquery/dist/jquery.min.js",
+			"bower_components/requirejs/require.js",
+				// 이름포함만
+			{pattern: 'bower_components/**/*', included: false},   
+			/* test libraries */
+			/* application scripts */
+			{pattern: 'src/**/*.js', included: false},   //이름포함만
 		    /* Specs (tests) */
-			 {pattern: 'test/**/*Spec.js', included: false},
-			 
+			{pattern: 'test/**/*Spec.js', included: false},
 			/* test main*/
-			 'test/test-main.js'
+			
+			
+			'test/test-main.js'		// requirejs main(진입점) 파일이름
     ],
 
 
     // list of files to exclude
     exclude: [
-              './src/bootstrap.js',
-              './src/main.js'
+                'src/bootstrap.js'
+              , 'src/main.js'
     ],
 
 
