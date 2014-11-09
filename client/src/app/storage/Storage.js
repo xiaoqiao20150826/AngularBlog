@@ -21,6 +21,8 @@
 			storage.getUser = function () { return storage.get('user')}
 			storage.setUser = function (user) { return storage.set('user', user)}
 			
+			storage.reset = function () { $storage.$reset() }
+			
 			
 			// exports
 			return storage; 

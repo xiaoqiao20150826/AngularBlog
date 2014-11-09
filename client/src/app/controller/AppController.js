@@ -5,12 +5,16 @@
 (function(define) {
 	
 	define([], function() {
-		return ['$scope','userService', AppController];
+		return ['$scope','userService','storage', AppController];
 	})
 	
-	function AppController($scope, userService) {
+	function AppController($scope, userService, storage) {
+		var appCtrl = this;
+		storage.reset();
 		//setUpInitData
-		_setupInitData(this, userService)
+		_setupInitData(appCtrl, userService)
+		
+		//
 	}
 	
 	
@@ -19,9 +23,14 @@
 		
 	}
 	function _setUser(appCtrl, userService) {
-		userService.getLoginUser()
+		userService.getUser()
 				   .then(function(user) {
 						appCtrl.user = user;
+					})
+					.catch(function() {
+						alert('login fail')
+						var user = userService.getAnnoymousUser()
+						appCtrl.user = user;  
 					})
 	}
 	

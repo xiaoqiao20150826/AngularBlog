@@ -24,7 +24,7 @@ var categoryService = require('../../service/blogBoard/categoryService')
 var userController = module.exports = {}
 userController.mapUrlToResponse = function(app) {
 	app.get('/user/me', this.loginUserView);// 순서주의
-	app.get('user/loginUser', this.loginUser)
+	app.get('/user/loginUser', this.getLoginUser)
 	app.get('/user/:userId', this.userView);//
 	app.get('/user/:userId/updateView', this.updateView)
 	
@@ -33,10 +33,13 @@ userController.mapUrlToResponse = function(app) {
 	///////
 }
 
-userController.loginUser = function (req, res) {
+userController.getLoginUser = function (req, res) {
 	var loginUser = requestParser.getLoginUser(req)
 	
-	if(loginUser.isAnnoymous()) loginUser.isAnnoymous = true;
+	if(loginUser.isAnnoymous()) 
+		loginUser.isLogin = false;
+	else 
+		loginUser.isLogin = true;
 	
 	return res.send(JSON.stringify(loginUser));
 }

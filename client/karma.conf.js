@@ -12,22 +12,26 @@ module.exports = function(config) {
     frameworks: ['jasmine'],
 
 
-    // <script..로 바로로딩 혹은 서버에 '이름만 포함'
+    // <script..로 로딩 혹은 서버에 '이름만 포함'
     files: [
 			/* vendor libraries */
-				// 전역인것. 선로딩할려구.
+			// 전역인것. 선로딩
 			"bower_components/underscore/underscore-min.js",
 			"bower_components/jquery/dist/jquery.min.js",
+			
 			"bower_components/requirejs/require.js",
-				// 이름포함만
-			{pattern: 'bower_components/**/*', included: false},   
+			"bower_components/angular/angular.js",
+			
+			{pattern: 'bower_components/**/*', included: false},
 			/* test libraries */
+			"test/bower_components/angular-mocks/angular-mocks.js",
+			
 			/* application scripts */
-			{pattern: 'src/**/*.js', included: false},   //이름포함만
+			{pattern: 'src/**/*.js', included: false},   
+			
 		    /* Specs (tests) */
 			{pattern: 'test/**/*Spec.js', included: false},
 			/* test main*/
-			
 			
 			'test/test-main.js'		// requirejs main(진입점) 파일이름
     ],

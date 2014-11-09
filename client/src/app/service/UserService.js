@@ -13,25 +13,28 @@
 			
 			//----------------------
 			var userService = {}
-			userService.getLoginUser = function () {
-				var defer = $q.defer()
-				
+			// TODO: logout을 통하지 않으면 계속 남을텐데.. 그냥 호출시마다 요청하는걸로?
+			userService.getUser = function () {
 				var user = storage.getUser();
-				if(U.exist(user)) {
-					return defer.resolve(user);
-				}
+				if(U.exist(user) && user.isLogin ) { return $q.when(user); }
 				
-				$http.get('/user/loginUser')
-				     .then(function(userString) {
-				    	 var user = JSON.parse(userString)
-				    	 storage.setUser(user)
-				    	 
-				    	 return defer.resolve(user);
-				     })
-				
-				return defer.promise
+				return  $http.get('/user/loginUser')
+						     .then(function(response) {
+						    	 var user = response.data
+						    	 storage.setUser(user)
+						    	 return user;
+						     })
 			}
-			
+			userService.logout = function () {
+				storage.setUser(userService.getAnnoymousUser())
+				return  $http.get('/user/logout')
+			}
+			userService.getAnnoymousUser = function () {
+				return  { name : 'Annoymous'
+					    , isLogin : false 
+					    }
+			}
+			//------------------------
 			return userService;
 		}
 	

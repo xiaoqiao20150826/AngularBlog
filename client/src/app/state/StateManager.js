@@ -14,15 +14,16 @@
 			        , center : 'centerFrame'
 			        , bottom : 'bottomFrame'
 			        , side 	 : 'sideFrame'
-		}
-	
+		        	, part 	 : 'partFrame'
+	}
 	function setupState1(State) {
-		var __rootUrl__ = 'resources/app/'
+		var __rootUrl__ = 'resource/src/app/'
 		// 모듈화해야지. 뷰 객체 재사용하게 만들어놔야지.
 	    
 		var appState = new State('app')
 							  .url('')
 							  .view(frame.top, __rootUrl__ + 'module/nav/nav.html')
+							  .view(frame.part+'@app', __rootUrl__ + 'view/part/login.html')
 //							  .view(frame.center, __rootUrl__ + 'view/centerFrame/blogBoard/list.ejs')
 //							  .view(frame.side, __rootUrl__ + 'view/sideFrame/category.ejs')
 //							  .view(frame.bottom, __rootUrl__ + 'view/bottomFrame/footer.html')
