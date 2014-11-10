@@ -61,9 +61,9 @@ describe('userDAO', function() {
 	describe('#find()',function() {
 		it('should take all users', function (nextTest) {
 			userDAO.find(new H.Done(dataFn), {});
-			function dataFn(models) {
-				var e_users = User.createBy(models)
-				_equals(e_users,_users.slice(0, e_users.length));
+			function dataFn(users) {
+				should.equal(users[0].name, 'annoymous')
+				should.equal(users[1].name, 'testUser')
 				nextTest();
 			}
 		});
@@ -102,10 +102,9 @@ describe('userDAO', function() {
 			var where = {};
 			userDAO.getCount(new H.Done(dataFn), where);
 			function dataFn(model) {
-				var a_count = _users.length +2; //테스트에서 추가로 2개 삽입했음
 				var e_count = model;
 				should.exist(model);
-				should.equal(a_count,e_count);
+				should.equal(e_count, 14);
 				nextTest();
 			}
 		});

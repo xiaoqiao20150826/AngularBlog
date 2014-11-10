@@ -25,11 +25,15 @@ build/Release
 # see https://npmjs.org/doc/faq.html#Should-I-check-my-node_modules-folder-into-git
 node_modules
 
+
 # Directory for eclipse
-.externalToolBuilders
-.settings
+externalToolBuilders
+settings
 
 #etc
+tempFilesDir
+static/img
+
 *.project
 *.jsintrc
 *.bak
