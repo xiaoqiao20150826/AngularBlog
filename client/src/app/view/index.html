@@ -23,14 +23,17 @@
   </head>
   <body>
 	<!--   	nav-bar -->
-    <div class="container  col-xs-12" ui-view='topFrame'></div>
+    <div class="container  col-xs-12" ui-view='top'></div>
 	<!--  else  --> 	
     <div class="container  col-xs-12" >
-		<div class="col-sm-9" ui-view='centerFrame'></div>	    
+		<div class="col-sm-9" ui-view='center'></div>	    
 	   	<!--sideFrame  -->
-		<div class="col-sm-3 hidden-xs" ui-view='sideFrame'></div>	
+		<div class="col-sm-3 hidden-xs" ui-view='side'></div>	
     </div><!--/.container-->
     
-    <div class="container  col-sm-12 hidden-xs" ui-view='bottomFrame'></div>
+    <div class="container  col-sm-12 hidden-xs" ui-view='bottom'></div>
+    
+    <!-- login hidden-->
+	<div ui-view='part'></div>
   </body>
 </html>

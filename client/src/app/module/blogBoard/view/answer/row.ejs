@@ -1,0 +1,62 @@
+<div class="answer-row media col-sm-offset-<%=offsetValue%>" data-num='<%= answer.num %>'>
+	<a class="pull-left" href="#"> 
+		<img class="media-object" src="<%= user.photo %>" style="width:60px">
+	</a>
+	<div class="media-body">
+	<%	
+		if(user.isAnnoymous()) {
+	%>
+		<span class="name"><%= answer.writer %></span>
+		<span class="date"><%= answer.created.toLocaleDateString() %></span>	
+		<a href="javascript:" class="pull-right answer-delete" data-currentnum='<%=answer.num %>' data-userid='<%=answer.userId %> ' data-writer='<%= answer.writer || "" %> ' data-postnum='<%= answer.postNum%>'  data-includednums='<%= answer.includedNums || ""%>' >
+			<i class="glyphicon glyphicon-remove"></i>
+		</a>
+		<a type="button" href='javascript:' class="answer-updateView pull-right"  data-currentnum='<%=answer.num %>' >
+			<i class="glyphicon glyphicon-edit"></i>
+		</a>
+	<% } else { %>	
+		<span class="name"><a href="/user/<%=user._id%>"><%=user.name %></a></span>
+		<span class="date"><%= answer.created.toLocaleDateString() %></span>
+		<%if(loginUser.isEqualById(user._id)) { %>
+		<a href="javascript:" class="pull-right answer-delete" data-currentnum='<%=answer.num %>' data-userid='<%=answer.userId %>' data-writer='<%= answer.writer || ""%>' data-postnum='<%= answer.postNum%>' data-includednums='<%= answer.includedNums || "" %>' >
+			<i class="glyphicon glyphicon-remove"></i>
+		</a>
+		<a type="button" href='javascript:' class="answer-updateView pull-right"   data-currentnum='<%=answer.num %>' >
+			<i class="glyphicon glyphicon-edit"></i>
+		</a>
+		<%}%>
+	
+	<% } %>
+	
+		<a type="button" href='javascript:' data-currentnum='<%=answer.num %>' class="pull-right answer-insertView" >
+			replay
+		</a>
+		
+		<p>
+			<% 
+				var parentUser = parentAnswer ? parentAnswer.user : null
+				if(parentUser) {
+					if(parentUser.isAnnoymous()) {
+			%>
+				<span class="name">
+					@<%= parentAnswer.writer%>&nbsp;&nbsp;&nbsp;
+				</span>
+			<%
+				
+				 }	else {
+			%>
+				<span class="name">
+					<a href="/user/<%=parentUser._id%>">
+						@<%= parentUser.name%>&nbsp;&nbsp;&nbsp;
+					</a>
+				</span>
+			<%		
+					}
+				}
+			%>
+			<%= answer.content %>
+		</p>
+		
+		<div class="answer-div4insertView"></div>
+	</div>
+</div>

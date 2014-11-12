@@ -1,0 +1,73 @@
+<div class="col-sm-10 col-sm-offset-1" style="margin:0 0 0 20px">
+<meta charset="utf-8">
+
+<!-- blog insert form -->
+<%
+	var loginUser = blog.loginUser
+	 ,  post = blog.post
+%>
+
+ <form action="/blogBoard/update" method="post" name="writeForm" class="form-horizontal"  id='blogBoard-insertForm'  role="form">
+ 	<input name="num" type="text" value="<%= post.num%>" style="display:none">
+ 	<input name="originCategoryId" type="text" value="<%= post.categoryId%>" id='blogBoard-originCategory' style="display:none">
+ 
+   <div class="form-group">
+      <label class="col-sm-2 control-label">
+         Id
+      </label>
+      <div class="col-sm-10">
+      	  <%= loginUser._id%>
+         <input name="userId" type="text" 
+         value="<%= loginUser._id%>" style="display:none">
+      </div>
+   </div>
+   <div class="form-group">
+      <label class="col-sm-2 control-label">category</label>
+      <div class="col-sm-10">
+         <% include ../../../part/categorySelector.ejs %>
+      </div>
+   </div>
+   <div class="form-group">
+      <label class="col-sm-2 control-label">Title</label>
+      <div class="col-sm-10">
+         <input class="form-control" name="title" type="text"
+            placeholder="title" value='<%= post.title%>' >
+      </div>
+   </div>
+   <div class="form-group">
+      <label class="col-sm-2 control-label">Content</label>
+      <div class="col-sm-10">
+      <textarea class="col-sm-12" name="content" style="display:none"><%= post.content%></textarea>
+      <% include ../../../../resources/lib/editor/editor.ejs %>
+      </div>
+      
+   </div>
+   <%  
+   
+   		var fileInfoes = post.fileInfoes
+          , fileInfoesString = JSON.stringify(fileInfoes)   %>
+   <div class="form-group">
+	    <label class="col-sm-2 control-label">File input</label>
+	    <div class="col-sm-10">
+	    	<input type="text" id="blogBoard-fileInfoesString" name='fileInfoesString' value ='<%= fileInfoesString %>' style="display:none"> 
+	    </div>
+   </div>
+   <%
+   		
+   	   var urlStrings = ''
+   	   for(var i in fileInfoes) {
+   	       var fileInfo = fileInfoes[i]
+   	       if(i==0) { 
+   	       		urlStrings = fileInfo.url
+   	       		continue;
+   	       }
+   	       urlStrings= urlStrings + '\n'+ fileInfo.url 
+   	   }
+   	    
+   	   
+   %>
+   	<textarea class='col-sm-offset-2 col-sm-10 row' id='blogBoard-fileUrlsView' style='height:70px' disabled><%= urlStrings%></textarea>
+   <button type="submit" class="btn btn-default pull-right">Submit</button>
+</form>
+</div>      
+      

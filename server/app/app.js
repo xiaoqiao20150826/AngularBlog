@@ -47,12 +47,12 @@ app._setUp = function () {
 	expressApp.use('/resource',express.static(config.resourceDir)); 	//정적자원 매핑
 	
 	//3. 뷰 엔진설정
-	var ejsEngine = require('ejs-locals');
-	 
+	var ejsEngine = require('ejs');
 	//TODO: 사실 ejs를 사용하지 않는다면. 없에도 상관없을텐데.
 	expressApp.set('views', config.viewDir); //위치를 프론트엔드로 변경.
+	expressApp.set("view options", {layout: false});
 	expressApp.set('view engine', 'ejs');
-	expressApp.engine('ejs',ejsEngine);
+	expressApp.engine('html', ejsEngine.renderFile);
 	
 	//3. test모드일 경우만 에러 핸들러 추가.
 	if(config.mode == 'test') { 

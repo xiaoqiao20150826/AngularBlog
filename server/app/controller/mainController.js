@@ -60,7 +60,7 @@ mainController.sendBlogBoardListView  = function (req, res) {
 				  , scriptletUtil : scriptletUtil
 				  };
 //       	debug('/ blog ',blog)
-		return res.render('./index.ejs', {blog : blog});
+		return res.render('./index.html');
 	})
      .catch(errFn)
 }

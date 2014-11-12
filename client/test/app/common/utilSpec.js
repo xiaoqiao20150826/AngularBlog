@@ -3,14 +3,14 @@
  */
 
 define(['app'], function (app) {
-	var mock = angular.mock
 	describe('util', function () {
 		var U = null;
 		beforeEach(function() {
-			mock.module(app)
-			mock.inject(['util',function (util) {
-				U = util;
-			}])
+			angular.mock.module(app)
+			angular.mock.inject(function ($injector) {
+				U = $injector.get('util');
+//				O = $injector.get('ObjectDecorator');
+			})
 		})
 		// 아직. 뭐 없다.
 		it('should...', function () {

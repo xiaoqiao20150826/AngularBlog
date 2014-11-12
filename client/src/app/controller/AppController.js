@@ -10,10 +10,9 @@
 	
 	function AppController($scope, userService, storage) {
 		var appCtrl = this;
-		storage.reset();
+		storage.reset(); //user만. 초기화해야할까?
 		//setUpInitData
 		_setupInitData(appCtrl, userService)
-		
 		//
 	}
 	
