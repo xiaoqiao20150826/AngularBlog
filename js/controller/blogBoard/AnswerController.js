@@ -1,4 +1,10 @@
 
+/***
+ * TODO: [error] 인서트폼. 가져올때 "현재 클릭된" 인서트폼을 구분하지 않았다.
+ *       그렇기에 올바르게 onSubmit이 등록되지 않았다. 기본동작을 하게되버렸어.
+ *       
+ */
+
 $$namespace.include(function(require, module) {
 	var H = require('/util/helper') 
 	  , ajax = require('/util/ajax') 

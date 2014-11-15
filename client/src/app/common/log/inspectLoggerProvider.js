@@ -13,8 +13,13 @@
  *   
  *   # How
  *    1) 일반적인 것. module.config함수의 *provider 설정을 이용.
+ *      - 함수이름의 마지막의 '+'문자는 log 사용시 log4arg 를 이용한다는 표시.
+ *      - [...method..] or { methodNames : [], filter }
  *    	inspectServiceInfoes = {
- *    						 	'$rootScope' : ['$emit+', '$broadcast']  //마지막의 '+'문자는 log4arg 를 이용한다는 표시.
+ *    						 	'$rootScope' : {
+ *    											 methodNames : ['$emit+', '$broadcast']
+ *    										   , filter      : filterFn
+ *    										   }  
  *                            , 'other...' : [...method...]
  *    			 			  }
  *      inspectInspectLoggerProvider.setInspectServiceInfoes(inspectServiceInfoes);
@@ -64,45 +69,38 @@
 			var serviceNames = _.keys(serviceInfoes)
 			
 			_.each(serviceNames, function (serviceName) {
-				
 				$provide.decorator(serviceName, function ($delegate) {
 					
-					var methodNames = serviceInfoes[serviceName]
+					var mAf 		= _methodNamesAndFilter(serviceInfoes[serviceName])
+					  , methodNames = mAf.methodNames
+					  , filter  	= mAf.filter;
 					
 					_.each(methodNames, function(methodName) {
-						var mAnda = methodNameAndIsArg(methodName)
-						  , methodName 		  = mAnda.methodName
-						  , isArg			  = mAnda.isArg;
 						
 						inspectLogger.decorate($delegate, serviceName)
 									 .inspect(methodName, function(/*args*/) {
-										 if(isArg) 
-											 this.log4arg(arguments)
-										 else 
 											 this.log(arguments)									 
-									 });	
+									 }, filter);	
 					})
 
 					return $delegate;
 				})
 				
 			})
-			//////////////////
-			function methodNameAndIsArg(str) {
-				var lastIndex = str.length-1
-				
-				var result = {}
-				if(str.charAt(lastIndex) === '+') { 
-					result.methodName = str.slice(0, lastIndex)
-					result.isArg = true
-				} else {
-					result.methodName = str;
-					result.isArg = false;
-				}
-					
-				return result
-			}
 		}
+		function _methodNamesAndFilter(mAf) {
+			var result = {}
+			if(!_.isObject(mAf)) return console.error(mAf + 'is wrong config');
+			
+			if(_.isArray(mAf)) { 
+				result.methodNames = mAf
+				result.filter = null
+			} else {
+				result.methodNames = mAf.methodNames
+				result.filter = mAf.filter
+			}
+			return result;
+		} 
 		
 		this.$get = ['$injector'
 		, function (  $injector ) {
@@ -126,7 +124,7 @@
 					name = obj;
 					obj = logger.getService(obj)
 				}
-				if(_.isNull(obj) || _.isEmpty(obj)) throw name + ' is not exist object';
+				if(_.isNull(obj) || _.isEmpty(obj)) return console.error( name + ' is not exist object');
 				
 				var decoratedObj = this.getDecoratedService(name);
 				if(_.isEmpty(decoratedObj)) {
@@ -140,15 +138,19 @@
 				var decoratedLogger = {}
 				decoratedLogger.log = $log.log
 				
-				decoratedLogger.inspect = function (methodName , inspectFn) {
+				//method:before, method:after, method:before+, method:before+
+				decoratedLogger.inspect = function (methodName , inspectFn, filter) {
+					var mAnda = logger._divideNameAndIsArg(methodName)
+					  , methodName 		  = mAnda.methodName
+					  , isArg			  = mAnda.isArg;
 					
+					var logFn = isArg ? $log.log4arg : $log.log  
 					var injectLogger = {
-					    				 log : hookMessage(objName, methodName, $log.log)
-					    			   , log4arg : hookMessage(objName, methodName, $log.log4arg)
+					    				 log : hookMessage(objName, methodName, logFn)
 					   				   }
-					decoratedObj.inject( methodName, function () {
+					decoratedObj.decorate( methodName, function () {
 						return inspectFn.apply(injectLogger, arguments)
-					})
+					}, filter)
 			        return this;
 				}
 				
@@ -173,11 +175,27 @@
 			logger.setDecoratedService = function (name, decObj) {
 				decoratedServiceMap[name] = decObj //일단.
 			}
-			logger.getDecoratedService = function (name) { return decoratedServiceMap[name]} 
-			//
-			//// simple public method
+			logger.getDecoratedService = function (name) { return decoratedServiceMap[name]}
+			logger.getDecoratedServiceMap = function () { return decoratedServiceMap}
 			
-			////
+			// methodName의 마지막 문자가 +인지를 판단하여 isArg에 t/f 값을 할당.
+			logger._divideNameAndIsArg = function (methodNameAndIsArg) {
+				
+				var lastIndex = methodNameAndIsArg.length-1
+				
+				var result = {}
+				if(methodNameAndIsArg.charAt(lastIndex) === '+') { 
+					result.methodName = methodNameAndIsArg.slice(0, lastIndex)
+					result.isArg = true
+				} else {
+					result.methodName = methodNameAndIsArg;
+					result.isArg = false;
+				}
+					
+				return result
+			}
+			
+			//////////////////////////////////////////////////////////
 			return logger;
 		}
 		

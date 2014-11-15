@@ -3,3 +3,8 @@
     ex) 
          part.login.. 이런 형태인가?
          center.blogBoard.list,          center.blogBoard.detail
+
+
+# 필요해 보이는 것(미정)
+  - html 엘리먼트 인데. 화면에 따라(반응형) "크기"와 "위치"가 원하는 데로 조절됨.(내부의 것은 비율을 유지하며..?)
+   ; 이미 비슷한 것이 있을것 같다.  필요시 찾아봐야지.

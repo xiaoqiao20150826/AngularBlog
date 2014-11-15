@@ -4,14 +4,25 @@
  * 
  */
 (function(require){
+	var testOneName 
+//					= 'ObjectDecorator'  // 주석시 all
+//						= 'inspectLogger'  // 주석시 all
+	
 	var tests = [];
+	//현재 항상 *Spec.js 로 끝나는 파일만 필터링...더 나은방법은? 
 	for (var file in window.__karma__.files) {
-		//현재 항상 *Spec.js 로 끝나는 파일만 필터링...더 나은방법은?
-		// $의 의미는?
-	    if (/Spec\.js$/.test(file)) {  
+
+	    if (_isTestOne(file) && /Spec\.js$/.test(file)) { 		// $의 의미는?  
 	        tests.push(file);
 	    }
 	}
+	
+	function _isTestOne (path) {
+		if(!testOneName) return true // all
+		if(RegExp(testOneName + '[A-Za-z0-9]*\.js').test(path)) return  true
+		else return false;
+	}  
+	
 	
 	/////////////////////////////////////////////// 
 	var _paths = {}
