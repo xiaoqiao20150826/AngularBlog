@@ -24,7 +24,7 @@ var categoryService = require('../../service/blogBoard/categoryService')
 var userController = module.exports = {}
 userController.mapUrlToResponse = function(app) {
 	app.get('/user/me', this.loginUserView);// 순서주의
-	app.get('/user/loginUser', this.getLoginUser)
+	app.get('/json/user/loginUser', this.getLoginUser)
 	app.get('/user/:userId', this.userView);//
 	app.get('/user/:userId/updateView', this.updateView)
 	
@@ -44,7 +44,7 @@ userController.getLoginUser = function (req, res) {
 	return res.send(JSON.stringify(loginUser));
 }
 
-//------------   angular before --------------------//
+//------------   before angular  --------------------//
 userController.loginUserView = function (req, res) {
 	var redirector = new Redirector(res)
 	var loginUser = requestParser.getLoginUser(req)

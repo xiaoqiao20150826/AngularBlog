@@ -8,7 +8,7 @@
 		  , dependencies = [];
 		
 			angular.module(moduleName, dependencies)
-				   .controller('NavController', NavController)
+				   .controller('nav.NavController', NavController)
 		
 			
 		return moduleName

@@ -1,0 +1,36 @@
+
+<div id = 'blogBoard-postList' >
+	<meta charset="utf-8">
+	<!-- list  -->
+	<div ng-repeat="post in posts"  
+	     class="col-xs-12  col-sm-12 blogBoard-row" data-num="{{post.num}}">
+	     
+		<div class="col-xs-2 col-sm-2" style="padding:9px 0">
+			<div >Votes <B>{{post.vote}}</B></div>
+			<div >Answers <B>{{post.answerCount}}</B></div>
+			<div >Views <B>{{post.readCount}}</B></div>
+		</div>
+		<div class="col-xs-10 col-sm-10" >
+			<div class="row">
+				<a class='blogBoard-detailView' 
+				   ui-sref="app.blogBoard.detail({ 
+				   								   pageNum	:'{{ post.num }}'
+											     , title	:'{{ blogBoardList.title4web(post.title) }}'
+											     })"> 
+					<H2>{{post.title }}</H2>
+				</a>
+			</div>
+			<div class='row'>
+				<span class='pull-left'>
+					<a class="blogCategory" href="javascirpt:" data-id="{{post.category.id}}" >{{post.category.title}} </a>
+				</span>
+				<div class='pull-right'>
+					<img src='{{post.user.photo }}' class="img-circle" alt='img' style="width:20px">
+					<span class="name"><a href="/user/{{post.user._id}}">{{post.user.name }}</a></span>
+					<span class="date">{{ blogBoardList.date(post.created)}}</span>
+				</div>
+			</div>
+		</div>
+	</div>	
+</div>
+

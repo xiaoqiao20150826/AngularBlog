@@ -3,72 +3,57 @@
 	
 	
 	define([ 
-	         'controller/AppController'
-	       , 'service/UserService'
-	       , 'storage/Storage'
+			// outer dependencies	       
+	         'uiRouter'
+	       , 'ngStorage'
+			// user modules	       
 	       , 'common/common'
-	       
 	       , 'module/nav/nav'
 	       , 'module/blogBoard/blogBoard'
-	       
-	       , 'uiRouter'
-	       , 'ngStorage'
+	       // services & controller
+	       , 'controller/AppController'
+	       , 'service/userService'
+	       , 'storage/storage'
+	       // config setup & after run
+	       , 'setupState'
+	       , 'setupLog'
 	],
-	function( AppController
-			, UserService
-			, Storage
+	function(
+			// outer modules
+			  noUse
+			, noUse2
+			// user modules
 			, common
-			
 			, nav
-			, blogBoard) {
+			, blogBoard
+			// services & controller
+			, AppController
+			, userService
+			, storage
+			// config setup & after run 
+			, setupState
+			, setupLog
+			) {
 		
 		var moduleName = 'app'
-		  , dependencies = [ 
+		  , modules = [ 
 		                     'ui.router'
 		                   , 'ngStorage'
 		                   , common
 		                   , nav
 		                   , blogBoard
-		                   ]; //modules
-		
-		angular.module(		moduleName, dependencies)
-			   .service(	'userService', UserService)
-			   .factory(	'storage', Storage)
-			   .controller(	'AppController', AppController)
+		                   ]; 
+		angular.module(		moduleName				  	, modules)
+			   .service(	moduleName+'.userService' 	, userService)
+			   .factory(	moduleName+'.storage'	  	, storage)
+			   .controller(	moduleName+'.AppController'	, AppController)
 			   
-			   .config([	'$stateProvider', '$urlRouterProvider',
-			    function (   $stateProvider ,  $urlRouterProvider) {
-				   $urlRouterProvider
-				     .when('/home', '/')
-				     .otherwise('/')
-				   var __rootUrl = '/resource/src/app/'; 
-				   $stateProvider
-//				     .state('app', { //root
-//				       url   : ''
-//				     , templateUrl : __rootUrl + 'view/index.html'	   
-//				     , views : {
-//				        		  'top' 		: {templateUrl : __rootUrl + 'module/nav/nav.html'}
-//								, 'center' 		: {templateUrl : __rootUrl + 'module/blogBoard/view/list.html'}
-//								, 'side' 		: {templateUrl : __rootUrl + 'view/part/login.html'}
-//								, 'footer' 		: {templateUrl : __rootUrl + 'view/part/login.html'}
-//							    , 'part' 		: {templateUrl : __rootUrl + 'view/part/login.html'}
-//				       }
-//				     })
-			   }])
-			   .config(['$injector', function ( $injector) {
-
-			   }])
+			   .config(		setupState)
+			   .config(		setupLog.config)
+			   .run(		setupLog.run)
 			   .run([ 	'$rootScope', '$state' 
 			   ,function($rootScope ,  $state ) {
-				   // 이벤트 리스너 등록.
-//				   var obj = { a : function (p) { return p + p} }
-//				   
-//				   logger.decorate(obj)
-//				   		 .inject('a', function (name) {
-//				   			 console.log('value',name)
-//				   		 })
-//				   		 
-//				   console.log(obj.a(5))
+//				   $state.go('app.blogBoard.list')
 				}])
 			
 		

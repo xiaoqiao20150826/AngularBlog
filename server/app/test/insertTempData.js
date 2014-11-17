@@ -5,20 +5,21 @@
  *        연결오류가 나버린다. 왜그런지 모르겠다.....
  */
 
-var config = require('./config.js')
-//var local_db = 'mongodb://localhost/nodeblog'
-//  , remote_db = 'mongodb://'+config.mongolabId+':'+config.mongolabPw+'@ds035310.mongolab.com:35310/nodeblog'
-var db = 'mongodb://asdf:asdf@ds039550.mongolab.com:39550/nodeblog'	
+var config = require('../config.js')
+var local_db = 'mongodb://localhost/test'
+  , remote_db = 'mongodb://'+config.mongolabId+':'+config.mongolabPw+'@ds035310.mongolab.com:35310/nodeblog'
+var db = local_db
+
 var mongoose = require('mongoose')
 
 var _ = require('underscore')
-  , H = require('./common/helper')
-var blogBoardService = require('./service/blogBoard/blogBoardService')
-var initDataCreater = require('./initDataCreater')
-  , localFile = require('./common/file/localFile')
+  , H = require('../common/helper')
+var blogBoardService = require('../service/blogBoard/blogBoardService')
+var initDataCreater = require('../initDataCreater')
+  , localFile = require('../common/file/localFile')
   , path = require('path')
 
-var folderPath = __dirname+'/'+'Work-History/'
+var folderPath = path.join(__dirname,'../../../Work-History/')
 mongoose.connect(db, function(err, data) {
 	if(err) return console.error(err)
 	
@@ -35,8 +36,8 @@ mongoose.connect(db, function(err, data) {
 	function getPostByFile(done, filePath) {
 		var dataFn = done.getDataFn()
 		
-		var Post = require('./domain/blogBoard/Post')
-		  , Category = require('./domain/blogBoard/Category')
+		var Post = require('../domain/blogBoard/Post')
+		  , Category = require('../domain/blogBoard/Category')
 		  , userId = '6150493-github'
 		return  H.all4promise([ [localFile.stat, filePath]
 							  , [localFile.readKr, filePath]

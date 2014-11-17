@@ -63,7 +63,7 @@ config.developementMode = function () {
 	config.host = 'http://elfmagic86.herokuapp.com';
 }
 config.testMode = function () {
-	config.db = 'mongodb://localhost/tests';
+	config.db = 'mongodb://localhost/test';
 	config.host = 'http://nodeblog.com' + ':' + config.port
 	
 	config.isLocal = true;

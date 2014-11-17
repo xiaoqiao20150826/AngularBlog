@@ -14,12 +14,12 @@
 			  , objectLogger
 			  , inspectLoggerProvider) {
 		
-		var moduleName = 'app.common'
+		var moduleName = 'common'
 		angular.module(moduleName, [])
-		       .factory( 'util', util)
-		       .factory( 'ObjectDecorator', ObjectDecorator)
-		       .factory( 'objectLogger', objectLogger)
-		       .provider('inspectLogger' , inspectLoggerProvider)		//이름주의.
+		       .factory( moduleName + '.util', util)
+		       .factory( moduleName + '.ObjectDecorator', ObjectDecorator)
+		       .factory( moduleName + '.objectLogger', objectLogger)
+		       .provider(moduleName + '.inspectLogger' , inspectLoggerProvider)		//이름주의.
 		
 		return moduleName;
 	})

@@ -6,7 +6,7 @@
 
 (function(define,angular){
 	define([], function() {
-		return ['util','storage', makeUserService]
+		return ['common.util','app.storage', makeUserService]
 		function makeUserService (U, storage) {
 			var $q = U.$q
 			  , $http = U.$http
@@ -18,7 +18,7 @@
 				var user = storage.getUser();
 				if(U.exist(user) && user.isLogin ) { return $q.when(user); }
 				
-				return  $http.get('/user/loginUser')
+				return  $http.get('/json/user/loginUser')
 						     .then(function(response) {
 						    	 var user = response.data
 						    	 storage.setUser(user)
@@ -27,7 +27,7 @@
 			}
 			userService.logout = function () {
 				storage.setUser(userService.getAnnoymousUser())
-				return  $http.get('/user/logout')
+				return  $http.get('/json/user/logout')
 			}
 			userService.getAnnoymousUser = function () {
 				return  { name : 'Annoymous'

@@ -1,0 +1,33 @@
+	<meta charset="utf-8">
+	<!--pager  -->
+	<div class='row col-sm-offset-3'>
+		<ul class="pagination">
+			<li class="blogPager" data-aquo='first'>
+				<a ui-sref="app.blogBoard.list({pageNum: 1})">&laquo;</a>
+			</li>
+			<li ng-if="pager.leftPageNum && !(pager.leftPageNum === pager.rightPageNum)"  class="blogPager">
+				<a ui-sref="app.blogBoard.list({pageNum: 1})">1</a>
+			</li>			
+		 	<li ng-if="pager.leftPageNum" class="blogPager">
+		 		<a ui-sref="app.blogBoard.list({pageNum: pager.leftPageNum})">...</a>
+		 	</li>
+
+<!-- 			문자, 숫자 타입변환을 위해 일부로 ==로 했음. -->
+	  		<li ng-repeat="i in _.range(pager.startPageNum, (pager.endPageNum+1) )"
+	  			ng-class="{active : (currentPageNum == i)}"> 
+	  			
+	  			<a ui-sref="app.blogBoard.list({pageNum:i})">{{ i }}</a>
+	  		</li>
+			<li ng-if="pager.rightPageNum"  class="blogPager" >
+				<a ui-sref="app.blogBoard.list({pageNum:pager.rightPageNum})">...</a>
+			</li>
+			<li ng-if="pager.rightPageNum && !(pager.leftPageNum === pager.rightPageNum)"  class="blogPager">
+				<a ui-sref="app.blogBoard.list({pageNum:pager.rightPageNum})">{{pager.rightPageNum}}</a>
+			</li>
+			<li class="blogPager">
+				<a ui-sref="app.blogBoard.list({pageNum:pager.pageCount})">&raquo;</a>
+			</li>  
+		</ul>
+	</div>
+	
+	<!--end pager   -->

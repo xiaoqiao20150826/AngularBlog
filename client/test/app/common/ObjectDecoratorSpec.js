@@ -12,7 +12,7 @@ define(['app'], function (app) {
 			}
 			angular.mock.module(app)
 			angular.mock.inject(function ($injector) {   //TODO: 인자이름을 감지하네? 어떻게 한거지.
-				ObjectDecorator = $injector.get('ObjectDecorator')
+				ObjectDecorator = $injector.get('common.ObjectDecorator')
 				objDec = new ObjectDecorator(target)
 			})
 

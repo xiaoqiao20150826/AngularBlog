@@ -48,7 +48,10 @@
 (function (define, _) {
 	// --------   1. makeInspectLoggerProvider ( setup config for logger)
 	define([], function () {
-		return ['$provide' , 'ObjectDecoratorProvider', 'objectLoggerProvider', makeInspectLoggerProvider]
+		return [  '$provide' 
+		        , 'common.ObjectDecoratorProvider'
+		        , 'common.objectLoggerProvider'
+		        , makeInspectLoggerProvider]
 	})
 
 	function makeInspectLoggerProvider($provide, odp, olp) {

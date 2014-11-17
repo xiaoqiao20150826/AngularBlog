@@ -4,7 +4,7 @@
 
 (function(define,angular){
 	define([], function() {
-		return ['$sessionStorage','util', makeStorage];
+		return ['$sessionStorage','common.util', makeStorage];
 		
 	
 		function makeStorage ($storage, U) {

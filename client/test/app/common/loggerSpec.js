@@ -8,13 +8,13 @@ define(['app'], function (app) {
 		
 		beforeEach(function() {
 			angular.module('configHookModule', [])
-			   .config(['objectLoggerProvider', function (loggerProvider) {
+			   .config(['common.objectLoggerProvider', function (loggerProvider) {
 				   loggerFromProvider = loggerProvider.$get()
 			   }])
 			angular.mock.module(app, 'configHookModule')
 		
 			angular.mock.inject(function ($injector) {
-				logger = $injector.get('objectLogger');
+				logger = $injector.get('common.objectLogger');
 			})
 		})
 		// 아직. 뭐 없다.

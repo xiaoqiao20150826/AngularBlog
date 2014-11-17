@@ -35,6 +35,7 @@ blogBoardController.mapUrlToResponse = function(app) {
 		
 //		
 		// ajax 
+		app.get('/json/blogBoard/list', this.sendBlogBoardList)
 
 		app.post('/blog/history', this.sendHistoryView4ajax)
 	
@@ -42,8 +43,6 @@ blogBoardController.mapUrlToResponse = function(app) {
 		app.post('/blog/:postNum(\\d+)', this.detailView4ajax);
 		app.post('/blog/:postNum(\\d+)/:title', this.detailView4ajax);
 
-		app.post('/blog', this.sendBlogBoardList);
-		app.post('/blogBoard/List', this.sendBlogBoardList)
 		
 		app.post('/blogBoard/insertView', this.sendInsertView);
 		app.post('/blogBoard/insert', this.insertBlogBoardData)
@@ -59,8 +58,7 @@ blogBoardController.mapUrlToResponse = function(app) {
 //		app.get('/blog/:stringParam(\\w+)/:sfwef', this.errPage);
 }	
 	
-/* 요청에 대한 서비스를 제공하고 응답한다. */
-	//게시판 정보, 로그인 체크 및 유저정보 제공.
+/* json 응답. */
 blogBoardController.sendBlogBoardList = function (req, res) {
  		var redirector = new Redirector(res)
 		var rawData = requestParser.getRawData(req)
@@ -68,31 +66,22 @@ blogBoardController.sendBlogBoardList = function (req, res) {
 		  , sorter = _.isEmpty(rawData.sorter) ? SORTER_NEWEST: rawData.sorter
 		  , categoryId = Category.isRoot(rawData.categoryId) ? Category.getRootId() : rawData.categoryId
 		  , searcher = _.isEmpty(rawData.searcher) ? null : rawData.searcher
-		  , loginUser = requestParser.getLoginUser(req)
 		
 		debug('list rawData ',rawData)  
-		var errFn = redirector.catch;
 		  
-		H.all4promise([
-		                 [blogBoardService.getFullList, pageNum, sorter, categoryId, searcher]
-		               , [categoryService.getRootOfCategoryTree]
-		 ])
-         .then(function dataFn(args) {
-        	var postsAndPager = args[0]
-        	  , rootOfCategoryTree = args[1]
-           	var posts = postsAndPager.posts
+		H.call4promise(blogBoardService.getFullList, pageNum, sorter, categoryId, searcher)
+         .then(function dataFn(postsAndPager) {
+            var posts = postsAndPager.posts
            	  , pager = postsAndPager.pager.make4view(pageNum)
 
-  			var blog = {posts : posts
-  					  , pager : pager
-  					  , loginUser : loginUser
-  					  , rootOfCategoryTree : rootOfCategoryTree
-  					  , scriptletUtil : scriptletUtil
-  					  };
+  			var blog = { posts : posts
+  					   , pager : pager
+  					   };
   			
-  			res.render('./centerFrame/blogBoardList', {blog : blog});
-  		})
-         .catch(errFn)
+        	
+  			res.send(JSON.stringify(blog))
+  		 })
+         .catch(redirector.catchFn)
 }
 blogBoardController.sendInsertView = function(req,res) {
 	var redirector = new Redirector(res)

@@ -10,9 +10,9 @@ define(['app'], function (app) {
 			angular.mock.module(app)
 			
 			angular.mock.inject(function ($injector) {
-				inspectorLogger = $injector.get('inspectLogger');
+				inspectorLogger = $injector.get('common.inspectLogger');
 				$rootScope = $injector.get('$rootScope');
-				userService = $injector.get('userService');
+				userService = $injector.get('app.userService');
 			})
 		})
 		it('should get service Ojbect ', function () {
@@ -61,15 +61,15 @@ define(['app'], function (app) {
 					 			  	 }
 								 }
 			angular.module('configHookModule', [])
-				   .config(['inspectLoggerProvider', function (inspectLoggerProvider) {
+				   .config(['common.inspectLoggerProvider', function (inspectLoggerProvider) {
 					   inspectLoggerProvider.setServiceInfoes(serviceInfoes)
 				   }])
 			angular.mock.module(app, 'configHookModule')
 			
 			angular.mock.inject(function ($injector) {
-				inspectorLogger = $injector.get('inspectLogger');
+				inspectorLogger = $injector.get('common.inspectLogger');
 				$rootScope = $injector.get('$rootScope');
-				userService = $injector.get('userService');
+				userService = $injector.get('app.userService');
 			})
 		})
 		it('should run console.log about $broadcast that param is !c', function () {

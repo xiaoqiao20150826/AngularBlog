@@ -2,13 +2,17 @@
  * 
  */
 
-(function(define) {
+(function(define, _) {
 	
 	define([], function() {
-		return ['$scope','userService','storage', AppController];
+		return ['$scope','app.userService','app.storage', AppController];
 	})
 	
 	function AppController($scope, userService, storage) {
+		// 전역 범위 접근.
+		$scope._  = _
+		console.log('appctrl')
+		/// resolve로 값 설정하는 것.고려.할것.
 		var appCtrl = this;
 		storage.reset(); //user만. 초기화해야할까?
 		//setUpInitData
@@ -33,4 +37,4 @@
 					})
 	}
 	
-})(define)
+})(define, _)

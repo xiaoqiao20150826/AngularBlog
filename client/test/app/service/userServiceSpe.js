@@ -11,7 +11,7 @@ define(['app'], function (app) {
 			angular.mock.module(app)
 			angular.mock.inject(function ($injector) {
 				storage = $injector.get('storage')
-				_userService = $injector.get('userService')
+				_userService = $injector.get('app.userService')
 				$httpBackend = $injector.get('$httpBackend')
 				$http = $injector.get('$http')
 				

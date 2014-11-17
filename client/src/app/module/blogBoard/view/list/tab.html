@@ -1,0 +1,9 @@
+	<!-- taps -->
+<meta charset="utf-8">
+<ul class="nav nav-tabs col-sm-11 col-xs-12">
+	<li ng-repeat="sorter in sorters" ng-class="{active : (currentSorter===sorter)}">
+		<a ui-sref="app.blogBoard.list({sorter:sorter, pageNum:1})">
+			{{sorter}}
+		</a>
+	<li>
+</ul>
