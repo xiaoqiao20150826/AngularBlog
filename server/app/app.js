@@ -49,7 +49,7 @@ app._setUp = function () {
 	//3. 뷰 엔진설정
 	var ejsEngine = require('ejs');
 	//TODO: 사실 ejs를 사용하지 않는다면. 없에도 상관없을텐데.
-	expressApp.set('views', config.viewDir); //위치를 프론트엔드로 변경.
+	expressApp.set('views', config.resourceDir); //위치를 프론트엔드로 변경.
 	expressApp.set("view options", {layout: false});
 	expressApp.set('view engine', 'ejs');
 	expressApp.engine('html', ejsEngine.renderFile);

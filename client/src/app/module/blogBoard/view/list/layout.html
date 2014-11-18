@@ -1,7 +1,9 @@
 <div class="col-sm-offset-1 " id = 'blogBoard-listView'>
 	<meta charset="utf-8">
-		<div ng-if="app.user.isLogin" class="row">
-			<a id ='blogBoard-insertView' class="btn btn-default col-xs-offset-10" href="javascript:">입력</a>
+		<div ng-if="loginUser.isLogin" class="row">
+			<a ui-sref="app.blogBoard.insert(loginUser)" class="btn btn-default col-xs-offset-10">
+			입력
+			</a>
 		</div>
 		<!-- taps -->
 		<div ui-view="tab" class="col-sm-11 col-xs-12"></div>

@@ -30,7 +30,7 @@ define(['app'], function (app) {
 			var loginUserString = JSON.stringify({name:'login'})
 			$httpBackend.expectGET('/user/loginUser').respond(loginUserString)
 			
-			_userService.getUser().then(function(user) {
+			_userService.getLoginUser().then(function(user) {
 				expect(user.name).toEqual('login');
 			});
 			$httpBackend.flush();

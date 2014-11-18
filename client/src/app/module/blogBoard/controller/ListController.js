@@ -27,12 +27,11 @@
 		var Date  	 	= $window.Date
 		
 		// 유틸
-		listCtrl.date = function (dateStr) {
-			return new Date(dateStr).toLocaleString()
-		}
 		listCtrl.title4web = function (title) {
 			return title.trim().replace(/\s+/g, '-');
 		}
+		
+		console.log('listController')
 	}
 	
 	

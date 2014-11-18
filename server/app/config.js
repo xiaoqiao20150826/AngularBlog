@@ -26,7 +26,6 @@ var config = module.exports = (function(){
 	commonConfig.port = _env.PORT || 3000; //
 	
 	commonConfig.resourceDir = _path.join(__dirname, '../../client')
-	commonConfig.viewDir = commonConfig.resourceDir +'/src/app/view'
 	commonConfig.staticDir = commonConfig.resourceDir +'/static'
 	commonConfig.tempFilesDir = '../tempFilesDir'  //multer를 위한것.
 	commonConfig.imgDir = '' // use cloudinary

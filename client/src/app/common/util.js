@@ -4,17 +4,17 @@
 
 (function(define, angular, _) {
 	
-	define([], function(_) {
+	define([], function() {
 		
-		return ['$q','$http', '$rootScope',makeUtil];
+		return ['$q','$http', '$window', '$rootScope',makeUtil];
 	
-		function makeUtil($q, $http, $rootScope) {
+		function makeUtil($q, $http, $window) {
+			var Date = $window.Date
+			
 			var U = {}
 			
 			U.$q = $q
 			U.$http = $http
-			U.$rootScope = $rootScope
-			U._ = _;
 			
 			// --
 			U.exist = function(o) {
@@ -27,6 +27,10 @@
 			U.isEmpty = function (o) {
 				return _.isEmtpy(o);
 			}
+			U.date = function (dateStr) {
+				return new Date(dateStr).toLocaleString()
+			}
+			
 			// --
 			return U;
 		}
@@ -34,4 +38,4 @@
 	////////////////
 	
 
-})(define, angular)
+})(define, angular, _)

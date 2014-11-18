@@ -1,0 +1,52 @@
+<!-- post detail -->
+<meta charset="utf-8">
+<div>
+	<div class="row-fluid">
+		<header class="span8">
+			<h3>
+				<strong >{{ post.title}}</strong>
+			</h3>
+		</header>
+	</div>
+	<div ng-bind-html="post.content"
+	     class="row-fluid" style="overflow:hidden;word-wrap:break-word;">
+	</div>
+	<div class="row-fluid">
+		<footer ng-if ="!(_.isEmpty(post.fileInfoes))"  class="row">
+			<div class='pull-right'>
+				<div class='row-fluid'>download
+					<div ng-repeat="fileInfo in post.fileInfoes">
+						<a href = '{{fileInfo.url}}' download='{{fileInfo.name}}'>{{fileInfo.name}}</a>
+					</div>
+				</div>
+			</div>
+		</footer>
+		<footer class="span8" style="padding:0">
+			</br>
+			<p ng-if="loginUser.isLogin">
+				<div class=" col-sm-offset-5">
+					<a id="blogDetail-vote" data-postNum="{{post.num }}" data-votecount="{{post.vote}}" class="btn btn-default btn-xs">
+				    	★ Vote  {{post.vote}}
+					</a>
+				</div>
+			</p>
+			
+			<p class="pull-right">
+				<img src='{{post.user.photo }}' class="img-circle" alt='img' style="width: 20px">
+					 by <a href="/user/{{post.user._id}}">{{post.user.name}}</a>
+					  | <i class="icon-calendar"></i>
+					 {{U.date(post.created)}}
+			</p>
+			
+			
+			<div ng-if="loginUser.isLogin && (loginUser._id === post.user._id)"
+			     class="row-fluid">
+				<a class="btn btn-default span2  pull-right" id='blogBoard-delete' data-postnum="{{ post.num }}" data-writerid="{{ post.user._id}}">
+					delete
+				</a>
+				<a class="btn btn-default span2  pull-right" id='blogBoard-update' data-postnum="{{ post.num }}">edit</a>
+			</div>
+			
+		</footer>
+	</div>
+</div>

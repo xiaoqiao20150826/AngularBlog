@@ -1,51 +1,45 @@
 
 <meta charset="utf-8">
 <div class="container col-sm-7 col-sm-offset-2">
-    <%
-    	var loginUser = blog.loginUser
-    	  , user = blog.user
-    %>
 	<div class="row">
 		<table class="table">
         <tbody>
             <tr>
                 <td>Id</td>
-                <td><%=user._id %></td>
+                <td>{{loginUser._id }}</td>
             </tr>
             <tr>
                 <td>Name</td>
-                <td><%=user.name %></td>
+                <td>{{loginUser.name }}</td>
             </tr>
             <tr>
                 <td>Photo</td>
-                <td><img src = "<%= user.photo %>" style='width:50px'> </td>
+                <td><img src = "{{ loginUser.photo }}" style='width:50px'> </td>
             </tr>
             <tr>
                 <td>Email</td>
-                <td><%=user.email || '' %></td>
+                <td>{{loginUser.email || '' }}</td>
             </tr>
             <tr>
                 <td>Visit Count</td>
-                <td><%=user.visitCount %></td>
+                <td>{{loginUser.visitCount }}</td>
             </tr>
             <tr>
                 <td>Created</td>
-                <td><%= user.created ? user.created.toLocaleDateString() : ''  %></td>
+                <td>{{ U.date(loginUser.created)}}</td>
             </tr>
         </tbody>
-    </table>
-    	<%if(loginUser.isEqualById(user._id) ) {%>
-    	<p>
+    	</table>
+    	<p ng-if="loginUser.isLogin">
 		<div class='pull-right'>
-			<form action='/user/<%= loginUser._id%>/delete' method='POST'>
+			<form action='/user/{{ loginUser._id}}/delete' method='POST'>
 				<button id='user-delete' type ='submit' class='btn btn-default'>leave</button>
 			</form>
 		</div>
 		<div class='pull-right'>
-			<a href='/user/<%= loginUser._id%>/updateView' class="btn btn-default span2" >update</a>
+			<a href='/user/{{ loginUser._id}}/updateView' class="btn btn-default span2" >update</a>
 		</div>
 		</p>
-		<%}%>
 	</div>
 </div>
 

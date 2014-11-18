@@ -1,0 +1,14 @@
+
+<!--   	nav-bar -->
+<div class="container  col-xs-12" ui-view='top'></div>
+
+<div class="container  col-xs-12" ui-view='center'>
+	<div class="col-sm-9" ui-view='center.left'></div>	    
+	  	<!--sideFrame  -->
+	<div class="col-sm-3 hidden-xs" ui-view='center.right'></div>	
+</div>
+
+<div class="container  col-sm-12 hidden-xs" ui-view='bottom'></div>
+
+<!-- login hidden-->
+<div ui-view='part'></div>

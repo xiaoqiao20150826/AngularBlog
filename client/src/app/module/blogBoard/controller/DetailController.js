@@ -6,24 +6,19 @@
 	
 	define([], function() {
 		return [  '$scope'
-		        , '$stateParams'  
-		        , '$window'  
-		        , 'app.blogBoard.blogBoardService'
+		        , '$sce'
 		        , 'detailData'
+		        , '$stateParams'
 		        , DetailController];
 	})
 	
-	function DetailController($scope, $stateParams , $window, blogBoardService, detailData) {
+	function DetailController($scope, $sce, detailData, $stateParams) {
+		detailData.post.content = $sce.trustAsHtml(detailData.post.content)
+		
 		// data 관련은 이쪽에.. 바로사용할수있도록.
-		$scope.posts 	= detailData.post
-		$scope.pager 	= detailData.pager
-		
-		$scope.currentSorter = $stateParams.sorter || 'newest';
-		$scope.currentPageNum = $stateParams.pageNum || 1;
-		
-		// --- 유틸 관련은 이쪽에
-		var detailCtrl 	= this
-		
+		$scope.post 			= detailData.post
+		$scope.answers			= detailData.post.answers
+		$scope.currentPostNum 	= $stateParams.postNum || null; //이게 리스트..로갈수있어야함.
 		// 유틸
 	}
 	

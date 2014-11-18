@@ -14,15 +14,15 @@
 		
 		<div class="collapse navbar-collapse" id="bs-navbar-collapse-1">
 			<div class="row">
-				<div ng-if="app.user.isLogin" class='row col-xs-12 col-sm-2  pull-right'>
-					<a ng-href="/user/{{ app.user._id }}" >
-						<strong>{{ app.user.name }}</strong>
-	      				<img ng-src="{{ app.user.photo }}" class="img-circle" alt='img' style="width:30px">
+				<div ng-if="loginUser.isLogin" class='row col-xs-12 col-sm-2  pull-right'>
+					<a ui-sref="app.user" >
+						<strong>{{ loginUser.name }}</strong>
+	      				<img ng-src="{{ loginUser.photo }}" class="img-circle" alt='img' style="width:30px">
 	    			</a>
 					<a class="navbar-btn btn btn-danger" ng-href="/logout">logout</a>
 				</div>
 				
-				<button ng-if="!app.user.isLogin" class="col-xs-12 col-sm-1 navbar-btn btn btn-success pull-right" data-toggle="modal" data-target=".bs-modal-login">Log In</button>
+				<button ng-if="!loginUser.isLogin" class="col-xs-12 col-sm-1 navbar-btn btn btn-success pull-right" data-toggle="modal" data-target=".bs-modal-login">Log In</button>
 				
 				<div class="col-xs-12 col-sm-4 pull-right">
 				        <form class="navbar-form" role="search" id='search-form'>

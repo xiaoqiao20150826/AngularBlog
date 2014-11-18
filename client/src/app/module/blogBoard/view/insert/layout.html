@@ -3,9 +3,6 @@
 <meta charset="utf-8">
 
 <!-- blog insert form -->
-<%
-	var loginUser = blog.loginUser;
-%>
  <form action="/blogBoard/insert" method="post"  name="writeForm" class="form-horizontal"  id='blogBoard-insertForm'  role="form">
    <div class="form-group">
       <label class="col-sm-2 control-label">
@@ -13,14 +10,14 @@
       </label>
       <div class="col-sm-10">
          <input name="userId" type="text" 
-         value="<%= loginUser._id%>" style="display:none">
-         <%= loginUser._id%>
+         value="{{ loginUser._id}}" style="display:none">
+         {{ loginUser._id}}
       </div>
    </div>
    <div class="form-group">
       <label class="col-sm-2 control-label"><p class='pull-left'>category</p></label>
-      <div class="col-sm-10">
-         <% include ../../../part/categorySelector.ejs %>
+      <div ui-view ="category" class="col-sm-10">
+
       </div>
    </div>
    <div class="form-group">
@@ -31,8 +28,8 @@
       </div>
    </div>
    <div class="form-group">
-      	<textarea class="col-sm-12" name="content" style="display:none"></textarea>	
-        <% include ../../../../resources/lib/editor/editor.ejs %>
+      	<textarea class="col-sm-12" name="content" style="display:none"></textarea>
+<!--       	에디터도 넣어야해.. editor.ejs	 -->
         
    </div>
    <div class="form-group ">

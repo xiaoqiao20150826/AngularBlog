@@ -40,18 +40,79 @@
 				       .when('/', '/blog')    // localhost:3000/#/ -> /#/blog
 //				       .otherwise('/')  	  //
 				       
-		var __rootUrl = '/resource/src/app/'; 
+		var _curdir = '/resource/src/app/' 
+	      , APP 	  = 'app'
+	   
+	   // -=------------------- app 	  
 		$stateProvider
-		.state('app', { //root
-				  url   : ''
-				, abstract : true
-				, views : {
-					'top' 		: {templateUrl : __rootUrl + 'module/nav/nav.html'}
+		.state(APP, { //root
+				  url   		: ''
+				, abstract 		: true
+				, views : 		  {
+					''				: { 
+										 templateUrl 	: _curdir + 'view/layout.html'
+									   , controller		: APP+'.AppController'
+									   , controllerAs	: 'app'
+									   , resolve		: makeAppResolve(APP)   
+									  }
+		
+				  , 'top@app' 		   : {templateUrl : _curdir + 'module/nav/nav.html'}
 //				  , 'center'	: 
-				  , 'side' 		: {templateUrl : __rootUrl + 'view/sideLayout.html'}
-				  , 'footer' 	: {templateUrl : __rootUrl + 'view/footer.html'}
-				  , 'part' 		: {templateUrl : __rootUrl + 'view/login.html'}
+				  , 'center.right@app' : {templateUrl : _curdir + 'view/sideLayout.html'}
+				  , 'bottom@app' 	   : {templateUrl : _curdir + 'view/footer.html'}
+				  , 'part@app' 		   : {templateUrl : _curdir + 'view/part/login.html'}
 				}
 		})
+		
+		// --------------------  app.user
+		$stateProvider
+		.state(APP+'.user' 
+		,{
+		      url 	: '/user'
+		    , views	:
+		      {
+		    	  'center@app' : 
+		    	  {
+		    		  templateUrl : _curdir + 'view/user/detail.html'
+		    		, controller  : 
+		    		  [
+    		                 '$scope'
+    		                ,'$state'
+    		                , function ($scope, $state) {
+    		                	var loginUser = $scope.loginUser
+    		                	if(!loginUser || !(loginUser.isLogin)) $state.go('app.blogBoard.list')
+    		                }
+		    		  ]  
+		    	  }
+		      }	
+		})
 	}
+//////////////////
+	//TODO: 확인해야함. resolve에서 만들어지는 서비스형태의객체와 프로바이더는 
+	//	일시적(컨트롤러생성시) 인 것이 맞는지. 
+	//	일단..포함 컨틀롤러에서는 접근이 안되는것보니 맞는듯 하기도.
+	function makeAppResolve(appName) {
+		var result = {}
+		
+		result.loginUser = [  appName+'.userService'
+				       , appName+'.storage'
+				       , function (userService, storage) {
+							//최초 호출 user관련 데이터 초기화
+							var annoyUser = userService.getAnnoymousUser()
+							storage.setLoginUser(annoyUser);
+							
+							var p = userService.getLoginUser()
+											   .then(function(user){
+												   return user
+											   })
+											   .catch(function(err){
+												   console.error(error)
+											   })
+							return p;
+			    	  }]
+		
+		//---
+		return result;
+    }
+	
 })(define)

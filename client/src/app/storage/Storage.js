@@ -4,7 +4,7 @@
 
 (function(define,angular){
 	define([], function() {
-		return ['$sessionStorage','common.util', makeStorage];
+		return ['$sessionStorage', 'common.util', makeStorage];
 		
 	
 		function makeStorage ($storage, U) {
@@ -18,8 +18,11 @@
 				
 				$storage[key] = value;
 			}
-			storage.getUser = function () { return storage.get('user')}
-			storage.setUser = function (user) { return storage.set('user', user)}
+			storage.getLoginUser = function () {
+				
+				return storage.get('loginUser')
+			}
+			storage.setLoginUser = function (loginUser) { return storage.set('loginUser', loginUser)}
 			
 			storage.reset = function () { $storage.$reset() }
 			

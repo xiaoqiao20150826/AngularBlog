@@ -30,20 +30,30 @@
 	function setupLogRun (inspectLogger) {
 		
 		var stateEventFilter = makeSimulausEventFilter(['$state','$view'])
+		  , locationEventFilter = makeSimulausEventFilter(['$location'])
 		
-		inspectLogger.decorate('$rootScope')
-//					 .inspect('$emit:before', commonLogFn, stateEventFilter)
+//		inspectLogger.decorate('$rootScope')
+//					 .inspect('$broadcast', commonLogFn, locationEventFilter)
+//					 .inspect('$digest:before', commonLogFn)
+//					 .inspect('$watch:before', commonLogFn)	//지시자들이 많이쓰는군.
 //					 .inspect('$emit:after', function(o) {
 //						 this.log(o.name 
 //								, 'current scope: '+o.currentScope
 //								, 'defaultPrevented:'+o.defaultPrevented)
 //					 });
+//		.inspect('$apply:before', function () {
+//			 this.origin, this.obj,  this./?? /// 암튼 이런식으로 원래 객체 접근할수있게.
+//		 })
+		
+//		inspectLogger.decorate('$location')
+//					 .inspect('url:before', commonLogFn)
+//					 .inspect('url:after+', commonLogFn)
+		inspectLogger.decorate('$resolve')
+					 .inspect('resolve:before', commonLogFn)
+//					 .inspect('resolve:after', commonLogFn)
 					 
 		inspectLogger.decorate('$state')
-					 .inspect('transitionTo:before', function (extend) {
-						 this.log(extend)
-//						 this.log(_.keys(extend))
-					 })			 
+					 .inspect('transitionTo:before', commonLogFn)
 					 .inspect('transitionTo:after',function (promise) {
 						 var $$state = promise.$$state
 						 var self = this

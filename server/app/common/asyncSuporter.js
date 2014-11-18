@@ -2,9 +2,8 @@
  *  비동기 관련 보조 함수들.
  */
 
-
-//  debug 값은 모든 ~4promise의 에러를 확인을 위해 독립적으로 사용한다. 
-var debug = require('debug')('error')
+//모든 비동기 에러를 단순히 '확인만'하기 위해 사용. (처리/미처리 여부 상관없음)
+var debug = require('debug')('asyncErrorOnlyCheck')  
 var _ = require('underscore')
   , Q = require('q')
   , async = require('async')

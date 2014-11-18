@@ -6,14 +6,14 @@
 
 (function(define,angular){
 	define([], function() {
-		return ['common.util', makeBlogBoardService]
-		function makeBlogBoardService (U, storage) {
+		return ['common.util', '$state', makeBlogBoardService]
+		function makeBlogBoardService (U, $state) {
 			var $q = U.$q
 			  , $http = U.$http
 			
 			//----------------------
 			var blogBoardService = {}
-			// TODO: logout을 통하지 않으면 계속 남을텐데.. 그냥 호출시마다 요청하는걸로?
+			
 			blogBoardService.getListData = function (param) {
 				parama = param || {};
 				return  $http.get('/json/blogBoard/list', {params:param})
@@ -21,10 +21,24 @@
 						    	 var listData = response.data
 						    	 return listData;
 						     })
-						     .catch(function () {
-						    	 alert(arguments)
+						     .catch(function (err) {
+						    	 console.error(err)
 						     })
 			}
+			blogBoardService.getDetailData = function (param) {
+				parama = param || {};
+				return  $http.get('/json/blogBoard/detail', {params:param})
+							 .then(function(response) {
+								 var detailData = response.data
+//								 $state.go('app.blogBoard.list') //이상한데이터시 리다이렉트.
+								 return detailData;
+							 })
+							 .catch(function (err) {
+						 		 console.error(err)
+						 	 })
+			}
+			
+			
 			//------------------------
 			return blogBoardService;
 		}
