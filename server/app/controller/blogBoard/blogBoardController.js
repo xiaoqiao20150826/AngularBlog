@@ -12,6 +12,7 @@ var requestParser = require('../util/requestParser.js')
   , Cookie = require('../util/Cookie.js')
   , Redirector = require('../util/Redirector.js')
   , scriptletUtil = require('../../common/util/scriptletUtil.js')
+var JsonResponse = require('../util/JsonResponse.js')
   
 var Post = require('../../domain/blogBoard/Post.js')
   , Category = require('../../domain/blogBoard/Category')
@@ -60,11 +61,12 @@ blogBoardController.mapUrlToResponse = function(app) {
 	
 /* json 응답. */
 blogBoardController.sendBlogBoardList = function (req, res) {
-		var rawData = requestParser.getRawData(req)
-		  , pageNum = _.isEmpty(rawData.pageNum) ? FIRST_PAGE_NUM : rawData.pageNum  
-		  , sorter = _.isEmpty(rawData.sorter) ? SORTER_NEWEST: rawData.sorter
-		  , categoryId = Category.isRoot(rawData.categoryId) ? Category.getRootId() : rawData.categoryId
-		  , searcher = _.isEmpty(rawData.searcher) ? null : rawData.searcher
+		var jsonRes 	= new JsonResponse(res)
+		var rawData 	= requestParser.getRawData(req)
+		  , pageNum 	= _.isEmpty(rawData.pageNum) ? FIRST_PAGE_NUM : rawData.pageNum  
+		  , sorter 		= _.isEmpty(rawData.sorter) ? SORTER_NEWEST: rawData.sorter
+		  , categoryId 	= Category.isRoot(rawData.categoryId) ? Category.getRootId() : rawData.categoryId
+		  , searcher 	= _.isEmpty(rawData.searcher) ? null : rawData.searcher
 		
 		debug('list rawData ',rawData)  
 		  
@@ -76,13 +78,13 @@ blogBoardController.sendBlogBoardList = function (req, res) {
   			var list = { posts : posts
   					   , pager : pager
   					   };
-  			
         	
-  			res.send(JSON.stringify(list))
+  			return jsonRes.send(list)
   		 })
-         .catch(__sendJsonErr(res))
+         .catch(jsonRes.catch())
 }
 blogBoardController.sendBlogBoardDetail = function (req, res) {
+	var jsonRes 	= new JsonResponse(res)
 	var rawData = requestParser.getRawData(req)
 	  , postNum = rawData.postNum
 	  , cookie = new Cookie(req, res);
@@ -96,25 +98,19 @@ blogBoardController.sendBlogBoardDetail = function (req, res) {
 		
 		 var detail = { post : joinedPost}
 		 
-		 return res.send(JSON.stringify(detail))
+		 return jsonRes.send(detail)
 	 })
-	  .catch(__sendJsonErr(res))
+	  .catch(jsonRes.catch())
 }
 blogBoardController.sendBlogBoardCategories = function (req, res) {
+	var jsonRes 	= new JsonResponse(res)
 	H.call4promise(categoryService.getRootOfCategoryTree)
 	 .then(function (rootOfCategoryTree) {
 		 	var blog = { categories : rootOfCategoryTree };
 		 	
-			return res.send(JSON.stringify(blog));
+			return jsonRes.send(blog);
 	 })
-	 .catch(__sendJsonErr(res))	
-}
-// 유틸
-function __sendJsonErr(res) {
-	return function (err) {
-	   	 console.error(err)
-		 res.send(JSON.stringify(err))
-	}
+	 .catch(jsonRes.catch())	
 }
 ////////////////////////////////////////////////////////////////////
 /////////////		이아래는..후.정리해야함.

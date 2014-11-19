@@ -1,19 +1,15 @@
 <meta charset="utf-8">
 <div class="container col-sm-7 col-sm-offset-2">
-	<% 	
-		var loginUser = blog.loginUser
-		
-	%>
 
 	<div class="row">
-			<a href="#"><%=loginUser.name %></a>
-			<img src='<%=loginUser.photo %>' alt='img' style="width:70px;padding:10px 0 0 0">
+			<a href="#">{{currentUser.name }}</a>
+			<img src='{{currentUser.photo }}' alt='img' style="width:70px;padding:10px 0 0 0">
 	</div>
 	<hr>
 	<form id='categoryInsertForm'>
 		<div class="media">
 			<div class="media-object">
-				<% include ../../part/categorySelector.ejs %>
+<!-- 				여기가카테고리셀렉터 -->
 				<input name="newTitle">
 				<input type="submit" class="btn btn-default" value="insert">
 			</div>
@@ -23,7 +19,7 @@
 	<form id="categoryDeleteForm">
 		<div class="media">
 			<div class="media-object">
-		 		<% include ../../part/categorySelector.ejs %>
+<!-- 				여기도 잘 반영되게.. 카테고리셀렉터 -->
 		 		<input type="submit" class="btn btn-default" value="delete">
 			</div>
 			

@@ -11,11 +11,16 @@
 	       , 'module/nav/nav'
 	       , 'module/blogBoard/blogBoard'
 	       // services & controller
-	       , 'controller/AppController'
 	       , 'service/userService'
+	       , 'service/authService'
 	       , 'storage/storage'
+	       
+	       , 'controller/AppController'
+	       , 'controller/UserController'
+	       , 'controller/AdminController'
 	       // config setup & after run
 	       , 'setupState'
+	       , 'setupHandler'
 	       , 'setupLog'
 	],
 	function(
@@ -27,11 +32,16 @@
 			, nav
 			, blogBoard
 			// services & controller
-			, AppController
 			, userService
+			, authService
 			, storage
+			
+			, AppController
+			, UserController
+			, AdminController
 			// config setup & after run 
 			, setupState
+			, setupHandler
 			, setupLog
 			) {
 		
@@ -45,11 +55,17 @@
 		                   ]; 
 		angular.module(		moduleName				  	, modules)
 			   .service(	moduleName+'.userService' 	, userService)
+			   .service(	moduleName+'.authService' 	, authService)
 			   .factory(	moduleName+'.storage'	  	, storage)
+			   
 			   .controller(	moduleName+'.AppController'	, AppController)
+			   .controller(	moduleName+'.UserController'	, UserController)
+			   .controller(	moduleName+'.AdminController'	, AdminController)
 			   
 			   .config(		setupState)
 			   .config(		setupLog.config)
+			   
+			   .run(		setupHandler)		
 			   .run(		setupLog.run)
 			   .run([ 	'$rootScope', '$state' 
 			   ,function($rootScope ,  $state ) {

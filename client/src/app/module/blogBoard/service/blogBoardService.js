@@ -18,7 +18,7 @@
 				parama = param || {};
 				return  $http.get('/json/blogBoard/list', {params:param})
 						     .then(function(response) {
-						    	 var listData = response.data
+						    	 var listData = response.data.obj
 						    	 return listData;
 						     })
 						     .catch(function (err) {
@@ -29,7 +29,7 @@
 				parama = param || {};
 				return  $http.get('/json/blogBoard/detail', {params:param})
 							 .then(function(response) {
-								 var detailData = response.data
+								 var detailData = response.data.obj
 //								 $state.go('app.blogBoard.list') //이상한데이터시 리다이렉트.
 								 return detailData;
 							 })

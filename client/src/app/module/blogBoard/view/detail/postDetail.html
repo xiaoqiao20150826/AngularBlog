@@ -23,7 +23,7 @@
 		</footer>
 		<footer class="span8" style="padding:0">
 			</br>
-			<p ng-if="loginUser.isLogin">
+			<p ng-if="currentUser.isLogin">
 				<div class=" col-sm-offset-5">
 					<a id="blogDetail-vote" data-postNum="{{post.num }}" data-votecount="{{post.vote}}" class="btn btn-default btn-xs">
 				    	★ Vote  {{post.vote}}
@@ -39,7 +39,7 @@
 			</p>
 			
 			
-			<div ng-if="loginUser.isLogin && (loginUser._id === post.user._id)"
+			<div ng-if="currentUser.isLogin && (currentUser._id === post.user._id)"
 			     class="row-fluid">
 				<a class="btn btn-default span2  pull-right" id='blogBoard-delete' data-postnum="{{ post.num }}" data-writerid="{{ post.user._id}}">
 					delete

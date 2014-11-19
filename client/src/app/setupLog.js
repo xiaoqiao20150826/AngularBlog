@@ -29,11 +29,13 @@
 	
 	function setupLogRun (inspectLogger) {
 		
-		var stateEventFilter = makeSimulausEventFilter(['$state','$view'])
+		var stateEventFilter = makeSimulausEventFilter(['$state'])
 		  , locationEventFilter = makeSimulausEventFilter(['$location'])
 		
-//		inspectLogger.decorate('$rootScope')
-//					 .inspect('$broadcast', commonLogFn, locationEventFilter)
+		inspectLogger.decorate('$rootScope')
+					 .inspect('$broadcast', commonLogFn, stateEventFilter)
+					 .inspect('$emit', commonLogFn, stateEventFilter)
+					 
 //					 .inspect('$digest:before', commonLogFn)
 //					 .inspect('$watch:before', commonLogFn)	//지시자들이 많이쓰는군.
 //					 .inspect('$emit:after', function(o) {
@@ -48,8 +50,8 @@
 //		inspectLogger.decorate('$location')
 //					 .inspect('url:before', commonLogFn)
 //					 .inspect('url:after+', commonLogFn)
-		inspectLogger.decorate('$resolve')
-					 .inspect('resolve:before', commonLogFn)
+//		inspectLogger.decorate('$resolve')
+//					 .inspect('resolve:before', commonLogFn)
 //					 .inspect('resolve:after', commonLogFn)
 					 
 		inspectLogger.decorate('$state')

@@ -53,7 +53,14 @@
 										 templateUrl 	: _curdir + 'view/layout.html'
 									   , controller		: APP+'.AppController'
 									   , controllerAs	: 'app'
-									   , resolve		: makeAppResolve(APP)   
+									   , resolve		: {
+										   					currentUser : 
+										   						[APP+'.authService'
+																		      ,function (authService) {
+																//최초 호출 user관련 데이터 초기화
+													    	    return authService.getLoginUser()
+										   						}]
+									   					  } 
 									  }
 		
 				  , 'top@app' 		   : {templateUrl : _curdir + 'module/nav/nav.html'}
@@ -64,55 +71,73 @@
 				}
 		})
 		
-		// --------------------  app.user
+		// --------------------  app.login
+		//이건 url 바인딩 용.
 		$stateProvider
-		.state(APP+'.user' 
+		.state(APP+'.login'
 		,{
-		      url 	: '/user'
-		    , views	:
-		      {
-		    	  'center@app' : 
-		    	  {
-		    		  templateUrl : _curdir + 'view/user/detail.html'
-		    		, controller  : 
-		    		  [
-    		                 '$scope'
-    		                ,'$state'
-    		                , function ($scope, $state) {
-    		                	var loginUser = $scope.loginUser
-    		                	if(!loginUser || !(loginUser.isLogin)) $state.go('app.blogBoard.list')
-    		                }
-		    		  ]  
-		    	  }
-		      }	
+			url  : '/login'
+		  , auth : true
+		  , defaultState	: true
+		})
+		
+		// --------------------  app.admin
+		$stateProvider
+		.state(APP+'.admin'
+		,{
+			url  : '/admin'
+		  , abstract : true
+		  , defaultState	: true
+		})
+		.state(APP+'.admin.detail'
+		,{
+			  url   : ''
+			, auth  : true
+			, admin : true
+			, views :
+			{
+				'center@app' : 
+				{
+					templateUrl : _curdir + 'view/admin/admin.html'
+				  , controller 	: APP + '.AdminController'
+				}
+			}	
+		})
+		
+				
+		// --------------------  app.user
+		var USER = APP +'.user'
+		$stateProvider
+		.state(USER 
+		,{
+		      url 			: '/user'
+		    , abstract 		: true
+		})
+		.state(USER+'.detail' 
+		,{
+			   url 		: ''
+		     , auth		: true
+			 , views	:
+				{
+					'center@app' : 
+					{
+						templateUrl : _curdir + 'view/user/detail.html'
+					  , controller 	: APP + '.UserController'
+					}
+				}	
+		})
+		.state(USER+'.update' 
+	    ,{
+		         auth : true 
+			  ,	views :
+				{
+					'center@app' : 
+					{
+						templateUrl  : _curdir + 'view/user/update.html'
+					  , controller 	 : APP + '.UserController'
+					  , controllerAs : 'userCtrl'
+					}
+				}	
 		})
 	}
-//////////////////
-	//TODO: 확인해야함. resolve에서 만들어지는 서비스형태의객체와 프로바이더는 
-	//	일시적(컨트롤러생성시) 인 것이 맞는지. 
-	//	일단..포함 컨틀롤러에서는 접근이 안되는것보니 맞는듯 하기도.
-	function makeAppResolve(appName) {
-		var result = {}
-		
-		result.loginUser = [  appName+'.userService'
-				       , appName+'.storage'
-				       , function (userService, storage) {
-							//최초 호출 user관련 데이터 초기화
-							var annoyUser = userService.getAnnoymousUser()
-							storage.setLoginUser(annoyUser);
-							
-							var p = userService.getLoginUser()
-											   .then(function(user){
-												   return user
-											   })
-											   .catch(function(err){
-												   console.error(error)
-											   })
-							return p;
-			    	  }]
-		
-		//---
-		return result;
-    }
-	
 })(define)

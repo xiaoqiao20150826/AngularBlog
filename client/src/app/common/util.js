@@ -30,6 +30,9 @@
 			U.date = function (dateStr) {
 				return new Date(dateStr).toLocaleString()
 			}
+
+			// 컨트롤러 인스턴스 전에 호출됨(리다이렉트때문)
+			// 이걸 어떻게 처리하면 좋을까나...
 			
 			// --
 			return U;

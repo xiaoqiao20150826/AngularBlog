@@ -14,7 +14,7 @@
 			  , objectLogger
 			  , inspectLoggerProvider) {
 		
-		var moduleName = 'common'
+		var moduleName = 'common'          //얘는 app에 속하지않네.
 		angular.module(moduleName, [])
 		       .factory( moduleName + '.util', util)
 		       .factory( moduleName + '.ObjectDecorator', ObjectDecorator)

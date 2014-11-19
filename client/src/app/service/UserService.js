@@ -14,25 +14,10 @@
 			//----------------------
 			var userService = {}
 			// TODO: logout을 통하지 않으면 계속 남을텐데.. 그냥 호출시마다 요청하는걸로?
-			userService.getLoginUser = function () {
-				var loginUser = storage.getLoginUser();
-				if(U.exist(loginUser) && loginUser.isLogin ) { return $q.when(loginUser); }
-				
-				return  $http.get('/json/user/loginUser')
-						     .then(function(response) {
-						    	 var loginUser = response.data
-						    	 storage.setLoginUser(loginUser)
-						    	 return loginUser;
-						     })
-			}
-			userService.logout = function () {
-				storage.setLoginUser(userService.getAnnoymousUser())
-				return  $http.get('/json/user/logout')
-			}
-			userService.getAnnoymousUser = function () {
-				return  { name : 'Annoymous'
-					    , isLogin : false 
-					    }
+			userService.update = function (user) {
+				return     $http.post('/json/user/update', user)
+								.then(function(response) { return response.data})
+								.catch(function(err){console.error(err)})
 			}
 			//------------------------
 			return userService;

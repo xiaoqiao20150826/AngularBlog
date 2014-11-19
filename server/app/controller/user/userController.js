@@ -8,7 +8,7 @@ var _ = require('underscore');
 var H = require('../../common/helper.js')
   , scriptletUtil = require('../../common/util/scriptletUtil')
   , requestParser = require('../util/requestParser.js')
-  , Redirector = require('../util/Redirector')
+  , JsonResponse = require('../util/JsonResponse')
   
 var Transaction = require('../../dao/util/transaction/Transaction')
 var User = require('../../domain/User')
@@ -23,17 +23,20 @@ var categoryService = require('../../service/blogBoard/categoryService')
 /////  
 var userController = module.exports = {}
 userController.mapUrlToResponse = function(app) {
-	app.get('/user/me', this.loginUserView);// 순서주의
 	app.get('/json/user/loginUser', this.getLoginUser)
+	app.post('/json/user/update', this.update)
+
+	app.get('/user/me', this.loginUserView);// 순서주의
+	
 	app.get('/user/:userId', this.userView);//
 	app.get('/user/:userId/updateView', this.updateView)
 	
-	app.post('/user/:userId/update', this.update)
 	app.post('/user/:userId/delete', this.delete)
 	///////
 }
 
 userController.getLoginUser = function (req, res) {
+	var jsonRes = new JsonResponse(res)
 	var loginUser = requestParser.getLoginUser(req)
 	
 	if(loginUser.isAnnoymous()) 
@@ -41,12 +44,37 @@ userController.getLoginUser = function (req, res) {
 	else 
 		loginUser.isLogin = true;
 	
-	return res.send(JSON.stringify(loginUser));
+	return jsonRes.send(loginUser);
+}
+
+userController.update = function (req,res) {
+	var jsonRes = new JsonResponse(res)
+	var loginUser = requestParser.getLoginUser(req)
+	  , rawData = requestParser.getRawData(req)
+	  , user = User.createBy(rawData)
+	  , userId = user._id
+	
+	if(loginUser.isNotEqualById(userId)) return jsonRes.sendFail(userId + 'is not current login user');
+	
+	H.call4promise(userDAO.update, user)
+	 .then(function (status) {
+		 if(status.isError()) 
+			 return null
+		 else 
+			 return H.call4promise(userDAO.findById, userId);
+	 })
+	 .then(function (user) {
+		 if(!user) return jsonRes.sendFail('user update fail')
+		 
+		 req.session.passport.user = user
+		 return jsonRes.send(user)
+	 })
+	 .catch(jsonRes.catch())
 }
 
 //------------   before angular  --------------------//
 userController.loginUserView = function (req, res) {
-	var redirector = new Redirector(res)
+	var redirector = new JsonResponse(res)
 	var loginUser = requestParser.getLoginUser(req)
 	  , rawData = requestParser.getRawData(req)
 	  , userId = rawData.userId
@@ -66,7 +94,7 @@ userController.loginUserView = function (req, res) {
 	 .catch(redirector.catch)
 }
 userController.userView = function (req, res) {
-	var redirector = new Redirector(res)
+	var redirector = new JsonResponse(res)
 	var loginUser = requestParser.getLoginUser(req)
 	  , rawData = requestParser.getRawData(req)
 	  , userId = rawData.userId
@@ -91,7 +119,7 @@ userController.userView = function (req, res) {
 	 .catch(redirector.catch)
 }
 userController.updateView = function (req, res) {
-	var redirector = new Redirector(res)
+	var redirector = new JsonResponse(res)
 	var loginUser = requestParser.getLoginUser(req)
 	, rawData = requestParser.getRawData(req)
 	, userId = rawData.userId
@@ -111,37 +139,14 @@ userController.updateView = function (req, res) {
 	
 }
 
-userController.update = function (req,res) {
-	var redirector = new Redirector(res)
-	var loginUser = requestParser.getLoginUser(req)
-	  , rawData = requestParser.getRawData(req)
-	  , userId = rawData.userId
-	  , user = User.createBy(rawData)
-	
-	if(loginUser.isNotEqualById(userId)) return redirector.main()
-	console.log('update',user)
-	H.call4promise(userDAO.update, user)
-	 .then(function (status) {
-		 if(status.isError()) 
-			 return null
-		 else 
-			 return H.call4promise(userDAO.findById, userId);
-	 })
-	 .then(function (user) {
-		 if(!user) return res.send('update fail')
-		 
-		 req.session.passport.user = user
-		 return res.redirect('/user/me')
-	 })
-	 .catch(redirector.catch)
-}
+
 //TODO: 글,댓글 살리고 싶으면 탈퇴회원 미리 만들어서 그 정보로 변경 시켜.
 //      err시 되돌리기....를 생각하면 더 어려워진다.
 
 // answer, post별개로 삭제한 이유는 혹시나 비동기 행동으로 인해 
 // 이미 지운것을 또 지우려할때 에러날까봐. (아닌가. 없는것을 지우려하는것은 괜찮긴한데)
 userController.delete = function (req,res) {
-	var redirector = new Redirector(res)
+	var redirector = new JsonResponse(res)
 	var loginUser = requestParser.getLoginUser(req)
 	, rawData = requestParser.getRawData(req)
 	, userId = rawData.userId
