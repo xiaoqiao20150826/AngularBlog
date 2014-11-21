@@ -13,6 +13,7 @@
 	       // services & controller
 	       , 'service/userService'
 	       , 'service/authService'
+	       , 'service/categoryService'
 	       , 'storage/storage'
 	       
 	       , 'controller/AppController'
@@ -34,6 +35,7 @@
 			// services & controller
 			, userService
 			, authService
+			, categoryService
 			, storage
 			
 			, AppController
@@ -45,20 +47,21 @@
 			, setupLog
 			) {
 		
-		var moduleName = 'app'
-		  , modules = [ 
+		var moduleName =  'app'
+		  , modules    =   [ 
 		                     'ui.router'
 		                   , 'ngStorage'
 		                   , common
 		                   , nav
 		                   , blogBoard
 		                   ]; 
-		angular.module(		moduleName				  	, modules)
-			   .service(	moduleName+'.userService' 	, userService)
-			   .service(	moduleName+'.authService' 	, authService)
-			   .factory(	moduleName+'.storage'	  	, storage)
+		angular.module(		moduleName				  		, modules)
+			   .service(	moduleName+'.userService' 		, userService)
+			   .service(	moduleName+'.authService' 		, authService)
+			   .service(	moduleName+'.categoryService' 	, categoryService)
+			   .factory(	moduleName+'.storage'	  		, storage)
 			   
-			   .controller(	moduleName+'.AppController'	, AppController)
+			   .controller(	moduleName+'.AppController'		, AppController)
 			   .controller(	moduleName+'.UserController'	, UserController)
 			   .controller(	moduleName+'.AdminController'	, AdminController)
 			   

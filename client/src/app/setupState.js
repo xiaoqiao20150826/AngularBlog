@@ -53,13 +53,22 @@
 										 templateUrl 	: _curdir + 'view/layout.html'
 									   , controller		: APP+'.AppController'
 									   , controllerAs	: 'app'
-									   , resolve		: {
+									  //최초 전역 데이터 초기화.
+									  //currentUser, categories.
+									  //$q.all로 전달되겠지?   
+									   , resolve		: { 
 										   					currentUser : 
-										   						[APP+'.authService'
-																		      ,function (authService) {
-																//최초 호출 user관련 데이터 초기화
-													    	    return authService.getLoginUser()
+										   						[
+										   						 APP+'.authService'
+										   						 ,function (authService) {
+										   							return authService.getLoginUser()
 										   						}]
+														  , categories : 
+																[
+																 APP+'.categoryService'
+																 ,function (categoryService) {
+																	 return categoryService.getCategories()
+																 }]
 									   					  } 
 									  }
 		
@@ -100,6 +109,10 @@
 				{
 					templateUrl : _curdir + 'view/admin/admin.html'
 				  , controller 	: APP + '.AdminController'
+				}
+			   ,'categorySelector@app.admin.detail' :
+				{
+					templateUrl  : _curdir + 'view/part/categorySelector.html' //adminCtrl로.
 				}
 			}	
 		})

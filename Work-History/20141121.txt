@@ -1,0 +1,29 @@
+=================================
+
+
+# 한 것.. 
+ - tree-explorer 만듬.
+
+# 해야할것
+ - 지시자. 다시 도전을... ng-repeat를 좀 더 분석해서... 해보자.
+ - select 에서 옵션을 반복해서 tree 이용해서 만든것은좋은데.. 
+   ngselect가 ㅡㅡ treeExplorer의 주석때문에 에러가난다.....아...
+
+
+
+# 해야할것(미룬것)   
+  - 유저 삭제기능. //이건 게시판 마무리 되고 나중에.
+
+ - setupState, setupHandler, setupLog 
+  ; mean stack 으로 stateProvider 검색하니(github에서) 뭔가 좀 나온다.
+  ; 어찌 분리를 해야하는데. 일단 격리는 되었으니.. 필요한  기능부터만들자.
+
+ - 지연된 (모듈단위가 되면 좋겠지만)로딩.
+  ;이건가? 	// Add a new vertical module
+	var registerModule = function(moduleName, dependencies) {
+		// Create angular module
+		angular.module(moduleName, dependencies || []);
+
+		// Add the module to the AngularJS configuration file
+		angular.module(applicationModuleName).requires.push(moduleName);
+	};

@@ -1,20 +1,21 @@
 <meta charset="utf-8">
-<div>
-<select name = "categoryId" class="selectpicker">
-					<%
-					
-					var scriptletUtil = blog.scriptletUtil
-					    rootOfCategoryTree = blog.rootOfCategoryTree 
-					scriptletUtil.treeEach(rootOfCategoryTree, 'categories', eachFn);
-					function eachFn(category, deep) {
-						var space = scriptletUtil.repeatString('&nbsp;&nbsp;',deep)
-						    title = space +category.title
-						  , categoryId = category.id
 
-					%>
-					<option name="<%=categoryId%>" value="<%=categoryId%>" ><%=title%></option>	
-					<%
-					}
-					%>
+<select ng-model='text'>
+	<option>wefwefewewf</option>
+	<option tree-explorer root  = "categories" 
+		 	childs-key		    = 'categories'
+		 	node-name 			= 'category'
+		 	selected="selected"
+	>
+	{{category.title}}
+	</option>
 </select>
-</div>		 		
+<input type="text" name="text" value="{{ text}}" />
+
+<!-- <select ng-model="text"> -->
+<!-- 	<option>eee</option> -->
+<!-- 	<option>eee222</option> -->
+<!-- 	<option>eee33222</option> -->
+<!-- </select> -->
+
+<!-- <input type="text" name="text" value="{{ text }}" /> -->

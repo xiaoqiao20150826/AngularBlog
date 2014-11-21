@@ -5,14 +5,23 @@
 (function(define, _) {
 	
 	define([], function() {
-		return ['$rootScope', 'common.util', 'app.authService', 'currentUser', AppController];
+		return [
+		          '$rootScope'
+		        , 'common.util'
+		        , 'app.authService'
+		        , 'currentUser'
+		        , 'categories'
+		        , AppController
+		        ];
 	})
 	
-	function AppController($rootScope, util, authService, currentUser) {
+	function AppController($rootScope, util, authService, currentUser, categories) {
 		// 전역 이름
 		$rootScope._  = _
 		$rootScope.U  = util
+		
 		$rootScope.currentUser = currentUser
+		$rootScope.categories = categories
 		// app로접근.
 		
 
