@@ -63,11 +63,11 @@
 										   						 ,function (authService) {
 										   							return authService.getLoginUser()
 										   						}]
-														  , categories : 
+														  , rootOfCategory : 
 																[
 																 APP+'.categoryService'
 																 ,function (categoryService) {
-																	 return categoryService.getCategories()
+																	 return categoryService.getRootOfCategory()
 																 }]
 									   					  } 
 									  }
@@ -108,8 +108,17 @@
 				'center@app' : 
 				{
 					templateUrl : _curdir + 'view/admin/admin.html'
-				  , controller 	: APP + '.AdminController'
-				}
+				  , controller 	: APP + '.AdminController as admin'
+				  , resolve		: 
+				  { 
+					  rootOfCategory : 
+							[
+							 APP+'.categoryService'
+							 ,function (categoryService) {
+								 return categoryService.getRootOfCategory()
+							 }]
+ 			      } 
+				} 
 			   ,'categorySelector@app.admin.detail' :
 				{
 					templateUrl  : _curdir + 'view/part/categorySelector.html' //adminCtrl로.

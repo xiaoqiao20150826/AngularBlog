@@ -4,23 +4,24 @@
 
 (function(define,angular){
 	define([], function() {
-		return ['common.util', makeCategoryService]
-		function makeCategoryService (U) {
+		return ['common.util','app.httpFailHandler', makeCategoryService]
+		function makeCategoryService (U, httpFailHandler) {
 			var $q = U.$q
 			  , $http = U.$http
 			
 			//----------------------
 			var categoryService = {}
 			// TODO: logout을 통하지 않으면 계속 남을텐데.. 그냥 호출시마다 요청하는걸로?
-			categoryService.update = function (category) {
-				return     $http.post('/json/category/update', category)
-								.then(function(response) { return response.data})
-								.catch(function(err){console.error(err)})
+			categoryService.insert = function (newTitle, parentId) {
+				var param = { newTitle : newTitle, parentId : parentId}
+				return httpFailHandler.notifyAndDone( $http.post('/json/blogBoard/category/insert', param) )
 			}
-			categoryService.getCategories = function () {
-				return     $http.get('/json/blogBoard/categories')
-								.then(function(response) {return response.data.obj})
-								.catch(function(err){console.error(err)})
+			categoryService.delete = function (categoryId) {
+				var param = { categoryId : categoryId}
+				return httpFailHandler.notifyAndDone( $http.post('/json/blogBoard/category/delete', param) )
+			}
+			categoryService.getRootOfCategory = function () {
+				return httpFailHandler.notifyAndDone( $http.get('/json/blogBoard/category/list') )
 			}
 			//------------------------
 			return categoryService;

@@ -1,5 +1,7 @@
 /**
- *  
+ *    # mongoDB의 update, delete의 결과에 대한 상태를 반환해주기위한 상태확인함수.
+ *      - find, insert는 결과 객체(user면 user인스턴스) 반환
+ *    # 비동기 호출의 결과도 확인. 
  */
 
 var debug = require('debug')('nodeblog:common:Status')
@@ -42,6 +44,15 @@ Status.makeForUpdate = function (successAndFail) {
 }
 
 Status.makeForRemove = function (removeCount) {
+	debug('makeForRemove', removeCount)
+	if(_.isNumber(removeCount)) {
+		return Status.makeSuccess('remove '+ removeCount);
+	}
+	else {
+		return Status.makeSuccess(removeCount);
+	}
+}
+Status.makeForInsert = function (removeCount) {
 	debug('makeForRemove', removeCount)
 	if(_.isNumber(removeCount)) {
 		return Status.makeSuccess('remove '+ removeCount);

@@ -15,12 +15,13 @@ app.start = function (callback) {
 }
 app._setUp = function () {
 	
-	var cookieParser = require('cookie-parser')
-	  , bodyParser = require('body-parser')
-	  , cookieSession = require('cookie-session')
-	  , multer = require('multer');
-	var passport = require('./common/auth/oauth-passport.js') //설정된 passport.
-	var	path = require('path')
+	var cookieParser 	= require('cookie-parser')
+	  , bodyParser 		= require('body-parser')
+	  , cookieSession 	= require('cookie-session')
+	  , multer 			= require('multer');
+	var oauthPassport 	= require('./common/auth/oauth-passport.js')
+	  , passport      	= oauthPassport.setupAndGet()//설정된 passport.
+	var	path 			= require('path')
 	
 	//1. middleware 설정. 순서주의(미들웨어는 요청에 대한 처리 후 다음 단계에 결과 전달한다)
 	expressApp.use(express.favicon());

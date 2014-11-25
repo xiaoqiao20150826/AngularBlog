@@ -2,7 +2,7 @@
  * 
  */
 
-define(['app'], function (app) {
+define(['common/common'], function (common) {
 	describe('logger', function () {
 		var loggerFromProvider, logger
 		
@@ -11,7 +11,7 @@ define(['app'], function (app) {
 			   .config(['common.objectLoggerProvider', function (loggerProvider) {
 				   loggerFromProvider = loggerProvider.$get()
 			   }])
-			angular.mock.module(app, 'configHookModule')
+			angular.mock.module(common, 'configHookModule')
 		
 			angular.mock.inject(function ($injector) {
 				logger = $injector.get('common.objectLogger');

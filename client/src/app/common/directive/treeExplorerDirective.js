@@ -85,9 +85,9 @@
 
 (function(define, angular, _){
 	define([], function () {
-		return ['common.TreeExplorer', makeDirective];
+		return ['common.TreeExplorer','common.util', makeDirective];
 		
-		function makeDirective(TreeExplorer) {
+		function makeDirective(TreeExplorer, U) {
 			return {
 					  restrict   : 'A'
 				    , transclude : 'element'	  
@@ -97,30 +97,44 @@
 //				    , $$tlb: true
 					, scope	     : {
 								 	  root        : '='
-								    , childsKey   : '@'
-								    , nodeName	  : '@'	
+								    , childrenKey   : '@'		//default : children
+								    , nodeName	  : '@'		//default : node
+								    , hasComment  : '@'		//default : true	
 								   }
 					, compile	 : function ($element, $attrs) {
-						var parentElement = $element.parent(); //  기준이되는 코멘트.
+						//기본 설정값.
+						$attrs.hasComment 	= $attrs.hasComment   || true; 
+						$attrs.nodeName   	= $attrs.nodeName	  || 'node'
+						$attrs.childrenKey  = $attrs.childrenKey  || 'children'
 						
+						//  지시자이기에 자동생성되는 코멘트가 $element이다.
+						// transclude로 인해 코멘트만 남아있음.
+						var $startComment   = $element 
+						  , $eachEndComment = document.createComment(' end eachWork for tree')
+						var $parentElement  = $element.parent();  
 							
 						return function postLink($scope, $element, $attr, ctrl, $transclude) {
-							var root 	   = $scope.root
-							  , childsKey  = $scope.childsKey
-							  , nodeName   = $scope.nodeName  || 'node'
-							  , tree	   = new TreeExplorer(root, childsKey)
+							var hasComment 	  = U.stringToBoolean($scope.hasComment)
+							
+							var root 	   	  = $scope.root
+							  , childrenKey  	  = $scope.childrenKey
+							  , nodeName      = $scope.nodeName  || 'node'
+							  , tree	      = new TreeExplorer(root, childrenKey)
 
-							return tree.each(eachWork);
+							tree.each(eachWork);
+							
+							
+							if(!hasComment) $startComment.remove()
+							return;
 							
 							function eachWork(node, parentNode, deep, hasChild) {
 								$scope.$watchCollection(root, function ngRepeatAction(tree) {
-//									console.log('----------eachWork for tree-------')
-									$transclude(function ngRepeatTransclude(clone, scope) {
-										var endComment = document.createComment(' end eachWork for tree')
+									$transclude(function ngRepeatTransclude($clone, scope) {
 //										
 										scope[nodeName] = node
-										parentElement.append(clone)
-										parentElement.append(endComment)
+										$parentElement.append($clone)
+										
+										if(hasComment) $parentElement.append($eachEndComment)
 									})
 								})
 							}

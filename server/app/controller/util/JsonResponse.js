@@ -17,12 +17,13 @@ JsonResponse.prototype.send = function (object) {
 	var result = {isSuccess:true, obj: object}
 	return this.res.send(JSON.stringify(result))
 }
+
 JsonResponse.prototype.sendFail 	= function (error, message) {
 	message = message || '';
 	if(_.isString(error)) message = error 
 	
-	
-	var result = {isSuccess:false, error: error, message : message}
+	var errObj = { error: error, message : message}
+	var result = {isSuccess:false, obj: errObj}
 	
 	console.error(result)
 	return this.res.send(JSON.stringify(result))

@@ -17,150 +17,120 @@ var initDataCreater = require('../../initDataCreater')
 
 
 //test데이터를 삽입하고, eqaul비교 때 사용할 post의 프로퍼티 이름..
-var keys4tempValue = ['content'];
-var _postNum = 2;
+
+
 
 describe('aAnswerDAO', function() {
-	var _answers,_answer;
-	before(function(nextCase) {
+	var postNum
+	before(function(nextTest) {
 		mongoose.connect('mongodb://localhost/test',function() {
-			_insertTestData(nextCase);
+			//1.create answers
+			initDataCreater.create()
+			.then(function() {//post
+				var post    = Post.createBy({title:'title', content:'content'})
+				return postDAO.insertOne(post)
+			})
+			.then(function(_post){
+			   postNum = _post.num
+			   var answers = H.createObjsByType(Answer, 10, ['content']);
+				_.each(answers, function(val) {
+					val['postNum'] = _post.num;
+				})
+				
+				return  _.reduce(answers, function (p, answer){
+							return p.then(function() {
+								return answerDAO.insertOne(answer);
+							})
+						}, Q())
+			})
+			.then(function () { nextTest() })
+			.catch(H.testCatch1(nextTest))
+			
 		});
 	});
-	after(function(nextCase) {
-		var errFn = H.testCatch1(nextCase);
-		H.all4promise([ postDAO.removeAll
-		              , answerDAO.removeAll
-			          , initDataCreater.removeAll
+	after(function(nextTest) {
+		Q.all([ postDAO.removeAll()
+		      , answerDAO.removeAll()
+			  , initDataCreater.removeAll()
         ])
 		.then(function() {
 			mongoose.disconnect(function() {
-				nextCase();
+				nextTest();
 			});
 		})
-		.catch(errFn);
+		.catch(H.testCatch1(nextTest))
 	});
-	beforeEach(function() {
-		_answers = _createAnswers(_postNum); //testcase마다 같은 테스트데이터
-	});
-	describe('#insertOne()', function() {
-		it('should insert a answer.',function (nextCase) {
-			answerDAO.insertOne(new H.Done(dataFn), _answers[3]);
-			function dataFn(data) {
-				var expectedanswer = data;
-				_equals(expectedanswer,_answers[3]);
-				nextCase();
-			};
-		});
-	});
+//	describe('#insertOne()', function() {
+//		it('should insert a answer.',function (nextTest) {
+	// 테스트데이터로 퉁.
+//		});
+//	});
 	describe('#find()',function() {
-		it('should take all answers', function (nextCase) {
-			answerDAO.find(new H.Done(dataFn, {}));
-			function dataFn(answers) {
-				should.equal(answers.length, 11)
-				nextCase();
-			}
+		it('should take all answers', function (nextTest) {
+			answerDAO.find({})
+			.then(function dataFn(answers) {
+				should.equal(answers.length, 10)
+			})
+			.then(function(){ nextTest()})
+			.catch(H.testCatch1(nextTest))
 		});
-		it('should take a answer', function (nextCase) {
+		it('should take a answer', function (nextTest) {
 			var num = 2;
-			answerDAO.findByNum(new H.Done(dataFn), num);
-			function dataFn(answer) {
+			answerDAO.findByNum(num)
+			.then(function dataFn(answer) {
 				should.equal(answer.num, 2);
-				nextCase();
-			}
+			})
+			.then(function(){ nextTest()})
+			.catch(H.testCatch1(nextTest))
 		});
-		it('should take answers by range', function (nextCase) {
+		it('should take answers by range', function (nextTest) {
 			var start = 4
 				,end = 6;
 			
-			answerDAO.findByRange(new H.Done(dataFn), _postNum, start,end);
-			function dataFn(models) {
-				var e_answers = Answer.createBy(models);
-				var a_answers = _answers.slice(start-1,end);
-				_equals(a_answers,e_answers);
-				nextCase();
-			}
+			answerDAO.findByRange(postNum, start,end)   //   end 미만
+			.then(function dataFn(answers) {
+				should.equal(answers.length, 2);
+				should.equal(answers[0].content, 'content4');  // 선순.
+			})
+			.then(function(){ nextTest()})
+			.catch(H.testCatch1(nextTest))
 		});
 	});
 	describe('#count', function() {
-		it('should take count of all answers', function(nextCase) {
-			answerDAO.getCount(new H.Done(dataFn));
-			function dataFn(model) {
-				var a_count = _answers.length +1;
-				var e_count = model;
-				should.exist(model);
-				should.equal(a_count,e_count);
-				nextCase();
-			}
+		it('should take count of all answers', function(nextTest) {
+			answerDAO.getCount()
+			.then(function dataFn(count) {
+				should.equal(count, 10);
+			})
+			.then(function(){ nextTest()})
+			.catch(H.testCatch1(nextTest))
 		});
-		it('should take count with where', function(nextCase) {
-			var where = {title:/title/};
-			answerDAO.getCount(new H.Done(dataFn));
-			function dataFn(model) {
-				var a_count = _answers.length +1;
-				var e_count = model;
-				should.exist(model);
-				should.equal(a_count,e_count);
-				nextCase();
-			}
+		it('should take count with where', function(nextTest) {
+			var where = {content:/content/};
+			answerDAO.getCount(where)
+			.then(function dataFn(count) {
+				should.equal(count, 10);
+			})
+			.then(function(){ nextTest()})
+			.catch(H.testCatch1(nextTest))
 		});
 	});
 	describe('#update', function() {
-		it('should update',function(nextCase) {
-			var num = 3 , success = 1
-			 	,a_answer = _answers[num-1];
-			a_answer.num = num;
-			a_answer.content = 'content_update';
+		it('should update',function(nextTest) {
+			var content = 'content_update';
+			var answer  = Answer.createBy({num:3, content:content})
 			
-			answerDAO.update(new H.Done(dataFn), a_answer);
-			function dataFn(status) {
-				should.equal(status.isSuccess(), success);
-				answerDAO.findByNum(new H.Done(dataFn2), num);
-				function dataFn2(model) {
-					var e_answer = Answer.createBy(model);
-					_equals(a_answer, e_answer);
-					nextCase();
-				}
-			}
+			answerDAO.update(answer)
+			.then(function dataFn(status) {
+				should.equal(status.isSuccess(), true);
+				return answerDAO.findByNum(3);
+			})
+			.then(function (answer) {
+				should.equal(answer.content, content)
+			})
+			.then(function(){ nextTest()})
+			.catch(H.testCatch1(nextTest))
 		});
 	});
 
 });
-////////==== helper =====/////////
-function _equals(expectedPosts, actualsPosts) {
-	H.deepEqualsByKeys(expectedPosts, actualsPosts, keys4tempValue);
-};
-function _createAnswers(postNum) {
-	var Type = Answer
-	  , count = 10;
-	var answers = H.createObjsByType(Type, count, keys4tempValue);
-	_.each(answers, function(val) {
-		val['postNum'] = postNum;
-	})
-	return answers;
-}
-function _insertTestData(nextCase) {
-	_insertTestData2(_postNum,nextCase, nextCase) 
-};
-
-//#getCountsByPosts에서 실험용으로 한번만 사용하기 위함.
-//post1, answer10이었던 것을 post2, answer20 개로 만들기 위한것.
-function _insertTestData2(postNum, done, nextCase) {
-	var post = Post.createBy({num:postNum, title:'title', content:'content'});
-	var answers = _createAnswers(post.num);
-	var errFn = H.testCatch1(nextCase);
-	
-	H.call4promise(initDataCreater.create)
-	 .then(function() {
-		 
-		 postDAO.insertOne(new H.Done(next, errFn) , post);
-			
-			function next(d) {
-				H.asyncLoop(answers, [answerDAO, answerDAO.insertOne], new H.Done(endDataFn, errFn));
-					function endDataFn(datas) {
-						done();
-					}
-			} 
-	 })
-	
-};

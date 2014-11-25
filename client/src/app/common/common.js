@@ -6,6 +6,7 @@
 (function (define, angular){
 	define(	  [ 
 	       	    'common/service/util'
+	       	    
 	       	  , 'common/service/ObjectDecorator'
 	       	  , 'common/service/objectLogger'
 	       	  , 'common/service/TreeExplorer'
@@ -16,6 +17,7 @@
 	       	  ]
 	,function ( 
 				util 
+				
 			  , ObjectDecorator
 			  , objectLogger
 			  , TreeExplorer
@@ -29,6 +31,7 @@
 		var moduleName = 'common'          //얘는 app에 속하지않네.
 		angular.module(moduleName, [])
 		       .factory( moduleName + '.util', util)
+		       
 		       .factory( moduleName + '.ObjectDecorator', ObjectDecorator)
 		       .factory( moduleName + '.objectLogger', objectLogger)
 		       .factory( moduleName + '.TreeExplorer', TreeExplorer)

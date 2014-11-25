@@ -2,17 +2,17 @@
  *  TODO: log 메시지는... 테스트를 어떻게 해야하는 것일까.
  */
 
-define(['app'], function (app) {
+define(['common/common'], function (common) {
 	describe('inspectLogger', function() {
-		var $rootScope, userService, inspectorLogger
+		var $rootScope, objectLogger, inspectorLogger
 		
 		beforeEach(function() {
-			angular.mock.module(app)
+			angular.mock.module(common)
 			
 			angular.mock.inject(function ($injector) {
 				inspectorLogger = $injector.get('common.inspectLogger');
 				$rootScope = $injector.get('$rootScope');
-				userService = $injector.get('app.userService');
+				objectLogger = $injector.get('common.objectLogger');
 			})
 		})
 		it('should get service Ojbect ', function () {
@@ -47,7 +47,7 @@ define(['app'], function (app) {
 		
  	})
  	describe('inspectLoggerProvide', function () {
-		var $rootScope, userService, inspectorLogger
+		var $rootScope, objectLogger, inspectorLogger
 		
 		beforeEach(function() {
 			var serviceInfoes =  {
@@ -64,12 +64,12 @@ define(['app'], function (app) {
 				   .config(['common.inspectLoggerProvider', function (inspectLoggerProvider) {
 					   inspectLoggerProvider.setServiceInfoes(serviceInfoes)
 				   }])
-			angular.mock.module(app, 'configHookModule')
+			angular.mock.module(common, 'configHookModule')
 			
 			angular.mock.inject(function ($injector) {
 				inspectorLogger = $injector.get('common.inspectLogger');
 				$rootScope = $injector.get('$rootScope');
-				userService = $injector.get('app.userService');
+				objectLogger = $injector.get('common.objectLogger');
 			})
 		})
 		it('should run console.log about $broadcast that param is !c', function () {

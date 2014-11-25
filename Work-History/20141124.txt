@@ -1,0 +1,28 @@
+=================================
+
+
+# 한 것.. 
+
+
+# 해야할것
+ - 요청과 그 응답에 대한... 공통적인 에러(혹은 리다이렉트) 처리에 대해 다시 한번 정리하고.
+   다음것들..진행 고고.
+ - 카테고리 부분 마무리를.
+ - 서버쪽..카테고리 crud테스트좀하자 ㅡㅡ
+
+# 해야할것(미룬것)   
+  - 유저 삭제기능. //이건 게시판 마무리 되고 나중에.
+
+ - setupState, setupHandler, setupLog 
+  ; mean stack 으로 stateProvider 검색하니(github에서) 뭔가 좀 나온다.
+  ; 어찌 분리를 해야하는데. 일단 격리는 되었으니.. 필요한  기능부터만들자.
+
+ - 지연된 (모듈단위가 되면 좋겠지만)로딩.
+  ;이건가? 	// Add a new vertical module
+	var registerModule = function(moduleName, dependencies) {
+		// Create angular module
+		angular.module(moduleName, dependencies || []);
+
+		// Add the module to the AngularJS configuration file
+		angular.module(applicationModuleName).requires.push(moduleName);
+	};

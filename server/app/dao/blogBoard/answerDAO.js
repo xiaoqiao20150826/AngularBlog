@@ -28,68 +28,76 @@ var answerDAO = module.exports = {}
  */
 
 /* remove */
-function _remove(done, where) {
-	done.hook4dataFn(function (data) {
-		return Status.makeForRemove(data);
-	});
+function _remove(where) {
+	var deferred  = Q.defer()
+      , callback  = H.cb4mongo1(deferred);
 	
 	var where = where || {};
-	_db.remove(where, done.getCallback());
+	_db.remove(where, callback);
+	
+	return deferred.promise
+	               .then(function (data) {
+	           			return Status.makeForRemove(data);
+	           		})
 };
-answerDAO.removeOne = function (done, answer) {
+answerDAO.removeOne = function (answer) {
 	var where = {num: answer.num}
-	_remove(done, where);
+	return _remove(where);
 };
-answerDAO.removeByUserId = function (done, userId) {
+answerDAO.removeByUserId = function (userId) {
 	var where = {'userId': userId}
-	_remove(done, where);
+	return _remove(where);
 };
-answerDAO.removeByPostNums = function (done, postNums) {
+answerDAO.removeByPostNums = function (postNums) {
 	var where = {postNum: {$in : postNums} }
-	_remove(done, where);
+	return _remove(where);
 };
 //이거사용하나요.
-answerDAO.removeAllByPostNum = function (done, postNum) {
+answerDAO.removeAllByPostNum = function (postNum) {
 	var where = { postNum: postNum}
-	_remove(done, where);
+	return _remove( where);
 };
 //댓글의 댓글까지 삭제.
-answerDAO.removeAllOfNum = function (done, allNums) {
+answerDAO.removeAllOfNum = function (allNums) {
 	var where = {num: {$in : allNums} }
-	_remove(done, where);
+	return _remove(where);
 };
-answerDAO.removeAll = function (done) {
-	done.hook4dataFn(Answer.createBy);
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn();
+answerDAO.removeAll = function () {
 	var _seq = Sequence.getForAnswer()
 	
-	return H.all4promise([ 
-	                        [[_seq,_seq.remove] ]
-		                  , [_remove, {}]
-	        ])
-	 		.then(dataFn)
-	 		.catch(errFn);
+	return Q.all([ 
+	               _seq.remove()
+		         , _remove({})
+	        	])
 };
 /* find */
-answerDAO.find = function (done,where,select) {
-	done.hook4dataFn(Answer.createBy);
+answerDAO.find = function (where,select) {
+	var deferred  = Q.defer()
+      , callback  = H.cb4mongo1(deferred);
+	
 	var where = where || {}
 	  , select = select || {}
 	  , orderBy = { 'num' : -1 }
-	  , callback = done.getCallback();
-	  _db.find(where,select).sort(orderBy).exec(callback);
+	  
+	_db.find(where,select).sort(orderBy).exec(callback);
+	  
+	return deferred.promise.then(Answer.createBy)  
 };
-answerDAO.findByPostNum = function(done, postNum) {
+
+answerDAO.findByPostNum = function(postNum) {
 	var where = {postNum:postNum};
-	answerDAO.find(done, where);
+	return answerDAO.find(done, where);
 };
-answerDAO.findByNum = function (done, num) {
-	done.hook4dataFn(Answer.createBy);
+answerDAO.findByNum = function (num) {
+	var deferred  = Q.defer()
+      , callback  = H.cb4mongo1(deferred);
+	
 	var where = {'num': num}
 		,select = select || {}
-		,callback = done.getCallback();
+		
 	_db.findOne(where,select).exec(callback);
+	
+	return deferred.promise.then(Answer.createBy)
 };
 //answerDAO.findByAnswerNums = function (done, answerNums) {
 //	var where = {'answerNum': {$in : answerNums}}
@@ -97,67 +105,79 @@ answerDAO.findByNum = function (done, num) {
 //		
 //	answerDAO.find(done, where, select)
 //}
-answerDAO.findByRange = function (done, postNum, start,end) {
-	done.hook4dataFn(Answer.createBy);
+
+answerDAO.findByRange = function (postNum, start,end) {
+	var deferred  = Q.defer()
+      , callback  = H.cb4mongo1(deferred);
+	
 	var where = {postNum:postNum}
 		,select = {}
 		,orderBy = { 'num' : 1 }
-		,callback = done.getCallback();
 	var startNum = start - 1; // 배열스타일의 인덱스라 실제 개수와 일치시키기위해 -1 한다.
 	var limitNum = end-start;
 	if(startNum < 0) startNum = 0;
 	
 	_db.find(where,select).sort(orderBy).skip(startNum).limit(limitNum).exec(callback);
+	
+	return deferred.promise.then(Answer.createBy)
 };
 /* insert */
-answerDAO.insertOne = function(done, answer) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn()
+answerDAO.insertOne = function(answer) {
 	var _seq = Sequence.getForAnswer()
 	
-	return H.call4promise([_seq,_seq.getNext])
-			.then(function(data) {
-				answer.num = data.seq;
-				return H.call4promise(_create, answer);
+	return _seq.getNext()
+			.then(function(seqNum) {
+				answer.num = seqNum
+				return _create(answer);
 			})
-			.then(dataFn)
-			.catch(errFn);
 };
-function _create(done, data) {
-	done.hook4dataFn(Answer.createBy);
+function _create(data) {
+	var deferred  = Q.defer()
+      , callback  = H.cb4mongo1(deferred);
 	
 	if(!data._id) data._id = new ObjectId()
 	
-	_db.create(data, done.getCallback()); // exec없음.
+	_db.create(data, callback); // exec없음.
+	
+	return deferred.promise.then(Answer.createBy)
 }
 /* update */
-//TODO: 업데이트할 데이터에 Answer를 통채로 주므로 업데이트 하지말아야할 데이터는 잘 걸러서 줘야한다. 
-answerDAO.update = function(done, answer) {
+//TODO: 업데이트할 데이터에 answer를 통채로 주므로 업데이트 하지말아야할 데이터는 잘 걸러서 줘야한다. 
+answerDAO.update = function(answer) {
 	if(!(H.exist(answer.num))) throw 'num은 필수';
+	
 	var where = {num : answer.num}
 	  , data = { content:answer.content 
 			   , writer: answer.writer 
 			   }
 	
-	_update(done, where, data);
+	return _update(where, data);
 };
 // private
-function _update(done, where, data, config) {
-	done.hook4dataFn(function (post) {
-		return Status.makeForUpdate(post);
-	});
+function _update(where, data, config) {
+	var deferred  = Q.defer()
+      , callback  = H.cb4mongo1(deferred);
+	
 	//TODO: writeConcern 는 무엇을 위한 설정일까. //매치되는 doc없으면 새로 생성안해.//매치되는 doc 모두 업데이트
 	var config = config || {upsert: false , multi:true}
-		,callback = done.getCallback();
+	
 	_db.update(where, data, config, callback);
+	
+	return deferred.promise.then(function (result) {
+								return Status.makeForUpdate(result);
+							})
 }
 
 /* etc..count */
 //where는 검색 조건을 구할 경우 필요.
-answerDAO.getCount = function (done, where) {
+answerDAO.getCount = function (where) {
+	var deferred  = Q.defer()
+      , callback  = H.cb4mongo1(deferred);
+	
 	var where = where || {}
-		,callback = done.getCallback();
 	_db.find(where).count().exec(callback);
+	
+	return deferred.promise;
 }
 
 function getSchema() {

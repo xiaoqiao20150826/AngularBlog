@@ -5,22 +5,46 @@
 (function(define, _) {
 	
 	define([], function() {
-		return ['$scope', '$state', 'common.util', AdminController];
+		return [
+		          '$scope'
+		        , '$state'
+		        , 'common.util'
+		        , 'app.categoryService'
+		        , 'rootOfCategory'
+		        , AdminController];
 	})
 	
-	function AdminController($scope, $state, util) {
+	function AdminController($scope, $state, util, categoryService, rootOfCategory) {
 		// 데이터
-		$scope.categories = {id:1, title:'t1', categories:[
-		                                                     {id:2, title:'t2'}
-		                                                    ,{id:3, title:'t3',categories : [
-		                                                                                     {id:4, title:'t4'}
-		                                                                                    ,{id:5, title:'t5', categories:[{id:6, title:'t6'}]}
-		                                                                                    ]
-		                                                     }
-		                                                 ]
-		                     }
-		                    ,{id:7,title:'t7'} 
-		$scope.selectedCategory = $scope.categories.categories[0]  
+		$scope.rootOfCategory     = rootOfCategory
+		$scope.selectedCategoryId = rootOfCategory.id
+		$scope.childCategoryTitle = ''
+			
+		//-----------------------------------------
+		this.insertCategory = function () {
+			var newTitle = $scope.childCategoryTitle
+			var parentId  = $scope.selectedCategoryId
+			
+			if(_.isEmpty(newTitle)) return alert('childName must dont empty')
+			
+			categoryService.insert(newTitle, parentId)
+						   .then(function(result) {
+							   alert(result)
+//							   window.location.reload() //reload
+						   })
+			
+		}
+		this.deleteCategory = function () {
+			var categoryId  = $scope.selectedCategoryId
+			
+			categoryService.delete(categoryId)
+			.then(function(result) {
+				alert(result)
+//				window.location.reload() //reload
+			})
+			
+		}
+			
 	}
 	
 })(define, _)

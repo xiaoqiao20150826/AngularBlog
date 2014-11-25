@@ -14,6 +14,8 @@
 	       , 'service/userService'
 	       , 'service/authService'
 	       , 'service/categoryService'
+	       , 'service/util/httpFailHandler'
+	       
 	       , 'storage/storage'
 	       
 	       , 'controller/AppController'
@@ -36,6 +38,8 @@
 			, userService
 			, authService
 			, categoryService
+			, httpFailHandler
+			
 			, storage
 			
 			, AppController
@@ -56,9 +60,12 @@
 		                   , blogBoard
 		                   ]; 
 		angular.module(		moduleName				  		, modules)
+			   .constant(  'ANGULAR_ENV' 					, 'log')  //log활동
+		
 			   .service(	moduleName+'.userService' 		, userService)
 			   .service(	moduleName+'.authService' 		, authService)
 			   .service(	moduleName+'.categoryService' 	, categoryService)
+			   .service(	moduleName+'.httpFailHandler' 	, httpFailHandler)
 			   .factory(	moduleName+'.storage'	  		, storage)
 			   
 			   .controller(	moduleName+'.AppController'		, AppController)

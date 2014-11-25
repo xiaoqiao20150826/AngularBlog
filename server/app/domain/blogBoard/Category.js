@@ -2,7 +2,7 @@
  *  // Blog만을 위한 카테고리인데. BlogCategory 라고해야하나.? 
  */
 var _ = require('underscore');
-var H = require('../../common/helper.js');
+var H = require('../../common/helper.js')
 
 
 var ROOT_ID = 'root'

@@ -12,6 +12,7 @@ var controllers = [
                   
                   , require('./blogBoard/answerController.js')
                   , require('./blogBoard/blogBoardController.js')
+                  , require('./blogBoard/categoryController.js')
                   , require('./blogBoard/fileController.js')
                   
                   , require('./user/userController.js')

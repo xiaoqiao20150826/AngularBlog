@@ -21,6 +21,7 @@
 var debug = require('debug')('nodeblog:dao:util:transaction')
 var _ = require('underscore')
 
+var Q = require('q')
 var H = require('../../../common/helper')
 var Status = require('../../../common/Status')
 var Hooker = require('./Hooker')
@@ -60,14 +61,14 @@ Transaction.prototype.atomic = function (method) {
 	self.start();
 	
 	var promise = method()
-	if(promise.constructor.name != 'Promise') return console.error('annoy method should return promise for atomic')
+	if(!_.isFunction(promise.then)) return console.error('annoy method should return promise for atomic')
 	
 	//args는 method 내의 비동기 호출의 결과
 	return	promise.then(function (args) {
 				self.end()
 				
 				if(self.shouldBeRollback) {
-					return H.call4promise([self, self.doRollback])
+					return self.doRollback()
 							 .then(function (status) {
 								 debug('transaction result ', status)
 								 return status
@@ -104,9 +105,8 @@ Transaction.prototype.end = function () {
 Transaction.prototype.rollback = function () {
 	this.shouldBeRollback = true;
 }
-Transaction.prototype.doRollback = function (done) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn()
+Transaction.prototype.doRollback = function () {
+	var deferred  = Q.defer()
 //	
 	var self = this
 	if(!(self instanceof Transaction)) { return errFn('rollback have context that is transaction instance') }
@@ -114,13 +114,22 @@ Transaction.prototype.doRollback = function (done) {
 	var reverseOrderedCancleList = self.orderedCancleList.reverse()
 	// 1) 캔슬할때는 역순으로 하나씩 호출되야한다. 그래야 올바르게 됨.
 	// 2) 애초에 hook한 함수가 mongoose Model의 기본함수이므로 예외처리 한 것은 무용지물이됨(ex: 중복무시같은)
-	return H.syncAll4promise(reverseOrderedCancleList)
-		    .then(function (statuses) {
-		    	debug('rollback status', statuses)
-		    	return dataFn(Status.reduceOne(statuses))
-		    })
-		    .catch(function (err) {
-	             debug('rollback fail',err)
-	             return errFn(err)
-	        })
+	
+	var statuses = []
+	_.reduce(reverseOrderedCancleList, function(p, cancleFn) {
+		return p.then(function(status) {
+			statuses.push(status)
+			return cancleFn()
+	})
+	},Q())
+	.then(function() { statuses.shift() })
+    .then(function () {
+    	debug('rollback status', statuses)
+    	deferred.resolve(Status.reduceOne(statuses));
+    })
+   	.catch(function (err){
+   		debug('rollback fail',err)
+   		deferred.resolve(Status.makeError(err));
+    })
+	return deferred.promise
 }

@@ -30,108 +30,129 @@ var userDAO = module.exports = {};
  * */
 /* remove */
 //사용하나?
-userDAO.removeOne = function (done, user) {
+userDAO.removeOne = function (user) {
 	var where = {_id: user._id};
-	_remove(done, where)
+	return _remove(where)
 };
-userDAO.removeById = function (done, id) {
+userDAO.removeById = function (id) {
 	var where = {_id: id};
-	_remove(done, where)
+	return _remove(where)
 };
-userDAO.removeAll = function (done) {
+userDAO.removeAll = function () {
 	var where = {};
-	_remove(done, where)
+	return _remove(where)
 };
-function _remove(done, where) {
-	done.hook4dataFn(function (data) {
-		return Status.makeForRemove(data)
-	})
-	_db.remove(where, done.getCallback());
+function _remove(where) {
+	var deferred = Q.defer()
+	  , promise  = deferred.promise
+	  
+	_db.remove(where, H.cb4mongo1(deferred));
+	
+	return promise.then(function (data) {
+						return Status.makeForRemove(data)
+				});
 }
 /* find */
-userDAO.find = function (done,where,select) {
-	done.hook4dataFn(User.createBy);
-	var where = where || {}
-		,select = select || {}
-		,callback = done.getCallback();
+userDAO.find = function (where,select) {
+	var deferred  = Q.defer()
+      , callback  = H.cb4mongo1(deferred)
+      , promise  = deferred.promise
+      
+	var where 	 = where || {}
+	  , select 	 = select || {}
+	  
 	  _db.find(where,select).exec(callback);
+	  
+	return promise.then(User.createBy)  
 };
-userDAO.findByIds = function (done, ids) {
+userDAO.findByIds = function (ids) {
 	var where = {'_id': {$in : ids}}
 		,select = select || {};
 		
-	userDAO.find(done, where, select)
+	return userDAO.find(where, select)
 }
-userDAO.findById = function (done, id) {
-	done.hook4dataFn(User.createBy);
+userDAO.findById = function (id) {
+	var deferred  = Q.defer()
+      , callback  = H.cb4mongo1(deferred)
+      , promise  = deferred.promise
+      
 	var where = {'_id': id}
-		,select = select || {}
-		,callback = done.getCallback();
+	  ,select = select || {}
 		
 	_db.findOne(where,select).exec(callback);
+	
+	return promise.then(User.createBy)
 };
 
-userDAO.findOrCreate = function (done, loginUser) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn();
+userDAO.findOrCreate = function (loginUser) {
 	
-	H.call4promise(userDAO.findById, loginUser.getId())
-	 .then(function (user) {
-		 if(user.isAnnoymous())  
-			 return H.call4promise(userDAO.insertOne, loginUser); 
-		 else 
-			 return user;
-	 })
-	 .then(function (user) {
-		//반환값이 필요없는 비동기작업. 그러나 위의작업 후에 시작되야함.
-		dataFn(user)
-		userDAO.increaseVisitCount(Done.makeEmpty(errFn), user._id)
-	 })
-	 .catch(errFn);
+	return userDAO.findById(loginUser.getId() )
+				 .then(function (user) {
+					 if(user.isAnnoymous())  
+						 return userDAO.insertOne(loginUser); 
+					 else 
+						 return user;
+				 })
+				 .then(function (user) {
+					userDAO.increaseVisitCount(user._id)
+					return user
+				 })
 };
 /* insert */
-userDAO.insertOne = function(done, user) {
-	done.hook4dataFn(User.createBy);
-	
-	_create(done, user)
+userDAO.insertOne = function(user) {
+	return _create(user)
 };
-function _create(done, user) {
-	_db.create(user, done.getCallback());
+function _create(user) {
+	var deferred  = Q.defer()
+      , promise  = deferred.promise
+      , callback  = H.cb4mongo1(deferred)
+	
+	_db.create(user, callback);
+	
+	return promise.then(User.createBy);
 }
 /* update */
 
-userDAO.update = function(done, user) {
+userDAO.update = function(user) {
 	var where = {_id : user._id}
 	  , data = { name : user.name
 			   , photo : user.photo
 			   , email : user.email
 			   }
 	
-	_update(done, where, data);
+	return _update(where, data);
 };
-userDAO.increaseVisitCount = function(done, id) {
+userDAO.increaseVisitCount = function(id) {
 	var where = {'_id' : id}
 	  , data = {$inc : {visitCount : 1}};
 	
-	_update(done, where, data);
+	return _update(where, data);
 };
 
-function _update(done, where, data, config) {
-	done.hook4dataFn(function (result) {
-		return Status.makeForUpdate(result)
-	})
-	var config = config || {upsert: false , multi:true}//매치되는 doc없으면 새로 생성안해.//매치되는 doc 모두 업데이트
-	  , callback = done.getCallback();
-	  
+function _update(where, data, config) {
+	var deferred  = Q.defer()
+      , promise  = deferred.promise
+      , callback  = H.cb4mongo1(deferred)
+      
+	var config 	 = config || {upsert: false , multi:true}//매치되는 doc없으면 새로 생성안해.//매치되는 doc 모두 업데이트
+	
 	_db.update(where, data, config, callback);
+	
+	return promise.then(function (result) {  return Status.makeForUpdate(result) }); 
 }
 
 /* etc..count */
 //where는 검색 조건을 구할 경우 필요.
-userDAO.getCount = function (done, where) {
-	var where = where || {}
-		,callback = done.getCallback();
-	_db.find(where).count().exec(callback);
+userDAO.getCount = function (where) {
+	var deferred  = Q.defer()
+    , callback  = H.cb4mongo1(deferred)
+    , promise  = deferred.promise
+    
+	var where 	 = where || {}
+	  
+	  _db.find(where).count().exec(callback);
+	  
+	return promise  
 }
 
 

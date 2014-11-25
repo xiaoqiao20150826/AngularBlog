@@ -6,8 +6,8 @@
 
 (function(define,angular){
 	define([], function() {
-		return ['common.util', '$state', makeBlogBoardService]
-		function makeBlogBoardService (U, $state) {
+		return ['common.util', 'app.httpFailHandler', makeBlogBoardService]
+		function makeBlogBoardService (U, httpFailHandler) {
 			var $q = U.$q
 			  , $http = U.$http
 			
@@ -16,28 +16,12 @@
 			
 			blogBoardService.getListData = function (param) {
 				parama = param || {};
-				return  $http.get('/json/blogBoard/list', {params:param})
-						     .then(function(response) {
-						    	 var listData = response.data.obj
-						    	 return listData;
-						     })
-						     .catch(function (err) {
-						    	 console.error(err)
-						     })
+				return httpFailHandler.notifyAndDone( $http.get('/json/blogBoard/list', {params:param}) )
 			}
 			blogBoardService.getDetailData = function (param) {
 				parama = param || {};
-				return  $http.get('/json/blogBoard/detail', {params:param})
-							 .then(function(response) {
-								 var detailData = response.data.obj
-//								 $state.go('app.blogBoard.list') //이상한데이터시 리다이렉트.
-								 return detailData;
-							 })
-							 .catch(function (err) {
-						 		 console.error(err)
-						 	 })
+				return httpFailHandler.notifyAndDone( $http.get('/json/blogBoard/detail', {params:param}) )
 			}
-			
 			
 			//------------------------
 			return blogBoardService;

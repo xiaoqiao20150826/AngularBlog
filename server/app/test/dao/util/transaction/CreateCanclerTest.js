@@ -6,6 +6,7 @@ process.env.NODE_ENV = 'test'
 var mongoose = require('mongoose')
 var	CreateCancler = require('../../../../dao/util/transaction/CreateCancler.js')
 
+var Q 	   = require('q')
 var should = require('should')
   , _ = require('underscore')
   , H = require('../../../testHelper.js')
@@ -20,15 +21,13 @@ describe('Transaction', function() {
 		})
 	})
 	after(function(nextTest) {
-		var errFn = H.testCatch1(nextTest);
-		
-		H.call4promise(userDAO.removeAll)
+		userDAO.removeAll()
 		.then(function() {
 			mongoose.disconnect(function() {
 				nextTest();
 			});
 		})
-		.catch(errFn);
+		.catch(H.testCatch1(nextTest));
 	});
 	it('should success by create', function (nextTest) {
 		var originCreate = mongoose.Model.create
@@ -40,11 +39,12 @@ describe('Transaction', function() {
 		var user = User.createBy({_id:'user', name:'name'})
 		  , user2 = User.createBy({_id:'user2', name:'name'})
 		
-		H.all4promise([ [userDAO.insertOne, user], [userDAO.insertOne, user2] ] )
+		Q.all([ userDAO.insertOne(user), userDAO.insertOne(user2) ] )
 		 .then(function dataFn() {
-			 return H.call4promise([createCancler, createCancler.cancle])
+			 return createCancler.cancle()
 		 })
 		 .then(function (status) {
+			 console.log(status)
 			 should.equal(status.isSuccess(), true)
 			 nextTest()
 		 })

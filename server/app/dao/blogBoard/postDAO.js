@@ -35,67 +35,75 @@ var postDAO = module.exports = {}
  * 
  * */
 /* remove */
-postDAO.removeByPostNum = function (done, postNum) {
+postDAO.removeByPostNum = function (postNum) {
 	var query = {num: postNum};
-	_remove(done, query);
+	return _remove(query);
 };
-postDAO.removeByUserId = function (done, userId) {
+postDAO.removeByUserId = function (userId) {
 	var where = {'userId': userId}
-	_remove(done, where);
+	return _remove(where);
 };
-postDAO.removeOne = function (done, post) {
+postDAO.removeOne = function (post) {
 	var query = {num: post.num};
-	_remove(done, query);
+	return _remove(query);
 };
-postDAO.removeAll = function (done) {
-	var dataFn = done.getDataFn()
-      , errFn = done.getErrFn()   
-	
+postDAO.removeAll = function () {
     var _seq = Sequence.getForPost()
     
-	return H.all4promise([
-	                       [[_seq, _seq.remove] ]
-	                     , [_remove, {}]
-	                     ])
-			.then(dataFn)
-			.catch(errFn);
+    return Q.all([_seq.remove, _remove({}) ])
 };
-function _remove(done, where) {
+function _remove(where) {
+	var deferred  = Q.defer()
+      , callback  = H.cb4mongo1(deferred);
 	var where = where || {}
-	done.hook4dataFn(function (result) {
-		return Status.makeForRemove(result);
-	});
-	_db.remove(where, done.getCallback());
+	
+	_db.remove(where, callback);
+	
+	return deferred.promise
+				   .then(function(result){return Status.makeForRemove(result);})
 }
 /* find */
-postDAO.find = function (done,where,select) {
-	done.hook4dataFn(Post.createBy);
+postDAO.find = function (where,select) {
+	var deferred  = Q.defer()
+      , callback  = H.cb4mongo1(deferred);
+	
 	var where = where || {}
 		,select = select || {}
-		,callback = done.getCallback();
-	  _db.find(where,select).exec(callback);
+		
+	_db.find(where,select).exec(callback);
+	  
+	return deferred.promise
+				   .then(Post.createBy)
 };
-postDAO.findByNum = function (done, num) {
+postDAO.findByNum = function (num) {
 	var where = {'num': num};
-	postDAO.findOne(done, where)
+	return postDAO.findOne(where)
 };
-postDAO.findByUserId = function (done, userId) {
+postDAO.findByUserId = function (userId) {
 	var where = {'userId': userId};
-	postDAO.find(done, where)
+	return postDAO.find(where)
 };
-postDAO.findOne = function (done, where, select) {
-	done.hook4dataFn(Post.createBy);
+postDAO.findOne = function (where, select) {
+	var deferred  = Q.defer()
+      , callback  = H.cb4mongo1(deferred);
+	
 	var where = where || {}
 	   ,select = select || {}
-	   ,callback = done.getCallback();
+	   
 	_db.findOne(where,select).exec(callback);
+	
+	return deferred.promise
+	   		.then(Post.createBy)
 };
-postDAO.findByRange = function (done, start, end, sorter, categoryIds, searcher) {
-	done.hook4dataFn(Post.createBy);
+
+postDAO.findByRange = function (start, end, sorter, categoryIds, searcher) {
+	
+	var deferred  = Q.defer()
+      , callback  = H.cb4mongo1(deferred);
 	var where = where || {} 
 		,select = {}
-		,sorter = _getSorter(sorter)
-		,callback = done.getCallback();
+		,sorter = _getSorter(sorter);
+
 	
 	if(!_.isEmpty(categoryIds) ) where.categoryId = {$in : categoryIds }
 	if(!_.isEmpty(searcher) ) where = _getWhereBySearcher(where, searcher)  
@@ -104,6 +112,9 @@ postDAO.findByRange = function (done, start, end, sorter, categoryIds, searcher)
 	var limitNum = end- startNum;
 	if(startNum < 0) startNum = 0;
  	_db.find(where,select).sort(sorter).skip(startNum).limit(limitNum).exec(callback);
+ 	
+ 	return deferred.promise
+	   			   .then(Post.createBy)
 };
 function _getSorter(sorterStr) {
 	var sorters = {
@@ -127,31 +138,30 @@ function _getWhereBySearcher (originWhere, searcher) {
 }
 
 /* insert */
-postDAO.insertOne = function(done, post) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn()
-	  
+postDAO.insertOne = function(post) {
 	var _seq = Sequence.getForPost()
 	
-	return H.call4promise([_seq, _seq.getNext])
-	 		.then(function __work1(data) {
-				if(!(H.exist(data.seq))) return console.error('fail to get next seq');
-				post.setNum(data.seq);
-				return H.call4promise(_create, post);
-	 		 })
-	 		.then(dataFn)
-	 		.catch(errFn);
+	return _seq.getNext()
+	 		   .then(function __work1(seqNum) {
+					if(!(H.exist(seqNum))) return console.error('fail to get next seq');
+					post.setNum(seqNum);
+					return _create(post)
+		 		 });
 };
 
-function _create(done, data) {
-	done.hook4dataFn(Post.createBy);
+function _create(data) {
+	var deferred  = Q.defer()
+      , callback  = H.cb4mongo1(deferred);
 	
 	if(!data._id) data._id = new ObjectId()
-	_db.create(data, done.getCallback());
+	_db.create(data, callback);
+	
+	return deferred.promise
+	   			   .then(Post.createBy)
 }
 /* update */
 //TODO: 업데이트할 데이터에 post를 통채로 주므로 업데이트 하지말아야할 데이터는 잘 걸러서 줘야한다. 
-postDAO.update = function(done, post) {
+postDAO.update = function(post) {
 	var where = {num : post.num}
 		,data = { $set : { title : post.title
 		        		 , content : post.content
@@ -160,83 +170,93 @@ postDAO.update = function(done, post) {
 				, $addToSet : { fileInfoes : {$each:  post.fileInfoes}  } 
 				}
 	if(!(H.exist(post.num))) return console.error('num은 필수');
-	_update(done, where, data);
-};
-postDAO.updateReadCount = function(done, num) {
-	var where = {num : num}
-		,data = {$inc:{readCount:1}};
-	_update(done, where, data);
+	
+	return _update(where, data);
 };
 
-postDAO.updateVoteAndVotedUserId = function(done, num, userId) {
+postDAO.updateReadCount = function(num) {
+	var where = {num : num}
+		,data = {$inc:{readCount:1}};
+	return _update(where, data);
+};
+
+postDAO.updateVoteAndVotedUserId = function(num, userId) {
 	var where = {num : num}
 	var data ={ $inc:{ vote:1}
 			    , $addToSet: { votedUserIds : userId }
 				};
-	_update(done, where, data);
+	return _update(where, data);
 };
 
-postDAO.removeCategorId = function(done, categoryId) {
+postDAO.removeCategorId = function(categoryId) {
 	var where = {categoryId : categoryId}
 	  , data = {$set:{categoryId:null}}
 	
-	_update(done, where, data);
+	return _update(where, data);
 };
-postDAO.increaseAnswerCount = function(done, num) {
+postDAO.increaseAnswerCount = function(num) {
 	var where = {num : Number(num)}
-	,data = {$inc:{answerCount:1}};
-	_update(done, where, data);
+	  , data = {$inc:{answerCount:1}};
+	
+	return _update(where, data);
 };
-postDAO.decreaseAnswerCount = function(done, num, answerCount) {
+
+postDAO.decreaseAnswerCount = function(num, answerCount) {
 	var answerCount = answerCount || 1
 	  , minusAnswerCount = _minusNumber(answerCount);
 	var where = {num : num}
-	,data = {$inc:{answerCount:minusAnswerCount}};
-	_update(done, where, data);
+	  , data = {$inc:{answerCount:minusAnswerCount}};
+	
+	return _update(where, data);
 };
 
 function _minusNumber(number) {
 	if(number > 0) return number * -1; 
 }
 // private
-function _update(done, where, data, config) {
-	done.hook4dataFn(function (result) {
-		return Status.makeForUpdate(result);
-	});
+function _update(where, data, config) {
+	var deferred  = Q.defer()
+      , callback  = H.cb4mongo1(deferred);
 	
 	//TODO: writeConcern 는 무엇을 위한 설정일까. //매치되는 doc없으면 새로 생성안해.//매치되는 doc 모두 업데이트
 	var config = config || {upsert: false , multi:true}
-		,callback = done.getCallback();
+	
 	_db.update(where, data, config, callback);
+	
+	return deferred.promise
+	      		   .then(function (result) {
+	      				return Status.makeForUpdate(result);
+	      			})
 }
 
 /* etc..count */
 //where는 검색 조건을 구할 경우 필요.
-postDAO.getPager = function (done, curPageNum, categoryIds, searcher) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn();
+postDAO.getPager = function (curPageNum, categoryIds, searcher) {
 	
-	return H.call4promise(postDAO.getCount, categoryIds, searcher)
+	return postDAO.getCount(categoryIds, searcher)
 	        .then(function (allRowCount) {
-		    	var pager = new Pager(allRowCount)
-		    	
-		    	return dataFn(pager)
+		    	return new Pager(allRowCount)
 	        })
-	        .catch(errFn)
 }
-postDAO.getCount = function (done, categoryIds, searcher) {
+
+postDAO.getCount = function (categoryIds, searcher) {
+	var deferred  = Q.defer()
+      , callback  = H.cb4mongo1(deferred);
 	var where = {}
-	  , callback = done.getCallback();
 		
 	if(!_.isEmpty(categoryIds)) where.categoryId = {$in : categoryIds}
 	if(!_.isEmpty(searcher) ) where = _getWhereBySearcher(where, searcher)  
 	
 	_db.find(where).count().exec(callback);
+	
+	return deferred.promise
 }
 
 
-postDAO.findGroupedPostsByDate = function (done) {
-	done.hook4dataFn(_reGroup);
+postDAO.findGroupedPostsByDate = function () {
+	var deferred  = Q.defer()
+      , callback  = H.cb4mongo1(deferred);
+	
 	var project = {'$project' : { _id:0   //필드포함 안시키는..
 							  , y:{'$year':'$created'}
 							  , m:{'$month':'$created'}
@@ -251,9 +271,12 @@ postDAO.findGroupedPostsByDate = function (done) {
 	  					   }
 				 }
 //	  , sort = { $sort : {'_id.year' : -1, '_id.month' : -1, '_id.dayOfMonth' : -1 }}
-	  , callback = done.getCallback();
+	
 	_db.aggregate([project, group], callback);
 //	_db.aggregate([project, match, group, sort], callback);
+	
+	return deferred.promise
+	   			   .then(_reGroup)
 }
 //TODO: 이게 최선인가.... 조금더.....이쁘게안되나... 보류.
 // findGroupedPostsByDate에서 가져온 데이터를 다시 그룹화함.

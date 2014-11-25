@@ -6,6 +6,7 @@ process.env.NODE_ENV = 'test'
 var mongoose = require('mongoose')
 var	Transaction = require('../../../../dao/util/transaction/Transaction.js')
 
+var Q = require('q')
 var should = require('should')
   , _ = require('underscore')
   , H = require('../../../testHelper.js')
@@ -27,7 +28,7 @@ describe('Transaction', function() {
 	
 	before(function (nextTest) {
 		mongoose.connect('mongodb://localhost/test',function() {
-			H.call4promise(initDataCreater.create)
+			initDataCreater.create()
 			 .then(function() {
 					var user1 = User.createBy({_id:'user1', name:'name1'})
 					  , user2 = User.createBy({_id:'user2', name:'name2'})
@@ -37,13 +38,13 @@ describe('Transaction', function() {
 					  , answer2 = Answer.createBy({content:'answer2'})				 
 				 
 					//순서있게 들어가야함.  
-					return H.syncAll4promise([ 
-							                [userDAO.insertOne, user1]
-							              , [userDAO.insertOne, user2] 
-							              , [answerDAO.insertOne, answer1]
-							              , [answerDAO.insertOne, answer2] 
-							              , [postDAO.insertOne, post1]
-							              , [postDAO.insertOne, post2] 
+					return Q.all([
+					                userDAO.insertOne( user1)
+					              , userDAO.insertOne( user2) 
+					              , answerDAO.insertOne( answer1)
+					              , answerDAO.insertOne( answer2) 
+					              , postDAO.insertOne( post1)
+					              , postDAO.insertOne( post2) 
 							 ])
 							 .then(function dataFn(args) {
 								 should.equal(args[1]._id, 'user2')
@@ -54,24 +55,23 @@ describe('Transaction', function() {
 								 nextTest()
 							 })
 			 })
-			 .catch(nextTest)
+			 .catch(H.testCatch1(nextTest))
 		})
 	})
 	after(function(nextTest) {
-		var errFn = H.testCatch1(nextTest);
 		
-		H.all4promise([
-		                [ [userDAO, userDAO.removeAll]  ]
-		              , [ [postDAO, postDAO.removeAll]  ]
-		              , [ [answerDAO, answerDAO.removeAll]  ]
-				      , [ initDataCreater.removeAll]
+		Q.all([
+                userDAO, userDAO.removeAll()
+              , postDAO, postDAO.removeAll()
+              , answerDAO, answerDAO.removeAll()
+		      , initDataCreater.removeAll()
         ])
 		.then(function() {
 			mongoose.disconnect(function() {
 				nextTest();
 			});
 		})
-		.catch(errFn);
+		.catch(H.testCatch1(nextTest));
 	});
 	it('should success by insert', function (nextTest) {
 //		should.equal(mongoose.Model.create.name, 'create4transaction')
@@ -88,29 +88,28 @@ describe('Transaction', function() {
 		    	
 			var post1 = H.deepClone(initPost1)
 		    post1.context = 'wefweff'		    	
-		    return H.all4promise([
-					                    [ [answerDAO, answerDAO.update], answer1  ]
-					                  , [ [userDAO, userDAO.update], user1  ]
-					                  , [ [postDAO, postDAO.update], post1  ]
+		    return Q.all([
+		                    answerDAO, answerDAO.update( answer1  )
+		                  , userDAO, userDAO.update(user1  )
+		                  , postDAO, postDAO.update( post1  )
 
 					])
 					.then(function () {
 						var post3 = Post.createBy({content:'post3'})			
 						var user3 = User.createBy({_id:'user3', name:'name3'})
 						  
-						return H.all4promise([
-								                 [postDAO.insertOne, post3]
-								               , [ [postDAO, postDAO.removeAll]  ]
-								               , [userDAO.insertOne, user3]
-						                    ])
+						return Q.all([
+						               postDAO.insertOne( post3)
+						             , postDAO.removeAll(  )
+						             , userDAO.insertOne( user3)
+				                    ])
 					})
 				    .then(function () {
 				    	var answer3 = Answer.createBy({content:'answer3'})	    	
 				    	return H.all4promise([
-								                [ [userDAO, userDAO.removeAll]  ]
-								              , [ [answerDAO, answerDAO.removeAll]  ]
-								              , [answerDAO.insertOne, answer3]
-			// 					              , [ initDataCreater.removeAll] //이건 테스트용이다. 여기서 사용하면 중복예외나오게 만든다....올바른사용이 아님. 
+								                userDAO.removeAll()
+								              , answerDAO.removeAll()
+								              , answerDAO.insertOne( answer3)
 								])
 				    })
 				    
@@ -118,10 +117,10 @@ describe('Transaction', function() {
 		    .then(function (status) {
 //		    	console.log('result atomic', status)
 		    	should.equal(status.isSuccess(), true)
-			    return H.all4promise([
-				                        [ [userDAO, userDAO.find] , {}]
-				                      , [ [postDAO, postDAO.find] , {}]
-				                      , [ [answerDAO, answerDAO.find], {} ]
+			    return Q.all([
+		                        userDAO.find({})
+		                      , postDAO.find({})
+		                      , answerDAO.find({})
 	                     ])
 	                     .then(function (args) {
 //	                    	 console.log(args)

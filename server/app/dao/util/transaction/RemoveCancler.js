@@ -1,5 +1,6 @@
 var _ = require('underscore')
 
+var Q = require('q')
 var H = require('../../../common/helper')
 var Status = require('../../../common/Status')
 
@@ -24,12 +25,12 @@ removeCancler.prototype.hookFn = function () {
 			
 			self.tempDocList.push(datas)
 			var index = self.tempDocList.length-1;
-			return originRemove.call(_db, where, self.wrappedCallback1(_db, callback, index))
+			return originRemove.call(_db, where, self.wrappedCallback3(_db, callback, index))
 		})
 	}
 }
 
-removeCancler.prototype.wrappedCallback1  =  function (context, originCallback, index) {
+removeCancler.prototype.wrappedCallback3  =  function (context, originCallback, index) {
 	var self = this
 	  , originCreate = this.originCreate
 	  
@@ -38,39 +39,41 @@ removeCancler.prototype.wrappedCallback1  =  function (context, originCallback, 
 			self.statusMap[index] = Status.makeError(err)
 		} else {
 			self.statusMap[index] = Status.makeSuccess()
-			self.cancleList.push([ [context, _cancleByCreate1(originCreate)], self.tempDocList[index] ])
+			self.cancleList.push(_cancleByCreate3(context,originCreate, self.tempDocList[index]) )
 		}
 		return originCallback(err, data);
 	}
 }
 
-function _cancleByCreate1(originCreate) {
-	return function _cancleByCreate(done, docs) {
+function _cancleByCreate3(context, originCreate, docs) {
+	return function _cancleByCreate() {
+		var deferred  = Q.defer()
+	      , callback  = H.cb4mongo1(deferred);
 		
-		done.hook4dataFn(function (createdDocs) {
-			if(createdDocs) return Status.makeSuccess('create');
-			
-			//createdDocs가 없으면??
-		})
+//		console.log('cancle remove id', where)
+		originCreate.call(context, docs, callback) 
 		
-		// docs(리스트) 전달시 콜백에는 하나의 인자만 전달되지만.
-//		   실제로는 모두 생성되었다.
-		originCreate.call(this, docs, done.getCallback() ) //this가 _db임
+		return deferred.promise.then(function (createdDocs) {
+									if(createdDocs) 
+										return Status.makeSuccess('create');
+									else 
+										return Status.makeSuccess('no created');//createdDocs가 없으면??
+								})
 	}
 }
 ////deprecated
-removeCancler.prototype.cancle = function (done) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn()
-	  , cancleList = this.cancleList
-
-	if(_.isEmpty(cancleList)) return dataFn(Status.makeSuccess('not exit cancleList about remove'))  
-	
-	return H.all4promise(cancleList)
-	        .then(function (statuses) {
-	        	return dataFn(Status.reduceOne(statuses))
-	        })
-	        .catch(function (err){
-	        	return errFn(Status.makeError(err))
-	        })
-}
+//removeCancler.prototype.cancle = function (done) {
+//	var dataFn = done.getDataFn()
+//	  , errFn = done.getErrFn()
+//	  , cancleList = this.cancleList
+//
+//	if(_.isEmpty(cancleList)) return dataFn(Status.makeSuccess('not exit cancleList about remove'))  
+//	
+//	return H.all4promise(cancleList)
+//	        .then(function (statuses) {
+//	        	return dataFn(Status.reduceOne(statuses))
+//	        })
+//	        .catch(function (err){
+//	        	return errFn(Status.makeError(err))
+//	        })
+//}

@@ -3,39 +3,46 @@ var should = require('should');
 
 
 var _ = require('underscore')
-  , async = require('async')
-  , H = require('../../common/helper.js')
-  , q = require('q');
+  ,	H = require('../testHelper.js')
+  , Q = require('q');
 var	Sequence = require('../../dao/Sequence.js');
 
-describe('mongoDb 연동 a postDAO ', function() {
-	var _id = 'testCol'
-	  , _seq = new Sequence(_id);
-	before(function(asyncDone) {
-		mongoose.connect('mongodb://localhost/test',asyncDone)
+describe('mongoDb 연동 Sequence ', function() {
+	var seq
+	
+	before(function(nextTest) {
+		mongoose.connect('mongodb://localhost/test', function () {
+			Sequence.makeFor('id1')
+			.then(function(_seq){
+				seq = _seq
+			})
+			.then(function(){nextTest()})
+			.catch(H.testCatch1(nextTest))		
+		})
 	});
-	after(function(asyncDone) {
-		_seq.remove(new H.Done(function () {
-			mongoose.disconnect(asyncDone);
-		}));
+	after(function(nextTest) {
+		seq.remove()
+		.then(function () {
+			mongoose.disconnect(nextTest);
+		});
 	});
 	describe('#new Sequence()', function() {
-		it('should create default Seq',function (asyncDone) {
-            _seq.create(new H.Done(done));
-            function done(data) {
-  				id = data._id;
-				_id.should.equal(id);
-            	asyncDone();
-            };
+		it('should create default Seq',function () {
+			should.equal(seq._id, 'id1')
 		});
-		it('여러번 호출시 값 일치하는지 확인',function (asyncDone) {
-			H.asyncLoop([1,1,1,1] , [_seq,_seq.getNext], new H.Done(endDone, asyncDone))
-				function endDone(results) {
-//					console.log(results)
-	  				var seqObj = results[3];
-	  				should.equal(seqObj.seq, 4);
-	  				asyncDone();
-				}
+		it('여러번 호출시 값 일치하는지 확인',function (nextTest) {
+			_.reduce(_.range(0,4), function(p, i) {
+				return p.then(function(val) {
+							return seq.getNext()
+						})	
+				
+			},Q())
+			.then(function(val){
+				should.equal(val, 4)  // 1,2,3,4 네번이면 4
+			})
+			.then(function(){nextTest()})
+			.catch(H.testCatch1(nextTest))
+			
 		});
 	});
 });

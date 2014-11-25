@@ -1,21 +1,16 @@
 <meta charset="utf-8">
+<!-- 셀렉트 하는것. 못했음. -->
+<!-- 주석이있으면 select 태그는 오류남.. -->
+<!-- value가 ng-model에 할당되는 값. -->
 
-<select ng-model='text'>
-	<option>wefwefewewf</option>
-	<option tree-explorer root  = "categories" 
-		 	childs-key		    = 'categories'
-		 	node-name 			= 'category'
-		 	selected="selected"
+<select ng-model='selectedCategoryId'>
+	<option tree-explorer
+					has-comment 		= "false"    
+					root  				= "rootOfCategory" 
+ 					children-key		= "categories"
+ 					node-name 			= "category"
+ 			value = "{{category.id}}"		
 	>
 	{{category.title}}
 	</option>
 </select>
-<input type="text" name="text" value="{{ text}}" />
-
-<!-- <select ng-model="text"> -->
-<!-- 	<option>eee</option> -->
-<!-- 	<option>eee222</option> -->
-<!-- 	<option>eee33222</option> -->
-<!-- </select> -->
-
-<!-- <input type="text" name="text" value="{{ text }}" /> -->

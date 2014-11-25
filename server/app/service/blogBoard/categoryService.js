@@ -6,6 +6,9 @@
  */
 
 /* 초기화 및 의존성, 클래스 변수 */
+
+var Q = require('q')
+
 var H = require('../../common/helper.js')
   , Done = H.Done
   , Status = require('../../common/Status.js')
@@ -25,19 +28,24 @@ var categoryService = module.exports = {};
 
 
 //deprease
-categoryService.getRootOfCategoryTree = function (done, allCategories) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn()
+categoryService.getRootOfCategoryTree = function (allCategories) {
+	var deferred = Q.defer()
+	  , promise  = deferred.promise
 	
-	if(allCategories) return returnRootOfCategoryTree(allCategories); 
+	if(allCategories) deferred.resolve(_returnRootOfCategoryTree(allCategories))
 	
-	return H.call4promise(categoryDAO.findAll)
-	 	    .then(returnRootOfCategoryTree)
-	        .catch(errFn);
+	categoryDAO.findAll()
+	       .then(function (_allCategories) {
+	    	   deferred.resolve(_returnRootOfCategoryTree(_allCategories))
+	       })
+	       .catch(function(err) {
+	    	   deferred.reject(err);
+	       });
 	
-	function returnRootOfCategoryTree(categories) {
-		var rootOfTree = categoryService.categoriesToTree(categories, 'postCount', 0)
-		return dataFn(rootOfTree)
+	return promise;
+	
+	function _returnRootOfCategoryTree(categories) {
+		return categoryService.categoriesToTree(categories, 'postCount', 0)
 	 }
 }
 categoryService.categoriesToTree = function (categories, key4aggregate, delimiter, isToChild) {
@@ -46,7 +54,7 @@ categoryService.categoriesToTree = function (categories, key4aggregate, delimite
 	  , categoryJoiner = new Joiner(categories, 'parentId', 'categories')
 	categoryJoiner.setKey4aggregate(key4aggregate, delimiter, null, isToChild) 
 	
-	root = categoryJoiner.findNode(root)
+	root = categoryJoiner.findNode(root, 'id')
 	return categoryJoiner.treeTo(root, 'id')
 } 
 

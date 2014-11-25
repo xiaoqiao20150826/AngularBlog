@@ -1,6 +1,6 @@
 /**
  */
-define(['app'], function (app) {
+define(['common/common'], function (common) {
 
 	describe('ObjectDecorater', function() {
 		var ObjectDecorator
@@ -10,7 +10,7 @@ define(['app'], function (app) {
 					, fn: function (a, b, c, d, e) { return a }
 					, fn2: function (a) {return a} 
 			}
-			angular.mock.module(app)
+			angular.mock.module(common)
 			angular.mock.inject(function ($injector) {   //TODO: 인자이름을 감지하네? 어떻게 한거지.
 				ObjectDecorator = $injector.get('common.ObjectDecorator')
 				objDec = new ObjectDecorator(target)

@@ -13,6 +13,7 @@ var requestParser = require('../util/requestParser.js')
   , Redirector = require('../util/Redirector.js')
   , scriptletUtil = require('../../common/util/scriptletUtil.js')
 var JsonResponse = require('../util/JsonResponse.js')
+  , AuthRequest   = require('../util/AuthRequest.js')
   
 var Post = require('../../domain/blogBoard/Post.js')
   , Category = require('../../domain/blogBoard/Category')
@@ -31,10 +32,6 @@ blogBoardController.mapUrlToResponse = function(app) {
 		// json. 
 		app.get('/json/blogBoard/list', this.sendBlogBoardList)
 		app.get('/json/blogBoard/detail', this.sendBlogBoardDetail)
-		app.get('/json/blogBoard/categories', this.sendBlogBoardCategories)
-
-		
-		
 		
 		///////////////////////////////-----------------------------------------
 		app.get('/blog/history', this.sendHistoryView);
@@ -62,7 +59,9 @@ blogBoardController.mapUrlToResponse = function(app) {
 /* json 응답. */
 blogBoardController.sendBlogBoardList = function (req, res) {
 		var jsonRes 	= new JsonResponse(res)
-		var rawData 	= requestParser.getRawData(req)
+		  , authReq 	= new AuthRequest(req)
+		
+		var rawData 	= authReq.getRawData(req)
 		  , pageNum 	= _.isEmpty(rawData.pageNum) ? FIRST_PAGE_NUM : rawData.pageNum  
 		  , sorter 		= _.isEmpty(rawData.sorter) ? SORTER_NEWEST: rawData.sorter
 		  , categoryId 	= Category.isRoot(rawData.categoryId) ? Category.getRootId() : rawData.categoryId
@@ -85,9 +84,11 @@ blogBoardController.sendBlogBoardList = function (req, res) {
 }
 blogBoardController.sendBlogBoardDetail = function (req, res) {
 	var jsonRes 	= new JsonResponse(res)
-	var rawData = requestParser.getRawData(req)
-	  , postNum = rawData.postNum
-	  , cookie = new Cookie(req, res);
+	  , authReq 	= new AuthRequest(req)
+	
+	var rawData 	= authReq.getRawData(req)
+	  , postNum 	= rawData.postNum
+	  , cookie 		= new Cookie(req, res);
 	
 	H.all4promise([
 	               	  [blogBoardService.increaseReadCount, postNum, cookie]
@@ -102,16 +103,8 @@ blogBoardController.sendBlogBoardDetail = function (req, res) {
 	 })
 	  .catch(jsonRes.catch())
 }
-blogBoardController.sendBlogBoardCategories = function (req, res) {
-	var jsonRes 	= new JsonResponse(res)
-	H.call4promise(categoryService.getRootOfCategoryTree)
-	 .then(function (rootOfCategoryTree) {
-		 	var blog = { categories : rootOfCategoryTree };
-		 	
-			return jsonRes.send(blog);
-	 })
-	 .catch(jsonRes.catch())	
-}
+
+
 ////////////////////////////////////////////////////////////////////
 /////////////		이아래는..후.정리해야함.
 /////////////////////////////////////////////////////////////////
@@ -265,17 +258,4 @@ function _sendHistoryView(req, res, viewPath) {
  			return;
 		})
 		 .catch(redirector.catch)
-}
-/*    helper   */
-//test
-function _test(req, res) {
-	req.session.passport.user = {_id: '6150493-github'
-		                       , name: 'kangil'
-		                       , photo: 'https://avatars.githubusercontent.com/u/6150493'
-		                       , email: 'ee@dd.com'
-		                    	 };
-	res.redirect('/');
-}
-function _seeCookie(req, res) {
-    res.send(req.headers);
 }

@@ -9,7 +9,6 @@ var	Hooker = require('../../../../dao/util/transaction/Hooker.js')
 var should = require('should')
   , _ = require('underscore')
   , H = require('../../../testHelper.js')
-  , Done = H.Done
 
 describe('Hooker', function() {
 	var test

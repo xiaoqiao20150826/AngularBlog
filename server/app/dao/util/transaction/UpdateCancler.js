@@ -1,6 +1,7 @@
 
 var _ = require('underscore')
 
+var Q = require('q')
 var H = require('../../../common/helper')
 var Status = require('../../../common/Status')
 
@@ -29,7 +30,7 @@ updateCancler.prototype.hookFn = function () {
 			self.tempArgMapList.push(argMap)
 			
 			var index = self.tempArgMapList.length-1;
-			return originUpdate.call(_db, where, data, config, self.wrappedCallback1(_db, callback, index))
+			return originUpdate.call(_db, where, data, config, self.wrappedCallback3(_db, callback, index))
 		})
 	}
 }
@@ -51,7 +52,7 @@ function _listOfWhereAndData (docs) {
 	return result;
 } 
 
-updateCancler.prototype.wrappedCallback1  =  function (context, originCallback, index) {
+updateCancler.prototype.wrappedCallback3  =  function (context, originCallback, index) {
 	var self = this
 	  , originUpdate = this.originUpdate
 	  
@@ -62,19 +63,13 @@ updateCancler.prototype.wrappedCallback1  =  function (context, originCallback, 
 			
 			var argMap = self.tempArgMapList[index]
 			  , config = argMap.config
-			  , contextAndAsyncFn  = [context, _cancleByUpdate1(originUpdate)]
 			  , listOfWhereAndData = argMap.listOfWhereAndData
 			
 //			순서주의 (asyncFn call하기위한 args)
 			for(var i in listOfWhereAndData) {
-				var arg4call4promise = []
-				  , whereAndData = listOfWhereAndData[i]
-				arg4call4promise.push(contextAndAsyncFn)
-				arg4call4promise.push(whereAndData.where)
-				arg4call4promise.push(whereAndData.data)
-				arg4call4promise.push(config)
+				var whereAndData = listOfWhereAndData[i]
 				
-				self.cancleList.push(arg4call4promise)
+				self.cancleList.push(_cancleByUpdate5(context, originUpdate, whereAndData.where, whereAndData.data, config) )
 			}
 			
 			self.statusMap[index] = Status.makeSuccess()
@@ -84,29 +79,31 @@ updateCancler.prototype.wrappedCallback1  =  function (context, originCallback, 
 }
 
 // all4promise를 위한 비동기 함수
-function _cancleByUpdate1(originUpdate) {
-	return function _cancleByUpdate(done, where, data, config) {
+function _cancleByUpdate5(context, originUpdate, where, data, config) {
+	return function _cancleByUpdate() {
+		var deferred  = Q.defer()
+	      , callback  = H.cb4mongo1(deferred);
 		
-//		console.log('update arg for cancle', where, data, config)
-		done.hook4dataFn(function (result) {
-			return Status.makeForUpdate(result)
-		})
-		originUpdate.call(this, where, data, config, done.getCallback()) //this가 _db임
+		originUpdate.call(context, where, data, config, callback)
+		
+		return deferred.promise.then(function (result) {
+									return Status.makeForUpdate(result)
+								})
 	}
 }
 ////deprecated
-updateCancler.prototype.cancle = function (done) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn()
-	  , cancleList = this.cancleList
-
-	if(_.isEmpty(cancleList)) return dataFn(Status.makeSuccess('not exit cancleList about update'))
-	
-	return H.all4promise(cancleList)
-	        .then(function (statuses) {
-	        	return dataFn(Status.reduceOne(statuses))
-	        })
-	        .catch(function (err){
-	        	return errFn(Status.makeError(err))
-	        })
-}
+//updateCancler.prototype.cancle = function (done) {
+//	var dataFn = done.getDataFn()
+//	  , errFn = done.getErrFn()
+//	  , cancleList = this.cancleList
+//
+//	if(_.isEmpty(cancleList)) return dataFn(Status.makeSuccess('not exit cancleList about update'))
+//	
+//	return H.all4promise(cancleList)
+//	        .then(function (statuses) {
+//	        	return dataFn(Status.reduceOne(statuses))
+//	        })
+//	        .catch(function (err){
+//	        	return errFn(Status.makeError(err))
+//	        })
+//}

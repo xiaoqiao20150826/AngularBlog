@@ -77,3 +77,27 @@ User.prototype.isAnnoymous = function () {
 	else 
 		return false;
 };
+User.prototype.isAdmin = function () {
+	if(this.isAnnoymous()) return false;
+	
+	if(this.isEqualById(_getAdminId() )) return true;
+	if(this.isEqualById(User.getTester()._id)) return true;
+	
+	return false;
+};
+User.prototype.isNotAdmin = function () {
+	return !this.isAdmin()
+}
+
+//private
+function _isAdmin(loginUser) {
+	if(_.isEmpty(loginUser) || loginUser.isAnnoymous()) return false;
+	
+	if(loginUser.isEqualById(_getAdminId() )) return true;
+	if(loginUser.isEqualById(User.getTester()._id)) return true;
+		
+	return false;
+}
+function _getAdminId() {
+	return '6150493-github';
+}

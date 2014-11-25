@@ -13,7 +13,8 @@ var mongoose = require('mongoose')
 var _db = mongoose.model('Seq', _getSchema())
   , H = require('../common/helper.js')
   , Status = require('../common/Status.js')
-
+  
+var Q = require('q')
 
 function _getSchema() {
 	return {
@@ -26,67 +27,88 @@ function _getSchema() {
 var DUPLICATE_KEY_CODE = 11000
 var Sequence = module.exports = function(_id) {
 	this._id = _id;
+	this.seq = 0
 }
 ;
 var sequenceMap = {};
-Sequence.makeFor = function(done, id) {
-	var dataFn = done.getDataFn() //err 무시설정이라 errFn안씀 
-	  , newSequence = new Sequence(id)
 
-	if(sequenceMap[id]) { return dataFn() }
+Sequence.makeFor = function(id) {
+	var deferred  = Q.defer()
 	
-	return H.call4promise([newSequence, newSequence.create])
+	var newSequence = new Sequence(id)
+
+	if(sequenceMap[id]) { return deferred.resolve(sequenceMap[id]) }
+	
+	
+	newSequence.create()
 			 .then(function () {
 				 sequenceMap[id] = newSequence;
 				 debug('make sequence :', id)
-				 return dataFn();
+				 deferred.resolve(newSequence);
 			 })
 			 .catch(function (error) {
 				 if(error.code == DUPLICATE_KEY_CODE) {
 					 debug('had been made sequence :', id)
 					 sequenceMap[id] = newSequence;
-					 dataFn(null);
+					 deferred.resolve(newSequence);
 					 return;
 				 } else {
 					 return console.error(error)
 				 }
 			 })
+	
+	return deferred.promise
 }
+
+//이 get3개 프로마이즈가 아님.
 Sequence.getForPost = function() { return Sequence.getInstance(sequenceIdMap.post) }
 Sequence.getForAnswer = function() { return Sequence.getInstance(sequenceIdMap.answer) }
-
 Sequence.getInstance = function(id) {
 	if(!sequenceMap[id]) return console.error('must will make sequence about', id)
 	return sequenceMap[id];
 }
 
 // instance method
-Sequence.prototype.create = function(done) {
-	var doc = {_id:this._id, seq:0}
+Sequence.prototype.create = function() {
+	var deferred  = Q.defer()
+      , callback  = H.cb4mongo1(deferred)
 	
-	_db.create(doc, done.getCallback());
+	var doc = {_id:this._id, seq:this.seq}
+	
+	_db.create(doc, callback)
+	
+	return deferred.promise
 };
-Sequence.prototype.getNext = function (done, incNum) {
+Sequence.prototype.getNext = function (incNum) {
 	var _incNum = incNum || 1;
 	
 	var conditions ={_id : this._id} //무엇을 수정할것인가
 	  , update = {$inc:{seq: _incNum}} //어떻게 수정할것인가
 	  , options = {'new': true,upsert: true} //new t:수정된값 , f: 원래값
-	  , callback = done.getCallback();
-	_db.findOneAndUpdate(conditions,update,options, callback);
+
+	var deferred  = Q.defer()
+      , callback  = H.cb4mongo1(deferred)
+      
+	_db.findOneAndUpdate(conditions,update,options, callback)
+	
+	return deferred.promise
+				   .then(function(data){ return data.seq});
 };
-Sequence.removeAll = function (done) {
-	_remove(done, {});
+Sequence.removeAll = function () {
+	return _remove({});
 }
-Sequence.prototype.remove = function(done) {
-	_remove(done, {_id:this._id}); 
+Sequence.prototype.remove = function() {
+	return _remove({_id:this._id}); 
 };
 
 function _remove(done, where) {
-	done.hook4dataFn(function (data) {
-		return Status.makeForRemove(data)
-	})
-	_db.remove(where, done.getCallback());
+	var deferred  = Q.defer()
+      , callback  = H.cb4mongo1(deferred);
+	
+	_db.remove(where, callback)
+	
+	return deferred.promise
+	               .then(function  (data) { return Status.makeForRemove(data) })
 }
 
 // 보조

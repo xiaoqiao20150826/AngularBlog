@@ -5,15 +5,16 @@
 (function(define, _) {
 	define([], function () {
 		var setupLog = {
-							config : [ 'common.inspectLoggerProvider', setupLogConfig]
-						 ,  run	   : [ 'common.inspectLogger', setupLogRun] 
+							config : [ 'ANGULAR_ENV', 'common.inspectLoggerProvider', setupLogConfig]
+						 ,  run	   : [ 'ANGULAR_ENV', 'common.inspectLogger', setupLogRun] 
 					   }	
 		return setupLog
 	})
 
 	// -----------------------------------------------------
 	
-	function setupLogConfig(inspectLoggerProvider) {
+	function setupLogConfig(ANGULAR_ENV, inspectLoggerProvider) {
+		if(ANGULAR_ENV !== 'log') return;
 		
 		var serviceInfoes = {}
 		serviceInfoes.$rootScope =   {
@@ -27,7 +28,8 @@
 	
 	// -----------------------------------------------------
 	
-	function setupLogRun (inspectLogger) {
+	function setupLogRun (ANGULAR_ENV, inspectLogger) {
+		if(ANGULAR_ENV !== 'log') return;
 		
 		var stateEventFilter = makeSimulausEventFilter(['$state'])
 		  , locationEventFilter = makeSimulausEventFilter(['$location'])

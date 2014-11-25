@@ -1,5 +1,9 @@
 /**
- *   // app 모듈 로딩 완료 후 run에서 이벤트에 대한 핸들러 등록. 
+ *   // app 모듈 로딩 완료 후 run에서 이벤트에 대한 핸들러 등록.
+ *   
+ *    TODO: app.httpFailHandler의 리다이렉트..부분과 좀 겹치지않을까?
+ *          리다이렉터를 만들어야 하지 않을까?
+ *          http.....요고에서 한것처럼 $state.go($state.current)..이런식으로하는것이 편하지않을까?
  */
 
 
@@ -31,22 +35,13 @@
 	        			   
 	        			   ////////////////////////
 	        			   if(toState.admin) {
-	        				   _checkAdmin(authService)
-	        				   .then(function(isAdmin) {
-	        					   if(isAdmin) return _originWork($state, toState, toParams) 
-	        					   else return _redirectAndShow($state, fromState, fromParams, null);
-	        				   })
+	        				   return authService.loginUserIsAdmin()
+						        				  .then(function(result) {
+						        					   return _originWork($state, toState, toParams) 
+						        				  })
 	        			   }
 	        		   })
 	    });
-	    function _checkAdmin (authService){
-			   return authService.loginUserIsAdmin()
-	   			  				 .then(function(result) {
-	   			  					 if(result.isSuccess) return true
-	   			  					 else return false;
-	   			  				 })
-	    }
-	    
 	    function _redirectAndShow ($state, fromState, fromParams, showLoginView) {
 			   var stateName = _defaultNameIfNoUse(fromState)
 			   return $state.go(stateName , fromParams)

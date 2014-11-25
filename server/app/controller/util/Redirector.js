@@ -1,6 +1,7 @@
 /**
- * 
+ *  -------- 더이상 사용안함 -------
  */
+
 
 var Redirector = module.exports = function(res) {
 	this.res = res;

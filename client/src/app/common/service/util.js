@@ -27,8 +27,32 @@
 			U.isEmpty = function (o) {
 				return _.isEmtpy(o);
 			}
+			U.isPromise = function (p) {
+				if(_.isFunction(p.then) && _.isFunction(p.catch)) return true
+				else return false;
+			}
+			U.isNotPromise = function (p) {
+				return !U.isPromise(p)
+			}
+			///
 			U.date = function (dateStr) {
 				return new Date(dateStr).toLocaleString()
+			}
+			U.stringToBoolean = function (str) {
+				if(_.isEmpty(str)) return false;
+				
+				if(str.trim().toLowerCase() === "false") return false
+				else return true;
+			}
+			
+			// json 요청에 대한 응답의 공통적인 성공/실패 확인 함수.
+			U.validResponse = function(res) {
+				if(!res.data.isSuccess) {
+					alert(res.data.obj.message, res.data.obj.error)
+					return console.error(res.data.obj)
+				}
+				
+				return res.data.obj
 			}
 
 			//--------------------------------- --

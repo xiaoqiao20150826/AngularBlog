@@ -7,7 +7,9 @@
 	var testOneName 
 //						= 'ObjectDecorator'  // 주석시 all
 //						= 'inspectLogger'  // 주석시 all
-						= 'uiRouter'  // 주석시 all
+//						= 'uiRouter'  // 주석시 all
+						= 'httpFailHandler'  // 주석시 all
+//						= 'authService'  // 주석시 all
 	
 	var tests = [];
 	//현재 항상 *Spec.js 로 끝나는 파일만 필터링...더 나은방법은? 

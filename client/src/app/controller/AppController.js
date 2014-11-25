@@ -10,18 +10,19 @@
 		        , 'common.util'
 		        , 'app.authService'
 		        , 'currentUser'
-		        , 'categories'
+		        , 'rootOfCategory'
 		        , AppController
 		        ];
 	})
 	
-	function AppController($rootScope, util, authService, currentUser, categories) {
+	function AppController($rootScope, util, authService, currentUser, rootOfCategory) {
 		// 전역 이름
 		$rootScope._  = _
 		$rootScope.U  = util
 		
 		$rootScope.currentUser = currentUser
-		$rootScope.categories = categories
+		$rootScope.rootOfCategory = rootOfCategory
+		
 		// app로접근.
 		
 
