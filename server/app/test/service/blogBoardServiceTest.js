@@ -1,9 +1,10 @@
 
-var debug = require('debug')('test:service:blogServiceTest')
+var debug = require('debug')('test:service:blogBoardServiceTest')
 var mongoose = require('mongoose');
 var should = require('should')
   , path = require('path')
 
+var Q = require('q')
 var H = require('../testHelper.js')
 
 var Post = require('../../domain/blogBoard/Post.js')
@@ -16,7 +17,7 @@ var postDAO = require('../../dao/blogBoard/postDAO.js')
   , answerDAO = require('../../dao/blogBoard/answerDAO.js')
   , categoryDAO = require('../../dao/blogBoard/categoryDAO.js')
   , userDAO = require('../../dao/userDAO.js')
-var blogService = require('../../service/blogBoard/blogBoardService.js')
+var blogBoardService = require('../../service/blogBoard/blogBoardService.js')
 var initDataCreater = require('../../initDataCreater')
 // 테스트를 위한 참조, 입력한 데이터에 대한.  
 var userId, postNum, post, user, answer1, answer2;
@@ -27,7 +28,7 @@ var testFileName = 'test.txt'
 //
 var _postWithFile4Test;
 
-describe('blogService', function () {
+describe('blogBoardService', function () {
 	before(function(nextTest) {
 		_createAndInsertTestData(nextTest);
 	});
@@ -36,117 +37,114 @@ describe('blogService', function () {
 	});
 	describe('$getPostsAndPager', function( ) {
 		it('should get postsAndPager', function (nextTest) {
-			var errFn = H.testCatch1(nextTest)
-			  , done = new H.Done(dataFn, errFn);
 			var curPageNum = 1;
-			blogService.getFullList(new H.Done(dataFn, errFn), curPageNum, null, Category.getRootId());
-			function dataFn(FullList) {
+			
+			blogBoardService.getFullList(curPageNum, null, Category.getRootId() )
+			.then(function dataFn(FullList) {
 //				console.log(FullList)
 				var pager = FullList.pager
 				  , posts = FullList.posts
-				  , allCategories = FullList.allCategories
 				  , post = posts[0];
 				should.equal(pager.allRowCount, 1);
 				should.equal(post.content, 'postContent1')
 				should.equal(post.user.name , 'kang')
 				should.equal(post.category.title , 'root')
-				should.equal(allCategories[0].title , 'root')
-				nextTest();
-			}
+			})
+			.then(function(){nextTest()})
+			.catch(H.testCatch1(nextTest))
 		});
 		it('should get joinedPosts', function (nextTest) {
-			var errFn = H.testCatch1(nextTest)
 			var categories = [Category.makeRoot()]
-			H.call4promise(postDAO.find)
+			postDAO.find()
 			 .then(function(posts) {
-				 return H.call4promise(blogService.getJoinedPostsByUsersAndCategories, posts, categories) 
+				 return blogBoardService.joinPartsToPosts( posts, categories) 
 			 })
 			 .then(function(joinedPosts) {
 				 var joinedPost = joinedPosts[0]
 				 should.equal(joinedPost.user.name , 'kang')
 				 should.equal(joinedPost.category.title , 'root')
-				 nextTest()
-			 })
-			 .catch(errFn)
+			})
+			.then(function(){nextTest()})
+			.catch(H.testCatch1(nextTest))
 		})
 	})
 	describe('#getJoinedPost', function( ) {
 		it('should take realPost by postNum', function (nextTest) {
-			var errFn = H.testCatch1(nextTest);
-			blogService.getJoinedPost(new H.Done(dataFn, errFn), post.num);
-			function dataFn(e_post) {
+			
+			blogBoardService.getJoinedPost(post.num)
+			.then(function dataFn(e_post) {
 //				console.log(e_post)
 				should.equal(e_post.num, post.num);
 //				console.log(e_post.answers)
 				should.equal(e_post.answers.pop().num, 1);
-				nextTest();
-				
-			}
+			})
+			.then(function(){nextTest()})
+			.catch(H.testCatch1(nextTest))
 		})
 		it('should take emptyPost by wrong postNum', function (nextTest) {
-			var errFn = H.testCatch1(nextTest);
-			blogService.getJoinedPost(new H.Done(dataFn, errFn), 4);
-			function dataFn(e_post) {
+			
+			blogBoardService.getJoinedPost( 4)
+			.then(function dataFn(e_post) {
 				should.equal(e_post.num, new Post().num);
-				nextTest();
-			}
+			})
+			.then(function(){nextTest()})
+			.catch(H.testCatch1(nextTest))
 		})
 	})
 	describe('#insertPostAndIncreaseCategoryCount', function () {
  		it('should insert post without file', function (nextTest) {
-			var errFn = H.testCatch1(nextTest)
+ 			
 			var newPost = Post.createBy({content:'newPost', categoryId:post.categoryId})
 			
-			H.call4promise(blogService.insertPostAndIncreaseCategoryCount, newPost)
+			blogBoardService.insertPostAndIncreaseCategoryCount( newPost)
 			 .then(function dataFn(insertedPost) {
 					should.exist(insertedPost);
 					should.deepEqual(insertedPost.fileInfoes, []);
 					
-					return H.call4promise(categoryDAO.findById, post.categoryId)
+					return categoryDAO.findById( post.categoryId)
 			 })
 			 .then(function (category){
 				 should.equal(category.postCount, 1)
-				 nextTest();
-			 })
-			 .catch(errFn)
+			})
+			.then(function(){nextTest()})
+			.catch(H.testCatch1(nextTest))
 		})
 	})
 	describe('#update', function () {
 		it('should success increaseVote', function (nextTest) {
-			var errFn = H.testCatch1(nextTest)
-			  , done = new H.Done(dataFn, errFn);
+			
 			var postNum = 1;
 			var userId = 'AAA';
-			blogService.increaseVote(done, postNum, userId);
-			function dataFn(status) {
+			blogBoardService.increaseVote(postNum, userId)
+			.then(function dataFn(status) {
 				debug('success arg', arguments)
 				should.equal(status.isSuccess(), true)
-				nextTest()
-			}
+			})
+			.then(function(){nextTest()})
+			.catch(H.testCatch1(nextTest))
 		})
 		it('should fail increaseVote ', function (nextTest) {
-			var errFn = H.testCatch1(nextTest)
-			  , done = new H.Done(dataFn, errFn);
+			
 			var postNum = 1;
 			var userId = 'AAA';
-			blogService.increaseVote(done, postNum, userId);
-			function dataFn(status) {
+			blogBoardService.increaseVote(postNum, userId)
+			.then(function dataFn(status) {
 				debug('fail arg ', arguments);
 				should.equal(status.isError(), true)
-				nextTest()
-			}
+			})
+			.then(function(){nextTest()})
+			.catch(H.testCatch1(nextTest))
 		})
 	})
 	describe('delete', function () {
 		it('should run and rollback', function (nextTest) {
-			var errFn = H.testCatch1(nextTest)
 			var postNum = 1
-			H.call4promise(blogService.deletePost, postNum)
+			blogBoardService.deletePost( postNum)
 			.then(function (status) {
 				should.equal(status.isSuccess(), true)
-				nextTest()
 			})
-			.catch(errFn)				
+			.then(function(){nextTest()})
+			.catch(H.testCatch1(nextTest))
 			
 		})
 	})
@@ -163,7 +161,7 @@ describe('blogService', function () {
 function _createAndInsertTestData(nextTest) {
 	var errFn = H.testCatch1(nextTest);
 	 mongoose.connect('mongodb://localhost/test',function() {
-		H.call4promise(initDataCreater.create)
+		initDataCreater.create()
 		 .then(function() {
 				categoryId = Category.getRootId()
 				
@@ -192,32 +190,28 @@ function _createAndInsertTestData(nextTest) {
 				answer2.postNum = postNum;
 				answer2.content = 'answerContent2'			 
 			 
-			 H.all4promise([   [ postDAO.insertOne, post] 
-					         , [ answerDAO.insertOne, answer1]
-					         , [ answerDAO.insertOne, answer2]
-					         , [ userDAO.insertOne, user]
-					         ])
-					         .then(function(url) {
-					        	 testFileUrl = url;
-					        	 nextTest();
-					         })
-					         .catch(errFn)
+				Q.all([    postDAO.insertOne( post)
+				         ,  answerDAO.insertOne( answer1)
+				         ,  answerDAO.insertOne( answer2)
+				         ,  userDAO.insertOne( user)
+		         ])
+		         .then(function() {
+		        	 nextTest();
+		         })
+		         .catch(H.testCatch1(nextTest))
 		 });
 	 })
 }
 function _deleteAllTestData(nextTest) {
-	var errFn = H.testCatch1(nextTest);
-	var done = new H.Done(function() {}, errFn);
-	
-	H.all4promise([postDAO.removeAll
-				 , answerDAO.removeAll
-				 , userDAO.removeAll
-				 , initDataCreater.removeAll
+	Q.all([ postDAO.removeAll()
+		  , answerDAO.removeAll()
+		  , userDAO.removeAll()
+		  , initDataCreater.removeAll()
 	])
 	.then(function() {
 			mongoose.disconnect(function(d) {
 					nextTest();
 			});
 	})
-	.catch(errFn)
+	.catch(H.testCatch1(nextTest))
 }

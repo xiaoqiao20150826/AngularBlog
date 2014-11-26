@@ -34,11 +34,13 @@ testHelper.createObjs = function(obj, count, keys4tempValue) {
 };
 
 
+testHelper.testCatch = function () {
+	return function(err) { console.error(err)}
+}
 testHelper.testCatch1 = function (nextCase) {
 	return function (err) {
-		console.log(err);
+		console.error(err);
 		nextCase(err)
-		
 	}
 }
 

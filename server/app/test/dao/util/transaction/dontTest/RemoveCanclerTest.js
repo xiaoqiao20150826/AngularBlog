@@ -1,5 +1,6 @@
 /**
- * TODO:만약 cancle이 실패하면 어떻게 해야하지???
+ * TODO:Transaction의 내부에서만 cancle이 사용되어 각 부분클래스는 deprecated 됨.
+ *      그래서 현재 테스트는 확인되지 않음.
  */
 process.env.NODE_ENV = 'test'
 

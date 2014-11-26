@@ -2,13 +2,14 @@
  *  fs을 감싼 객체.
  */
 var debug = require('debug')('nodeblog:commmon:localFile')
+
+var Q = require('q')
 var _ = require('underscore')
   , path = require('path')
   , fs = require('fs');
 
 var Status = require('../Status') //이것이. 몽고디비를 위한건데. 여기서도 사용.
 var H = require('../helper.js')
-  , Done = H.Done;
 
 var iconv = require('iconv-lite')
 /////
@@ -45,170 +46,200 @@ localFile.createFolderIfNotExist = function (dirPath, nextFn) {
 
 //callback(err)로 호출되기에 data는 값이 없지만 dataFn을 통해 다음행동을 할 수 있다.
 //이건 전달하는 data없으니 내가 생성한 filePath을 전달함.
-localFile.create = function(done, filePath, data, option) {
-	done.hook4dataFn(function(data) {
-		var status = Status.makeSuccess(data)
-		status.filePath = filePath
-		return status 
-	});
+localFile.create = function(filePath, data, option) {
+	var deferred = Q.defer()
+	  , callback = H.cb4mongo1(deferred)
 	
 	var option = option || {encoding:'utf8'};
-	fs.writeFile(filePath, data, option, done.getCallback());
-}
-
-localFile.createEx = function(done, filePath, data, option) {
-	done.hook4dataFn(function(data) {
+	fs.writeFile(filePath, data, option, callback)
+	
+	return deferred.promise.then(function(data) {
 		var status = Status.makeSuccess(data)
 		status.filePath = filePath
 		return status 
 	});
+}
+
+localFile.createEx = function(filePath, data, option) {
+	var deferred = Q.defer()
 	
 	var dir = path.dirname(filePath)
-	localFile.createFolderIfNotExist(dir, function () {
-		localFile.create(done, filePath, data, option);
+	
+	localFile.createFolderIfNotExist(dir, function done() {
+		localFile.create(filePath, data, option)
+				 .then(function(data) {
+						var status = Status.makeSuccess(data)
+						status.filePath = filePath
+						deferred.resolve(status) 
+					})
 	});
+	
+	return deferred.promise
 }
-localFile.read = function(done, filePath, option) {
+localFile.read = function(filePath, option) {
+	var deferred = Q.defer()
+	  , callback = H.cb4mongo1(deferred)
+	
 	var option = option || {encoding:'utf8'}
-	fs.readFile(filePath, option, done.getCallback());
+	
+	fs.readFile(filePath, option, callback);
+	
+	return deferred.promise;
 }
 //한글로 읽기 , binary로 읽고, 버퍼에 담고, euc-kr로 디코드
-localFile.readKr = function(done, filePath) {
+localFile.readKr = function(filePath) {
 	var option = option || {encoding:'binary'}
 	
-	done.hook4dataFn(function(data) {
-		 var buf = new Buffer(data, 'binary');
-		 return iconv.decode(buf, 'euc-kr')
-	})
+	return localFile.read(filePath, option)
+					.then(function(data) {
+						 var buf = new Buffer(data, 'binary');
+						 return iconv.decode(buf, 'euc-kr')
+					})
+}
+localFile.copyNoThrow = function(fromFileUrl, toFileUrl, option) {
+	var deferred = Q.defer()
 	
-	fs.readFile(filePath, option, done.getCallback());
-}
-localFile.copyNoThrow = function(done, fromFileUrl, toFileUrl, option) {
-	var dataFn = done.getDataFn();
-	done.setErrFn(function(err) {
-		debug('copyNoThrow err', err)
-		dataFn(Status.makeError(err));
-		
-	})
-	localFile.copy(done, fromFileUrl, toFileUrl, option)
+	localFile.copy(fromFileUrl, toFileUrl, option)
+			 .then(function(status) { deferred.resolve(status) })
+			 .catch(function(err) {
+				 debug('copyNoThrow err', err)
+				 deferred.resolve(Status.makeError(err)) 
+			 })
+	
+	return deferred.promise;
 }
 
-localFile.copy = function(done, fromFileUrl, toFileUrl, option) {
-	var dataFn = done.getDataFn();
-	H.call4promise(localFile.read, fromFileUrl, option)
-	 .then(function(data) {
-//		 이미지를 읽을때 debug하면 무한반복됨. 이게 뭔일이냐.
-//		 debug('read data :', data)
-		 debug('fromFileUrl and data is exist', fromFileUrl  )
-		 if(H.notExist(data)) 
-			 return Status.makeError(fromFileUrl + ' data is not exist')
-		 else 
-			 return localFile.createEx(done, toFileUrl, data, option);
-	 })
-	 .catch(done.getErrFn());
+localFile.copy = function(fromFileUrl, toFileUrl, option) {
+	return localFile.read( fromFileUrl, option)
+			 		 .then(function(data) {
+				//		 이미지를 읽을때 debug하면 무한반복됨. 이게 뭔일이냐.
+				//		 debug('read data :', data)
+						 debug('fromFileUrl and data is exist', fromFileUrl  )
+						 if(H.notExist(data)) 
+							 return Status.makeError(fromFileUrl + ' data is not exist')
+						 else 
+							 return localFile.createEx(toFileUrl, data, option);
+					 })
 }
 
-localFile.copyNoDuplicate = function(done, fromFileUrl, toFileUrl, type) {
+localFile.copyNoDuplicate = function(fromFileUrl, toFileUrl, type) {
 	var option = null;
 	if(localFile.isImageType(type)) { option = {encoding:'binary'} }
 	
-	return localFile.copyNoDuplicateWithOption(done, fromFileUrl, toFileUrl, option)
+	return localFile.copyNoDuplicateWithOption(fromFileUrl, toFileUrl, option)
 }
-localFile.copyNoDuplicateWithOption = function(done, fromFileUrl, toFileUrl, option) {
+//TODO : 재귀랑 promise 짬뽕하니 좀 이상한데.?
+localFile.copyNoDuplicateWithOption = function(fromFileUrl, toFileUrl, option) {
 	var i = 0;
 	
-	loopUntilNoExistFile(toFileUrl);
+	return loopUntilNoExistFile(toFileUrl);
+	
 	function loopUntilNoExistFile(to) {
-		H.call4promise(localFile.exists, to)
-		 .then(function (existFile) {
-			 if(!existFile) { return localFile.copyNoThrow(done, fromFileUrl, to, option); }
-			 else {
-				 var newFileUrl = H.pushInMidOfStr(toFileUrl, (++i), '.');
-				 return loopUntilNoExistFile(newFileUrl);
-			 }
-	     })
-	     .catch(done.getErrFn());
+		return localFile.exists(to)
+				 .then(function (existFile) {
+					 if(!existFile) { return localFile.copyNoThrow(fromFileUrl, to, option); }
+					 else {
+						 var newFileUrl = H.pushInMidOfStr(toFileUrl, (++i), '.');
+						 return loopUntilNoExistFile(newFileUrl);
+					 }
+			     })
 	}
 }
 //이 함수는 err가 없어. data만 전달해 그래서 done의 async템플릿 사용은은 애매해.
-localFile.exists = function(done, filePath) {
-	fs.exists(filePath, done.getDataFn());
+localFile.exists = function(filePath) {
+	var deferred = Q.defer()
+	
+	fs.exists(filePath, function(data) {
+		deferred.resolve(data)
+	});
+	
+	return deferred.promise
 }
 
 //하나짜리 사용안할듯.
-localFile.deleteFileAndDeleteFolderIfNotExistFile = function (done, filePath) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn()
+localFile.deleteFileAndDeleteFolderIfNotExistFile = function ( filePath) {
 	
-	if(_.isEmpty(filePath)) return dataFn();
+	if(_.isEmpty(filePath)) return Q();
     
-	return H.call4promise(localFile.delete, filePath)
-		    .then(function() {
-			    return H.call4promise(localFile.deleteOneFolder, path.dirname(filePath)); 
-	       })
-	        .then(dataFn)
-	        .catch(errFn)
+	return localFile.delete( filePath)
+				    .then(function() {
+					    return localFile.deleteOneFolder( path.dirname(filePath)); 
+			       })
 }
 
 //
-localFile.deleteFiles = function (lastDone, filePaths) {
-	var lastDataFn = lastDone.getDataFn()
-	  , lastErrFn = lastDone.getErrFn()
+localFile.deleteFiles = function (filePaths) {
+	var deferred = Q.defer()
 	
-	var doneAfterLoop = new Done(dataFn, errFn)  
-	H.asyncLoop(filePaths , localFile.delete, doneAfterLoop)
+	var statuses = []
+	_.reduce(filePaths, function(p, filePath){
+		return p.then(function(status) {
+						statuses.push(status)
+						return localFile.delete(filePath)
+				})
+	},Q())
+	.then(function() {
+		statuses.shift()
+		deferred.resolve(Status.reduce(statuses))
+	})
+	.catch(function (err) {
+		deferred.resolve(Status.makeError(err))
+	})
 	
-	function dataFn(statues) {
-		debug('deleteFiles statues : ', statues)
-		return lastDataFn(Status.makeSuccess('file delete success'))
-	}
-	function errFn(err) {
-		return lastErrFn(Status.makeError(err))
-	}
+	return deferred.promise;
 }
-localFile.delete = function(done, filePath) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn()
+
+localFile.delete = function(filePath) {
+	var deferred = Q.defer()
 	
-	done.hook4dataFn(function(data) { return Status.makeSuccess(data) });
-	done.setErrFn(errFn4notFoundFile)  
-	function errFn4notFoundFile(err) {
+	fs.unlink(filePath, function(err, data) {
 		if(err) {
-			//없는경우 성공으로 넘기면됨.
-			if (err.code == 'ENOENT')  return dataFn(Status.makeSuccess(''));
-			
-			return errFn(err); 
+			  // 없는경우
+			  if (err.code == 'ENOENT') return deferred.resolve(Status.makeSuccess('enoent'))
+			  else return deferred.resolve(Status.makeError(err))			
 		}
-	}
+		
+		return deferred.resolve(Status.makeSuccess(data))
+	})
 	
-	fs.unlink(filePath, done.getCallback());
+	return deferred.promise
 }
-localFile.deleteOneFolder = function(done, path) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn()
+localFile.deleteOneFolder = function(path) {
+	var deferred = Q.defer()
 	
-	done.hook4dataFn(function(data) { return Status.makeSuccess(data) });
-	done.setErrFn(errFn4existFile) 
-	function errFn4existFile(err) {
+	fs.rmdir(path, function(err, data){
 		if(err) {
-			//파일존재시 삭제하지 안을것이니.. 성공으로.
-			if (err.code == 'EBUSY') return dataFn(Status.makeSuccess('fail EBUSY'));
-			if (err.code == 'ENOTEMPTY') return dataFn(Status.makeSuccess('fail ENOTEMPTY'));
+			//폴더제거할떄 파일존재시 삭제하지 않을것이니.. 성공으로.
+			if (err.code == 'EBUSY') return deferred.resolve(Status.makeSuccess('fail EBUSY'));
+			if (err.code == 'ENOTEMPTY') return deferred.resolve(Status.makeSuccess('fail ENOTEMPTY'));
 			
-			return errFn(err); // 그외 
+			return deferred.reject(err)			
 		}
-	}  
-	fs.rmdir(path, done.getCallback());
+		
+		return deferred.resolve(Status.makeSuccess(data)) 
+	});
+	
+	return deferred.promise
 }
 //기타
-localFile.stat = function(done, filePath) {
+localFile.stat = function(filePath) {
+	var deferred = Q.defer()
+	  , callback = H.cb4mongo1(deferred)
+	
 	//atime : 접근날짜, ctime: create날짜, mtime: 수정한날짜.
-	return fs.stat(filePath, done.getCallback())
+	fs.stat(filePath, callback);
+	
+	return deferred.promise
 }
 
 // 이건 신기하게 한글도 읽어주고.. 띄워쓰기도 구분하고. 
-localFile.fileNamesInFolder = function(done, dirPath) {
-	return fs.readdir(dirPath, done.getCallback())
+localFile.fileNamesInFolder = function(dirPath) {
+	var deferred = Q.defer()
+	  , callback = H.cb4mongo1(deferred)
+	
+	fs.readdir(dirPath, callback);
+	
+	return deferred.promise
 }
 
 ///

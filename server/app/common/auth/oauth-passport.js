@@ -44,7 +44,7 @@ oauthPassport.authCallBack = function(accessToken, refreshToken, profile, next) 
 	var userData = oauthPassport.profileToUserData(profile)
 	  , loginUser = User.createBy(userData)
 	
-	H.call4promise(userDAO.findOrCreate, loginUser)
+	userDAO.findOrCreate( loginUser)
 	 .then(function dataFn(user) {
 		next(null, user) //serializeUser에 전달
     })

@@ -2,7 +2,7 @@
  *  #역할
  *   - file의 create, delete를 로컬과 서버에 맞게 조절한다.
  */
-
+var Q = require('q')
 var _ = require('underscore')
 var H = require('../helper')
 var config = require('../../config')
@@ -15,10 +15,7 @@ var fileDAO = module.exports = {}
 
 
 //fileInfo를 반환해야함
-fileDAO.save = function (done, fromFile, userId) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn()
-	
+fileDAO.save = function (fromFile, userId) {
 	var originalFileName = fromFile.originalname
 	  , fileName = originalFileName.slice(0,originalFileName.indexOf('.'))
 	  , fromFilePath = fromFile.path
@@ -28,20 +25,17 @@ fileDAO.save = function (done, fromFile, userId) {
 		fromFilePath = config.rootDir +'/'+fromFilePath.replace(/\\/g ,'/')
 		toFilePath = config.imgDir + '/' + userId + '/' + originalFileName  
 		
-		H.call4promise(localFile.copyNoDuplicate, fromFilePath, toFilePath, fromFile.mimetype)
-		 .then(function (status) {
-			 if(status.isError()) return errFn(status)
-			 
-			 var insertedFilePath = status.filePath
-			 var url = insertedFilePath.replace(/\\/g, '/')
-			 url = 	url.slice(url.indexOf('/resource') )
-			 
-			 status.fileInfo = new FileInfo(insertedFilePath, fileName, url)
-			 return dataFn(status)
-		 })
-		 .catch(function(err) {
-			 return errFn(Status.makeError(err))
-		 })
+		return localFile.copyNoDuplicate( fromFilePath, toFilePath, fromFile.mimetype)
+					 .then(function (status) {
+						 if(status.isError()) return errFn(status)
+						 
+						 var insertedFilePath = status.filePath
+						 var url = insertedFilePath.replace(/\\/g, '/')
+						 url = 	url.slice(url.indexOf('/resource') )
+						 
+						 status.fileInfo = new FileInfo(insertedFilePath, fileName, url)
+						 return status
+					 })
 		
 	} else { 
 		toFilePath = userId + '/' + fileName	
@@ -49,30 +43,31 @@ fileDAO.save = function (done, fromFile, userId) {
 	}
 }
 
-fileDAO.deleteByFileInfoes = function (done, fileInfoes) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn()
-	  
-	if(_.isEmpty(fileInfoes)) return dataFn(Status.makeSuccess('fileInfoes is empty'))
+fileDAO.deleteByFileInfoes = function (fileInfoes) {
+	var deferred = Q.defer()
+	
+	if(_.isEmpty(fileInfoes)) return Q(Status.makeSuccess('fileInfoes is empty'));
 	
 	var filePaths = []
 	for(var i in fileInfoes) {
 		var fileInfo = fileInfoes[i]
 		
-		if(H.notExist(fileInfo.id)) return errFn(Status.makeError('fileInfoes['+i +'] : '+ fileInfo +'] should have id field value'))
+		if(H.notExist(fileInfo.id)) return Q(Status.makeError('fileInfoes['+i +'] : '+ fileInfo +'] should have id field value'))
 		filePaths.push(fileInfo.id) //id가 delete시 사용하는 path, or id
 	}
 	
 	if(config.isLocal) {
-		return H.call4promise(localFile.deleteFiles, filePaths)
-		        .then(function (status) { return dataFn(status)})
-		        .catch(function (err){ return Status.makeError(err)})
+		return localFile.deleteFiles( filePaths)
+		        .then(function (status) { return deferred.resolve(status)})
+		        .catch(function (err){ return deferred.resolve(Status.makeError(err)) })
 	} else {
-		return H.call4promise(remoteFile.removeByIds, filePaths)
-		        .then(function (status) { return dataFn(status)})
-		        .catch(function (err){ return Status.makeError(err)})
+		return remoteFile.removeByIds( filePaths)
+		        .then(function (status) { return deferred.resolve(status)})
+		        .catch(function (err){ return deferred.resolve(Status.makeError(err))})
 	}
 	
+	
+	return deferred.promise
 }
 
 fileDAO.existFile = function _existFile(file) {

@@ -22,7 +22,7 @@
 				<a ui-sref="app.blogBoard.list({pageNum:pager.rightPageNum})">...</a>
 			</li>
 			<li ng-if="pager.rightPageNum && !(pager.leftPageNum === pager.rightPageNum)"  class="blogPager">
-				<a ui-sref="app.blogBoard.list({pageNum:pager.rightPageNum})">{{pager.rightPageNum}}</a>
+				<a ui-sref="app.blogBoard.list({pageNum:pager.pageCount})">{{pager.pageCount}}</a>
 			</li>
 			<li class="blogPager">
 				<a ui-sref="app.blogBoard.list({pageNum:pager.pageCount})">&raquo;</a>

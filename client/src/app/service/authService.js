@@ -19,7 +19,8 @@
 			
 
 			authService.getLoginUser = function () {
-				return httpFailHandler.notifyAndDone( $http.get('/json/auth/loginUser') )
+				//주소주의
+				return httpFailHandler.notifyAndDone( $http.get('/json/user/loginUser') )
 			}
 			
 			authService.isLoginUserAbout = function (userId) {

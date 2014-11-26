@@ -10,7 +10,6 @@
 var Q = require('q')
 
 var H = require('../../common/helper.js')
-  , Done = H.Done
   , Status = require('../../common/Status.js')
   , _ = require('underscore')
   , debug = require('debug')('nodeblog:service:categoryService')
@@ -30,9 +29,8 @@ var categoryService = module.exports = {};
 //deprease
 categoryService.getRootOfCategoryTree = function (allCategories) {
 	var deferred = Q.defer()
-	  , promise  = deferred.promise
 	
-	if(allCategories) deferred.resolve(_returnRootOfCategoryTree(allCategories))
+	if(allCategories) Q(_returnRootOfCategoryTree(allCategories))
 	
 	categoryDAO.findAll()
 	       .then(function (_allCategories) {
@@ -42,7 +40,7 @@ categoryService.getRootOfCategoryTree = function (allCategories) {
 	    	   deferred.reject(err);
 	       });
 	
-	return promise;
+	return deferred.promise;
 	
 	function _returnRootOfCategoryTree(categories) {
 		return categoryService.categoriesToTree(categories, 'postCount', 0)
@@ -59,45 +57,53 @@ categoryService.categoriesToTree = function (categories, key4aggregate, delimite
 } 
 
 
-categoryService.insertCategory = function (done, parentId, newTitle) {
-	var parent = Category.createBy({id:parentId});
-	if(_.isEmpty(parentId) || parentId == 'root') {parent = Category.makeRoot(); } 
+categoryService.insertCategory = function (parentId, newTitle) {
+	if(_.isEmpty(parentId)) parentId = Category.getRootId(); 
 	
-	return categoryDAO.insertChildToParentByTitle(done, parent, newTitle);
+	return categoryDAO.insertChild(parentId, newTitle);
 }
 
 // update post를 위한 함수. 그 이상으로 사용된다면 다시 생각.
-categoryService.increaseOrDecreasePostCount = function(done, categoryId, originCategoryId) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn()
-	  
-	if(categoryId == originCategoryId) return dataFn(Status.makeSuccess());
+categoryService.increaseOrDecreasePostCount = function(categoryId, originCategoryId) {
+	
+	if(categoryId == originCategoryId) { 
+		return Q(Status.makeSuccess('categoryId == originCategoryId'))
+	}
 
-	return H.all4promise([
-			                [categoryDAO.increasePostCountById, categoryId]
-			              , [categoryDAO.decreasePostCountById, originCategoryId]  
-						 ])
-				          .then(dataFn)
-						  .catch(errFn)
+	return Q.all([
+		            categoryDAO.increasePostCountById( categoryId)
+		          , categoryDAO.decreasePostCountById( originCategoryId)  
+		   	     ])
+				 .then(function(statuses) {
+					 return Status.reduceOne(statuses)
+				 })
 }
-categoryService.increasePostCountById = function (done, categoryId) {
-//	if(_.isEmpty(categoryId)) categoryId = Category.rootId
-	if(_.isEmpty(categoryId)) return;
+categoryService.increasePostCountById = function (categoryId) {
+	if(_.isEmpty(categoryId)) return Q();
 	debug('increase categoryId : ', categoryId)
-	return categoryDAO.increasePostCountById(done, categoryId);
+	return categoryDAO.increasePostCountById(categoryId);
 }
-categoryService.removeCategoryAndRemoveCategoryIdOfPost = function (done, categoryId) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn()
-	  
-	H.call4promise(categoryDAO.removeById, categoryId)
-	 .then(function(status) {
-		 if(status.isError()) return dataFn(status);
-		 
-		 if(status.isSuccess()) {
-			 dataFn(status);
-			//비동기 작업
-			 return postDAO.removeCategorId(Done.makeEmpty(), categoryId); 
-		 }
-	 })
+categoryService.removeCategoryAndRemoveCategoryIdOfPost = function ( categoryId) {
+	return 	  categoryDAO.removeById( categoryId)
+						 .then(function(status) {
+							 if(status.isError()) return Q(status);
+							 
+							// 성공했을 경우 추가작업 
+							 return postDAO.removeCategorId(categoryId);
+						 })
+}
+
+
+// util
+categoryService.allIdsOf = function (categoryId, allCategories) {
+	var category = Category.createBy({id: categoryId})
+	  , joiner = new Joiner(allCategories, 'parentId')
+	
+	joiner.setKey4aggregateToParent('id',',')
+	var root = joiner.findNode(category, 'id')
+	
+	var categoryOfTree = joiner.treeTo(root, 'id')
+      , ids = categoryOfTree['id'].split(',')
+      
+    return ids
 }

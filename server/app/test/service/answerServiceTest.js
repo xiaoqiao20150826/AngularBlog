@@ -7,7 +7,6 @@ var should = require('should')
   , log = console.log
   
 var H = require('../testHelper.js')
-  , Done = H.Done;
 
 var Post = require('../../domain/blogBoard/Post.js')
   , Answer= require('../../domain/blogBoard/Answer.js')
@@ -34,49 +33,46 @@ describe('answerService', function () {
 	});
 	describe('#getJoinedAnswers', function( ) {
 		it('should take realAnswers by postNum', function (nextTest) {
-			var errFn = H.testCatch1(nextTest);
-			answerService.getRootOfAnswerTree(new H.Done(dataFn, errFn), postNum);
-			
-			function dataFn(root) {
+			answerService.getRootOfAnswerTree(postNum)
+			.then(function dataFn(root) {
 				var answers = root.answers
 				debug('joinedAnswers :', answers)
 				should.equal(answers[0].user, answers[0].answers.pop().user)
 				var lowAnswer = answers[0].answers[0]
 				should.equal(lowAnswer.num,4)
 				should.equal(lowAnswer.answerNum, 2 )
-				nextTest();
-			}
+			})
+			.then(function(){nextTest()})
+			.catch(H.testCatch1(nextTest))
 		})
 		it('should take emptyanswer by wrong answerNum', function (nextTest) {
-			var errFn = H.testCatch1(nextTest);
-			answerService.getRootOfAnswerTree(new H.Done(dataFn, errFn), 22);
-			function dataFn(root) {
+			answerService.getRootOfAnswerTree(22)
+			.then(function dataFn(root) {
 				var e_answers = root.answers
 //				console.log(root)
 				debug('answers empty ',e_answers)
 				should.equal(e_answers.length,0);
-				nextTest();
-			}
+			})
+			.then(function(){nextTest()})
+			.catch(H.testCatch1(nextTest))
 		})
 	})
 	describe('#insert', function () {
 		it('should insert answer and increase answerCount of post', function (nextTest) {
-			var errFn = H.testCatch1(nextTest);
 			var answer = new Answer();
 			answer.postNum = postNum;
 			answer.content = 'answerContent2';
 			answer.userId = userId;
-			answerService.insertAnswerAndIncreasePostCount(new Done(dataFn, errFn), answer)
 			
-			function dataFn(insertedAnswer) {
-				postDAO.findByNum(new Done(dataFn2, errFn), insertedAnswer.postNum)
-				
-				function dataFn2(post) {
-					should.equal(post.answerCount,1)
-					nextTest();
-				}
-				
-			}
+			answerService.insertAnswerAndIncreasePostCount(answer)
+			.then(function dataFn(insertedAnswer) {
+				return postDAO.findByNum( insertedAnswer.postNum)
+			})
+			.then(function dataFn2(post) {
+				should.equal(post.answerCount,1)
+			})
+			.then(function(){nextTest()})
+			.catch(H.testCatch1(nextTest))
 		})
 	});
 //	describe('#delete', function () {
@@ -128,38 +124,31 @@ function _createAndInsertTestData(nextTest) {
 	answer4.content = 'answerContent4';
 	answer4.deep = 2;
 	answer4.postNum = postNum;
-	var errFn = H.testCatch1(nextTest);
-	var done = new H.Done(function() {}, errFn);
 	
 	mongoose.connect('mongodb://localhost/test',function() {
 		//순서를 지켜야해
-		H.call4promise(initDataCreater.create)
-		 .then(function() {
-			H.syncAll4promise([ [postDAO.insertOne, post]
-					      , [answerDAO.insertOne, answer]
- 						  , [answerDAO.insertOne, answer2]
-						  , [answerDAO.insertOne, answer3]
-						  , [answerDAO.insertOne, answer4]
-						  , [userDAO.insertOne, user]
-			])
-			 .then(function() {
-				 nextTest();
-			})
-			.catch(errFn)
-		 })
+		
+		initDataCreater.create()
+		.then(function() {return postDAO.insertOne( post )})
+		.then(function() {return answerDAO.insertOne( answer)})
+		.then(function() {return answerDAO.insertOne( answer2)})
+		.then(function() {return answerDAO.insertOne( answer3)})
+		.then(function() {return answerDAO.insertOne( answer4)})
+		.then(function() {return userDAO.insertOne(user)})
+		.then(function() {nextTest();})
+		.catch(H.testCatch1(nextTest))
 	});
 }
 function _deleteAllTestData(nextTest) {
-	var errFn = H.testCatch1(nextTest);
-	H.all4promise([postDAO.removeAll
-				 , answerDAO.removeAll
-				 , userDAO.removeAll
-				 , initDataCreater.removeAll
+	Q.all([postDAO.removeAll()
+		 , answerDAO.removeAll()
+		 , userDAO.removeAll()
+		 , initDataCreater.removeAll()
 	])
 	.then(function() {
 			mongoose.disconnect(function(d) {
 					nextTest();
 			});
 	})
-	.catch(errFn)
+	.catch(H.testCatch1(nextTest))
 }

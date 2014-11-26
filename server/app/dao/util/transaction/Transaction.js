@@ -55,6 +55,8 @@ var Transaction = module.exports = function Transaction() {
 }
 
 
+//TODO: 이부분 수정이 필요. catch에 자동롤백되도록. 
+       //롤백이라..흠.
 Transaction.prototype.atomic = function (method) {
 	var self = this;
 	if(!_.isFunction(method)) return console.error('transaction atomic scope should be method');
@@ -63,24 +65,22 @@ Transaction.prototype.atomic = function (method) {
 	var promise = method()
 	if(!_.isFunction(promise.then)) return console.error('annoy method should return promise for atomic')
 	
+	var deferred = Q.defer()
 	//args는 method 내의 비동기 호출의 결과
-	return	promise.then(function (args) {
+	promise.then(function (args) {
 				self.end()
-				
 				if(self.shouldBeRollback) {
-					return self.doRollback()
-							 .then(function (status) {
-								 debug('transaction result ', status)
-								 return status
-							 })
-							 .catch(function (err) { //트랜잭션 에러를 밖으로 보내고싶어.
-								 debug('transacion err', err)
-								 return err
-							 })
+					self.doRollback()
+						.then(function(args){
+							 deferred.resolve(args)
+						})
+				} else {
+					deferred.resolve(args)
 				}
-				
-				return args
 			})
+			.catch(function(err) { deferred.resolve(Status.makeError(err))})
+	
+	return deferred.promise
 }
 
 Transaction.prototype.start = function () {

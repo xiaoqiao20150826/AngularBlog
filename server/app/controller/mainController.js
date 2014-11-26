@@ -16,9 +16,8 @@ mainController.mapUrlToResponse = function(app) {
 		//test
 		app.get('/cookie', _seeCookie);
 		app.get('/test', _test);
+		
 }
-/* 요청에 대한 서비스를 제공하고 응답한다. */
-	//게시판 정보, 로그인 체크 및 유저정보 제공.
 mainController.startApp  = function (req, res) {
 		return res.render('./src/main.html');
 }

@@ -12,35 +12,77 @@ var db = local_db
 
 var mongoose = require('mongoose')
 
+var Q = require('q')
 var _ = require('underscore')
-  , H = require('../common/helper')
+  , H = require('./testHelper')
 var blogBoardService = require('../service/blogBoard/blogBoardService')
 var initDataCreater = require('../initDataCreater')
   , localFile = require('../common/file/localFile')
   , path = require('path')
 
 var folderPath = path.join(__dirname,'../../../Work-History/')
+
 mongoose.connect(db, function(err, data) {
 	if(err) return console.error(err)
 	
-	function fileNamesInFolder(done, folderPath) {
-		var dataFn = done.getDataFn()
+	
+	/////////////// 실행
+	run();
+	
+	
+	//////////////
+	function run () {
 		
-		return H.call4promise(localFile.fileNamesInFolder, folderPath)
+		return Q.all([  initDataCreater.create()
+		        	  , fileNamesInFolder(folderPath)
+				])
+				.then(function (args) {
+					var fileNames = args[1]
+					var filePaths = _.map(fileNames, function (v) {
+											return folderPath + v;
+									})
+					
+					var posts = []
+					 
+					return _.reduce(filePaths, function(p, filePath) {
+						return p.then(function (post) {
+									if(post) {posts.push(post)}
+									
+									return getPostByFile(filePath)
+									})
+					},Q())
+				    .then(function() {
+					     var count = 0;
+							return _.reduce(posts, function(p, post) {
+								return p.then(function () {
+											return blogBoardService.insertPostAndIncreaseCategoryCount(post)
+										})
+										.then(function(insertedPost) {
+											console.log('['+( ++count ) +'] : ' , insertedPost.title)
+										})
+							},Q())	
+				    })
+				})
+				.then(closeConnect)
+				.catch(H.testCatch())
+	}
+	/////////////
+	function fileNamesInFolder(folderPath) {
+		
+		return localFile.fileNamesInFolder( folderPath)
 		        .then(function (fileNames) {
-		        	return dataFn(fileNames)
+		        	return fileNames
 		        })
-		        .catch(_catch)
+		        .catch(H.testCatch())
 	}
 	
-	function getPostByFile(done, filePath) {
-		var dataFn = done.getDataFn()
-		
+	function getPostByFile(filePath) {
 		var Post = require('../domain/blogBoard/Post')
 		  , Category = require('../domain/blogBoard/Category')
 		  , userId = '6150493-github'
-		return  H.all4promise([ [localFile.stat, filePath]
-							  , [localFile.readKr, filePath]
+			  
+		return  Q.all([ localFile.stat( filePath)
+					  , localFile.readKr( filePath)
 				 ])
 				 .then(function(args) {
 					 var content = args[1].replace(/\r\n/g,'<br/>')
@@ -50,48 +92,21 @@ mongoose.connect(db, function(err, data) {
 					               , 'userId': userId
 					               , 'categoryId' : Category.getRootId()
 					               }
-					 
-					 var post = Post.createBy(rawData)
-					 return dataFn(post)
+					
+					 return Post.createBy(rawData)
 				 })
-				 .catch(_catch)
+				 .catch(H.testCatch())
 	}
-	
-	function _catch(err) {
-		return console.error(err.stack)
-	}
-	
-	// 실행 프로세스
-	function run () {
-		var lastDone = new H.Done(lastDataFn, _catch)
-		//last
 		
-		return H.all4promise([ [initDataCreater.create]
-		        			 , [fileNamesInFolder, folderPath]
-				])
-				.then(function (args) {
-					var fileNames = args[1]
-					var filePaths = _.map(fileNames, function (v) {
-					 return folderPath + v;
-					})
-					return H.asyncLoop(filePaths, getPostByFile, lastDone)
-				})
-				.catch(_catch)
+	function closeConnect() {
 		
-		function lastDataFn(posts) {
-			 return H.asyncLoop(posts, blogBoardService.insertPostAndIncreaseCategoryCount, new H.Done(closeConnect, _catch), true)
-		}
-		function closeConnect(result) {
-			mongoose.connection.close(function () {
-				  //연결종료가아니라 프로세스종료를 해야지 lock이안생기는데..
-			      console.log('Mongoose default connection disconnected through app termination');
-			      process.exit(0);
-			});			
-		}
+		mongoose.connection.close(function () {
+			  //연결종료가아니라 프로세스종료를 해야지 lock이안생기는데..
+		      console.log('Mongoose default connection disconnected through app termination');
+		      process.exit(0);
+		});			
 	}
-	
-	/////////////// 실행
-	run()
+//
 })
 
 

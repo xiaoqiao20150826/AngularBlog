@@ -18,11 +18,11 @@
 		// 데이터
 		$scope.rootOfCategory     = rootOfCategory
 		$scope.selectedCategoryId = rootOfCategory.id
-		$scope.childCategoryTitle = ''
+		$scope.newCategoryTitle = ''
 			
 		//-----------------------------------------
 		this.insertCategory = function () {
-			var newTitle = $scope.childCategoryTitle
+			var newTitle = $scope.newCategoryTitle
 			var parentId  = $scope.selectedCategoryId
 			
 			if(_.isEmpty(newTitle)) return alert('childName must dont empty')
@@ -30,7 +30,7 @@
 			categoryService.insert(newTitle, parentId)
 						   .then(function(result) {
 							   alert(result)
-//							   window.location.reload() //reload
+							   window.location.reload() //reload
 						   })
 			
 		}
@@ -38,6 +38,19 @@
 			var categoryId  = $scope.selectedCategoryId
 			
 			categoryService.delete(categoryId)
+			.then(function(result) {
+				alert(result)
+//				window.location.reload() //reload
+			})
+			
+		}
+		this.updateCategory = function () {
+			var categoryId  = $scope.selectedCategoryId
+			var newTitle = $scope.newCategoryTitle
+			
+			if(_.isEmpty(newTitle)) return alert('childName must dont empty')
+			
+			categoryService.update(newTitle, categoryId)
 			.then(function(result) {
 				alert(result)
 //				window.location.reload() //reload

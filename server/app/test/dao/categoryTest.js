@@ -44,6 +44,33 @@ describe('categoryDAO', function() {
 		})
 		.catch(H.testCatch1(nextTest))
 	});
+///////////  카테고리 서비스다. 몇가지.
+	describe('#categoryService',function() {
+		it('should get rootOfCategoryTree', function (nextTest) {
+			categoryService.getRootOfCategoryTree()
+			.then(function dataFn(rootOfCategoryTree) {
+				debug('rootOfCategoryTree : ',rootOfCategoryTree);
+				should.equal(rootOfCategoryTree.categories.length, 2)
+			})
+			.then(function() {nextTest()})
+			.catch(H.testCatch1(nextTest))
+		});
+		it('should get all child id from parentId', function (nextTest) {
+			var id = Category.getRootId();
+			
+			categoryDAO.findAll()
+			.then(function dataFn(categories) {
+				return categoryService.allIdsOf(id, categories)
+			})
+			.then(function dataFn(ids) {
+				debug('category ids ', ids);
+				should.equal(ids.length, 3)
+			})
+			.then(function() {nextTest()})
+			.catch(H.testCatch1(nextTest))
+		})
+	})
+	
 	describe('#find',function() {
 		it('should find All', function (nextTest) {
 			categoryDAO.findAll()
@@ -54,18 +81,6 @@ describe('categoryDAO', function() {
 			.then(function() {nextTest()})
 			.catch(H.testCatch1(nextTest))
 		});
-		/////////// 이것만 카테고리 서비스다. 햇갈리지말것.
-		describe('#categoryService',function() {
-			it('should get rootOfCategoryTree', function (nextTest) {
-				categoryService.getRootOfCategoryTree()
-				.then(function dataFn(rootOfCategoryTree) {
-					debug('rootOfCategoryTree : ',rootOfCategoryTree);
-					should.equal(rootOfCategoryTree.categories[0].title , 'title1')
-				})
-				.then(function() {nextTest()})
-				.catch(H.testCatch1(nextTest))
-			});
-		})
 		it('should return bool from #isDuplicate', function (nextTest) {
 			categoryDAO.isDuplicate( Category.getRootId(), 'title1')
 			 .then(function dataFn(result) {
@@ -74,19 +89,6 @@ describe('categoryDAO', function() {
 			 .then(function() {nextTest()})
 			 .catch(H.testCatch1(nextTest))
 		});
-		
-		it('should get all child id from parentId', function (nextTest) {
-			var id = Category.getRootId();
-			
-			categoryDAO.allIdsOf(id)
-			.then(function dataFn(ids) {
-				debug('category ids ', ids);
-				should.equal(ids.length, 3)
-			})
-			.then(function() {nextTest()})
-			.catch(H.testCatch1(nextTest))
-		})
-		
 	})
 	describe('#insert',function() {
 		it('should handle err if insert a category with duplicate title category have same parent', function (nextTest) {
@@ -175,7 +177,6 @@ describe('categoryDAO', function() {
 			.catch(H.testCatch1(nextTest))
 		})
 	})
-	
 	
 })
 

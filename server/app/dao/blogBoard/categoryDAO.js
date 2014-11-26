@@ -50,28 +50,6 @@ categoryDAO.findOne = function (where, select) {
 			  	   .then(Category.createBy);
 };
 
-
-categoryDAO.allIdsOf= function (categoryId) {
-	return  categoryDAO.findAll()
-				 	   .then(function (_allCategories) {
-				 			return _allIds(categoryId, _allCategories);
-					   })
-}
-
-// categoryId와 그 자식의 모든 id를 모아서 반환.
-function _allIds (categoryId, allCategories) {
-	var category = Category.createBy({id: categoryId})
-	  , joiner = new Joiner(allCategories, 'parentId')
-	
-	joiner.setKey4aggregateToParent('id',',')
-	var root = joiner.findNode(category, 'id')
-	
-	var categoryOfTree = joiner.treeTo(root, 'id')
-      , ids = categoryOfTree['id'].split(',')
-      
-    return ids
-}
-
 categoryDAO.findAll = function (where, select) {
 	var deferred  = Q.defer()
       , callback  = H.cb4mongo1(deferred);

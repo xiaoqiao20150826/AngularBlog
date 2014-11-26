@@ -6,6 +6,8 @@
 var _ = require('underscore')
   , debug = require('debug')('nodeblog:service:answerService')
 
+var Q = require('q')  
+  
 var H = require('../../common/helper.js')
   , config = require('../../config.js')
   , Status = require('../../common/Status.js')
@@ -26,57 +28,52 @@ var answerService = module.exports = {};
 
 //postNum의 answer를 가져와서 트리형태로 만든다.
 //이때 루트는 num 이 null 인 answer
-answerService.getRootOfAnswerTree = function (done, postNum) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn();
-	
+answerService.getRootOfAnswerTree = function (postNum) {
 	var _answers;
 	
-	return H.call4promise(answerDAO.findByPostNum, postNum)
+	return answerDAO.findByPostNum(postNum)
 	 		.then(function (answers) {
 	 			_answers = answers
 	 			var userIds = Answer.getUserIds(_answers);
-	 	    	return H.call4promise(userDAO.findByIds, userIds);
+	 	    	return userDAO.findByIds(userIds);
 	 		})
 			 .then(function (users) {
-				 var rootOfTree = answersJoinUsersAndTreeAnswers(users, _answers)
-			     return dataFn(rootOfTree);
+				 var joinedAnswers = _joinUsersToAnswers(_answers, users)
+				   , rootOfTree	   = _answersToTree(joinedAnswers)
+				   
+			     return rootOfTree
 			})
-	 		.catch(errFn);
 }
 // 조인한 후, 트리화 시킨다.
-function answersJoinUsersAndTreeAnswers (users, answers) {
-    var joinedAnswerByUser = answersJoinUsers(answers, users)
-    
-    var answerJoiner = new Joiner(joinedAnswerByUser, 'answerNum', 'answers')
-    
+function _answersToTree (joinedAnswers) {
+    var answerJoiner = new Joiner(joinedAnswers, 'answerNum', 'answers')
 	answerJoiner.setKey4aggregateToParent('num', ',', 'includedNums') //부모로모아. 포함된(나 + 자식) num을.
-    
     return answerJoiner.treeTo(Answer.makeRoot(), 'num');
 }
-function answersJoinUsers(answers, users) {
+function _joinUsersToAnswers(answers, users) {
 	//user가 있거나, id에 해당하는 유저가 없다면. 익명유저이어라. 
     var userJoiner = new Joiner(users, '_id', 'user')
-      , joinedAnswerByUser = userJoiner.joinTo(answers, 'userId', function (_answer) {
+    var joinedAnswerByUser = userJoiner.joinTo(answers, 'userId', function (_answer) {
     	  var user = User.getAnnoymousUser()
     	  user.name = _answer.writer 
     	  return user;
       });
+    
+    
     return joinedAnswerByUser;
 }
-answerService.getJoinedAnswer = function (done, currentAnswerNum) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn()
+
+answerService.getJoinedAnswer = function (currentAnswerNum) {
 	
 	var _answer = null  
-    return  H.call4promise(answerDAO.findByNum, currentAnswerNum)
+    return  answerDAO.findByNum( currentAnswerNum)
 		     .then(function(answer) {
 		    	 _answer = answer;
 		    	 
 		    	 if(answer.isAnnoymous()) 
 		    		 return null;
 		    	 else
-		    		 return H.call4promise(userDAO.findById, answer.userId)
+		    		 return userDAO.findById( answer.userId)
 		     })
 		      .then(function (user) {
 		    	  if(user == null) {
@@ -84,80 +81,68 @@ answerService.getJoinedAnswer = function (done, currentAnswerNum) {
 		    		  user.name = _answer.writer
 		    	  }
 		    	  _answer.user = user;
-		    	  return dataFn(_answer)
+		    	  return _answer
 		     })
-		     .catch(errFn)
 }
 
 
-
-answerService.insertAnswerAndIncreasePostCount = function(done, answer) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn();
+answerService.insertAnswerAndIncreasePostCount = function(answer) {
 	var postNum = answer.postNum;
 	
-	H.all4promise([  
-	                 [answerDAO.insertOne, answer]
-	              ,  [postDAO.increaseAnswerCount, postNum]
+	return Q.all([  
+			        answerDAO.insertOne( answer)
+			      , postDAO.increaseAnswerCount( postNum)
 				 ])
 				 .then(function(args){
 				 	 var insertedAnswer = args[0];
-				   	 return dataFn(insertedAnswer);
+				   	 return insertedAnswer;
 				 })
-				 .catch(errFn);
 };
-answerService.updateAnswer = function(done, answer) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn()
-	  , currentAnswerNum = answer.num 
+answerService.updateAnswer = function(answer) {
+	var currentAnswerNum = answer.num 
 	
 	if(answer.isAnnoymous()) {
-		return  H.call4promise(answerDAO.findByNum, currentAnswerNum)
+		return  answerDAO.findByNum( currentAnswerNum)
 				 .then(function (findedAnswer) {
 					 debug('pw ',answer.password, findedAnswer.password)
 					 if(answer.password != findedAnswer.password) 
-						 return dataFn(Status.makeError('password is not equal'))
+						 return Status.makeError('password is not equal')
 					 else 
-						 return answerDAO.update(done, answer)
+						 return answerDAO.update(answer)
 				 })
-				 .catch(errFn)
 	} else {
-		return answerDAO.update(done, answer)
+		return answerDAO.update(answer)
 	}
 }
-answerService.deleteAnswer = function(done, answer, includedNums) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn()
-	  , currentNum = answer.num
+
+answerService.deleteAnswer = function(answer, includedNums) {
+	var currentNum = answer.num
 	  , postNum = answer.postNum
 	  
 	if(answer.isAnnoymous()) {
-		return  H.call4promise(answerDAO.findByNum, currentNum)
+		return  answerDAO.findByNum( currentNum)
 				 .then(function (findedAnswer) {
 					 debug('annoymous writer of answer ; pw ',answer.password, findedAnswer.password)
 					 if(answer.password != findedAnswer.password) 
-						 return dataFn(Status.makeError('password is not equal'))
+						 return Status.makeError('password is not equal')
 					 else 
-						 return answerService.deleteAnswerAndDecreaseAnswerCount(done, postNum, includedNums);
+						 return answerService.deleteAnswerAndDecreaseAnswerCount(postNum, includedNums);
 				 })
-				 .catch(errFn)
 	} else {
-		return answerService.deleteAnswerAndDecreaseAnswerCount(done, postNum, includedNums);
+		
+		return answerService.deleteAnswerAndDecreaseAnswerCount(postNum, includedNums);
 	}
 }
 
 
-answerService.deleteAnswerAndDecreaseAnswerCount = function(done, postNum, includedNums) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn();
+answerService.deleteAnswerAndDecreaseAnswerCount = function(postNum, includedNums) {
 	var answerCount = includedNums.length
 	
-	H.all4promise([  
-	                 [answerDAO.removeAllOfNum, includedNums]
-	              ,  [postDAO.decreaseAnswerCount, postNum, answerCount]
+	return Q.all([
+	                answerDAO.removeAllOfNum( includedNums)
+	              , postDAO.decreaseAnswerCount( postNum, answerCount)
 				 ])
 				 .then(function(statuses){
-				   	 return dataFn(Status.reduceOne(statuses));
+				   	 return Status.reduceOne(statuses)
 				 })
-				 .catch(errFn);
 };

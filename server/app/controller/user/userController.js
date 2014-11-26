@@ -3,10 +3,9 @@
  */
 
 var debug = require('debug')('nodeblog:controller:userController')
-var _ = require('underscore');
+var _ 	  = require('underscore');
 
-var H = require('../../common/helper.js')
-  , scriptletUtil = require('../../common/util/scriptletUtil')
+var H 			  = require('../../common/helper.js')
   , AuthRequest   = require('../util/AuthRequest.js')
   , JsonResponse  = require('../util/JsonResponse')
   
@@ -40,7 +39,7 @@ userController.getLoginUser = function (req, res) {
 	  , authReq = new AuthRequest(req)
 	var loginUser = authReq.getLoginUser()
 	
-	if(loginUser.isAnnoymous()) 
+	if(loginUser.isAnnoymous())  //isLogin... 클라이언트에서 사용되는 속성임 주의.. 
 		loginUser.isLogin = false;
 	else 
 		loginUser.isLogin = true;
@@ -58,12 +57,12 @@ userController.update = function (req,res) {
 	
 	if(loginUser.isNotEqualById(userId)) return jsonRes.sendFail(userId + 'is not current login user');
 	
-	H.call4promise(userDAO.update, user)
+	userDAO.update( user)
 	 .then(function (status) {
 		 if(status.isError()) 
 			 return null
 		 else 
-			 return H.call4promise(userDAO.findById, userId);
+			 return userDAO.findById( userId);
 	 })
 	 .then(function (user) {
 		 if(!user) return jsonRes.sendFail('user update fail')

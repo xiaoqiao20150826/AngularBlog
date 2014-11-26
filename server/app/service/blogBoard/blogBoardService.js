@@ -1,11 +1,11 @@
-/**
- * 
- */
 
 /* 초기화 및 의존성, 클래스 변수 */
+// 뭐가 이리많아?
 
 var debug = require('debug')('nodeblog:service:blogBoardService')
 var _ = require('underscore')
+  , Q = require('q')
+
 var H = require('../../common/helper.js')
   , Status = require('../../common/Status.js')
   , path = require('path')
@@ -26,60 +26,59 @@ var postDAO = require('../../dao/blogBoard/postDAO.js')
    ,answerService = require('./answerService.js')
    ,categoryService = require('./categoryService.js')
 
-   var POST_COOKIE = 'postNums';
+var POST_COOKIE = 'postNums';
+
+
+
 /* define  */
 var blogBoardService = module.exports = {};
 
 /* functions */
-//get  posts, pager, categories
-blogBoardService.getFullList = function (done, curPageNum, sorter, categoryId, searcher) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn();
+//TODO: 좀더 효율적으로 할수없을까? 카테고리... 캐쉬를만들면./. ?
+//get  posts, pager
+blogBoardService.getFullList = function (curPageNum, sorter, categoryId, searcher) {
 	
-	var result = {};
-	var categoryIds;
-	return H.call4promise(categoryDAO.findIdsOfIncludeChildIdAndAllCategories, categoryId)
-	        .then(function(idsAndAllCategories) {
-		    	var _categoryIds = idsAndAllCategories.categoryIds
-		    	  , _allCategories = idsAndAllCategories.allCategories
+	var result = {
+					  pager : null
+					, posts : null
+				 }; //pager,
+	// temp
+	var categoryIds, categories;
+	return categoryDAO.findAll()
+	        .then(function(_categories) {
+	        	categories 	= _categories
+	        	categoryIds = categoryService.allIdsOf(categoryId, categories)
 		    	
-		    	debug('categoryIds : ',_categoryIds);
-		    	categoryIds = _categoryIds
-		    	result.allCategories = _allCategories;
-		    	
-		    	return H.call4promise(postDAO.getPager, curPageNum, _categoryIds, searcher)
+		    	debug('categoryIds : ',categoryIds);
+		    	return postDAO.getPager( curPageNum, categoryIds, searcher)
 	        })
 		    .then(function (pager) {
-		    	var _categoryIds = categoryIds
-		    	  
 		    	result.pager = pager;
 		    	
 		    	var rowNums = pager.getStartAndEndRowNumBy(curPageNum)
-		    	return H.call4promise(postDAO.findByRange, rowNums.start, rowNums.end, sorter, _categoryIds, searcher);
+		    	return postDAO.findByRange( rowNums.start, rowNums.end, sorter, categoryIds, searcher);
 		    })
 		     .then(function (posts) {
-			     var _allCategories = H.deepClone(result.allCategories)
-			     return H.call4promise(blogBoardService.getJoinedPostsByUsersAndCategories, posts, _allCategories);
+			     var cloneCategories = H.deepClone(categories)
+			     return blogBoardService.joinPartsToPosts( posts, cloneCategories);
 	        })
 		     .then(function (joinedPosts) {
-			     result.posts = joinedPosts;
-			     dataFn(result)
+			     result.posts =  joinedPosts;
+			     return result;
 		    })
-		     .catch(errFn);
 };
 
-// 카테고리는 다른곳(사이드)에서 사용하므로 따로 전달~!
-blogBoardService.getJoinedPostsByUsersAndCategories = function (done, posts, allCategories) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn()
+//function _joinUsersAndCategoriesToPosts(posts, allCategories) {
+blogBoardService.joinPartsToPosts = function _joinUsersAndCategoriesToPosts(posts, allCategories) {
 
 	var userIds = Post.getUserIds(posts)
 	
 	//side-effect : 루트부터..자식을 향해서.  모든 title을 모음
+//	                그래서 categories를 클론해서 전달받음.
 	var isToChild = true
 	categoryService.categoriesToTree(allCategories, 'title', ' > ', isToChild) 
 	
-	H.call4promise(userDAO.findByIds, userIds)
+	return userDAO.findByIds( userIds)
      .then(function (users) {
     	 var userJoiner = new Joiner(users, '_id', 'user')
     	   , categoryJoiner = new Joiner(allCategories, 'id', 'category')
@@ -87,108 +86,90 @@ blogBoardService.getJoinedPostsByUsersAndCategories = function (done, posts, all
     	 joinedPosts = userJoiner.joinTo(posts, 'userId', function() {return User.getAnnoymousUser()} );
     	 joinedPosts = categoryJoiner.joinTo(joinedPosts, 'categoryId');
     	 
-    	 return dataFn(joinedPosts)
+    	 return joinedPosts
      })
-     .catch(errFn)
 }
-
+// -----------------------------------  detail ------------------------------------
 
 //postNum에 해당하는 post 데이터를 가져온다.
 // user, answers를 조인.
-blogBoardService.getJoinedPost = function (done, postNum) {
-	var dataFn = done.getDataFn()
-	, errFn = done.getErrFn();
+blogBoardService.getJoinedPost = function (postNum) {
 	
-	H.all4promise([ [blogBoardService.getJoinedPostByUser, postNum]
-	              , [answerService.getRootOfAnswerTree, postNum] 
-    ])
-	 .then(function (args) {
-		 var joinedPost = args[0]
-		   , joinedAnswers = args[1].answers
-//		 console.log(joinedAnswers)  
-		 joinedPost.setAnswers(joinedAnswers);
-	 	 debug('joinedPost :', joinedPost)
-	 	 
-	 	 return dataFn(joinedPost);
-	 })
-	 .catch(errFn);
+	return Q.all([ blogBoardService.getJoinedPostByUser( postNum)
+	             , answerService.getRootOfAnswerTree( postNum) 
+	            ])
+				 .then(function (args) {
+					 var joinedPost = args[0]
+					   , joinedAnswers = args[1].answers
+				//		 console.log(joinedAnswers)  
+					 joinedPost.setAnswers(joinedAnswers);
+				 	 debug('joinedPost :', joinedPost)
+				 	 
+				 	 return joinedPost
+				 })
 }
-blogBoardService.getJoinedPostByUser = function (done, postNum) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn()
-	var _post = null;
+blogBoardService.getJoinedPostByUser = function (postNum) {
 	
-	return H.call4promise(postDAO.findByNum, postNum)
-	 .then(function (post) {
-		 _post = post;
-		 return H.call4promise(userDAO.findById, post.getUserId());
-     })
-	 .then(function (user) {
-		if(_.isEmpty(_post)) return console.error('not found By '+postNum + new Error().stack);
-		
-		_post.setUser(user);
-		dataFn(_post)
-	})
-	.catch(errFn)
+	var post = null;
+	return postDAO.findByNum( postNum)
+				 .then(function (_post) {
+					 post = _post;
+					 return userDAO.findById( _post.getUserId() );
+			     })
+				 .then(function (user) {
+					if(_.isEmpty(user)) return console.error('not found user : ', post);
+					post.setUser(user);
+					return post
+				})
 }
 
-blogBoardService.insertPostAndIncreaseCategoryCount = function(done, post) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn();
+blogBoardService.insertPostAndIncreaseCategoryCount = function(post) {
 	
 	var categoryId = post.categoryId;
-	H.all4promise([ 
-	                [postDAO.insertOne ,post]
-	              , [categoryService.increasePostCountById, categoryId]
-     ])
-   	 .then(function (args) {
-   		 var insertedPost = args[0];
-   		 return dataFn(insertedPost);
-   	 })
-	 .catch(errFn);
+	return Q.all([ 
+	               postDAO.insertOne(post)
+	             , categoryService.increasePostCountById( categoryId)
+			     ])
+			   	 .then(function (args) {
+			   		var insertedPost = args[0];
+			   		return insertedPost;
+			   	 })
 };
 //단일
-blogBoardService.deletePost = function (done, postNum) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn()
-	
+//TODO: 트랜잭션...(이미지)파일은 어찌되돌리려고.
+blogBoardService.deletePost = function (postNum) {
 	var transaction = new Transaction()   
-	transaction.atomic(function () {
-		return H.call4promise(postDAO.findByNum, postNum)
-				.then(function(post){
-					var fileInfoes = post.fileInfoes
-					, categoryId = post.categoryId
-					
-					//상태변화(update,delete) 함수들은 모두 status반환.
-					return H.all4promise([
-					                        [postDAO.removeByPostNum, postNum]
-					                      , [answerDAO.removeAllByPostNum, postNum]
-					                      , [categoryDAO.decreasePostCountById, categoryId]
-					                      , [fileDAO.deleteByFileInfoes, fileInfoes]
-					                      ])
-
-				})
-				.then(function (statuses) {
-				    debug('s',statuses)
-					return dataFn(Status.makeSuccess('remove all in post '+postNum))
-				})
-				.catch(function (err) {
-					debug('delete err ',err)
-					transaction.rollback() // err시 롤백
-					return errFn(err)
-				})
+	
+	return transaction.atomic(function () {
+			return   postDAO.findByNum( postNum)
+							.then(function(post){
+								var fileInfoes = post.fileInfoes
+								  , categoryId = post.categoryId
+								
+								//상태변화(update,delete) 함수들은 모두 status반환.
+								return Q.all([
+						                        postDAO.removeByPostNum( postNum)
+						                      , answerDAO.removeAllByPostNum( postNum)
+						                      , categoryDAO.decreasePostCountById( categoryId)
+						                      , fileDAO.deleteByFileInfoes( fileInfoes)
+						                      ])
+	
+							})
+							.then(function (statuses) {
+								var status = Status.reduceOne(statuses)
+								if(status.isError()) transaction.rollback()
+								
+								return status;
+							})
 	})
 }
 
 //다중
 //포스트들과 그 댓글들, 파일들 삭제 하고 관련된 카테고리 감소.
-blogBoardService.deletePostsByUserId = function (done, userId) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn()
-
+blogBoardService.deletePostsByUserId = function (userId) {
 	var transaction = new Transaction()   
 	transaction.atomic(function () {  
-		return H.call4promise(postDAO.findByUserId, userId)
+		return postDAO.findByUserId( userId)
 				.then(function(posts){
 					if(_.isEmpty(posts)) return Status.makeSuccess('not exist to delete post')
 					
@@ -196,66 +177,56 @@ blogBoardService.deletePostsByUserId = function (done, userId) {
 					, fileInfoes = Post.getFileInfoes(posts)
 					, categoryIdAndCountMap = Post.getCategoryIdAndCountMap(posts)
 					
-					return H.all4promise([
-					                        [postDAO.removeByUserId, userId]
-					                      , [answerDAO.removeByPostNums, postNums]
-					                      , [categoryDAO.decreasePostCountByIdAndCountMap, categoryIdAndCountMap]
-					                      , [fileDAO.deleteByFileInfoes, fileInfoes]
-					                      ])
+					return Q.all([
+			                        postDAO.removeByUserId( userId)
+			                      , answerDAO.removeByPostNums( postNums)
+			                      , categoryDAO.decreasePostCountByIdAndCountMap( categoryIdAndCountMap)
+			                      , fileDAO.deleteByFileInfoes( fileInfoes)
+		                        ])
 				})
 				.then(function (statuses) {
-					debug('s',statuses)
-					if(!_.isArray(statuses)) return dataFn(statuses)
-				    
-					return dataFn(Status.makeSuccess('remove post by '+userId) )
-				})
-				.catch(function (err) {
-					debug('delete err ',err)
-					transaction.rollback() // err시 롤백
-					return errFn(err)
+					var status = Status.reduceOne(statuses)
+					if(status.isError()) transaction.rollback
+					
+					return status;
 				})
 	})
 	
 }
 
 
-blogBoardService.updatePostAndCategoryId = function (done, post, originCategoryId) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn()
+blogBoardService.updatePostAndCategoryId = function (post, originCategoryId) {
 	  
-	H.all4promise([ [categoryService.increaseOrDecreasePostCount, post.categoryId, originCategoryId]
-	              , [postDAO.update, post]
+	return Q.all([ categoryService.increaseOrDecreasePostCount( post.categoryId, originCategoryId)
+	               , postDAO.update(post)
 	             ])
-	             .then(dataFn)
-	             .catch(errFn)
 }
 
-blogBoardService.increaseReadCount = function(done, postNum, cookie) {
+
+blogBoardService.increaseReadCount = function(postNum, cookie) {
 	if(cookie.isContains(POST_COOKIE, postNum)) {
-		done.return();
+		return Q()
 	} else {
 		cookie.set(POST_COOKIE, postNum);
-		postDAO.updateReadCount(done, postNum);
+		return postDAO.updateReadCount(postNum);
 	}
 }
+
 //TODO: increaseVote를 call4promsie로 호출중인데.아래 postDAO.updatevoteand... 에서 promise를 반환하지 않았다.
 //      안될줄알았는데.. dataFn으로 반환하니 된다. 햇갈리네.
-blogBoardService.increaseVote = function(done, postNum, userId) {
-	var dataFn = done.getDataFn()
-	  , errFn = done.getErrFn()
+blogBoardService.increaseVote = function(postNum, userId) {
 
 	var where = {num:postNum, votedUserIds:userId};
-	return  H.call4promise(postDAO.findOne, where)
+	return  postDAO.findOne( where)
 			 .then(function(post) {
 				 var failIncreaseVote = -1; //넌 이미 투표했다
-				 if(!(post.isEmpty())) return dataFn(Status.makeError('already voted'));
+				 if(!(post.isEmpty())) return Status.makeError('already voted');
 				 
-				 return postDAO.updateVoteAndVotedUserId(done, postNum, userId)
+				 return postDAO.updateVoteAndVotedUserId(postNum, userId)
 			 })
-			 .catch(errFn);
 }
 
 
-blogBoardService.findGroupedPostsByDate = function (done) {
-	return postDAO.findGroupedPostsByDate(done);
+blogBoardService.findGroupedPostsByDate = function () {
+	return postDAO.findGroupedPostsByDate();
 } 

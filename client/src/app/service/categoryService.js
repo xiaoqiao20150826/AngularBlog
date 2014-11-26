@@ -20,6 +20,10 @@
 				var param = { categoryId : categoryId}
 				return httpFailHandler.notifyAndDone( $http.post('/json/blogBoard/category/delete', param) )
 			}
+			categoryService.update = function (newTitle, categoryId) {
+				var param = { newTitle : newTitle, categoryId : categoryId}
+				return httpFailHandler.notifyAndDone( $http.post('/json/blogBoard/category/update', param) )
+			}
 			categoryService.getRootOfCategory = function () {
 				return httpFailHandler.notifyAndDone( $http.get('/json/blogBoard/category/list') )
 			}

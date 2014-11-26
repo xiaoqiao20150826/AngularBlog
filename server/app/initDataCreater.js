@@ -33,12 +33,16 @@ initDataCreater.create= function () {
 	    .catch(function _ignoreDuplicate(errors) { // 중복에러 무시.
 	    	if(!_.isString(errors))  errors = [errors]
 	    	
+	    	var newErrors = []
+	    	
 	    	 for(var i in errors) {
 	    		 var error = errors[i]
 	    		 if(error.code == 11000) continue;
-	    		 else return errFn(error)
+	    		 else newErrors.push(error)
 	    	 }
-	    	 deferred.resolve(args)
+	    	
+	    	if(_.isEmpty(newErrors)) return deferred.resolve('no errors') 
+	    	else return deferred.reject(newErrors)
 	     })
 	
 	return deferred.promise

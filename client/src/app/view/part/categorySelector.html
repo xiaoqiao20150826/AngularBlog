@@ -3,7 +3,7 @@
 <!-- 주석이있으면 select 태그는 오류남.. -->
 <!-- value가 ng-model에 할당되는 값. -->
 
-<select ng-model='selectedCategoryId'>
+<select ng-model='$parent.selectedCategoryId'>
 	<option tree-explorer
 					has-comment 		= "false"    
 					root  				= "rootOfCategory" 

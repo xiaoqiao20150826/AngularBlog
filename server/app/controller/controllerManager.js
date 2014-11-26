@@ -18,8 +18,6 @@ var controllers = [
                   , require('./user/userController.js')
                   , require('./user/authController.js')
                   
-                  , require('./admin/adminController.js')
-                  
               ];
 
 //2. 각 controller에 서버의 url과 controller 연결 책임을 위임.

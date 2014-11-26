@@ -86,7 +86,7 @@ answerDAO.find = function (where,select) {
 
 answerDAO.findByPostNum = function(postNum) {
 	var where = {postNum:postNum};
-	return answerDAO.find(done, where);
+	return answerDAO.find(where);
 };
 answerDAO.findByNum = function (num) {
 	var deferred  = Q.defer()

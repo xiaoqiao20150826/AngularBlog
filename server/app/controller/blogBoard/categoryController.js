@@ -5,20 +5,20 @@
 var debug = require('debug')('nodeblog:controller:categoryController')
 var _ = require('underscore')
 var H = require('../../common/helper.js')
-  , Done = H.Done
   
 var JsonResponse = require('../util/JsonResponse.js')
   , AuthRequest   = require('../util/AuthRequest.js')
   
 var Category = require('../../domain/blogBoard/Category')
+  , categoryService = require('../../service/blogBoard/categoryService')
   
-var categoryService = require('../../service/blogBoard/categoryService')
 
 var categoryController = module.exports = {}
 /* 클라이언트의 요청을 컨트롤러에 전달한다.*/
 categoryController.mapUrlToResponse = function(app) {
 		// json. 
 		app.get('/json/blogBoard/category/list', this.sendCategoryList)
+		
 		app.post('/json/blogBoard/category/insert', this.insertCategory)
 		app.post('/json/blogBoard/category/delete', this.deleteCategory)
 		app.post('/json/blogBoard/category/update', this.updateCategory)
@@ -30,16 +30,17 @@ categoryController.mapUrlToResponse = function(app) {
 
 categoryController.sendCategoryList = function (req, res) {
 	var jsonRes 	= new JsonResponse(res)
-	H.call4promise(categoryService.getRootOfCategoryTree)
-	 .then(function (rootOfCategoryTree) {
-			return jsonRes.send(rootOfCategoryTree);
-	 })
-	 .catch(jsonRes.catch())	
+	
+	categoryService.getRootOfCategoryTree()
+	 			   .then(function (rootOfCategoryTree) {
+						return jsonRes.send(rootOfCategoryTree);
+				   })
+				   .catch(jsonRes.catch())	
 }
 
 categoryController.insertCategory = function (req, res) {
 	var jsonRes 	= new JsonResponse(res)
-	  , authReq 	= new AuthRequest(req)
+	  , authReq 	= new AuthRequest(req);
 	
 	var loginUser 	= authReq.getLoginUser(req)
 	var rawData 	= authReq.getRawData(req)
@@ -50,17 +51,18 @@ categoryController.insertCategory = function (req, res) {
 	
 	if(loginUser.isNotAdmin())  return jsonRes.sendFail('login user is not admin');
 	
-	var done = new Done(dataFn, jsonRes.catch);
-	categoryService.insertCategory(done, parentId, newTitle)
-	function dataFn(status) {
+	categoryService.insertCategory(parentId, newTitle)
+	.then(function dataFn(status) {
 		debug('insertCategory - categoryOrErrString : ', status);
-		jsonRes.send(status.getMessage());
-	}
+		
+		return jsonRes.send(status);
+	})
+	.catch(jsonRes.catch())
 }
 
 categoryController.updateCategory = function (req, res) {
 	var jsonRes 	= new JsonResponse(res)
-	  , authReq 	= new AuthRequest(req)
+	  , authReq 	= new AuthRequest(req);
 	
 	var loginUser 	= authReq.getLoginUser(req)
 	var rawData 	= authReq.getRawData(req)
@@ -71,16 +73,18 @@ categoryController.updateCategory = function (req, res) {
 	
 	if(loginUser.isNotAdmin())  return jsonRes.sendFail('login user is not admin');
 	
-	var done = new Done(dataFn, jsonRes.catch);
-	categoryService.insertCategory(done, parentId, newTitle)
-	function dataFn(status) {
+	여기가틀림.
+	categoryServiceegory(categoryId, newTitle)
+	.then(function dataFn(status) {
 		debug('insertCategory - categoryOrErrString : ', status);
-		jsonRes.send(status.getMessage());
-	}
+		return jsonRes.send(status);
+	})
+	.catch(jsonRes.catch())
 }
-categoryController.deleteCategory = function () {
+
+categoryController.deleteCategory = function (req, res) {
 	var jsonRes 	= new JsonResponse(res)
-	  , authReq 	= new AuthRequest(req)
+	  , authReq 	= new AuthRequest(req);
 	
 	var loginUser 	= authReq.getLoginUser(req)
 	var rawData 	= authReq.getRawData(req)
@@ -89,12 +93,13 @@ categoryController.deleteCategory = function () {
 	debug('deleteCategory : rawData : ', rawData);
 	
 	if(loginUser.isNotAdmin())  return jsonRes.sendFail('login user is not admin');
+	if(categoryId == Category.getRootId())  return jsonRes.sendFail('root can not delete');
 	
-	var done = new Done(dataFn, jsonRes.catch);
-	categoryService.removeCategoryAndRemoveCategoryIdOfPost(done, categoryId)
-	function dataFn(status) {
+	categoryService.removeCategoryAndRemoveCategoryIdOfPost(categoryId)
+	.then(function dataFn(status) {
 		debug('deleteCategory : categoryOrErrString : ', status);
-		jsonRes.send(status.getMessage());
-	}
+		return jsonRes.send(status);
+	})
+	.catch(jsonRes.catch())
 }
 

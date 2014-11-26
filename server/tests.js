@@ -18,19 +18,17 @@ var testSuites = [
                   
                   , './app/test/common/file/localFileTest.js'
                   
-                  , './app/test/common/asyncSuporterTest.js'
-                  , './app/test/common/pagerTest.js'
-                  , './app/test/common/DoneTest.js'
-                  , './app/test/common/utilTest.js'
                   , './app/test/common/scriptletUtilTest.js'
+                  , './app/test/common/utilTest.js'
+                  , './app/test/common/pagerTest.js'
                   
                   , './app/test/dao/util/JoinerTest.js'
                   
-                  , './app/test/dao/util/transaction/CreateCanclerTest.js'
+                  , './app/test/dao/util/transaction/TransactionTest.js'   
                   , './app/test/dao/util/transaction/HookerTest.js'
-                  , './app/test/dao/util/transaction/RemoveCanclerTest.js'
-                  , './app/test/dao/util/transaction/UpdateCanclerTest.js'
-                  , './app/test/dao/util/transaction/TransactionTest.js'
+//                  , './app/test/dao/util/transaction/CreateCanclerTest.js'  // Done제거후 확인안함
+//                  , './app/test/dao/util/transaction/RemoveCanclerTest.js' // Done제거후 확인안함
+//                  , './app/test/dao/util/transaction/UpdateCanclerTest.js' // Done제거후 확인안함
                   
                   , './app/test/dao/seqTest.js'
                   , './app/test/dao/postTest.js'
@@ -38,9 +36,7 @@ var testSuites = [
 				  , './app/test/dao/userTest.js'
 				  , './app/test/dao/categoryTest.js'
 
-//				  , './app/test/routes/common/checkerTest.js' 사용안함
-				  , './app/test/controller/util/requestParserTest.js'
-				  , './app/test/controller/util/cookieTest.js'
+				  , './app/test/controller/util/cookieTest.js'       
 				  
 				  , './app/test/service/blogBoardServiceTest.js'
 				  , './app/test/service/answerServiceTest.js'

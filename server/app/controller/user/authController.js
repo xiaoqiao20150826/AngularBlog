@@ -1,21 +1,18 @@
 var _ = require('underscore');
 
 var H = require('../../common/helper.js')
-  , Done = H.Done
   , User = require('../../domain/User.js')
   , userDAO = require('../../dao/userDAO.js');
 
-var requestParser = require('../util/requestParser.js')
-  , JsonResponse  = require('../util/JsonResponse.js')
+var JsonResponse  = require('../util/JsonResponse.js')
   , AuthRequest   = require('../util/AuthRequest.js')
+
   
 // 차후확장..
 var authController = module.exports = {};
 
 authController.mapUrlToResponse = function(app) {
-	var passport = app.get('passport');
-	//저장된 user
-//	app.post('/signin', this.signinUser)
+	var passport 	= app.get('passport');
 	
 	//facebook
 	app.get('/auth/facebook',passport.authenticate('facebook'));
@@ -34,7 +31,6 @@ authController.mapUrlToResponse = function(app) {
 	app.get('/auth/linkedin/callback', passport.authenticate('linkedin'), this.goHome);
 
 	// json
-	app.get('/json/auth/loginUser', this.getLoginUser)
 	app.get('/json/auth/loginUserIsAdmin', this.loginUserIsAdmin)
 	app.get('/json/auth/isLoginUser/:userId', this.isLoginUser) 
 	
@@ -50,26 +46,14 @@ authController.loginUserIsAdmin = function (req, res) {
 	
 	return jsonRes.send({isAdmin : true});
 }
-authController.getLoginUser = function (req, res) {
-	var jsonRes 	= new JsonResponse(res)
-	  , authReq 	= new AuthRequest(req)
-	var loginUser 	= authReq.getLoginUser()
-	
-	if(loginUser.isAnnoymous()) 
-		loginUser.isLogin = false;
-	else 
-		loginUser.isLogin = true;
-	
-	return jsonRes.send(loginUser);  //TODO: isLogin... 클라이언트에서 사용되는 속성임 주의..
-}
 
 //현재 로긴해있고 writerId(등의)일치를 판단.
 authController.isLoginUser = function (req, res) {
 	var jsonRes 	= new JsonResponse(res)
-	, authReq 	= new AuthRequest(req)
+		, authReq 	= new AuthRequest(req);
 	var loginUser 	= authReq.getLoginUser()
-	, rawData 	= authReq.getRawData(req)
-	, userId 		= rawData.userId
+		, rawData 	= authReq.getRawData(req)
+		, userId 		= rawData.userId;
 	
 	if(loginUser.isEqualById(userId)) return jsonRes.sendFail(userId + ' is not loginUser')
 	

@@ -11,9 +11,11 @@
 		<!-- 				여기가카테고리셀렉터 -->
 			<div ui-view ='categorySelector'></div>
 			<div class = "pull-left">
-					<input ng-model = 'childCategoryTitle'  placeholder='childName'>
+					<input ng-model = 'newCategoryTitle'  placeholder='childName'>
 					<input ng-click="admin.insertCategory()" type='button' class="btn btn-default" value ="insert">
+					<input ng-click="admin.updateCategory()" type='button' class="btn btn-default" value ="update">
 					<input ng-click="admin.deleteCategory()" type='button' class="btn btn-default" value ="delete">
+					{{selectedCategoryId}}
 			</div>
 		</form>
 	</div>

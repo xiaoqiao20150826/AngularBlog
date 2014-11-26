@@ -61,9 +61,9 @@ describe('Transaction', function() {
 	after(function(nextTest) {
 		
 		Q.all([
-                userDAO, userDAO.removeAll()
-              , postDAO, postDAO.removeAll()
-              , answerDAO, answerDAO.removeAll()
+                userDAO.removeAll()
+              , postDAO.removeAll()
+              , answerDAO.removeAll()
 		      , initDataCreater.removeAll()
         ])
 		.then(function() {
@@ -74,12 +74,15 @@ describe('Transaction', function() {
 		.catch(H.testCatch1(nextTest));
 	});
 	it('should success by insert', function (nextTest) {
-//		should.equal(mongoose.Model.create.name, 'create4transaction')
+
+//		
 		var tran = new Transaction()
-		
-		
+//		
 		tran.atomic(function () {
-			tran.rollback()
+			
+			tran.rollback()  // rollback하게
+			should.equal(mongoose.Model.create.name, 'create4transaction')
+			
 			var user1 = H.deepClone(initUser1)
 			user1.name = '23324'
 			
@@ -106,13 +109,12 @@ describe('Transaction', function() {
 					})
 				    .then(function () {
 				    	var answer3 = Answer.createBy({content:'answer3'})	    	
-				    	return H.all4promise([
-								                userDAO.removeAll()
-								              , answerDAO.removeAll()
-								              , answerDAO.insertOne( answer3)
+				    	return Q.all([
+						                userDAO.removeAll()
+						              , answerDAO.removeAll()
+						              , answerDAO.insertOne( answer3)
 								])
 				    })
-				    
 		  })
 		    .then(function (status) {
 //		    	console.log('result atomic', status)
@@ -131,6 +133,8 @@ describe('Transaction', function() {
 //	                    	 console.log(user1._id)
 //	                    	 console.log(post1.content)
 //	                    	 console.log(answer1.content)
+                	 		should.equal(mongoose.Model.create.name, 'create')
+	                    	 
 	                    	 should.equal(initUser1._id, user1._id)
 	                    	 should.equal(initUser1.name, user1.name)
 	                    	 should.equal(initPost1._id.id, post1._id.id)
