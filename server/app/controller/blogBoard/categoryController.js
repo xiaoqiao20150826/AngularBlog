@@ -11,6 +11,7 @@ var JsonResponse = require('../util/JsonResponse.js')
   
 var Category = require('../../domain/blogBoard/Category')
   , categoryService = require('../../service/blogBoard/categoryService')
+  , categoryDAO = require('../../dao/blogBoard/categoryDAO')
   
 
 var categoryController = module.exports = {}
@@ -54,8 +55,8 @@ categoryController.insertCategory = function (req, res) {
 	categoryService.insertCategory(parentId, newTitle)
 	.then(function dataFn(status) {
 		debug('insertCategory - categoryOrErrString : ', status);
-		
-		return jsonRes.send(status);
+		if(status.isError && status.isError()) return jsonRes.sendFail(status);
+		else return jsonRes.send(status);
 	})
 	.catch(jsonRes.catch())
 }
@@ -73,11 +74,11 @@ categoryController.updateCategory = function (req, res) {
 	
 	if(loginUser.isNotAdmin())  return jsonRes.sendFail('login user is not admin');
 	
-	여기가틀림.
-	categoryServiceegory(categoryId, newTitle)
+	categoryDAO.updateTitle(categoryId, newTitle)
 	.then(function dataFn(status) {
 		debug('insertCategory - categoryOrErrString : ', status);
-		return jsonRes.send(status);
+		if(status.isError && status.isError()) return jsonRes.sendFail(status);
+		else return jsonRes.send(status);
 	})
 	.catch(jsonRes.catch())
 }
@@ -98,7 +99,8 @@ categoryController.deleteCategory = function (req, res) {
 	categoryService.removeCategoryAndRemoveCategoryIdOfPost(categoryId)
 	.then(function dataFn(status) {
 		debug('deleteCategory : categoryOrErrString : ', status);
-		return jsonRes.send(status);
+		if(status.isError && status.isError()) return jsonRes.sendFail(status);
+		else return jsonRes.send(status);
 	})
 	.catch(jsonRes.catch())
 }

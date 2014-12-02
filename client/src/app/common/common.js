@@ -9,7 +9,8 @@
 	       	    
 	       	  , 'common/service/ObjectDecorator'
 	       	  , 'common/service/objectLogger'
-	       	  , 'common/service/TreeExplorer'
+	       	  , 'common/service/Tree'
+	       	  , 'common/service/redirector'
 	       	  
 	       	  , 'common/provider/inspectLoggerProvider'
 	       	  
@@ -20,7 +21,8 @@
 				
 			  , ObjectDecorator
 			  , objectLogger
-			  , TreeExplorer
+			  , Tree
+			  , redirector
 			  
 			  , inspectLoggerProvider
 			  
@@ -33,10 +35,11 @@
 		       .factory( moduleName + '.util', util)
 		       
 		       .factory( moduleName + '.ObjectDecorator', ObjectDecorator)
-		       .factory( moduleName + '.objectLogger', objectLogger)
-		       .factory( moduleName + '.TreeExplorer', TreeExplorer)
+		       .factory( moduleName + '.objectLogger'	, objectLogger)
+		       .factory( moduleName + '.Tree'	, Tree)
+		       .factory( moduleName + '.redirector'		, redirector)
 		       
-		       .provider(moduleName + '.inspectLogger' , inspectLoggerProvider)		//이름주의.
+		       .provider(moduleName + '.inspectLogger' 	, inspectLoggerProvider)		//이름주의.
 		       
 		       .directive('treeExplorer', treeExplorerDirective)
 		

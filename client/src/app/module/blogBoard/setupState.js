@@ -27,11 +27,10 @@
 					  		  , controller    : BLOG_BOARD+'.ListController'
 					  		  , controllerAs  : 'blogBoardList'
 					  		  , resolve		  : {
-				  			  					listData : [  BLOG_BOARD+'.blogBoardService'
+				  			  					listData : [  BLOG_BOARD+'.blogBoardDAO'
 				  			  					            , '$stateParams'
-				  			  					            ,function (blogBoardService, $stateParams) {
-				  			  									console.log('list')
-					  			  								return blogBoardService.getListData($stateParams)
+				  			  					            ,function (blogBoardDAO, $stateParams) {
+					  			  								return blogBoardDAO.getListData($stateParams)
 					  			  				            }]
 		
 					  			  				 }
@@ -72,9 +71,9 @@
 			    {
 			    	detailData : 
 			    	[ 
-			    	  '$stateParams', BLOG_BOARD+'.blogBoardService'
-				      ,function($stateParams, blogBoardService) {
-				    	  return blogBoardService.getDetailData($stateParams)
+			    	  '$stateParams', BLOG_BOARD+'.blogBoardDAO'
+				      ,function($stateParams, blogBoardDAO) {
+				    	  return blogBoardDAO.getDetailData($stateParams)
 				    }]
 				  
 			    }  

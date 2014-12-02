@@ -8,17 +8,18 @@
 		return [
 		          '$rootScope'
 		        , 'common.util'
-		        , 'app.authService'
+		        , 'app.authDAO'
 		        , 'currentUser'
 		        , 'rootOfCategory'
 		        , AppController
 		        ];
 	})
 	
-	function AppController($rootScope, util, authService, currentUser, rootOfCategory) {
+	//
+	function AppController($rootScope, U, authDAO, currentUser, rootOfCategory) {
 		// 전역 이름
 		$rootScope._  = _
-		$rootScope.U  = util
+		$rootScope.U  = U
 		
 		$rootScope.currentUser = currentUser
 		$rootScope.rootOfCategory = rootOfCategory
@@ -27,7 +28,7 @@
 		
 
 		// login view modal
-		$rootScope.showLoginView = authService.showLoginView
+		$rootScope.showLoginView = authDAO.showLoginView
 //		this.loginUser = loginUser
 	}
 	

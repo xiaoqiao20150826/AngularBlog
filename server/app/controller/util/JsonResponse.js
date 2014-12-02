@@ -14,7 +14,7 @@ var JsonResponse = module.exports = function JsonResponse(res) {
 JsonResponse.prototype.send = function (object) {
 	if(_.isEmpty(object)) return console.error('object is empty : ' + object);
 	
-	var result = {isSuccess:true, obj: object}
+	var result = {isFail:false, obj: object}
 	return this.res.send(JSON.stringify(result))
 }
 
@@ -23,9 +23,9 @@ JsonResponse.prototype.sendFail 	= function (error, message) {
 	if(_.isString(error)) message = error 
 	
 	var errObj = { error: error, message : message}
-	var result = {isSuccess:false, obj: errObj}
+	var result = { isFail:true, obj: errObj}
 	
-	console.error(result)
+	console.error(errObj);
 	return this.res.send(JSON.stringify(result))
 }
 // this유지를 위해서 catch()로 호출해야함

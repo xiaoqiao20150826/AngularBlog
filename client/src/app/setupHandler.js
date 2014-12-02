@@ -11,66 +11,66 @@
 	
 	define([], function () {
 		
-		return ['$rootScope', '$state', 'common.util','app.authService', setupHandler]
+		return [
+		         '$rootScope'
+		       , '$state'
+		       , 'common.util'
+		       , 'common.redirector'
+		       , 'app.authDAO'
+		       , setupHandler
+		       ]
 	})
 	// TODO: 모듈로..분리시켜야 해
 	
-	function setupHandler($rootScope, $state, U, authService) {
+	function setupHandler($rootScope, $state, U, redirector,  authDAO) {
 		
 		// auth.. url에 따른 선 확인.
 	    $rootScope.$on("$stateChangeStart", function(event, toState, toParams, fromState, fromParams){
-	        if (!(toState.auth || toState.admin) ) return; //없으면 하던일 하고.
-	        // 기본동작막고..
+	    	//0. 상태 저장.    이거 고민좀해봐야겠다..옳은가?
+	    	redirector.setState($state.current)
+	    	
+	    	//1. 없으면 기본동작 하고.
+	        if (!(toState.auth || toState.admin) ) return;
+	        
+	        //2. 아니면 기본동작막고..ㄱㄱ(위의 auth or admin 확인 동작 고고)
 	        event.preventDefault();
 	        
-	        // currentUser 변경하고..
-	        authService.getLoginUser()
-	        		   .then(function (user) {
-	        			   $rootScope.currentUser = user; //주의 currentUser로 사용중.
-	        			   
-	        			   if(!user.isLogin) return _redirectAndShow($state, fromState, fromParams, authService.showLoginView);
-	        			   // 참 애매하게 해놨네..
-	        			   
-	        			   if(!toState.admin) return _originWork($state, toState, toParams); 
-	        			   
-	        			   ////////////////////////
-	        			   if(toState.admin) {
-	        				   return authService.loginUserIsAdmin()
-						        				  .then(function(result) {
-						        					   return _originWork($state, toState, toParams) 
-						        				  })
-	        			   }
-	        		   })
-	    });
-	    function _redirectAndShow ($state, fromState, fromParams, showLoginView) {
-			   var stateName = _defaultNameIfNoUse(fromState)
-			   return $state.go(stateName , fromParams)
-			   		 		.then(function () { 
-			   		 			if(showLoginView) showLoginView(); 
-			   		 		})
-	    }
-	    function _originWork ($state, toState, toParams) {
-			   var beforeAuth  = toState.auth
-			     , beforeAdmin = toState.admin
-			     
-			   toState.auth = toState.admin = false;
-			   
-			   var stateName = _defaultNameIfNoUse(toState)
-			   return $state.transitionTo(stateName, toParams)//본래동작??
-			   		 		.then(function() {
-			   		 				toState.auth = beforeAuth
-			   		 				toState.admin = beforeAdmin
-			   		 			})
-	    } 
-	    
-	    function _defaultNameIfNoUse(state) {
-	    	var defaultStateName = "app.blogBoard.list";
-	    	
-	    	if(state.name === "" || state.defaultState)
-	    		return defaultStateName;
-	    	else
-	    		return state.name
-	    }
+	        if(toState.auth)  return _checkAndResetUser(toState, toParams)
+	        if(toState.admin) return _checkAdmin(toState, toParams)
+	        
+	        function _checkAndResetUser(toState, toParams) {
+	        	toState.auth = false
+	            authDAO.getLoginUser()
+      		   		   .then(function (user) {
+			      			   if(!user.isLogin) {
+			      				   return redirector.goBefore().then(authDAO.showLoginView);
+			      			   }
+			      			   //root 에 재저장..중요.
+			      			   $rootScope.currentUser = user 
+			      			   return redirector.go(toState, toParams)
+      		   		   })
+      		   		   .then(function() { toState.auth = true })
+      		   		   .catch(function() { toState.auth = true })
+	        }
+	        
+	        function _checkAdmin(toState, toParams) {
+	        	toState.admin = false
+	            return authDAO.getLoginUser()
+		   		   			  .then(function (user) {
+		   		   				  	if(!user.isLogin) {
+		   		   				  		return redirector.goBefore().then(authDAO.showLoginView)
+		   		   				    }
+		   		   				  	
+		   		   				  return authDAO.loginUserIsAdmin()	
+		   		   			  })
+							  .then(function(isAdmin) {
+								  if(!isAdmin) return redirector.goBefore()
+								  else return redirector.go(toState, toParams) 
+							  })
+							  .then(function() { toState.admin = true })
+							  .catch(function() { toState.admin = true;})
+	        }
+	    })
 	}
 	
 })(define)

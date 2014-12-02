@@ -7,14 +7,14 @@
 	        , 'module/blogBoard/controller/DetailController'
 	        , 'module/blogBoard/controller/InsertController'
 	        
-	        , 'module/blogBoard/service/blogBoardService'
+	        , 'module/blogBoard/dao/blogBoardDAO'
 	        , 'module/blogBoard/setupState' 
 	        ]
 	,function( ListController
 			 , DetailController
 			 , InsertController
 			 
-			 , blogBoardService
+			 , blogBoardDAO
 			 , setupState
 			 ){
 		
@@ -26,7 +26,7 @@
 			   .controller(	moduleName+'.DetailController', DetailController)
 			   .controller(	moduleName+'.InsertController', InsertController)
 			   
-			   .service(	moduleName+'.blogBoardService', blogBoardService)
+			   .service(	moduleName+'.blogBoardDAO', blogBoardDAO)
 			   .config(		setupState)
 		
 			

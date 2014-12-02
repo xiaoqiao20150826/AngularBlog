@@ -2,11 +2,11 @@
  * 
  */
 
-define(['common/common'], function (common) {
+define(['app'], function (app) {
 	describe('util', function () {
 		var U = null;
 		beforeEach(function() {
-			angular.mock.module(common)
+			angular.mock.module(app)
 			angular.mock.inject(function ($injector) {
 				U = $injector.get('common.util');
 			})

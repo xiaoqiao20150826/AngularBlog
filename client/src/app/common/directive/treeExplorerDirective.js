@@ -1,13 +1,12 @@
 /**
- * 
- *  ############ 이거 중단.(11/20) 실패.
+ *  # 조금식 변경됨 사용방법이.
  * 
  *  # Why
  *   - select-option에 트리를 적용하고 싶다. 그런데 일반적인방식의 재귀(ng-include사용)은
  *   '포함'관계로 엘리먼트를 추가해준다. 말그대로 include해버림.
- *    그런데 option은 리스트 형태로 추가되고.. 내용만 트리구조 탐색이 되야 한다.
+ *    그런데 option은 리스트 형태로 추가되고.. 내용만 트리구조가 되야 한다.
  *    하지만 ng-include에서 내용만 추가하면. span이 둘러쌓여짐. 
- *    그리고 ng-include에서 또다른 option엘리먼트를 추가하면 결국 내부로 포함되어진다.
+ *    그리고 ng-include에서 또다른 option엘리먼트를 추가하면 결국 내부로 포함되어진다.(트리구조가됨)
  *    
  *    트리를 탐색할때, each와 같은 형태로 어떤 로직을 수행할 수 있고, 
  *    each의단계에서 html도 순차(혹은 포함)으로 삽입 할수있는 방법이 필요하다
@@ -64,86 +63,263 @@
  *   2) 기준이될 코멘트 추가. // 지시자 추가시 자동 생성됨. end에서만 만들면 되겠군.
  *   3) truncate 이용하여 클론 추가 및 스코프 설정
  *   4) watch 등록 및 실행 부모노드 설정 확인하여 파이어되는지 확인.
+ *     - watch 설정에 따라 달라짐.. (비교도 참조, 깊게, 얉게)
+ *      
+ *   5) 엘리먼트. watch로 인한 변화는 어떻게 할것인가?
+ *     - ng-repeat는 이전 노드의 상태를 잘관리해서 필요한 부분만 추가했네. 코멘트도 잘이용했고.
+ *     
  *  
  *  # how to use
- *     - html(static)
- *     <div>														//default nodeName :  'node'
- *     		<div tree-explorer root='root' childs-key="childeNodes" node-name="node">
- *     </div>
+ *	<option tree-explorer 
+ *						root  				= "$parent.rootOfCategory"  //참조 값 복사.
+ *						children-key		= "categories"				//default children
+ *						id-key			    = "id"						//default id
+ *						node-name 			= "category"				//default node
+ *						is-nested			= 'false'					//default true
+ *				value = "{{category.id}}"		
+ *	>
+ *	{{U.repeatString('&nbsp;&nbsp;', $deep)}}
+ *	{{category.title}}
+ *	</option>
+ *
+ *   # 문제
+ *    - watch로 root 수정 후 삽입시.
+ *      1) 중간부분만 추가하고싶다. 그러나. 복잡해질 것이 분명함. 
+ *      	=> 복잡하게 처리함;
+ *      2) select와 같은넘 때문에. postLink시점에는 내부 엘리먼트가 없어야지.(즉 시작 주석없에야)
+ *          => 우선순위 1000 으로 해결. 이시점에 truncate : element 로 인해 사라지는듯.
+ *          
  *     
- *     - tree
- *       {name:node1, childeNodes:[....]}
- *     - result
- *     <div>
- *     	  <div>node1<div>
- *     	  <div>node2<div>
- *     	  <div>node3<div>
- *     <div>
- *     
- *  
+ *   # etc
+ *     http://www.michaelbromley.co.uk/blog/260/writing-multi-element-directives-in-angularjs
+//		1.3 이전의 -start , -end를 이걸로 해결하기 위함?
+//		, multiElement: true
+  
+					// 이넘들은 무엇이지?
+//				    , terminal: true
+//				    , $$tlb: true 
  */
 
 (function(define, angular, _){
 	define([], function () {
-		return ['common.TreeExplorer','common.util', makeDirective];
+		return ['common.Tree','common.util', makeDirective];
 		
-		function makeDirective(TreeExplorer, U) {
-			return {
-					  restrict   : 'A'
-				    , transclude : 'element'	  
-//				    , multiElement: true  // 이넘들은 무엇이지?
-//				    , priority: 1000
-//				    , terminal: true
-//				    , $$tlb: true
-					, scope	     : {
-								 	  root        : '='
-								    , childrenKey   : '@'		//default : children
-								    , nodeName	  : '@'		//default : node
-								    , hasComment  : '@'		//default : true	
-								   }
-					, compile	 : function ($element, $attrs) {
-						//기본 설정값.
-						$attrs.hasComment 	= $attrs.hasComment   || true; 
-						$attrs.nodeName   	= $attrs.nodeName	  || 'node'
-						$attrs.childrenKey  = $attrs.childrenKey  || 'children'
-						
-						//  지시자이기에 자동생성되는 코멘트가 $element이다.
-						// transclude로 인해 코멘트만 남아있음.
-						var $startComment   = $element 
-						  , $eachEndComment = document.createComment(' end eachWork for tree')
-						var $parentElement  = $element.parent();  
-							
-						return function postLink($scope, $element, $attr, ctrl, $transclude) {
-							var hasComment 	  = U.stringToBoolean($scope.hasComment)
-							
-							var root 	   	  = $scope.root
-							  , childrenKey  	  = $scope.childrenKey
-							  , nodeName      = $scope.nodeName  || 'node'
-							  , tree	      = new TreeExplorer(root, childrenKey)
+		function makeDirective(Tree, U) {
+			var treeDirective = {}
+			//1. 설정.
+			treeDirective.restrict  	= 'A';   	//속성
+			treeDirective.transclude	= 'element';//대상.
+			
+			//select같은 경우 이상한 자식 있을경우 에러가...그래서 지시자 해석시기를 늦춰야함.
+			treeDirective.priority		= 1000; 
+			treeDirective.scope			= {
+										 	  root  	  : '='
+										    , childrenKey : '@'		//default : children
+										    , idKey 	  : '@'		//default : id
+											, nodeName	  : '@'		//default : node
+											, isNested	  : '@'		//default : true
+										  };
 
-							tree.each(eachWork);
+			//2. 지시자 '태그' 컴파일 시점. 지시자 태그에 바인딩된 값들 확인
+			//transclude	= 'element'; 설정으로 컴파일시 
+			//  '그 위치에' 자동 생성된 코멘트가 $element이다.
+			treeDirective.compile		= function($element, $attrs) {
+				//기본 설정값.
+				$attrs.nodeName   	= $attrs.nodeName	  				 || 'node'
+				$attrs.childrenKey  = $attrs.childrenKey  				 || 'children'
+				$attrs.idKey  		= $attrs.idKey  	  				 || 'id'
+				$attrs.isNested  	= $attrs.isNested 					 || 'true'
+				
+				//컴파일 후 콜백.
+				return _postLink
+			};
+			
+			// 3. 설정 값을 이용한 실제 동작(엘리먼트 생성, 연결 및 watch 리스너 바인딩)
+			function _postLink ($scope, $element, $attr, ctrl, $transclude) {
+				var params 	           = {}
+				params.$parentElement  = $element.parent();
+				params.childrenKey     = $scope.childrenKey
+				params.idKey	       = $scope.idKey
+				params.nodeName        = $scope.nodeName
+				params.isNested		   = U.stringToBoolean($scope.isNested)
+				
+				// dom에 추가/제거 되는 엘리먼트와 트리의 노드를 바인딩.
+				// 노드의변화(watch)에 적합한 엘리먼트를 추가, 제거하기 위함.
+				params.elementInfoMap	   = {} 
+				
+				params.$transclude	   = $transclude
+				params.tree			   = new Tree($scope.root, params.childrenKey, params.idKey)
+				
+				params.tree.each(__insertElement2(params));
+
+				var endComment   = document.createComment('end treeExplorer')
+				params.$parentElement.append(endComment)
+			}// end postLink
+				
+			//--- each helper
+			//sied effect
+			
+			/***
+			 * ㅡㅡ insertBefore/After 동작을 오해해서 한참 삽질했다...
+			 * push처럼 동작하는 것이아니라. 직전위치로. 즉... unshift처럼 동작함 ㅡㅡ
+			 * test 안하니... 동작 확인하는 것에 시간이...ㅡㅡ
+			 */ 
+			function __insertElement2(params) {
+				var nodeName	   = params.nodeName
+				  , idKey		   = params.idKey
+				  , $transclude    = params.$transclude
+				  , $parentElement = params.$parentElement
+				  , isNested       = params.isNested
+				  
+				var elementInfoMap = params.elementInfoMap  || {}
+				
+				return function _treeEach(node, parentNode, deep, hasChild) {
 							
-							
-							if(!hasComment) $startComment.remove()
-							return;
-							
-							function eachWork(node, parentNode, deep, hasChild) {
-								$scope.$watchCollection(root, function ngRepeatAction(tree) {
-									$transclude(function ngRepeatTransclude($clone, scope) {
-//										
-										scope[nodeName] = node
-										$parentElement.append($clone)
-										
-										if(hasComment) $parentElement.append($eachEndComment)
-									})
-								})
-							}
-							
+					$transclude(function ngRepeatTransclude($clone, scope) {
+						
+						__setScope(scope, nodeName, node, parentNode, deep, hasChild)
+						__setNodeListener(scope, params)
+						
+						
+						//처음은 $parentElement로 이후에는 ..elementInfoMap이용.
+						var parentId			= parentNode ? parentNode[idKey] : null
+						var parentElementInfo   = parentId   ? elementInfoMap[ parentId ] 
+												  			 : {el : $parentElement, nextLoc : 0 , parentEl : null}
+						var parentElement 		= parentElementInfo.el 
+						  , parentNextLoc		= parentElementInfo.nextLoc; 
+								 			      	  
+						// nextLoc, parentEl은 appendFlatten에서 사용. //
+						// 현재엘리먼트에 대해서..
+						elementInfoMap[ node[idKey] ] 	= { el : $clone
+								                          , nextLoc : 0
+								                          , parentEl : parentElement
+								                          , parentId : parentId     //삭제위해.
+								                          }
+
+						
+						// 이건 루트의 루트를(null)위한 초기 공통 동작.						
+						if(!parentNode) { 
+							__appendNested($clone, parentElement)
 						}
-					}			
+						else {
+							if(isNested) __appendNested($clone, parentElement); 
+							else 		 __appendFlatten($clone, parentElement, parentNextLoc);							
+						}
+						
+						//현재 엘리먼트 삽입 후 현재에대한 모든 부모의 nextLoc 증가. 
+						return ___varyNextLoc(elementInfoMap, parentElementInfo, idKey, true)						
+					})
+				}
+			};
+			
+			function __appendNested(element, parentElement) {
+//				console.log('Nested');
+				return element.appendTo(parentElement) ; 
 			}
-		}
+			
+			function __appendFlatten(element, parentElement, parentNextLoc) {
+//				console.log('Flatten')
+				var currentElement = parentElement 
+				// 이건 부모에대한 자식의 index만큼 이동시킨 후 삽입해야 올바른 위치로 감.
+				if(currentElement.next().length != 0) {
+					for(var i = 0; i< parentNextLoc; ++i) { //
+						currentElement = currentElement.next()
+					}
+				}
+				element.insertAfter(currentElement);
+			}
+			
+			function __setScope(scope, nodeName, node, parentNode, deep, hasChild) {
+				scope[nodeName] 	 = node
+				scope['$parentNode'] = parentNode
+				scope['$deep']		 = deep
+				scope['$hasChild'] 	 = hasChild
+			}
+			
+			//증감
+			function ___varyNextLoc(elementInfoMap, parentElementInfo, idKey, isIncrease) {
+				var parentEl = parentElementInfo.parentEl // 위에서 null을 최상위로 설정함.
+				var variNum	 = isIncrease ? 1 : -1//변동값
+				
+				while(U.exist(parentEl) && U.exist(parentElementInfo)) {
+					parentElementInfo.nextLoc = parentElementInfo.nextLoc + variNum;
+//					console.log('current parent loc',parentElementInfo.nextLoc)		
+					
+					parentElementInfo = elementInfoMap[ parentElementInfo.parentId ]
+					parentEL		  = parentElementInfo ? parentElementInfo.parentEl : null
+				}
+			}
+			//scope의 모델의 변화에 대해. 뷰를 업데이트하는 로직.
+			function __setNodeListener(scope, params) {
+				var elementInfoMap   = params.elementInfoMap
+				var tree		 = params.tree
+				  , nodeName	 = params.nodeName
+				  , childrenKey	 = params.childrenKey
+				  , idKey		 = params.idKey
+				  
+				// update는 자동 반영되니..현재는 create, delete만 신경씀.  
+				scope.$watchCollection(___watchExp, function ngRepeatAction(newChilds, oldChilds) {
+					var newChildsCount  = newChilds.length
+					  , oldChildsCount  = oldChilds.length 
+					
+					if(___isInserted(newChildsCount, oldChildsCount)) {
+						var node = ___difOneOnLists(newChilds, oldChilds)
+						tree.eachOne(node[idKey], __insertElement2(params))
+					}
+					
+					if(___isDeleted(newChildsCount, oldChildsCount)) {
+						var node 		  	  = ___difOneOnLists(newChilds, oldChilds)
+						  , elementInfo   	  = elementInfoMap[ node[idKey] ]
+						  , parentId		  = elementInfo.parentId 
+						  , parentElementInfo = elementInfoMap[ parentId ]
+						  
+						if(U.notExist(parentElementInfo)) return console.error('some...err')
+						
+						elementInfo.el.remove()
+						___varyNextLoc(elementInfoMap, parentElementInfo, idKey, false)
+					}
+//					console.log('watch')
+					
+				}, false)//얉은 비교.
+				
+				function ___watchExp(_scope) { //
+					var node 	   	 = _scope[nodeName]
+					  , childNodes   = node[childrenKey] || [];
+					return childNodes;
+				}
+			};
+			// watch helper ___
+			//$digest 때 scope에서 oldvalue/newValue를 만드는 방법. 
+			function ___isInserted(newCount, oldCount) {
+				if(newCount > oldCount) return true
+				else  return false
+			}
+			function ___isDeleted(newCount, oldCount) {
+				if(newCount < oldCount) return true
+				else  return false
+			}
+			
+			//단순히 순차비교해서 같지 않으면 큰 리스트의 값을 반환
+			function ___difOneOnLists(list1, list2) {
+				var count1 = list1.length
+				  , count2 = list2.length
+				
+				var bigger  = (count1 > count2) ? list1 : list2
+				  , smaller = (count1 > count2) ? list2 : list1
+			
+				for(var i in bigger) {
+					if(bigger[i] !== smaller[i]) return bigger[i] 
+				}
+				
+				//이 위치에 도달하면안됨
+				return console.error('treeDirective : watch diff err: ',list1, list2)
+			}
+			
+			
+			// -------------------------------------------------------------------
+			// return
+			return treeDirective;
+		}	
 		
 	})
 })(define, angular, _)
-

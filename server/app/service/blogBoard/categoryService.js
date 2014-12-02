@@ -79,11 +79,14 @@ categoryService.increaseOrDecreasePostCount = function(categoryId, originCategor
 				 })
 }
 categoryService.increasePostCountById = function (categoryId) {
-	if(_.isEmpty(categoryId)) return Q();
+	if(H.notExist(categoryId)) return Q(Status.makeError('[fail] increase post count : categoryId is not exist , : ', categoryId))
+	
 	debug('increase categoryId : ', categoryId)
 	return categoryDAO.increasePostCountById(categoryId);
 }
 categoryService.removeCategoryAndRemoveCategoryIdOfPost = function ( categoryId) {
+	if(H.notExist(categoryId)) return Q(Status.makeError('[fail] remove: categoryId is not exist , : ', categoryId))
+	
 	return 	  categoryDAO.removeById( categoryId)
 						 .then(function(status) {
 							 if(status.isError()) return Q(status);

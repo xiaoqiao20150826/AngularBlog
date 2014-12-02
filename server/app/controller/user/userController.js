@@ -67,7 +67,7 @@ userController.update = function (req,res) {
 	 .then(function (user) {
 		 if(!user) return jsonRes.sendFail('user update fail')
 		 
-		 authReq.setLoginUser(user)
+		 authReq.setLoginUser(user) //session 의 유저 업뎃
 		 return jsonRes.send(user)
 	 })
 	 .catch(jsonRes.catch())

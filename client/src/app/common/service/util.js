@@ -6,9 +6,9 @@
 	
 	define([], function() {
 		
-		return ['$q','$http', '$window', makeUtil];
+		return ['$q','$http', '$window', 'common.redirector', makeUtil];
 	
-		function makeUtil($q, $http, $window) {
+		function makeUtil($q, $http, $window, redirector) {
 			var Date = $window.Date
 			
 			var U = {}
@@ -39,21 +39,66 @@
 				return new Date(dateStr).toLocaleString()
 			}
 			U.stringToBoolean = function (str) {
-				if(_.isEmpty(str)) return false;
+				if(U.notExist(str)) return null;
 				
 				if(str.trim().toLowerCase() === "false") return false
 				else return true;
 			}
-			
-			// json 요청에 대한 응답의 공통적인 성공/실패 확인 함수.
-			U.validResponse = function(res) {
-				if(!res.data.isSuccess) {
-					alert(res.data.obj.message, res.data.obj.error)
-					return console.error(res.data.obj)
-				}
-				
-				return res.data.obj
+			U.repeatString = function (string, num) {
+				var repeatedString = ''
+					_.each(_.range(num), function () {
+						repeatedString = repeatedString + string
+					})
+				return repeatedString;
 			}
+			
+			//	간단한 사용하려고 여기서 하지만.... 이 위치가 옳을까?
+			// 서버 요청 실패 알림.
+			U.catch = function(res) {
+				alert('서버요청 실패. 데이터 구조보고 메시지 정하자.')
+				console.error(res)
+				return res;
+			}
+			// TODO: 아래 중복..부분나중에.
+			// 실패시에는 알림작업만하고 실패 처리는 catch 로.
+			U.notifyAndDoneIfFail = function (res) {
+				var result  = res.data
+				if(!result.isFail) return result.obj;
+				
+				var deferred = $q.defer()
+				
+				_notify(result)
+				deferred.reject(result);
+				
+				return deferred.promise;  //then은 동작하지 않지만 catch는 동작함 
+			}
+			// 실패시에는 redirect
+			U.notifyAndRedirectIfFail = function (res) {
+				var result  = res.data
+				if(!result.isFail) return result.obj;
+				
+				var deferred = $q.defer()
+				
+				_notify(result)
+				redirector.goBefore()
+						  .then(function() {
+							  deferred.reject(result);			  
+						  })	
+				
+				return deferred.promise  //then은 동작하지 않지만 catch는 동작함
+			}
+			function _notify(result) {
+				var obj 	= result.obj
+				var error 	= obj.error
+				var message = _.isEmpty(obj.message) ? error.message : obj.message
+				
+				var errMessage = message
+								  
+				console.error(errMessage, obj)
+				alert(errMessage)				
+			}
+			
+			
 
 			//--------------------------------- --
 			return U;

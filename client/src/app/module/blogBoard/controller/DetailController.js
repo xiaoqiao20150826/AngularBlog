@@ -12,6 +12,7 @@
 		        , DetailController];
 	})
 	
+	// sce..?
 	function DetailController($scope, $sce, detailData, $stateParams) {
 		detailData.post.content = $sce.trustAsHtml(detailData.post.content)
 		

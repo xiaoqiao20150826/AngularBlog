@@ -59,15 +59,15 @@
 									   , resolve		: { 
 										   					currentUser : 
 										   						[
-										   						 APP+'.authService'
-										   						 ,function (authService) {
-										   							return authService.getLoginUser()
+										   						 APP+'.authDAO'
+										   						 ,function (authDAO) {
+										   							return authDAO.getLoginUser()
 										   						}]
 														  , rootOfCategory : 
 																[
-																 APP+'.categoryService'
-																 ,function (categoryService) {
-																	 return categoryService.getRootOfCategory()
+																 APP+'.categoryDAO'
+																 ,function (categoryDAO) {
+																	 return categoryDAO.getRootOfCategory()
 																 }]
 									   					  } 
 									  }
@@ -87,7 +87,6 @@
 		,{
 			url  : '/login'
 		  , auth : true
-		  , defaultState	: true
 		})
 		
 		// --------------------  app.admin
@@ -96,12 +95,11 @@
 		,{
 			url  : '/admin'
 		  , abstract : true
-		  , defaultState	: true
 		})
 		.state(APP+'.admin.detail'
 		,{
 			  url   : ''
-			, auth  : true
+//			, auth  : true
 			, admin : true
 			, views :
 			{
@@ -109,15 +107,6 @@
 				{
 					templateUrl : _curdir + 'view/admin/admin.html'
 				  , controller 	: APP + '.AdminController as admin'
-				  , resolve		: 
-				  { 
-					  rootOfCategory : 
-							[
-							 APP+'.categoryService'
-							 ,function (categoryService) {
-								 return categoryService.getRootOfCategory()
-							 }]
- 			      } 
 				} 
 			   ,'categorySelector@app.admin.detail' :
 				{

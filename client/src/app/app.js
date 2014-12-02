@@ -10,14 +10,13 @@
 	       , 'common/common'
 	       , 'module/nav/nav'
 	       , 'module/blogBoard/blogBoard'
-	       // services & controller
-	       , 'service/userService'
-	       , 'service/authService'
-	       , 'service/categoryService'
-	       , 'service/util/httpFailHandler'
+	       // services
+	       , 'dao/userDAO'
+	       , 'dao/authDAO'
+	       , 'dao/categoryDAO'
 	       
 	       , 'storage/storage'
-	       
+  	       // 	controller	       
 	       , 'controller/AppController'
 	       , 'controller/UserController'
 	       , 'controller/AdminController'
@@ -35,10 +34,9 @@
 			, nav
 			, blogBoard
 			// services & controller
-			, userService
-			, authService
-			, categoryService
-			, httpFailHandler
+			, userDAO
+			, authDAO
+			, categoryDAO
 			
 			, storage
 			
@@ -62,10 +60,10 @@
 		angular.module(		moduleName				  		, modules)
 			   .constant(  'ANGULAR_ENV' 					, 'log')  //log활동
 		
-			   .service(	moduleName+'.userService' 		, userService)
-			   .service(	moduleName+'.authService' 		, authService)
-			   .service(	moduleName+'.categoryService' 	, categoryService)
-			   .service(	moduleName+'.httpFailHandler' 	, httpFailHandler)
+			   .service(	moduleName+'.userDAO' 		, userDAO)
+			   .service(	moduleName+'.authDAO' 		, authDAO)
+			   .service(	moduleName+'.categoryDAO' 	, categoryDAO)
+			   
 			   .factory(	moduleName+'.storage'	  		, storage)
 			   
 			   .controller(	moduleName+'.AppController'		, AppController)

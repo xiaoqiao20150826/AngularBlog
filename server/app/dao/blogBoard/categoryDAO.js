@@ -262,12 +262,14 @@ categoryDAO.removeAll = function () {
 // $return 
 //      1) status instance
 categoryDAO.removeById = function (id) {
+
 	var where = {_id: id};
 	
 	return categoryDAO.findById(id)
 			 .then(function (category){
 				 if(category.isEmpty()) return Status.makeError('err : not found category by '+ category.id);
 				 if(category.hasPost()) return Status.makeError('err : cannot remove because category has post '+ category.postCount);
+				 
 				 return categoryDAO.findChilds(category.id);
 			 })
 			 .then(function(statusOrChilds) {
@@ -280,7 +282,7 @@ categoryDAO.removeById = function (id) {
 				 }
 			 })
 };
-function _remove(done, where) {
+function _remove(where) {
 	var deferred  = Q.defer()
       , callback  = H.cb4mongo1(deferred);
 	
