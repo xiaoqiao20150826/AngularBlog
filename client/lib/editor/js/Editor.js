@@ -20,9 +20,7 @@ $$namespace.include(function(require, module) {
 	  , RangeManager = require('part/RangeManager')
 	  , ButtonManager = require('event/ButtonManager')
 	
-	var Editor = module.exports = function Editor(textareaName, imageUploadCallback) {
-		if(!textareaName) throw 'textareaName should be exist for insert and update'
-		this._textareaName = textareaName;
+	var Editor = module.exports = function Editor(contentText, imageUploadCallback) {
 		this._imageUploadCallback = imageUploadCallback || function(){}
 		
 		this._id = DEFAULT_ID;
@@ -39,12 +37,12 @@ $$namespace.include(function(require, module) {
 		this._rangeManager = new RangeManager(this);
 		this._btnManager = new ButtonManager(this); //TODO: 일관성. 생성시 누구는 new누구는 그냥이라니.
 		
-		this._init();
+		this._init(contentText);
 	};
-	Editor.prototype._init = function _init() {
-		//TODO : 리펙토링 - 각 작업 분리해야지.
-		var initText = this.getTextareaContent().value
-		if(!(initText == '' || initText == undefined)) this.getContentBody().innerHTML = initText
+	//TODO : 리펙토링 - 각 작업 분리해야지.
+	Editor.prototype._init = function _init(contentText) {
+		if(contentText == null || contentText == undefined || contentText == '') contentText = '<p>&#8203</p>'
+		this.getContentBody().innerHTML = contentText
 		
 		this._btnManager.assignEvent()
 		var node = this._contentDoc.getElementsByTagName('p')[0];
@@ -104,10 +102,6 @@ $$namespace.include(function(require, module) {
 	Editor.prototype.getContentFrame = function() {return this._contentFrame;	};
 	Editor.prototype.getContentDoc = function() {return this._contentDoc;	};
 	Editor.prototype.getContentBody = function() {return this._contentBody;	};
-	Editor.prototype.getTextareaContent = function() {
-		var query = 'textarea[name="' + this._textareaName + '"]' 
-		return document.querySelector(query);
-	};
 	
 	
 	Editor.prototype.getHistory = function() {return this._history;	};
@@ -136,12 +130,14 @@ $$namespace.include(function(require, module) {
 	
 	//------------------------helper	
 	//submit(for insert) 할 때 textarea에 값 넣기 위함.
-	Editor.prototype.insertContentToTextarea = function () {
+	Editor.prototype.getContentText = function () {
 		var bodyNode = this.getContentBody();
 		var text = String(bodyNode.innerHTML);
-		if("<p>​</p>"== text) return text == '';
-		
-		return this.getTextareaContent().value = text;
+		if("<p>​</p>"== text) text = ''; // 이게맞겠지? 아닌가?
+		return text
+	}
+	Editor.prototype.insertContent = function (text) {
+		return this.getContentBody().innerHTML = text
 	};
 	Editor.prototype.insertImageToContent = function (imageUrl) {
         var rangeManager = this.getRangeManager() 

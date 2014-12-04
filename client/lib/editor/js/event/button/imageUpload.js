@@ -41,7 +41,8 @@ $$namespace.include(function (require, module) {
 	function _uploadCallBack1(editor) {
 		var imageUploadMethod = editor.getImageUploadCallback()
 		return function _uploadCallBack(e) {
-			imageUploadMethod.call(this, e, editor)
+			//this°¡ fileElement
+			imageUploadMethod.call(this, e, this, editor)
 			
 			return eventHelper.stop(e);
 		}

@@ -25,7 +25,7 @@
 				
 			this._deepSearch(this.root, null, -1);
 		}
-		Tree.prototype.first = function (idValue, eachOneFn) {
+		Tree.prototype.first = function (idValue, eachOneFn, cbUntilFind) {
 			var idKey = this.idKey
 			var self  = this
 			
@@ -43,6 +43,8 @@
 			function _firstNodeFilter(idKey, idValue) {
 				return function(node, parentNode, deep, hasChild, index) {
 //					console.log(node)
+					if(cbUntilFind) {cbUntilFind(node, parentNode, deep, hasChild, index);}
+					
 					if(node[idKey] == idValue) {
 						self.__firstNode = node
 						self.__parentNode = parentNode
@@ -52,8 +54,25 @@
 				}
 			}
 		}
+		//TODO: 이거사용하던가? treeExplorerDirective 에서 update할때 사용했던것같은데
 		Tree.prototype.eachOne = function (idValue, eachOneFn) {
 			this.first(idValue, eachOneFn)
+		}
+		
+		Tree.prototype.route = function (idValue) {
+			var idKey 			= this.idKey
+			var routedNodeCache = {}
+			var routedNode 		= []
+			
+			function cbUntilFind(node, parentNode, deep, hasChild, index) {
+				if(parentNode == null || parentNode == undefined) return;
+				if(routedNodeCache[ parentNode[idKey] ]) return;
+				routedNodeCache[ parentNode[idKey] ] = true;
+				routedNode.push(parentNode)
+			}
+			var node = this.first(idValue, null, cbUntilFind)
+			routedNode.push(node)
+			return routedNode 
 		}
 		
 		Tree.prototype.addChild = function (parentNode, newNode) {

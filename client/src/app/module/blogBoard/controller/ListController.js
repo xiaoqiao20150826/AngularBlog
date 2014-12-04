@@ -2,7 +2,7 @@
  * 
  */
 
-(function(define) {
+(function(define, _) {
 	
 	define([], function() {
 		return [  '$scope'
@@ -17,6 +17,8 @@
 	function ListController($scope, $stateParams , $window, U, blogBoardDAO, listData) {
 		
 		// data 관련은 이쪽에.. 바로사용할수있도록.
+		var $root 	    = $scope.$root
+		
 		$scope.posts 	= listData.posts
 		$scope.pager 	= listData.pager
 		$scope.sorters		= ['newest', 'oldest', 'view', 'vote', 'answer']
@@ -30,12 +32,25 @@
 		var Date  	 	= $window.Date
 		
 		// 유틸
-		listCtrl.title4web = function (title) {
-			return title.trim().replace(/\s+/g, '-');
+		var tree = $root.categoryTree
+		this.titleByCategoryId = function(categoryId) {
+			var routedNodes = tree.route(categoryId)
+			
+			var aggregateTitle = ''
+			for(var i in routedNodes) {
+				var routedNode = routedNodes[i]
+				  , title      = routedNode.title
+				  
+				aggregateTitle = aggregateTitle + title;
+				
+				if(i < routedNodes.length - 1) {
+					aggregateTitle = aggregateTitle + ' > '
+				}
+			}
+			return aggregateTitle;
 		}
-		
 	}
 	
 	
 	
-})(define)
+})(define, _)

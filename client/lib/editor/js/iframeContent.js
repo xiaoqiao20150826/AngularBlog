@@ -1,6 +1,6 @@
 /**
  * iframe content load
- * 
+ * 처음알았네. css를 여기서 불러와야 있어야 적용이 된다.
  */
 
 (function() {
@@ -10,7 +10,7 @@
 		contentBody = contentWindow.document.body,
 		wysiwygHTML = '<html lang="ko"><head>'
 			+ '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">'
-			+ '<link rel="stylesheet" href="/resources/lib/editor/css/editorContent.css">'
+			+ '<link rel="stylesheet" href="/resource/lib/editor/css/editorContent.css">'
 			+ '<title>Wygiwyg Panel</title>'
 			+ '</head>'
 			+ '<body id="wysiwyg" contenteditable="true">'

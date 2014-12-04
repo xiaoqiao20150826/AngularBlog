@@ -73,10 +73,16 @@
 									  }
 		
 				  , 'top@app' 		   : {templateUrl : _curdir + 'module/nav/nav.html'}
-//				  , 'center'	: 
-				  , 'center.right@app' : {templateUrl : _curdir + 'view/sideLayout.html'}
+//				  , 'center'	:  //이건 다른것들이 변경함. 
+				  , 'center.right@app' : {templateUrl : _curdir + 'view/sideLayout.html'
+					  					 ,controller  : APP + '.SideController as side'
+					  					 }
 				  , 'bottom@app' 	   : {templateUrl : _curdir + 'view/footer.html'}
 				  , 'part@app' 		   : {templateUrl : _curdir + 'view/part/login.html'}
+				  //side
+				  , 'center.right.categoryTreeView@app' : {
+					  										templateUrl : _curdir + 'view/part/categoryTreeView.html'
+					  								  	  }
 				}
 		})
 		
@@ -108,7 +114,12 @@
 					templateUrl : _curdir + 'view/admin/admin.html'
 				  , controller 	: APP + '.AdminController as admin'
 				} 
-			   ,'categorySelector@app.admin.detail' :
+				,'category@app.admin.detail' :
+				{
+					templateUrl  : _curdir + 'view/admin/category.html' //adminCtrl로.
+				  , controller   : APP + '.CategoryController as category'
+				}
+			    ,'categorySelector@app.admin.detail' :
 				{
 					templateUrl  : _curdir + 'view/part/categorySelector.html' //adminCtrl로.
 				}

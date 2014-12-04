@@ -1,0 +1,16 @@
+		<form>
+		<!-- 				카테고리셀렉터  selectedId 전달-->
+			<div ui-view ='categorySelector' >
+		    </div>
+			
+			<hr>
+			<div>
+					<input ng-model = 'newTitle' placeholder = 'categoryName'>
+			</div>
+			<hr>
+			<div>
+					<input ng-click="category.insertCategory(selectedCategoryId, newTitle)" type='button' class="btn btn-default" value ="insert">
+					<input ng-click="category.updateCategory(selectedCategoryId, newTitle)" type='button' class="btn btn-default" value ="update">
+					<input ng-click="category.deleteCategory(selectedCategoryId)" type='button' class="btn btn-default" value ="delete">
+			</div>
+		</form>

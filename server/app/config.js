@@ -27,8 +27,8 @@ var config = module.exports = (function(){
 	
 	commonConfig.resourceDir = _path.join(__dirname, '../../client')
 	commonConfig.staticDir = commonConfig.resourceDir +'/static'
-	commonConfig.tempFilesDir = '../tempFilesDir'  //multer를 위한것.
-	commonConfig.imgDir = '' // use cloudinary
+	commonConfig.tempFilesDir = '../tempFilesDir'  //local에서 multer를 위한장소. 파일 임시 저장폴더.
+	commonConfig.imgDir = '' // use cloudinary ..local은 하단에서 따로.
 	//mongolab
 	commonConfig.mongolabId = _env.MONGOLAB_ID
 	commonConfig.mongolabPw = _env.MONGOLAB_PW

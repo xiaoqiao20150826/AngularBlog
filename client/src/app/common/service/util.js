@@ -51,13 +51,14 @@
 					})
 				return repeatedString;
 			}
-			
+			U.title4web = function (title) {
+				return title.trim().replace(/\s+/g, '-');
+			}			
 			//	간단한 사용하려고 여기서 하지만.... 이 위치가 옳을까?
 			// 서버 요청 실패 알림.
 			U.catch = function(res) {
-				alert('서버요청 실패. 데이터 구조보고 메시지 정하자.')
-				console.error(res)
-				return res;
+				var resObj = {data : {isFail:true, obj: {message: res.data, obj: res } } }
+				U.notifyAndRedirectIfFail(resObj)
 			}
 			// TODO: 아래 중복..부분나중에.
 			// 실패시에는 알림작업만하고 실패 처리는 catch 로.
@@ -89,8 +90,7 @@
 			}
 			function _notify(result) {
 				var obj 	= result.obj
-				var error 	= obj.error
-				var message = _.isEmpty(obj.message) ? error.message : obj.message
+				var message = _.isEmpty(obj.message) ? obj : obj.message
 				
 				var errMessage = message
 								  

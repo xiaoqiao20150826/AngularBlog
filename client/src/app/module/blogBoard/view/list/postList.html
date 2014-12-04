@@ -15,18 +15,20 @@
 				<a class='blogBoard-detailView' 
 				   ui-sref="app.blogBoard.detailEx({ 
 				   								     postNum	:'{{ post.num }}'
-											       , title		:'{{ blogBoardList.title4web(post.title) }}'
+											       , title		:'{{ U.title4web(post.title) }}'
 											       })"> 
 					<H2>{{post.title }}</H2>
 				</a>
 			</div>
 			<div class='row'>
 				<span class='pull-left'>
-					<a class="blogCategory" href="javascirpt:" data-id="{{post.category.id}}" >{{post.category.title}} </a>
+					<a class="blogCategory" ui-sref="app.blogBoard.list({categoryId:post.categoryId, pageNum:1})">
+						{{list.titleByCategoryId(post.categoryId)}}
+				    </a>
 				</span>
 				<div class='pull-right'>
 					<img src='{{post.user.photo }}' class="img-circle" alt='img' style="width:20px">
-					<span class="name"><a href="/user/{{post.user._id}}">{{post.user.name }}</a></span>
+					<span class="name"><a ui-sref="app.user.detail">{{post.user.name }}</a></span>
 					<span class="date">{{ U.date(post.created)}}</span>
 				</div>
 			</div>

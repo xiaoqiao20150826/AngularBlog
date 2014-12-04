@@ -5,14 +5,16 @@
 	define([
 	          'module/blogBoard/controller/ListController'
 	        , 'module/blogBoard/controller/DetailController'
-	        , 'module/blogBoard/controller/InsertController'
+	        , 'module/blogBoard/controller/UpsertController'
+	        , 'module/blogBoard/controller/EditorController'
 	        
 	        , 'module/blogBoard/dao/blogBoardDAO'
 	        , 'module/blogBoard/setupState' 
 	        ]
 	,function( ListController
 			 , DetailController
-			 , InsertController
+			 , UpsertController
+			 , EditorController
 			 
 			 , blogBoardDAO
 			 , setupState
@@ -24,7 +26,8 @@
 		angular.module(moduleName, dependencies)
 			   .controller(	moduleName+'.ListController', ListController)
 			   .controller(	moduleName+'.DetailController', DetailController)
-			   .controller(	moduleName+'.InsertController', InsertController)
+			   .controller(	moduleName+'.UpsertController', UpsertController)
+			   .controller(	moduleName+'.EditorController', EditorController)
 			   
 			   .service(	moduleName+'.blogBoardDAO', blogBoardDAO)
 			   .config(		setupState)

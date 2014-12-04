@@ -2,47 +2,41 @@
 	
 	// 
 	var modules = [
-	                  "/resources/lib/editor/js/iframeContent.js",
+	                  "/resource/lib/editor/js/iframeContent.js",
 
-	                  "/resources/lib/editor/js/util/helper.js",
+	                  "/resource/lib/editor/js/util/helper.js",
 	                  
-	                  "/resources/lib/editor/js/part/treeSearcher.js",
-	                  "/resources/lib/editor/js/part/styleAppender.js",//
-	                  "/resources/lib/editor/js/part/nodeDecorator.js",
-	                  "/resources/lib/editor/js/part/rangeDecorator.js",
-	                  "/resources/lib/editor/js/part/History.js",//
-	                  "/resources/lib/editor/js/part/RangeManager.js",//
+	                  "/resource/lib/editor/js/part/treeSearcher.js",
+	                  "/resource/lib/editor/js/part/styleAppender.js",//
+	                  "/resource/lib/editor/js/part/nodeDecorator.js",
+	                  "/resource/lib/editor/js/part/rangeDecorator.js",
+	                  "/resource/lib/editor/js/part/History.js",//
+	                  "/resource/lib/editor/js/part/RangeManager.js",//
 	                  
-	                  "/resources/lib/editor/js/event/eventHelper.js",// 
-	                  "/resources/lib/editor/js/event/dropHelper.js",// 
-	                  "/resources/lib/editor/js/event/ButtonManager.js",
+	                  "/resource/lib/editor/js/event/eventHelper.js",// 
+	                  "/resource/lib/editor/js/event/dropHelper.js",// 
+	                  "/resource/lib/editor/js/event/ButtonManager.js",
 
-	                  "/resources/lib/editor/js/event/content/keyUtil.js",//
-	                  "/resources/lib/editor/js/event/content/keyListener.js",//
-	                  "/resources/lib/editor/js/event/content/imageWrapper.js",//
-	                  "/resources/lib/editor/js/event/content/imageListener.js",//
+	                  "/resource/lib/editor/js/event/content/keyUtil.js",//
+	                  "/resource/lib/editor/js/event/content/keyListener.js",//
+	                  "/resource/lib/editor/js/event/content/imageWrapper.js",//
+	                  "/resource/lib/editor/js/event/content/imageListener.js",//
 	                  
-	                  "/resources/lib/editor/js/event/button/basic.js",
-	                  "/resources/lib/editor/js/event/button/undoRedo.js",
-	                  "/resources/lib/editor/js/event/button/fontSize.js",
-	                  "/resources/lib/editor/js/event/button/fontColor.js",
-	                  "/resources/lib/editor/js/event/button/backgroundColor.js",
-	                  "/resources/lib/editor/js/event/button/inOutdent.js",
-	                  "/resources/lib/editor/js/event/button/imageUpload.js",
-	                  "/resources/lib/editor/js/event/button/lineHeight.js",
-	                  "/resources/lib/editor/js/event/button/lineStyle.js",
+	                  "/resource/lib/editor/js/event/button/basic.js",
+	                  "/resource/lib/editor/js/event/button/undoRedo.js",
+	                  "/resource/lib/editor/js/event/button/fontSize.js",
+	                  "/resource/lib/editor/js/event/button/fontColor.js",
+	                  "/resource/lib/editor/js/event/button/backgroundColor.js",
+	                  "/resource/lib/editor/js/event/button/inOutdent.js",
+	                  "/resource/lib/editor/js/event/button/imageUpload.js",
+	                  "/resource/lib/editor/js/event/button/lineHeight.js",
+	                  "/resource/lib/editor/js/event/button/lineStyle.js",
 //	                  
-	                  "/resources/lib/editor/js/Editor.js"
+	                  "/resource/lib/editor/js/Editor.js"
 	                  
 	                  ];
-	$$namespace.load(modules, function (require, loadedModules) {
-		var callback = $$nodeblog.getImageUploadCallback()
-		var textareaName = 'content' //update를 위해 textarea tag의 name을 알려줘야함.
 		
-		var Editor = require('/js/Editor')
-		//insert를 위해 전역범위에 변수저장. 
-		window.$$editor = new Editor(textareaName, callback); //전역변수로만들자.
-	});
-	
+		//전역노출
+		window.$$editorModules = modules
 })()
 //@ sourceURL=editor/editorModules.js

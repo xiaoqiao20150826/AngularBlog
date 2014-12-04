@@ -198,8 +198,12 @@ blogBoardService.deletePostsByUserId = function (userId) {
 blogBoardService.updatePostAndCategoryId = function (post, originCategoryId) {
 	  
 	return Q.all([ categoryService.increaseOrDecreasePostCount( post.categoryId, originCategoryId)
-	               , postDAO.update(post)
-	             ])
+	             , postDAO.update(post)
+	       ])
+	       .then(function(statuses) {
+	    	   var status = Status.reduceOne(statuses)
+				return status
+	       })
 }
 
 

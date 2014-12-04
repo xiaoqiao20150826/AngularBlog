@@ -11,18 +11,17 @@
 	function UserController($scope, $state, U, userDAO) {
 		// 데이터
 		
-		//다른 곳 영향 안줄려고. 어차피 (리다이렉트로) 새로 바꿀꺼지만.
-		$scope.currentUser = _.clone($scope.currentUser)  
-		
+		//다른 곳 영향 안줄려고. 어차피 (리다이렉트로) 새로 바꿀꺼지만.\
+		var $root = $scope.$root
+		$scope.currentUser = _.clone($root.currentUser)  
 		
 		// 함수
 		this.update = function (e) {
 			userDAO.update($scope.currentUser)
-					   .then(function (result) {
-						   if(result.isFail) U.notifyFail(result);
-						   else alert('update success')
-						   
-						   return U.redirect('app.user.detail')
+					   .then(function (user) {
+						   alert('update success')
+						   $root.currentUser = user
+						   $state.go('app.user.detail')
 					   })
 					   
 		    return e.preventDefault();

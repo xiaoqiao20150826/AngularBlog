@@ -29,7 +29,13 @@ blogBoardController.mapUrlToResponse = function(app) {
 		// json. 
 		app.get('/json/blogBoard/list'		, this.sendBlogBoardList)
 		app.get('/json/blogBoard/detail'	, this.sendBlogBoardDetail)
+		app.post('/json/blogBoard/insert'   , this.insertBlogBoardData)
+		app.post('/json/blogBoard/update'   , this.updateBlogBoardData)
+		app.post('/json/blogBoard/delete'   , this.deleteBlogBoardData)
+
+		app.get('/json/blogBoard/post'      ,  this.sendPost)
 		
+		app.post('/json/blogBoard/increaseVote', this.increaseVote)
 		///////////////////////////////-----------------------------------------
 //		app.get('/blog/history', this.sendHistoryView);
 //		app.post('/blog/history', this.sendHistoryView4ajax)
@@ -40,12 +46,11 @@ blogBoardController.mapUrlToResponse = function(app) {
 
 		
 //		app.post('/blogBoard/insertView', this.sendInsertView);
-//		app.post('/blogBoard/insert', this.insertBlogBoardData)
 //		
 //		app.post('/blogBoard/updateView', this.sendUpdateView);
 //		app.post('/blogBoard/update', this.updateBlogBoardData)
 //		
-//		app.post('/blogBoard/increaseVote', this.increaseVote)
+
 ////		
 //		app.post('/blogBoard/delete', this.deletePost);
 //		//err
@@ -76,6 +81,22 @@ blogBoardController.sendBlogBoardList = function (req, res) {
   		 })
          .catch(jsonRes.catch())
 }
+blogBoardController.sendPost = function (req, res) {
+	var jsonRes 	= new JsonResponse(res)
+	  , authReq 	= new AuthRequest(req)
+	
+	var rawData 	= authReq.getRawData(req)
+	  , postNum 	= rawData.postNum
+	
+	if(_.isEmpty(postNum)) return jsonRes.sendFail(postNum + ': postNum is not exist')  
+	  
+	postDAO.findByNum(postNum)
+		   .then(function(post) {
+			   debug('send post by ' + postNum +' : ' ,post)
+			   return jsonRes.send(post)
+		   })
+		   .catch(jsonRes.catch())
+}
 blogBoardController.sendBlogBoardDetail = function (req, res) {
 	var jsonRes 	= new JsonResponse(res)
 	  , authReq 	= new AuthRequest(req)
@@ -96,7 +117,89 @@ blogBoardController.sendBlogBoardDetail = function (req, res) {
 	 })
 	  .catch(jsonRes.catch())
 }
+blogBoardController.insertBlogBoardData = function(req,res) {
+	var jsonRes 	= new JsonResponse(res)
+	  , authReq 	= new AuthRequest(req)
+	
+	var loginUser   = authReq.getLoginUser(req)
+	var rawData 	= authReq.getRawData(req)
+	  , userId 		= rawData.userId
+	  , fileInfoes  = rawData.fileInfoes
+			  
+	var post = Post.createBy(rawData)
+	post.addFileInfoes(fileInfoes);
+	
+	debug('insertPost reqData : ', rawData)
+	if(loginUser.isNotEqualById(userId)) return jsonRes.sendFail(userId + ' is not loginUser')
+	
+	blogBoardService.insertPostAndIncreaseCategoryCount(post)
+					.then(function(insertedPost) {
+						 return jsonRes.send(insertedPost)						
+					})
+				    .catch(jsonRes.catch())
+}
+blogBoardController.updateBlogBoardData = function(req,res) {
+	var jsonRes 	= new JsonResponse(res)
+	  , authReq 	= new AuthRequest(req)
+	
+	var loginUser   = authReq.getLoginUser(req)
+	var rawData 	= authReq.getRawData(req)
+	  , userId 		= rawData.userId
+	  , fileInfoes  = rawData.fileInfoes
+	  , originCategoryId = rawData.originCategoryId
+	
+	var post = Post.createBy(rawData)
+	post.addFileInfoes(fileInfoes);
+	
+	debug('updatePost reqData : ', rawData)
+	if(loginUser.isNotEqualById(userId)) return jsonRes.sendFail(userId + ' is not loginUser')
+	
+	blogBoardService.updatePostAndCategoryId(post, originCategoryId)
+	.then(function(status) {
+		if(status.isError && status.isError()) return jsonRes.sendFail(status) 
+		else return jsonRes.send(status)						
+	})
+	.catch(jsonRes.catch())
+}
 
+////post와 관련된것도 다삭제해.
+blogBoardController.deleteBlogBoardData = function (req, res) {
+	var jsonRes 	= new JsonResponse(res)
+	  , authReq 	= new AuthRequest(req)
+	
+	var loginUser   = authReq.getLoginUser(req)
+	var rawData 	= authReq.getRawData(req)
+	  , writerId 	= rawData.writerId
+	  , postNum 	= rawData.postNum
+    
+	if(loginUser.isNotEqualById(writerId)) return jsonRes.sendFail(writerId + ' is not writer')  
+		
+	blogBoardService.deletePost(postNum)
+					.then(function(status) {
+						if(status.isError && status.isError()) return jsonRes.sendFail(status) 
+						else return jsonRes.send(status)
+					})
+					.catch(jsonRes.catch())
+}
+blogBoardController.increaseVote = function (req, res) {
+	var jsonRes 	= new JsonResponse(res)
+	  , authReq 	= new AuthRequest(req)
+	
+	var rawData 	= authReq.getRawData(req)
+	var loginUser   = authReq.getLoginUser(req)
+	  , userId		= loginUser._id
+	  , postNum     = rawData.postNum
+	
+	if(loginUser.isAnnoymous()) return jsonRes.sendFail('not login')
+	
+	debug('increaseVote rawData', rawData)
+	blogBoardService.increaseVote( postNum, userId)
+					.then(function(status) {
+						if(status.isError && status.isError()) return jsonRes.sendFail(status) 
+						else return jsonRes.send(status)
+					})
+					.catch(jsonRes.catch())
+}
 
 ////////////////////////////////////////////////////////////////////
 /////////////		이아래는..후.정리해야함.

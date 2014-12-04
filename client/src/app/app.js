@@ -14,12 +14,14 @@
 	       , 'dao/userDAO'
 	       , 'dao/authDAO'
 	       , 'dao/categoryDAO'
-	       
+	
 	       , 'storage/storage'
   	       // 	controller	       
 	       , 'controller/AppController'
 	       , 'controller/UserController'
 	       , 'controller/AdminController'
+	       , 'controller/CategoryController'
+	       , 'controller/SideController'
 	       // config setup & after run
 	       , 'setupState'
 	       , 'setupHandler'
@@ -43,6 +45,8 @@
 			, AppController
 			, UserController
 			, AdminController
+			, CategoryController
+			, SideController
 			// config setup & after run 
 			, setupState
 			, setupHandler
@@ -60,15 +64,17 @@
 		angular.module(		moduleName				  		, modules)
 			   .constant(  'ANGULAR_ENV' 					, 'log')  //log활동
 		
-			   .service(	moduleName+'.userDAO' 		, userDAO)
-			   .service(	moduleName+'.authDAO' 		, authDAO)
-			   .service(	moduleName+'.categoryDAO' 	, categoryDAO)
+			   .service(	moduleName+'.userDAO' 			, userDAO)
+			   .service(	moduleName+'.authDAO' 			, authDAO)
+			   .service(	moduleName+'.categoryDAO' 		, categoryDAO)
 			   
 			   .factory(	moduleName+'.storage'	  		, storage)
 			   
 			   .controller(	moduleName+'.AppController'		, AppController)
 			   .controller(	moduleName+'.UserController'	, UserController)
 			   .controller(	moduleName+'.AdminController'	, AdminController)
+			   .controller(	moduleName+'.CategoryController', CategoryController)
+			   .controller(	moduleName+'.SideController'    , SideController)
 			   
 			   .config(		setupState)
 			   .config(		setupLog.config)

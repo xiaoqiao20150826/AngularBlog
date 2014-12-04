@@ -1,0 +1,54 @@
+
+<meta charset="utf-8">
+<div class="col-sm-10 col-sm-offset-1">
+
+<!-- blog upsert form -->
+ <form>
+   <div class="row">
+      <div class="col-sm-2"  class='pull-left'>
+         <b>Id</b>
+      </div>
+      <div class="col-sm-10">
+         {{ $root.currentUser._id}}
+      </div>
+   </div>
+   <br>
+   
+   <div class="row">
+      <div class="col-sm-2 pull-left">
+      	<b>category</b>
+      </div>
+      	<div  ui-view ="categorySelector" class="col-sm-10"></div>
+   </div>
+   <br>
+   
+   <div class="row">
+      <div class="col-sm-2 pull-left">
+      	<b>Title</b>
+      </div>
+      <div class="col-sm-10">
+      	<input ng-model="post.title" placeholder="title" class="col-sm-10">
+      </div>
+   </div>
+   <br>
+   
+   <div class="row">
+<!--       	에디터	 -->
+      	<div ui-view='editor'></div>
+   </div>
+   <br>
+   
+   <div class='row col-sm-offset-1'>
+   		<div class='col-sm-left'><b>Image List</b></div>
+		<div class='row' ng-repeat="fileInfo in post.fileInfoes">
+			{{fileInfo.name}} : {{fileInfo.url}}
+		</div>
+   </div>
+   
+   <button ng-click="upsert.upsertPost(post)"
+   		   class="btn btn-default pull-right"
+   		   >
+   		   Submit
+    </button>   
+</form>
+</div>

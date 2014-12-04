@@ -31,8 +31,8 @@ authController.mapUrlToResponse = function(app) {
 	app.get('/auth/linkedin/callback', passport.authenticate('linkedin'), this.goHome);
 
 	// json
-	app.get('/json/auth/loginUserIsAdmin', this.loginUserIsAdmin)
-	app.get('/json/auth/isLoginUser/:userId', this.isLoginUser) 
+	app.post('/json/auth/loginUserIsAdmin', this.loginUserIsAdmin)
+	app.post('/json/auth/loginUserEqual', this.loginUserEqual) 
 	
 	//logout
 	app.get('/logout', this.logout);
@@ -47,17 +47,18 @@ authController.loginUserIsAdmin = function (req, res) {
 	return jsonRes.send({isAdmin : true});
 }
 
+//TODO : 이거 이상하다.
 //현재 로긴해있고 writerId(등의)일치를 판단.
-authController.isLoginUser = function (req, res) {
+authController.loginUserEqual = function (req, res) {
 	var jsonRes 	= new JsonResponse(res)
 		, authReq 	= new AuthRequest(req);
 	var loginUser 	= authReq.getLoginUser()
 		, rawData 	= authReq.getRawData(req)
 		, userId 		= rawData.userId;
 	
-	if(loginUser.isEqualById(userId)) return jsonRes.sendFail(userId + ' is not loginUser')
+	if(loginUser.isNotEqualById(userId)) return jsonRes.sendFail(userId + ' is not loginUser')
 	
-	return jsonRes.send({isLoginUser : true});
+	return jsonRes.send({isEqual : true});
 }
 //세션에 저장된 id를 이용해서 로그인 되었는지 체크한다.
 authController.goHome = function (req, res) {

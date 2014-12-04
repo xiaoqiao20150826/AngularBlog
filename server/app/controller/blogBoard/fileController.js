@@ -32,8 +32,9 @@ var fileController = module.exports = {
 		fileDAO.save(fromFile, userId)
 		 .then(function(status) {
 			 debug('status after file save : ', status)
+			 if(status.isError && status.isError()) return jsonRes.sendFail(status)
 			 
-			 return jsonRes.send(status)
+			 else return jsonRes.send(status.fileInfo)
 		 })
 		 .catch(jsonRes.catch())
 	}

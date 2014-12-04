@@ -20,18 +20,19 @@ fileDAO.save = function (fromFile, userId) {
 	  , fileName = originalFileName.slice(0,originalFileName.indexOf('.'))
 	  , fromFilePath = fromFile.path
     
+
 	var toFilePath = ''
 	if(config.isLocal) {
-		fromFilePath = config.rootDir +'/'+fromFilePath.replace(/\\/g ,'/')
+		fromFilePath = fromFilePath.replace(/\\/g ,'/')
 		toFilePath = config.imgDir + '/' + userId + '/' + originalFileName  
 		
 		return localFile.copyNoDuplicate( fromFilePath, toFilePath, fromFile.mimetype)
 					 .then(function (status) {
-						 if(status.isError()) return errFn(status)
+						 if(status.isError()) return status
 						 
 						 var insertedFilePath = status.filePath
 						 var url = insertedFilePath.replace(/\\/g, '/')
-						 url = 	url.slice(url.indexOf('/resource') )
+						 url = 	'/resource' + url.slice(url.indexOf('/static') )
 						 
 						 status.fileInfo = new FileInfo(insertedFilePath, fileName, url)
 						 return status
@@ -39,7 +40,7 @@ fileDAO.save = function (fromFile, userId) {
 		
 	} else { 
 		toFilePath = userId + '/' + fileName	
-		return remoteFile.save(done, fromFilePath, toFilePath, userId) 
+		return remoteFile.save(fromFilePath, toFilePath, userId) 
 	}
 }
 

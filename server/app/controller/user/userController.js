@@ -59,7 +59,7 @@ userController.update = function (req,res) {
 	
 	userDAO.update( user)
 	 .then(function (status) {
-		 if(status.isError()) 
+		 if(status.isError && status.isError()) 
 			 return null
 		 else 
 			 return userDAO.findById( userId);

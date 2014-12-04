@@ -2,26 +2,11 @@
 <div class="container col-sm-7 col-sm-offset-2">
 
 	<div class="row">
-			<a href="#">{{currentUser.name }}</a>
+			<a ui-sref='app.user.detail'>{{currentUser.name }}</a>
 			<img src='{{currentUser.photo }}' alt='img' style="width:70px;padding:10px 0 0 0">
 	</div>
 	<hr>
-	<div class="row">
-		<form>
-		<!-- 				여기가카테고리셀렉터 -->
-			<div ui-view ='categorySelector'></div>
-			
-			<hr>
-			<div>
-					<input ng-model = 'newCategoryTitle'  placeholder='categoryName'>
-			</div>
-			<hr>
-			<div>
-					<input ng-click="admin.insertCategory()" type='button' class="btn btn-default" value ="insert">
-					<input ng-click="admin.updateCategory()" type='button' class="btn btn-default" value ="update">
-					<input ng-click="admin.deleteCategory()" type='button' class="btn btn-default" value ="delete">
-			</div>
-		</form>
+	<div ui-view = 'category' class="row">
 	</div>
 	
 	<hr>

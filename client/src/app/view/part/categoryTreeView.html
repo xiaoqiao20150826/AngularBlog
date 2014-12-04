@@ -1,0 +1,39 @@
+<meta charset="utf-8">
+<div class='container col-sm-8 col-sm-offset-2'>
+	<hr style='margin: 0; padding:0; border: thin dashed black'>
+	<div data-toggle="collapse" data-target="#category">
+		<a href="javascrip:">
+			<h4>category&nbsp;<span class="caret"></span>
+			</h4>
+		</a>
+	</div>
+	<hr style='margin: 0; padding:0; border: thin dashed black'>
+	<div class='row col-sm-offset-1 collapse in' id ="category">
+	
+		<div tree-explorer 
+				root  				= "$root.rootOfCategory" 
+				children-key		= "categories"
+				id-key			    = "id"
+				node-name 			= "category"
+				
+			 class="row col-sm-offset-1  collapse category-{{$parentNode.id}}"
+			 ng-class="{'in' : ($deep < 3) }"
+		>
+				<a href="javascrip:">		
+				<h6>
+					<a class="blogCategory" 
+					   ui-sref="app.blogBoard.list({categoryId:category.id, pageNum:1})"
+					>
+					    {{U.repeatString('&nbsp;&nbsp;&nbsp;', $deep)}}
+						{{ category.title }}
+						<span class="badge">{{ category.postCount }}</span> 
+					</a>
+					<a ng-if="$hasChild" data-toggle="collapse"  href="javascript:" data-target=".category-{{category.id}}">
+					&nbsp;<span class="caret"></span>
+					</a>
+				</h6>
+				</a>
+		</div>
+		
+	</div>
+</div>

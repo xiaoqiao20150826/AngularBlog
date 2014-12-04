@@ -14,6 +14,8 @@
 	_paths.uiRouter = "../../bower_components/angular-ui-router/release/angular-ui-router";
 	_paths.ngStorage= "../../bower_components/ngstorage/ngStorage";
 	
+	
+	
 	var _shim = {}
 	_shim.twitterBootstrap = ['jQuery']
 	_shim.uiRouter = ['angular']

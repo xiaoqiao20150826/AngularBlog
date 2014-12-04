@@ -23,28 +23,40 @@
 		</footer>
 		<footer class="span8" style="padding:0">
 			</br>
-			<p ng-if="currentUser.isLogin">
+			<div ng-if="$root.currentUser.isLogin">
 				<div class=" col-sm-offset-5">
-					<a id="blogDetail-vote" data-postNum="{{post.num }}" data-votecount="{{post.vote}}" class="btn btn-default btn-xs">
+					<a class="btn btn-default btn-xs" ng-click="detail.increaseVote(post.num)">
 				    	★ Vote  {{post.vote}}
 					</a>
 				</div>
-			</p>
+			</div>
 			
-			<p class="pull-right">
-				<img src='{{post.user.photo }}' class="img-circle" alt='img' style="width: 20px">
-					 by <a href="/user/{{post.user._id}}">{{post.user.name}}</a>
-					  | <i class="icon-calendar"></i>
-					 {{U.date(post.created)}}
-			</p>
+			<div class="row-fluid">
+				<div class='pull-left'>
+					<img src='{{post.user.photo }}' class="img-circle" alt='img' style="width: 20px">
+						 by <a ui-sref="app.user.detail">{{post.user.name}}</a>
+						  | <i class="icon-calendar"></i>
+						 {{U.date(post.created)}}
+				</div>
+			</div>
 			
 			
-			<div ng-if="currentUser.isLogin && (currentUser._id === post.user._id)"
-			     class="row-fluid">
-				<a class="btn btn-default span2  pull-right" id='blogBoard-delete' data-postnum="{{ post.num }}" data-writerid="{{ post.user._id}}">
-					delete
-				</a>
-				<a class="btn btn-default span2  pull-right" id='blogBoard-update' data-postnum="{{ post.num }}">edit</a>
+			<div ng-if="$root.currentUser.isLogin && ($root.currentUser._id === post.user._id)"
+			     class="row-fluid"
+			>
+				<div class="pull-right">
+					<a  class="btn btn-default span2  pull-right" 
+						data-postnum="{{ post.num }}" data-writerid="{{ post.user._id}}">
+						delete
+					</a>
+					<a class="btn btn-default span2  pull-right" 
+					   data-postnum="{{ post.num }}"
+					   ui-sref = "app.blogBoard.update({ writerId : '{{post.user._id}}'
+					   								   , postNum  : '{{post.num}}' 
+					   								   })">
+						edit
+					</a>
+				</div>
 			</div>
 			
 		</footer>

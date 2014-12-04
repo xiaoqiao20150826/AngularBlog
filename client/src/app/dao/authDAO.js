@@ -15,24 +15,24 @@
 			
 			//----------------------
 			var authDAO = {}
-			// TODO: logout을 통하지 않으면 계속 남을텐데.. 그냥 호출시마다 요청하는걸로?
+			// TODO:  야들이.. redirect해버리면.. state에서 사용할때... admin 등의 false를 true로 못바꾸네?
+			// catch는 동작하니... catch로 잡게해놨군.
 			
 
 			authDAO.getLoginUser = function () {
-				//순서주의 .  실패시 리다이렉트 후 reject를하여 다른 catch를 실행하기위함.
 				return $http.get('/json/user/loginUser')
 							.catch(U.catch)
 							.then(U.notifyAndRedirectIfFail)
 			}
 			
-			authDAO.isLoginUserAbout = function (userId) {
-				return $http.get('/json/auth/isLoginUser',{userId: userId})
+			authDAO.loginUserEqual = function (userId) {
+				return $http.post('/json/auth/loginUserEqual',{userId: userId})
 							.catch(U.catch)
 							.then(U.notifyAndRedirectIfFail)
 			}
 			// 서버세션에 로긴된 상태로 확인.
 			authDAO.loginUserIsAdmin = function () {
-				return $http.get('/json/auth/loginUserIsAdmin')
+				return $http.post('/json/auth/loginUserIsAdmin')
 							.catch(U.catch)
 							.then(U.notifyAndRedirectIfFail)
 			}

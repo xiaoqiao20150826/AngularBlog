@@ -21,6 +21,8 @@
 		       ]
 	})
 	// TODO: 모듈로..분리시켜야 해
+//			 같은동작.. 따로 제외하고 싶은데 
+//	auth/admin/wirter 의'선' false, '후' true 설정을 어찌처리해야할지.
 	
 	function setupHandler($rootScope, $state, U, redirector,  authDAO) {
 		
@@ -30,15 +32,34 @@
 	    	redirector.setState($state.current)
 	    	
 	    	//1. 없으면 기본동작 하고.
-	        if (!(toState.auth || toState.admin) ) return;
+	        if (!(toState.auth || toState.admin || toState.writer) ) return;
 	        
 	        //2. 아니면 기본동작막고..ㄱㄱ(위의 auth or admin 확인 동작 고고)
 	        event.preventDefault();
 	        
-	        if(toState.auth)  return _checkAndResetUser(toState, toParams)
-	        if(toState.admin) return _checkAdmin(toState, toParams)
+	        if(toState.auth)   return _checkLoginAndResetUser(toState, toParams)
+	        if(toState.admin)  return _checkAdmin(toState, toParams)
+	        if(toState.writer) return _checkWriter(toState, toParams)
 	        
-	        function _checkAndResetUser(toState, toParams) {
+	        function _checkWriter(toState, toParams) {
+	        	if(U.notExist(toParams.writerId)) return alert('writerId not exist')
+	        	toState.writer = false
+	            return authDAO.getLoginUser()
+		   		   			  .then(function (user) {
+		   		   				  	if(!user.isLogin) {
+		   		   				  		return redirector.goBefore().then(authDAO.showLoginView)
+		   		   				    }
+		   		   				  	
+		   		   				  return authDAO.loginUserEqual(toParams.writerId)	
+		   		   			  })
+							  .then(function(isEqual) {
+								  if(!isEqual) return redirector.goBefore()
+								  else return redirector.go(toState, toParams) 
+							  })
+							  .then(function() { toState.writer = true })
+							  .catch(function() { toState.writer = true;})
+	        }
+	        function _checkLoginAndResetUser(toState, toParams) {
 	        	toState.auth = false
 	            authDAO.getLoginUser()
       		   		   .then(function (user) {
