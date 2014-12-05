@@ -34,6 +34,7 @@ blogBoardController.mapUrlToResponse = function(app) {
 		app.post('/json/blogBoard/delete'   , this.deleteBlogBoardData)
 
 		app.get('/json/blogBoard/post'      ,  this.sendPost)
+		app.get('/json/blogBoard/history'   ,  this.sendHistory)
 		
 		app.post('/json/blogBoard/increaseVote', this.increaseVote)
 		///////////////////////////////-----------------------------------------
@@ -157,7 +158,7 @@ blogBoardController.updateBlogBoardData = function(req,res) {
 	blogBoardService.updatePostAndCategoryId(post, originCategoryId)
 	.then(function(status) {
 		if(status.isError && status.isError()) return jsonRes.sendFail(status) 
-		else return jsonRes.send(status)						
+		else return jsonRes.send(status.message)						
 	})
 	.catch(jsonRes.catch())
 }
@@ -177,7 +178,7 @@ blogBoardController.deleteBlogBoardData = function (req, res) {
 	blogBoardService.deletePost(postNum)
 					.then(function(status) {
 						if(status.isError && status.isError()) return jsonRes.sendFail(status) 
-						else return jsonRes.send(status)
+						else return jsonRes.send(status.message)
 					})
 					.catch(jsonRes.catch())
 }
@@ -195,12 +196,22 @@ blogBoardController.increaseVote = function (req, res) {
 	debug('increaseVote rawData', rawData)
 	blogBoardService.increaseVote( postNum, userId)
 					.then(function(status) {
+						debug('increaseVote send status', status)
 						if(status.isError && status.isError()) return jsonRes.sendFail(status) 
-						else return jsonRes.send(status)
+						else return jsonRes.send(status.message)
 					})
 					.catch(jsonRes.catch())
 }
-
+blogBoardController.sendHistory = function (req, res) {
+	var jsonRes 	= new JsonResponse(res)
+	  , authReq 	= new AuthRequest(req)
+	
+	blogBoardService.findGroupedPostsByDate()
+					.then(function(history) {
+						return jsonRes.send(history)
+					})
+					.catch(jsonRes.catch())
+}
 ////////////////////////////////////////////////////////////////////
 /////////////		이아래는..후.정리해야함.
 /////////////////////////////////////////////////////////////////
@@ -325,9 +336,7 @@ blogBoardController.increaseVote = function (req, res) {
 //	 })
 //	 .catch(redirector.catch)
 //}
-//blogBoardController.sendHistoryView4ajax = function (req, res) {
-//	_sendHistoryView(req, res, './centerFrame/blogBoardHistory.ejs')
-//}
+
 //blogBoardController.sendHistoryView = function (req, res) {
 //	_sendHistoryView(req, res, './wholeFrame/blogBoard/history.ejs')
 //}

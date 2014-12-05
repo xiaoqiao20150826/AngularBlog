@@ -321,7 +321,7 @@ function _reGroup(model) {
 			return memo; 
 		}, {});
 	debug('reGroupedPostsByDate :', groupedPostsByDate)
-	return groupedPostsByDate;
+	return groupedPostsByDate
 	}
 
 /* helper */		

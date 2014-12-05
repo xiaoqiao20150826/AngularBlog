@@ -154,6 +154,30 @@
 
 				var endComment   = document.createComment('end treeExplorer')
 				params.$parentElement.append(endComment)
+				
+				
+				
+				// root 참조 자체가 변했을 경우. 리렌더링
+				$scope.$watch(function() {
+					return $scope.root;
+				}, function(newRoot, oldRoot) {
+					if(newRoot === oldRoot) return; //root내부값만바뀐거야.
+					else {
+						var startNode = $element[0]
+						  , endNode	  = endComment
+						  , nextNode  = startNode.nextSibling
+						  
+						while(!nextNode.isEqualNode(endNode)) { //링크 말고. 노드값자체만비교.
+							nextNode.remove()
+							nextNode = startNode.nextSibling
+						}
+						//마지막것도 삭제하고.
+						//이게 여러번호출될때 endNode는 dom링크가 해제된 상태이다. watch재등록이 안됨?
+						nextNode.remove(); 
+						
+						_postLink ($scope, $element, $attr, ctrl, $transclude)
+					}
+				}, true) //그니까 루트참조 변했는지만 확인 
 			}// end postLink
 				
 			//--- each helper

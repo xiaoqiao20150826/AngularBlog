@@ -38,6 +38,8 @@
 					   		  })
 		}
 //		this.loginUser = loginUser
+		
+		window.$root = $rootScope
 	}
 	
 })(define, _)

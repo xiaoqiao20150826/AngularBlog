@@ -3,9 +3,11 @@
 var debug = require('debug')('nodeblog:controller:answer')
 
 var _ = require('underscore')
+  , Q = require('q')
   , H = require('../../common/helper.js')
 
-  
+var JsonResponse = require('../util/JsonResponse.js')
+  , AuthRequest  = require('../util/AuthRequest.js')
   
 var Answer = require('../../domain/blogBoard/Answer.js')
   , answerDAO = require('../../dao/blogBoard/answerDAO.js')
@@ -13,43 +15,44 @@ var Answer = require('../../domain/blogBoard/Answer.js')
 
 var answerController = module.exports = {}
 answerController.mapUrlToResponse = function(app) {
-//		app.post('/blogBoard/answer/insert', this.insertAnswer);
+		app.post('/json/blogBoard/answer/insert', this.insertAnswer)
 //		app.post('/blogBoard/answer/update', this.updateAnswer);
 //		
 //		app.post('/blogBoard/answer/updateView', this.sendUpdateView);
 //		app.post('/blogBoard/answer/delete', this.deleteAnswer);
 		
 }	
-//answerController.insertAnswer = function(req, res) {
-//	var redirector = new Redirector(res)
-//	var loginUser = requestParser.getLoginUser(req)
-//	  , rawData = requestParser.getRawData(req)
-//	  , postNum = Number(rawData.postNum) //주의
-//	  , answer = Answer.createBy(rawData)
-//	  
-//	if(answer.isAnnoymous() ) {//writer가 익명사용자일경우 answer는 필수데이터 가져야해.
-//		if(answer.hasNotData4annoymous()) return res.send('annoymous user should have password and writer');
-//	}  
-//	
-//	debug('answer to insert : ',answer)
-//	
-//	H.call4promise(answerService.insertAnswerAndIncreasePostCount, answer)
-//	 .then(function (insertedAnswer) {
-//		 return H.call4promise(answerService.getRootOfAnswerTree, postNum) 
-//	 })
-//	 .then(function (rootOfAnswerTree) {
-//		var answers = rootOfAnswerTree.answers 
-//		 
-//		var blog = { 'loginUser' : loginUser
-//				   , 'answers' : answers
-//				   , 'postNum' : postNum
-//				   , 'scriptletUtil' : scriptletUtil
-//				   }
-//		
-//		res.render('./centerFrame/blogBoard/answer/list.ejs', {blog: blog} )
-//	 })
-//	 .catch(redirector.catch)
-//}
+answerController.insertAnswer = function(req, res) {
+	var jsonRes 	= new JsonResponse(res)
+	  , authReq 	= new AuthRequest(req)
+	
+	var rawData 	= authReq.getRawData(req)
+	  , postNum     = Number(rawData.postNum) //주의
+	  , answer 		= Answer.createBy(rawData)
+	  
+	if(answer.isAnnoymous() ) {//작성자가 answer는 필수데이터 가져야해.
+		if(answer.hasNotData4annoymous()) return jsonRes.sendFail('annoymous user should have password and writer');
+	}  
+	
+	debug('answer to insert : ',answer)
+	
+	answerService.insertAnswerAndIncreasePostCount(answer)
+				 .then(function (insertedAnswer) {
+					 return H.call4promise(answerService.getRootOfAnswerTree, postNum) 
+				 })
+	 .then(function (rootOfAnswerTree) {
+		var answers = rootOfAnswerTree.answers 
+		 
+		var blog = { 'loginUser' : loginUser
+				   , 'answers' : answers
+				   , 'postNum' : postNum
+				   , 'scriptletUtil' : scriptletUtil
+				   }
+		
+		res.render('./centerFrame/blogBoard/answer/list.ejs', {blog: blog} )
+	 })
+	 .catch(redirector.catch)
+}
 //answerController.updateAnswer = function(req, res) {
 //	var redirector = new Redirector(res)
 //	var loginUser = requestParser.getLoginUser(req)

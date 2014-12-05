@@ -117,12 +117,9 @@ Transaction.prototype.doRollback = function () {
 	
 	var statuses = []
 	_.reduce(reverseOrderedCancleList, function(p, cancleFn) {
-		return p.then(function(status) {
-			statuses.push(status)
-			return cancleFn()
-	})
+		return p.then(function() { return cancleFn()})
+				.then(function(status){statuses.push(status) })
 	},Q())
-	.then(function() { statuses.shift() })
     .then(function () {
     	debug('rollback status', statuses)
     	deferred.resolve(Status.reduceOne(statuses));

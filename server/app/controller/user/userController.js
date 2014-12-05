@@ -3,8 +3,11 @@
  */
 
 var debug = require('debug')('nodeblog:controller:userController')
-var _ 	  = require('underscore');
+var _ 	  = require('underscore')
+  , Q 	  = require('q');
 
+
+var Status		  = require('../../common/Status.js')
 var H 			  = require('../../common/helper.js')
   , AuthRequest   = require('../util/AuthRequest.js')
   , JsonResponse  = require('../util/JsonResponse')
@@ -25,12 +28,12 @@ userController.mapUrlToResponse = function(app) {
 	app.get('/json/user/loginUser', this.getLoginUser)
 	app.post('/json/user/update', this.update)
 
+	app.post('/json/user/delete', this.delete)
 //	app.get('/user/me', this.loginUserView);// 순서주의
 //	
 //	app.get('/user/:userId', this.userView);//
 //	app.get('/user/:userId/updateView', this.updateView)
 //	
-//	app.post('/user/:userId/delete', this.delete)
 	///////
 }
 
@@ -71,6 +74,39 @@ userController.update = function (req,res) {
 		 return jsonRes.send(user)
 	 })
 	 .catch(jsonRes.catch())
+}
+
+userController.delete = function (req,res) {
+	var jsonRes = new JsonResponse(res)
+	  , authReq = new AuthRequest(req)
+	var loginUser = authReq.getLoginUser()
+	  , rawData   = authReq.getRawData(req)
+	  , userId 	  = rawData.userId;
+	
+	debug('user delete rawData ', rawData);
+	if(loginUser.isNotEqualById(userId)) return jsonRes.sendFail(userId + ' is not current login user');
+	
+	var transaction = new Transaction()
+	transaction.atomic(function () {
+		return Q.all([
+						userDAO.removeById(userId)
+					  , answerDAO.removeByUserId( userId)
+					  , blogBoardService.deletePostsByUserId( userId)
+				])
+				.then(function (statuses) {
+					debug('user delete', statuses)
+					var status = Status.reduceOne(statuses)
+					
+					if(status.isError && status.isError()) {
+						transaction.rollback() // err시 롤백
+						return jsonRes.sendFail(status);
+					}
+					
+				    req.session.passport.user = null
+				    return jsonRes.send(status.message);
+				})
+	})
+	.catch(jsonRes.catch())
 }
 
 //------------   before angular  --------------------//
@@ -141,36 +177,3 @@ userController.update = function (req,res) {
 //}
 //
 //
-////TODO: 글,댓글 살리고 싶으면 탈퇴회원 미리 만들어서 그 정보로 변경 시켜.
-////      err시 되돌리기....를 생각하면 더 어려워진다.
-//
-//// answer, post별개로 삭제한 이유는 혹시나 비동기 행동으로 인해 
-//// 이미 지운것을 또 지우려할때 에러날까봐. (아닌가. 없는것을 지우려하는것은 괜찮긴한데)
-//userController.delete = function (req,res) {
-//	var redirector = new JsonResponse(res)
-//	var loginUser = requestParser.getLoginUser(req)
-//	, rawData = requestParser.getRawData(req)
-//	, userId = rawData.userId
-//	
-//	if(loginUser.isNotEqualById(userId)) return redirector.main()
-//	
-//	
-//	var transaction = new Transaction()
-//	transaction.atomic(function () {
-//		return H.all4promise([
-//								[userDAO.removeById, userId]
-//							  , [answerDAO.removeByUserId, userId]
-//							  , [blogBoardService.deletePostsByUserId, userId]
-//				])
-//				.then(function (statuses) {
-//				    debug('s',statuses)
-//				    req.session.passport.user = null
-//				    return redirector.main()
-//				})
-//				.catch(function (err) {
-//					debug('delete err ',err)
-//					transaction.rollback() // err시 롤백
-//					return redirector.catch(err)
-//				})
-//	})
-//}

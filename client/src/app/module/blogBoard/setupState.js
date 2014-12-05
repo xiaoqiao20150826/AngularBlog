@@ -88,7 +88,7 @@
 
 		
 		// -------- detail
-		
+		// TODO: 이부분... /postNum/title....  /postNum ...이걸 어찌구분해야할까나...
 		var detailViews =
 		{
 			'center.left@app' : 
@@ -108,8 +108,12 @@
 		  	}
 		  , 'postDetail@app.blogBoard.detail' 	: {templateUrl : _curdir + 'view/detail/postDetail.html'}
 		  , 'postDetail@app.blogBoard.detailEx' : {templateUrl : _curdir + 'view/detail/postDetail.html'}
-		  , 'answerList@app.blogBoard.detail' 	: {templateUrl : _curdir + 'view/detail/answer/layout.html'}
-		  , 'answerList@app.blogBoard.detailEx' : {templateUrl : _curdir + 'view/detail/answer/layout.html'}
+		  
+		  //answer
+		  , 'answer@app.blogBoard.detail' 	: {templateUrl : _curdir + 'view/detail/answer/layout.html'}
+		  , 'answer@app.blogBoard.detailEx' : {templateUrl : _curdir + 'view/detail/answer/layout.html'}
+		  , 'answerInsert@app.blogBoard.detailEx' : {templateUrl : _curdir + 'view/detail/answer/insert.html'
+			  										,controller  : BLOG_BOARD + '.AnswerController as answerCtrl'}
 		}
 		// [0-9]가 숫자는 맞는데.. 자릿수 표시안하면 기본 한자리 ㅡㅡ 그래서 transionTo가 동작안했던거.
 		// detailEx는 title을 보여주기 위한것.
@@ -137,6 +141,33 @@
 		  , views : detailViews	
 		})
 
+		//  history
+		$stateProvider
+		.state(BLOG_BOARD+'.history' 
+		,{
+			url : '/history'		
+		  , views : {
+					  'center.left@app' : 
+						{
+					 		  templateUrl 	: _curdir + 'view/history.html'
+						    , controller	: ['$scope','history', function($scope, history) {
+						    						$scope.history = history;
+						    				  }]
+						    , resolve 	: 
+						    {
+						    	history : 
+						    	[ 
+						    	  BLOG_BOARD+'.blogBoardDAO'
+							      ,function(blogBoardDAO) {
+							    	  return blogBoardDAO.getHistory();
+							    }]
+							  
+						    }  
+					  	}
+		  			}	
+		})
+		
+		
 		
 /////setupState:End		
 	}

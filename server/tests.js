@@ -18,7 +18,6 @@ var testSuites = [
                   
                   , './app/test/common/file/localFileTest.js'
                   
-                  , './app/test/common/scriptletUtilTest.js'
                   , './app/test/common/utilTest.js'
                   , './app/test/common/pagerTest.js'
                   

@@ -57,12 +57,13 @@ fileDAO.deleteByFileInfoes = function (fileInfoes) {
 		filePaths.push(fileInfo.id) //id가 delete시 사용하는 path, or id
 	}
 	
+	// return 위치주의.
 	if(config.isLocal) {
-		return localFile.deleteFiles( filePaths)
-		        .then(function (status) { return deferred.resolve(status)})
-		        .catch(function (err){ return deferred.resolve(Status.makeError(err)) })
+		localFile.deleteFiles( filePaths)
+		        .then(function (status) {return deferred.resolve(status)})
+		        .catch(function (err){return deferred.resolve(Status.makeError(err)) })
 	} else {
-		return remoteFile.removeByIds( filePaths)
+		remoteFile.removeByIds( filePaths)
 		        .then(function (status) { return deferred.resolve(status)})
 		        .catch(function (err){ return deferred.resolve(Status.makeError(err))})
 	}

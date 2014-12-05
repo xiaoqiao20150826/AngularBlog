@@ -38,6 +38,12 @@
 			U.date = function (dateStr) {
 				return new Date(dateStr).toLocaleString()
 			}
+			U.getAndRemove = function (o, key) {
+				var value = o[key];
+				delete o[key]; //for문에서 없에기위해..
+				return value;
+			}
+			
 			U.stringToBoolean = function (str) {
 				if(U.notExist(str)) return null;
 				
@@ -53,7 +59,12 @@
 			}
 			U.title4web = function (title) {
 				return title.trim().replace(/\s+/g, '-');
-			}			
+			}
+			
+			
+			
+			
+			
 			//	간단한 사용하려고 여기서 하지만.... 이 위치가 옳을까?
 			// 서버 요청 실패 알림.
 			U.catch = function(res) {
@@ -88,14 +99,14 @@
 				
 				return deferred.promise  //then은 동작하지 않지만 catch는 동작함
 			}
+			// 이게 fail, catch일때 알림이야.
 			function _notify(result) {
-				var obj 	= result.obj
-				var message = _.isEmpty(obj.message) ? obj : obj.message
-				
-				var errMessage = message
-								  
-				console.error(errMessage, obj)
-				alert(errMessage)				
+				var obj 	     = result.obj
+				  ,	error		 = (obj && obj.error) ? obj.error  : obj 
+				  , message      = error.message || error
+				  
+			    	alert(message)
+			    	console.error(message , error)
 			}
 			
 			

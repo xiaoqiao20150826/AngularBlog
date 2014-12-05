@@ -20,19 +20,29 @@
 		detailData.post.content = $sce.trustAsHtml(detailData.post.content)
 		
 		// data 관련은 이쪽에.. 바로사용할수있도록.
+		var $root 				= $scope.$root
 		$scope.post 			= detailData.post
-		$scope.answers			= detailData.post.answers
-		$scope.currentPostNum 	= $stateParams.postNum || null; //이게 리스트..로갈수있어야함. root로저장>?
 		
 		// this.. as detail
 		this.increaseVote = function (postNum) {
 			blogBoardDAO.increaseVote(postNum)
-						.then(function(status) {
-							alert(status)
-							console.log(status)
+						.then(function(message) {
+							alert(message)
 							$scope.post.vote  =  $scope.post.vote + 1;
 						})
 		}
+		// TODO: 보안상 좀위험하지않을까?
+		this.delete = function (writerId, postNum) {
+			blogBoardDAO.deletePost(writerId, postNum)
+						.then(function(message) {
+							alert(message)
+							return $root.resetCategory()
+						})
+						.then(function() {
+							return $state.go('app.blogBoard.list')								 
+						})
+		}
+		
 	}
 	
 	

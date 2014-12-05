@@ -1,8 +1,6 @@
-/**
- *    - 유저정보는 세션스토리지 사용 
- *      ; 로그인 보안은 서버의 세션을 이용하여 확인하도록.
- */
-
+//   [주의
+// 1. get호출시 params 속성에 객체 담아서 보내야함.
+// 2. catch , then 순서 주의.
 
 (function(define,angular){
 	define([], function() {
@@ -18,35 +16,45 @@
 				params = params || {};
 				console.log(params)
 				return $http.get('/json/blogBoard/list', {params:params})
-							.then(U.notifyAndDoneIfFail)
 							.catch(U.catch)
+							.then(U.notifyAndDoneIfFail)
 			}
 			//update 시 resolve하는건데. 실패시 일반 insert로 가니... redirect로
 			blogBoardDAO.getPost = function (postNum) {
 				return $http.get('/json/blogBoard/post', {params: {'postNum':postNum} })
-				.then(U.notifyAndRedirectIfFail)
+							.catch(U.catch)
+							.then(U.notifyAndRedirectIfFail)
+			}
+			blogBoardDAO.getHistory = function () {
+				return $http.get('/json/blogBoard/history')
 				.catch(U.catch)
+				.then(U.notifyAndRedirectIfFail)
 			}
 			blogBoardDAO.getDetailData = function (params) {
 				params = params || {};
 				return $http.get('/json/blogBoard/detail', {params:params})
-							.then(U.notifyAndDoneIfFail)
 							.catch(U.catch)
+							.then(U.notifyAndDoneIfFail)
 			}
 			blogBoardDAO.insertPost = function (post) {
 				return $http.post('/json/blogBoard/insert', post)
-				.then(U.notifyAndDoneIfFail)
-				.catch(U.catch)
+							.catch(U.catch)
+							.then(U.notifyAndDoneIfFail)
 			}
 			blogBoardDAO.updatePost = function (post) {
 				return $http.post('/json/blogBoard/update', post)
-				.then(U.notifyAndDoneIfFail)
-				.catch(U.catch)
+							.catch(U.catch)
+							.then(U.notifyAndDoneIfFail)
 			}
 			blogBoardDAO.increaseVote = function (postNum) {
 				return $http.post('/json/blogBoard/increaseVote', {postNum:postNum} )
-				.then(U.notifyAndDoneIfFail)
+							.catch(U.catch)
+							.then(U.notifyAndDoneIfFail)
+			}
+			blogBoardDAO.deletePost = function (writerId, postNum) {
+				return $http.post('/json/blogBoard/delete', {postNum:postNum , writerId: writerId} )
 				.catch(U.catch)
+				.then(U.notifyAndDoneIfFail)
 			}
 			// this
 			blogBoardDAO.uploadImage = function (fileForm) {
@@ -60,8 +68,8 @@
 	    				  }
 				
 				return $http(req)
-							.then(U.notifyAndDoneIfFail)
 							.catch(U.catch)				
+							.then(U.notifyAndDoneIfFail)
 			}
 			
 			//------------------------

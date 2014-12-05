@@ -30,26 +30,14 @@
             </tr>
         </tbody>
     	</table>
-    	<p ng-if="currentUser.isLogin">
-		<div class='pull-right'>
-			<form ng-submit method='POST'>
-				<button id='user-delete' type ='submit' class='btn btn-default'>leave</button>
-			</form>
+    	<div ng-if="currentUser.isLogin">
+			<div class='pull-right'>
+				<a ng-click='userCtrl.delete(currentUser._id)' class='btn btn-default'>leave</a>
+			</div>
+			<div class='pull-right'>
+				<a ui-sref='app.user.update' class="btn btn-default span2" >update</a>
+			</div>
 		</div>
-		<div class='pull-right'>
-			<a ui-sref='app.user.update' class="btn btn-default span2" >update</a>
-		</div>
-		</p>
 	</div>
 </div>
 
-<script>
-	(function confirmDelete() {
-		$('#user-delete').click(function (e) {
-			var isYes = confirm('Do you realy want to leave?')
-			if(!isYes) return e.preventDefault()
-			else 
-				return;
-		})
-	})()
-</script>

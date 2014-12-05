@@ -1,0 +1,35 @@
+<!----------- 댓글 달기  -->
+<meta charset="utf-8">
+<br>
+<div class="row">
+	<div class="row">
+		<div class="row">
+			<div ng-if="$root.currentUser.isLogin" class="col-sm-1">
+				<div class="media-object">
+					<a href="/#/user">{{$root.currentUser.name }}</a>
+				</div>
+				<div class="media-object pull-left">
+					<div><img src='{{$root.currentUser.photo }}' alt='img' style="width:70px;padding:10px 0 0 0"></div>
+				</div>
+			</div>
+			<div ng-if="!($root.currentUser.isLogin)" class="col-sm-2">
+				<span class="label label-default">wrtier</span>
+				<input ng-model="answer.writer" type='text' placeholder="writer">
+				<span class="label label-default">password</span>
+				<input ng-model="answer.password" type='text' placeholder="password" >
+				<button ng-click="$root.showLoginView()"type='button' class="btn btn-success btn-xs">
+					Log In
+				</button>
+			</div>
+			<div class="col-sm-10">
+				<div class="media-body">
+					<textarea name="content" placeholder="content" style="height:100px;width:600px"></textarea>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<button ng-click="answerCtrl.insert(answer)" class="col-sm-offset-3 btn btn-warn" >submit</button>
+		<button class="col-sm-offset-4 btn btn-warn">cancel</button>	
+	</div>
+</div>

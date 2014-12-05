@@ -46,7 +46,8 @@
 			>
 				<div class="pull-right">
 					<a  class="btn btn-default span2  pull-right" 
-						data-postnum="{{ post.num }}" data-writerid="{{ post.user._id}}">
+						ng-click = 'detail.delete(post.user._id, post.num)'
+						>
 						delete
 					</a>
 					<a class="btn btn-default span2  pull-right" 

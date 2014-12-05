@@ -144,7 +144,7 @@
 					'center@app' : 
 					{
 						templateUrl : _curdir + 'view/user/detail.html'
-					  , controller 	: APP + '.UserController'
+					  , controller 	: APP + '.UserController as userCtrl'
 					}
 				}	
 		})
@@ -156,8 +156,7 @@
 					'center@app' : 
 					{
 						templateUrl  : _curdir + 'view/user/update.html'
-					  , controller 	 : APP + '.UserController'
-					  , controllerAs : 'userCtrl'
+					  , controller 	 : APP + '.UserController as userCtrl'
 					}
 				}	
 		})

@@ -12,7 +12,7 @@ var JsonResponse = module.exports = function JsonResponse(res) {
 
 // 성공
 JsonResponse.prototype.send = function (object) {
-	if(_.isEmpty(object)) return console.error('object is empty : ' + object);
+	if(_.isEmpty(object)) console.error('res object is empty : ' + object) // 경고정도로만.
 	
 	var result = {isFail:false, obj: object}
 	return this.res.send(JSON.stringify(result))

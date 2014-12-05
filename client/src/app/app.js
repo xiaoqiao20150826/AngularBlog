@@ -62,7 +62,7 @@
 		                   , blogBoard
 		                   ]; 
 		angular.module(		moduleName				  		, modules)
-			   .constant(  'ANGULAR_ENV' 					, 'log')  //log활동
+			   .constant(  'ANGULAR_ENV' 					, 'null')  //log활동
 		
 			   .service(	moduleName+'.userDAO' 			, userDAO)
 			   .service(	moduleName+'.authDAO' 			, authDAO)

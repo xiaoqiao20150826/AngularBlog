@@ -173,14 +173,11 @@ localFile.deleteFiles = function (filePaths) {
 	
 	var statuses = []
 	_.reduce(filePaths, function(p, filePath){
-		return p.then(function(status) {
-						statuses.push(status)
-						return localFile.delete(filePath)
-				})
+		return p.then(function(){return localFile.delete(filePath)})
+		 	    .then(function(status){ statuses.push(status)})
 	},Q())
 	.then(function() {
-		statuses.shift()
-		deferred.resolve(Status.reduce(statuses))
+		deferred.resolve(Status.reduceOne(statuses))
 	})
 	.catch(function (err) {
 		deferred.resolve(Status.makeError(err))

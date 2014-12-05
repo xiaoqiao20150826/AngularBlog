@@ -66,11 +66,11 @@ Answer.prototype.setAnswers = function(answers) {
 }
 //writer가있으면. exist.. '' 포함되었던가.?
 Answer.prototype.isAnnoymous = function() {
-	if(!_.isEmpty(this.writer) || this.userId == User.ANNOYMOUS_ID) return true;
+	if(H.exist(this.writer) || this.userId == User.ANNOYMOUS_ID) return true;
 	else return false;
 }
 Answer.prototype.hasNotData4annoymous = function () {
-	if((_.isEmpty(this.writer) || _.isEmpty(this.password)) ) return true
+	if((H.notExsit(this.writer) || H.notExist(this.password)) ) return true
 	else return false;
 }
 /* helper */

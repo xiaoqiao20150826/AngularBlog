@@ -136,7 +136,7 @@ blogBoardService.insertPostAndIncreaseCategoryCount = function(post) {
 			   	 })
 };
 //단일
-//TODO: 트랜잭션...(이미지)파일은 어찌되돌리려고.
+//TODO: 트랜잭션 롤백시...(이미지)파일은 어찌되돌리려고..?
 blogBoardService.deletePost = function (postNum) {
 	var transaction = new Transaction()   
 	
@@ -156,8 +156,9 @@ blogBoardService.deletePost = function (postNum) {
 	
 							})
 							.then(function (statuses) {
+								debug('delete post statuses', statuses)
 								var status = Status.reduceOne(statuses)
-								if(status.isError()) transaction.rollback()
+								if(status.isError && status.isError()) transaction.rollback()
 								
 								return status;
 							})
@@ -168,10 +169,11 @@ blogBoardService.deletePost = function (postNum) {
 //포스트들과 그 댓글들, 파일들 삭제 하고 관련된 카테고리 감소.
 blogBoardService.deletePostsByUserId = function (userId) {
 	var transaction = new Transaction()   
-	transaction.atomic(function () {  
+	return transaction.atomic(function () {
+		
 		return postDAO.findByUserId( userId)
 				.then(function(posts){
-					if(_.isEmpty(posts)) return Status.makeSuccess('not exist to delete post')
+					if(_.isEmpty(posts)) return [Status.makeSuccess('not exist to delete post')]
 					
 					var postNums = Post.getNums(posts)
 					, fileInfoes = Post.getFileInfoes(posts)
@@ -186,12 +188,11 @@ blogBoardService.deletePostsByUserId = function (userId) {
 				})
 				.then(function (statuses) {
 					var status = Status.reduceOne(statuses)
-					if(status.isError()) transaction.rollback
+					if(status.isError &&status.isError()) transaction.rollback
 					
 					return status;
 				})
 	})
-	
 }
 
 
@@ -224,6 +225,7 @@ blogBoardService.increaseVote = function(postNum, userId) {
 	return  postDAO.findOne( where)
 			 .then(function(post) {
 				 var failIncreaseVote = -1; //넌 이미 투표했다
+				 debug('increaseVote voted post', post)
 				 if(!(post.isEmpty())) return Status.makeError('already voted');
 				 
 				 return postDAO.updateVoteAndVotedUserId(postNum, userId)

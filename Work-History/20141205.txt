@@ -1,0 +1,56 @@
+=================================
+# --
+  - 생각해보니 어차피 SPA라면 ... 소켓으로 실시간 통신해도 되잖아...?
+
+  - RDB 형태로 컬렉션을 만들었기에...blogBoard의 데이터를 가져오기위해서.
+    원래는 다른 컬렉션의 참조값은 서버에서 모으고 '조인'을 구현하여.. 만들어줬었다.\
+   "그러나" .. category가 떨어져나갔듯이. ajax...json.으로 데이터를 가져오므로.
+    이것도 서버에서 조인할 필요 없이. 필요한 데이터 조각을 가져오면 된다.
+   허.. 요청은 많아지겠지만. 더 간편해지고, 빨라지겠네. 이 방식이 이전방식에 비해 더 좋아보인다.
+   결국.... blogBoard라는 형태도 필요없어지고. 
+   post, answer, category... 각각에 대한 작업을 할 수 있을 것이다.
+   그렇다면..서버도...클라이언트도... 코드가 더 모듈단위로 밀집 될 수 있겠어.
+
+   !!즉.. 조인을 클라이언트에서 하는것.
+
+
+# 한 것.. 
+  - increase vote
+  - delete user, post
+  - answer 변경 중.
+    ; 서버요청.. detail post 에서 answer을 제외시켜보자. 그리고 list view를 먼저만들어야해.  
+# 해야할것
+
+  - 히스토리
+  - 유저 삭제기능. 이건 게시판 마무리 되고 나중에 확인.
+  - 댓글고고.
+  - 아래 미룬것들.
+
+////////////////////
+
+  - 한글 파라미터를 sref나 $state.go...로 주면 encode가된 이상한 URI가 됨. decoedURI를하면 복구되지만. 
+    제대로된 한글 URI를 이용하려면 무엇을 고쳐야할까.
+ 
+  - _.reduce..... 사용해서 순차 비동기 호출하는로직.
+    호출자체는 올바르나. 인자전달시 올바르지 않음( list값이 하나일경우 안됨)
+    -> 로직을 수정하면됨.   deleteFiles  로직참고.  // statuses.shift() 이부분이 치명적이었는데 수정했으니..좀나중에..
+
+  -카테고리, 글선택등 효과(select되는 것 안했음.
+ - editor 이미지 삽입시. 맨뒤로가네? 현재 커서위치가아니라.
+ - 프로그레스바... 
+
+ - setupState, setupHandler, setupLog 
+  ; mean stack 으로 stateProvider 검색하니(github에서) 뭔가 좀 나온다.
+  ; 어찌 분리를 해야하는데. 일단 격리는 되었으니.. 필요한  기능부터만들자.
+
+ - 에러 데이터 확인을. catch가 보내는 데이터와도 일치시켜서 간단히 확인하면좋을텐데.
+
+ - 지연된 (모듈단위가 되면 좋겠지만)로딩.
+  ;이건가? 	// Add a new vertical module
+	var registerModule = function(moduleName, dependencies) {
+		// Create angular module
+		angular.module(moduleName, dependencies || []);
+
+		// Add the module to the AngularJS configuration file
+		angular.module(applicationModuleName).requires.push(moduleName);
+	};
