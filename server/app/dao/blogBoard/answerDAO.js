@@ -77,7 +77,7 @@ answerDAO.find = function (where,select) {
 	
 	var where = where || {}
 	  , select = select || {}
-	  , orderBy = { 'num' : -1 }
+	  , orderBy = { 'num' : 1 }
 	  
 	_db.find(where,select).sort(orderBy).exec(callback);
 	  
@@ -189,7 +189,7 @@ function getSchema() {
         'userId' : String,
         'writer' : String,
         'postNum' : Number,
-        'answerNum' : Number,
+        'answerNum' : Number,   //부모겠지. parentNum..이게 더 안햇갈리겟다.
         'password' : String
 		};
 };

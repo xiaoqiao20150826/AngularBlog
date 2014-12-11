@@ -2,7 +2,7 @@
 <!-- value가 ng-model에 할당되는 값. -->
 <!-- 처음 셀렉트를 반영하려면... 저 함수를 호출해야해.. ㅡㅡ 이상함. -->
 <select ng-model = '$parent.selectedCategoryId' ng-init='$parent.selectedInitCategory(this)'>
-	<option tree-explorer 
+	<option common-tree-explorer 
 						root  				= "$parent.rootOfCategory" 
 						children-key		= "categories"
 						id-key			    = "id"

@@ -13,8 +13,6 @@ var H = require('../../common/helper.js')
   , config = require('../../config.js');
 
 var Post = require('../../domain/blogBoard/Post.js')
-  , Answer = require('../../domain/blogBoard/Answer.js')
-  , Category = require('../../domain/blogBoard/Category.js')
   , User = require('../../domain/User.js')
   , Joiner = require('../../dao/util/Joiner.js')
 
@@ -23,7 +21,6 @@ var postDAO = require('../../dao/blogBoard/postDAO.js')
    ,answerDAO = require('../../dao/blogBoard/answerDAO.js')
    ,categoryDAO = require('../../dao/blogBoard/categoryDAO.js')
    ,userDAO = require('../../dao/userDAO.js')
-   ,answerService = require('./answerService.js')
    ,categoryService = require('./categoryService.js')
 
 var POST_COOKIE = 'postNums';
@@ -92,21 +89,14 @@ blogBoardService.joinPartsToPosts = function _joinUsersAndCategoriesToPosts(post
 // -----------------------------------  detail ------------------------------------
 
 //postNum에 해당하는 post 데이터를 가져온다.
-// user, answers를 조인.
+// user를 조인.
 blogBoardService.getJoinedPost = function (postNum) {
 	
-	return Q.all([ blogBoardService.getJoinedPostByUser( postNum)
-	             , answerService.getRootOfAnswerTree( postNum) 
-	            ])
-				 .then(function (args) {
-					 var joinedPost = args[0]
-					   , joinedAnswers = args[1].answers
-				//		 console.log(joinedAnswers)  
-					 joinedPost.setAnswers(joinedAnswers);
-				 	 debug('joinedPost :', joinedPost)
-				 	 
-				 	 return joinedPost
-				 })
+	return blogBoardService.getJoinedPostByUser( postNum)
+						   .then(function (joinedPost) {
+							 	 debug('joinedPost :', joinedPost)
+							 	 return joinedPost
+						   })
 }
 blogBoardService.getJoinedPostByUser = function (postNum) {
 	

@@ -1,0 +1,56 @@
+<!-- 	row start  -->
+<div common-tree-explorer
+				root  				= "rootOfAnswer" 
+				children-key		= "answers"
+				id-key			    = "num"
+				node-name 			= "answer"
+				is-nested			= "true"
+	 class = "col-sm-12" style = "border-left:1px dotted grey"
+>
+	<div common-element-bind to="{{answer.num}}" context="answerCtrl.rows">
+		<div class ='row' ng-if='$deep > 0'>
+			<div ng-if="_.isEmpty(answer.writer)" class="pull-left" href="#"> 
+				<img class="media-object" ng-src="{{ answer.user.photo }}" style="width:30px">
+				<span class="name"><a ui-sref="app.user.detail">{{answer.user.name }}</a></span>
+			</div>
+			
+			<span ng-if="!_.isEmpty(answer.writer)" class="name"><b>{{ answer.writer }}</b></span>
+			
+			<span class="date">{{ U.date(answer.created) }}</span>	
+			<a ng-click='answerCtrl.toggleNestedUpsertView(answer, true)' href="javascript:">
+				answer
+			</a>
+			
+			<span ng-if="!_.isEmpty(answer.writer) || ($root.currentUser._id === answer.user._id) ">
+				<a ng-click="answerCtrl.delete(answer)" href="javascript:">
+					<i class="glyphicon glyphicon-remove pull-right"></i>
+				</a>
+				<span class="pull-right">&nbsp;&nbsp;&nbsp;</span>
+				<a ng-click="answerCtrl.toggleNestedUpsertView(answer)" href='javascript:'>
+					<i class="glyphicon glyphicon-edit pull-right"></i>
+				</a>
+			</span>			
+		</div>
+			
+		<div class="row" ng-if='$deep > 0'>
+			<div class="col-sm-11">
+				<span ng-if = "!_.isEmpty($parentNode.writer)">
+					@{{ $parentNode.writer}}&nbsp;&nbsp;&nbsp;
+				</span>
+				<span ng-if = "_.isEmpty($parentNode.writer) && U.exist($parentNode.user)">
+					<a href="/user/{{$parentNode.user._id}}">
+						@{{ $parentNode.user.name}}&nbsp;&nbsp;&nbsp;
+					</a>
+				</span>
+				<span ng-bind-html="trustAsHtml(answer.content)"
+					 class="" style="overflow:hidden;word-wrap:break-word;">
+				</span>
+			</div>
+		</div>
+	</div>
+	<div common-element-bind to="{{answer.num}}" context="answerCtrl.nestedLocs"
+	     ng-if='$deep > 0'></div>
+	<hr ng-if='$deep > 0'>
+</div>
+
+<!--  row end -->

@@ -64,7 +64,7 @@ blogBoardController.sendBlogBoardList = function (req, res) {
 		var jsonRes 	= new JsonResponse(res)
 		  , authReq 	= new AuthRequest(req)
 		
-		var rawData 	= authReq.getRawData(req)
+		var rawData 	= authReq.getRawData()
 		  , pageNum 	= _.isEmpty(rawData.pageNum) ? FIRST_PAGE_NUM : rawData.pageNum  
 		  , sorter 		= _.isEmpty(rawData.sorter) ? SORTER_NEWEST: rawData.sorter
 		  , categoryId 	= Category.isRoot(rawData.categoryId) ? Category.getRootId() : rawData.categoryId
@@ -86,7 +86,7 @@ blogBoardController.sendPost = function (req, res) {
 	var jsonRes 	= new JsonResponse(res)
 	  , authReq 	= new AuthRequest(req)
 	
-	var rawData 	= authReq.getRawData(req)
+	var rawData 	= authReq.getRawData()
 	  , postNum 	= rawData.postNum
 	
 	if(_.isEmpty(postNum)) return jsonRes.sendFail(postNum + ': postNum is not exist')  
@@ -102,7 +102,7 @@ blogBoardController.sendBlogBoardDetail = function (req, res) {
 	var jsonRes 	= new JsonResponse(res)
 	  , authReq 	= new AuthRequest(req)
 	
-	var rawData 	= authReq.getRawData(req)
+	var rawData 	= authReq.getRawData()
 	  , postNum 	= rawData.postNum
 	  , cookie 		= new Cookie(req, res);
 	
@@ -122,8 +122,8 @@ blogBoardController.insertBlogBoardData = function(req,res) {
 	var jsonRes 	= new JsonResponse(res)
 	  , authReq 	= new AuthRequest(req)
 	
-	var loginUser   = authReq.getLoginUser(req)
-	var rawData 	= authReq.getRawData(req)
+	var loginUser   = authReq.getLoginUser()
+	var rawData 	= authReq.getRawData()
 	  , userId 		= rawData.userId
 	  , fileInfoes  = rawData.fileInfoes
 			  
@@ -143,8 +143,8 @@ blogBoardController.updateBlogBoardData = function(req,res) {
 	var jsonRes 	= new JsonResponse(res)
 	  , authReq 	= new AuthRequest(req)
 	
-	var loginUser   = authReq.getLoginUser(req)
-	var rawData 	= authReq.getRawData(req)
+	var loginUser   = authReq.getLoginUser()
+	var rawData 	= authReq.getRawData()
 	  , userId 		= rawData.userId
 	  , fileInfoes  = rawData.fileInfoes
 	  , originCategoryId = rawData.originCategoryId
@@ -168,8 +168,8 @@ blogBoardController.deleteBlogBoardData = function (req, res) {
 	var jsonRes 	= new JsonResponse(res)
 	  , authReq 	= new AuthRequest(req)
 	
-	var loginUser   = authReq.getLoginUser(req)
-	var rawData 	= authReq.getRawData(req)
+	var loginUser   = authReq.getLoginUser()
+	var rawData 	= authReq.getRawData()
 	  , writerId 	= rawData.writerId
 	  , postNum 	= rawData.postNum
     
@@ -186,8 +186,8 @@ blogBoardController.increaseVote = function (req, res) {
 	var jsonRes 	= new JsonResponse(res)
 	  , authReq 	= new AuthRequest(req)
 	
-	var rawData 	= authReq.getRawData(req)
-	var loginUser   = authReq.getLoginUser(req)
+	var rawData 	= authReq.getRawData()
+	var loginUser   = authReq.getLoginUser()
 	  , userId		= loginUser._id
 	  , postNum     = rawData.postNum
 	
@@ -217,8 +217,8 @@ blogBoardController.sendHistory = function (req, res) {
 /////////////////////////////////////////////////////////////////
 //blogBoardController.sendInsertView = function(req,res) {
 //	var redirector = new Redirector(res)
-//	var loginUser = requestParser.getLoginUser(req)
-//	  , rawData = requestParser.getRawData(req)
+//	var loginUser = requestParser.getLoginUser()
+//	  , rawData = requestParser.getRawData()
 //	
 //	if(loginUser.isAnnoymous()) return redirector.main();
 //	
@@ -235,8 +235,8 @@ blogBoardController.sendHistory = function (req, res) {
 //}
 //blogBoardController.sendUpdateView = function(req,res) {
 //	var redirector = new Redirector(res)
-//	var loginUser = requestParser.getLoginUser(req)
-//	  , rawData = requestParser.getRawData(req)
+//	var loginUser = requestParser.getLoginUser()
+//	  , rawData = requestParser.getRawData()
 //	  , postNum = rawData.postNum
 //	
 //	if(loginUser.isAnnoymous()) return redirector.main(); //TODO:writer 일치 체크해야함
@@ -261,8 +261,8 @@ blogBoardController.sendHistory = function (req, res) {
 //
 //blogBoardController.insertBlogBoardData = function(req,res) {
 //	var redirector = new Redirector(res)
-//	var loginUser = requestParser.getLoginUser(req)
-//	  , rawData = requestParser.getRawData(req)
+//	var loginUser = requestParser.getLoginUser()
+//	  , rawData = requestParser.getRawData()
 //	  , userId = rawData.userId
 //	  , fileInfoesString = rawData.fileInfoesString
 //	  , fileInfoes = (fileInfoesString == '') ? [] : JSON.parse(fileInfoesString)
@@ -283,8 +283,8 @@ blogBoardController.sendHistory = function (req, res) {
 //}
 //blogBoardController.updateBlogBoardData = function(req,res) {
 //	var redirector = new Redirector(res)
-//	var loginUser = requestParser.getLoginUser(req)
-//	, rawData = requestParser.getRawData(req)
+//	var loginUser = requestParser.getLoginUser()
+//	, rawData = requestParser.getRawData()
 //	, userId = rawData.userId
 //	, fileInfoesString = rawData.fileInfoesString
 //	, fileInfoes = (fileInfoesString == '') ? [] : JSON.parse(fileInfoesString)
@@ -307,8 +307,8 @@ blogBoardController.sendHistory = function (req, res) {
 ////post와 관련된것도 다삭제해.
 //blogBoardController.deletePost = function (req, res) {
 //	var redirector = new Redirector(res)
-//	var loginUser = requestParser.getLoginUser(req)
-//	  , rawData = requestParser.getRawData(req)
+//	var loginUser = requestParser.getLoginUser()
+//	  , rawData = requestParser.getRawData()
 //	  , writerId = rawData.writerId
 //	  , postNum = rawData.postNum
 //      
@@ -323,9 +323,9 @@ blogBoardController.sendHistory = function (req, res) {
 //}
 //blogBoardController.increaseVote = function (req, res) {
 //	var redirector = new Redirector(res)
-//	var rawData = requestParser.getRawData(req)
+//	var rawData = requestParser.getRawData()
 //	  , postNum = rawData.postNum
-//	  , loginUser = requestParser.getLoginUser(req)
+//	  , loginUser = requestParser.getLoginUser()
 //	  , loginUserId = loginUser._id;
 //	
 //	if(loginUser.isAnnoymous() ) return res.send('must login');
@@ -342,7 +342,7 @@ blogBoardController.sendHistory = function (req, res) {
 //}
 //function _sendHistoryView(req, res, viewPath) {
 //		var redirector = new Redirector(res)		
-//		var loginUser = requestParser.getLoginUser(req);
+//		var loginUser = requestParser.getLoginUser();
 //		
 //		H.all4promise([
 //		                 [blogBoardService.findGroupedPostsByDate]

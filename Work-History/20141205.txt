@@ -17,8 +17,10 @@
 # 한 것.. 
   - increase vote
   - delete user, post
+    - 유저 삭제기능. 이건 게시판 마무리 되고 나중에 확인.
   - answer 변경 중.
     ; 서버요청.. detail post 에서 answer을 제외시켜보자. 그리고 list view를 먼저만들어야해.  
+  - 히스토리
 # 해야할것
 
   - 히스토리

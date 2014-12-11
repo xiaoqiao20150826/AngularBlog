@@ -74,11 +74,12 @@ Joiner.prototype.setKey4aggregate = function (key4aggregate, delimiter, keyToBeA
 		this.key4aggregateToParent = key4aggregate;
 }
 
-Joiner.prototype.treeTo = function (root, identifierKey) {
+Joiner.prototype.treeTo = function (root, identifierKey, nodeFn) {
 	var key4aggregateToParent = this.key4aggregateToParent
 	  , keyToBeAggregate = this.keyToBeAggregate
 	  , delimiter = this.delimiter
-	  
+
+	this.nodeFn = nodeFn;  
 	this.isCache = true;
 	this.identifierKey = identifierKey || this.identifierKey;
 	var rootOfTree = this.getBindedNodeByChilds(root, key4aggregateToParent, delimiter, keyToBeAggregate);
@@ -88,6 +89,8 @@ Joiner.prototype.treeTo = function (root, identifierKey) {
 Joiner.prototype.getBindedNodeByChilds = function (node, key4aggregateToParent,  delimiter, keyToBeAggregate) {
 	var childsKey = this.childsKey;
 	var childsToBind = this.getChildsToBindToNode(node);
+	if(this.nodeFn) this.nodeFn(node) //단순히.. 무언가 작업하기위함.
+	
 	if(_.isEmpty(childsToBind) ) return node;
 	else {
 		var newChildsToBind = []

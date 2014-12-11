@@ -18,7 +18,7 @@ var User = require('../../../../domain/User.js')
   , userDAO = require('../../../../dao/userDAO.js')
   , categoryDAO = require('../../../../dao/blogBoard/categoryDAO.js')
   
-describe('Transaction', function() {
+describe('RemoveCancler', function() {
 	var user = User.createBy({_id:'user', name:'name'})
 	  , user2 = User.createBy({_id:'user2', name:'name'})
 	var category1 = Category.createBy({title:'title1'})  

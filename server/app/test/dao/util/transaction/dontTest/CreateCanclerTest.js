@@ -15,7 +15,7 @@ var should = require('should')
 var User = require('../../../../domain/User.js')
   , userDAO = require('../../../../dao/userDAO.js')
 
-describe('Transaction', function() {
+describe('CreateCancler', function() {
 	before(function (nextTest) {
 		mongoose.connect('mongodb://localhost/test',function() {
 			nextTest()

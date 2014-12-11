@@ -15,133 +15,109 @@ var Answer = require('../../domain/blogBoard/Answer.js')
 
 var answerController = module.exports = {}
 answerController.mapUrlToResponse = function(app) {
-		app.post('/json/blogBoard/answer/insert', this.insertAnswer)
-//		app.post('/blogBoard/answer/update', this.updateAnswer);
-//		
-//		app.post('/blogBoard/answer/updateView', this.sendUpdateView);
-//		app.post('/blogBoard/answer/delete', this.deleteAnswer);
+		app.get('/json/blogBoard/answer/list', this.sendRootOfAnswer)
 		
+		app.post('/json/blogBoard/answer/insert', this.insertAnswer)
+		app.post('/json/blogBoard/answer/update', this.updateAnswer);
+		app.post('/json/blogBoard/answer/delete', this.deleteAnswer);
 }	
+
+
+answerController.sendRootOfAnswer = function(req, res) {
+	var jsonRes 	= new JsonResponse(res)
+	  , authReq 	= new AuthRequest(req)
+	
+	var rawData 	= authReq.getRawData()
+	  , postNum     = Number(rawData.postNum) //주의
+	debug('answer-rootOfAnswer rawData : ',rawData)
+	
+	if(H.notExist(postNum)) return jsonRes.sendFail('not exist postNum for answer list ')
+	
+	answerService.getRootOfAnswerTree(postNum)
+				 .then(function(rootOfAnswerTree) {
+//					 if(rootOfAnswerTree._id == null) rootOfAnswerTree = []; //빈거보내.
+					 
+					 return jsonRes.send(rootOfAnswerTree)
+				 })
+				 .catch(jsonRes.catch())
+}
 answerController.insertAnswer = function(req, res) {
 	var jsonRes 	= new JsonResponse(res)
 	  , authReq 	= new AuthRequest(req)
 	
-	var rawData 	= authReq.getRawData(req)
+	var loginUser   = authReq.getLoginUser()
+	var rawData 	= authReq.getRawData()
 	  , postNum     = Number(rawData.postNum) //주의
 	  , answer 		= Answer.createBy(rawData)
+	
+	 debug('answer-insert rawData : ',rawData)
+	 
+	if(H.notExist(postNum)) return jsonRes.sendFail('not exist postNum for answer list ')  
 	  
 	if(answer.isAnnoymous() ) {//작성자가 answer는 필수데이터 가져야해.
 		if(answer.hasNotData4annoymous()) return jsonRes.sendFail('annoymous user should have password and writer');
+	} else {
+		if(loginUser.isNotEqualById(answer.userId)) return jsonRes.sendFail(userId + ' is not loginUser')
 	}  
 	
-	debug('answer to insert : ',answer)
 	
 	answerService.insertAnswerAndIncreasePostCount(answer)
 				 .then(function (insertedAnswer) {
-					 return H.call4promise(answerService.getRootOfAnswerTree, postNum) 
+					 return jsonRes.send(insertedAnswer) 
 				 })
-	 .then(function (rootOfAnswerTree) {
-		var answers = rootOfAnswerTree.answers 
-		 
-		var blog = { 'loginUser' : loginUser
-				   , 'answers' : answers
-				   , 'postNum' : postNum
-				   , 'scriptletUtil' : scriptletUtil
-				   }
-		
-		res.render('./centerFrame/blogBoard/answer/list.ejs', {blog: blog} )
-	 })
-	 .catch(redirector.catch)
+				 .catch(jsonRes.catch());
 }
-//answerController.updateAnswer = function(req, res) {
-//	var redirector = new Redirector(res)
-//	var loginUser = requestParser.getLoginUser(req)
-//	, rawData = requestParser.getRawData(req)
-//	, postNum = Number(rawData.postNum) //주의
-//	, answer = Answer.createBy(rawData)
-//	
-//	if(answer.isAnnoymous() ) {//wirter가 익명사용자일경우 answer는 필수데이터 가져야해.
-//		if(answer.hasNotData4annoymous()) return res.send('error : annoymous user should have password and writer');
-//	} else {
-//		if(loginUser.isNotEqualById(answer.userId) ) return res.send('error : loginUser should same wirter')
-//	}  
-//	
-//	debug('answer to update : ',answer)
-//	H.call4promise(answerService.updateAnswer, answer)
-//	.then(function (status) {
-//		if(status.isError()) {
-//			res.send(status.getMessage())
-//			return null;
-//		} else {
-//			return H.call4promise(answerService.getRootOfAnswerTree, postNum)
-//		}
-//	})
-//	.then(function (rootOfAnswerTree) {
-//		if(!rootOfAnswerTree) return;
-//		
-//		var answers = rootOfAnswerTree.answers 
-//		var blog = { 'loginUser' : loginUser
-//				, 'answers' : answers
-//				, 'postNum' : postNum
-//				, 'scriptletUtil' : scriptletUtil
-//		}
-//		res.render('./centerFrame/blogBoard/answer/list.ejs', {blog: blog} )
-//	})
-//	.catch(redirector.catch)
-//}
-//
-//answerController.sendUpdateView = function (req, res) {
-//	var redirector = new Redirector(res)
-//	var loginUser = requestParser.getLoginUser(req)
-//	  , rawData = requestParser.getRawData(req)
-//	  , currentAnswerNum = Number(rawData.currentAnswerNum) //주의
-//	  
-//    H.call4promise(answerService.getJoinedAnswer, currentAnswerNum)
-//     .then(function (answer) {
-// 		var blog = { 'loginUser' : loginUser
-//				   , 'answer' : answer
-//				   , 'postNum' : answer.postNum
-//				   }
-//		res.render('./centerFrame/blogBoard/answer/update.ejs', {blog: blog} )
-//	 })
-//     .catch(redirector.catch)	
-//     
-//}
-//
-//answerController.deleteAnswer = function(req, res) {
-//	var redirector = new Redirector(res)
-//	var loginUser = requestParser.getLoginUser(req)
-//	  , rawData = requestParser.getRawData(req)
-//	  , postNum = Number(rawData.postNum)
-//	  
-//	var answer = Answer.createBy(rawData) 
-//	  , includedNums = _.compact(rawData.includedNums.split(',') )
-//	
-//	if(answer.isAnnoymous() ) {// writer가 있을 경우 익명사용자이다
-//		if(answer.hasNotData4annoymous()) return res.send('error : annoymous user should have password and writer');
-//	} else {
-//		if(loginUser.isNotEqualById(answer.userId) ) return res.send('error : loginUser should same wirter')
-//	}  
-//	
-//	H.call4promise(answerService.deleteAnswer, answer, includedNums) 
-//	 .then(function (status) {
-//		if(status.isError()) {
-//			res.send(status.getMessage())
-//			return null;
-//		} else {
-//			return H.call4promise(answerService.getRootOfAnswerTree, postNum)
-//		}
-//	 })
-//	 .then(function (rootOfAnswerTree) {
-//		if(!rootOfAnswerTree) return;
-//		
-//		var answers = rootOfAnswerTree.answers 
-//		var blog = { 'loginUser' : loginUser
-//				, 'answers' : answers
-//				, 'postNum' : postNum
-//				, 'scriptletUtil' : scriptletUtil
-//		}
-//		res.render('./centerFrame/blogBoard/answer/list.ejs', {blog: blog} )
-//	 })
-//	 .catch(redirector.catch)
-//}
+
+answerController.updateAnswer = function(req, res) {
+	var jsonRes 	= new JsonResponse(res)
+	  , authReq 	= new AuthRequest(req)
+	
+	var loginUser   = authReq.getLoginUser()
+	var rawData 	= authReq.getRawData()
+   	  , postNum 	= Number(rawData.postNum) //주의
+	  , answer 		= Answer.createBy(rawData)
+
+	 debug('answer-update rawData : ',rawData)
+	 
+	if(H.notExist(postNum)) return jsonRes.sendFail('not exist postNum for answer list ')  
+	if(answer.isAnnoymous() ) {//작성자가 answer는 필수데이터 가져야해.
+		if(answer.hasNotData4annoymous()) return jsonRes.sendFail('annoymous user should have password and writer');
+	} else {
+		if(loginUser.isNotEqualById(answer.userId)) return jsonRes.sendFail(userId + ' is not loginUser')
+	}   
+	
+	
+	answerService.updateAnswer(answer)
+				 .then(function (status) {
+					if(status.isError && status.isError()) return jsonRes.sendFail(status)
+					else return jsonRes.send(status.message)
+				 })
+				 .catch(jsonRes.catch())
+}
+
+// 자식이 없으면 지우고. 아니면 지운 표시만.(업데이트)
+answerController.deleteAnswer = function(req, res) {
+	var jsonRes 	= new JsonResponse(res)
+	  , authReq 	= new AuthRequest(req)
+	
+	var loginUser   = authReq.getLoginUser()
+	var rawData 	= authReq.getRawData()
+ 	  , postNum 	= Number(rawData.postNum) //주의
+	  , answer 		= Answer.createBy(rawData);
+	  
+	 debug('answer-delete rawData : ',rawData)
+	 
+	if(H.notExist(postNum)) return jsonRes.sendFail('not exist postNum for answer list ')  
+	if(answer.isAnnoymous() ) {//작성자가 answer는 필수데이터 가져야해.
+		if(answer.hasNotData4annoymous()) return jsonRes.sendFail('annoymous user should have password and writer');
+	} else {
+		if(loginUser.isNotEqualById(answer.userId)) return jsonRes.sendFail(userId + ' is not loginUser')
+	}
+	
+	answerService.deleteAnswer(answer) 
+				 .then(function (status) {
+					if(status.isError && status.isError()) return jsonRes.sendFail(status)
+					else return jsonRes.send(status.message)
+				 })
+				 .catch(jsonRes.catch())
+}

@@ -58,18 +58,13 @@ function _cancleByRemove3(context, originRemove, where) {
 //	
 //	var cancleList = this.cancleList
 //	  
-//	if(_.isEmpty(cancleList)) deferred.resolve(Status.makeSuccess('not exit cancleList about crate') );
+//	if(_.isEmpty(cancleList)) return deferred.resolve(Status.makeSuccess('not exit cancleList about crate') );
 //	
 //	var statuses = []
-//
-//	//아마..역순.
-//	_.reduceRight(cancleList, function(p, cancleFn) {
-//		return p.then(function(status) {
-//			statuses.push(status)
-//			return cancleFn()
-//		})
+//	_.reduce(cancleList, function(p, cancleFn){
+//		return p.then(function(){return cancleFn()})
+//		 	    .then(function(status){ statuses.push(status)})
 //	},Q())
-//	.then(function() { statuses.shift() })
 //    .then(function () {
 //    	deferred.resolve(Status.reduceOne(statuses));
 //    })

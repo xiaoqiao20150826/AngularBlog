@@ -45,10 +45,13 @@ answerService.getRootOfAnswerTree = function (postNum) {
 			})
 }
 // 조인한 후, 트리화 시킨다.
+//includedNums 안해도될듯?
 function _answersToTree (joinedAnswers) {
     var answerJoiner = new Joiner(joinedAnswers, 'answerNum', 'answers')
-	answerJoiner.setKey4aggregateToParent('num', ',', 'includedNums') //부모로모아. 포함된(나 + 자식) num을.
-    return answerJoiner.treeTo(Answer.makeRoot(), 'num');
+//	answerJoiner.setKey4aggregateToParent('num', ',', 'includedNums') //부모로모아. 포함된(나 + 자식) num을.
+    return answerJoiner.treeTo(Answer.makeRoot(), 'num', function(node) {
+    	node.password = undefined
+    });
 }
 function _joinUsersToAnswers(answers, users) {
 	//user가 있거나, id에 해당하는 유저가 없다면. 익명유저이어라. 
@@ -104,7 +107,7 @@ answerService.updateAnswer = function(answer) {
 	if(answer.isAnnoymous()) {
 		return  answerDAO.findByNum( currentAnswerNum)
 				 .then(function (findedAnswer) {
-					 debug('pw ',answer.password, findedAnswer.password)
+					 debug('annoy answer pw ',answer.password, findedAnswer.password)
 					 if(answer.password != findedAnswer.password) 
 						 return Status.makeError('password is not equal')
 					 else 
@@ -115,32 +118,52 @@ answerService.updateAnswer = function(answer) {
 	}
 }
 
-answerService.deleteAnswer = function(answer, includedNums) {
+//자식 있으면 표시만, 없으면 다 지움.
+answerService.deleteAnswer = function(answer) {
 	var currentNum = answer.num
-	  , postNum = answer.postNum
+	  , postNum    = answer.postNum;
+	var deferred     = Q.defer()
 	  
-	if(answer.isAnnoymous()) {
-		return  answerDAO.findByNum( currentNum)
-				 .then(function (findedAnswer) {
-					 debug('annoymous writer of answer ; pw ',answer.password, findedAnswer.password)
-					 if(answer.password != findedAnswer.password) 
-						 return Status.makeError('password is not equal')
-					 else 
-						 return answerService.deleteAnswerAndDecreaseAnswerCount(postNum, includedNums);
-				 })
-	} else {
-		
-		return answerService.deleteAnswerAndDecreaseAnswerCount(postNum, includedNums);
-	}
+	Q.all([answerDAO.findByNum(currentNum)
+	      ,answerDAO.find({answerNum: currentNum}) 
+	     ])
+		 .then(function(args) {
+			 var currentAnswer = args[0]
+			   , childAnswers  = args[1]
+			   , hasChild	   = !_.isEmpty(childAnswers);
+			 
+			 //익명이면서, 패스워드 일치하지않으면.
+			 if(currentAnswer.isAnnoymous() && (   _.isEmpty(answer.password)
+					 							|| (answer.password != currentAnswer.password )
+					 							)
+			 	){
+				 return deferred.resolve(Status.makeError('password is not equal'))
+			 }
+			 //자식있으면 업데이트.땡 post의 answerCount..일단 냅두자.
+			 if(hasChild) {
+				 currentAnswer.content = "<span bgcolor='grey'>삭제된 댓글 입니다.</span>"
+				 return  answerDAO.update(currentAnswer)
+				 				  .then(function(status) {
+				 					  if(status.isError && status.isError()) return deferred.resolve(status)
+				 					  else return deferred.resolve(Status.makeSuccess('delete answer'))
+				 				  })
+			 }
+			 //이제 자식없으면 걍 지워~
+			 answerService.deleteAnswerAndDecreaseAnswerCount(postNum, currentNum)
+			 			  .then(function(status) {
+			 				  return deferred.resolve(status)
+			 			  })
+		 });
+	
+	return deferred.promise;
 }
 
-
-answerService.deleteAnswerAndDecreaseAnswerCount = function(postNum, includedNums) {
-	var answerCount = includedNums.length
-	
+// 지우고, 카운트도.
+// 이게 따른방식을 쓰다가 값만바꾼것이라.. 코드가 좀 요상함.
+answerService.deleteAnswerAndDecreaseAnswerCount = function(postNum, answerNum) {
 	return Q.all([
-	                answerDAO.removeAllOfNum( includedNums)
-	              , postDAO.decreaseAnswerCount( postNum, answerCount)
+	                answerDAO.removeAllOfNum( [answerNum])
+	              , postDAO.decreaseAnswerCount( postNum, 1)
 				 ])
 				 .then(function(statuses){
 				   	 return Status.reduceOne(statuses)

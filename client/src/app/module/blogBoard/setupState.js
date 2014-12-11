@@ -108,12 +108,7 @@
 		  	}
 		  , 'postDetail@app.blogBoard.detail' 	: {templateUrl : _curdir + 'view/detail/postDetail.html'}
 		  , 'postDetail@app.blogBoard.detailEx' : {templateUrl : _curdir + 'view/detail/postDetail.html'}
-		  
-		  //answer
-		  , 'answer@app.blogBoard.detail' 	: {templateUrl : _curdir + 'view/detail/answer/layout.html'}
-		  , 'answer@app.blogBoard.detailEx' : {templateUrl : _curdir + 'view/detail/answer/layout.html'}
-		  , 'answerInsert@app.blogBoard.detailEx' : {templateUrl : _curdir + 'view/detail/answer/insert.html'
-			  										,controller  : BLOG_BOARD + '.AnswerController as answerCtrl'}
+												   
 		}
 		// [0-9]가 숫자는 맞는데.. 자릿수 표시안하면 기본 한자리 ㅡㅡ 그래서 transionTo가 동작안했던거.
 		// detailEx는 title을 보여주기 위한것.
@@ -141,6 +136,30 @@
 		  , views : detailViews	
 		})
 
+		// TODO: detail에 대해서도 해야함.
+		// answer     
+		var answerViews = 
+		{
+			    'answer@app.blogBoard.detailEx' : 
+			    	{templateUrl : _curdir + 'view/detail/answer/layout.html'
+					,controller  : BLOG_BOARD + '.AnswerController as answerCtrl'
+					, resolve	 : {
+						rootOfAnswer : 
+							[
+							 '$stateParams'
+							 ,BLOG_BOARD+'.answerDAO'
+							 ,function($stateParams, answerDAO) {
+								 var postNum = $stateParams.postNum
+								 return answerDAO.getRootOfAnswer(postNum)
+							 }]
+					  }
+				   }
+			  , 'answerInsert@app.blogBoard.detailEx.answer' : {templateUrl : _curdir + 'view/detail/answer/upsert.html'}
+			  , 'answerList@app.blogBoard.detailEx.answer' : {  templateUrl : _curdir + 'view/detail/answer/list.html'}
+		}
+		$stateProvider
+		.state(BLOG_BOARD+'.detailEx.answer' ,{ views : answerViews })  
+		
 		//  history
 		$stateProvider
 		.state(BLOG_BOARD+'.history' 

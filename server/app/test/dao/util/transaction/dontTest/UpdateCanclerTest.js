@@ -14,7 +14,7 @@ var should = require('should')
 var User = require('../../../../domain/User.js')
   , userDAO = require('../../../../dao/userDAO.js')
   
-describe('Transaction', function() {
+describe('UpdateCancler', function() {
 	var user = User.createBy({_id:'user', name:'name1'})
 	  , user2 = User.createBy({_id:'user2', name:'name2'})
 	

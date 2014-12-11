@@ -57,8 +57,9 @@
 					})
 				return repeatedString;
 			}
+			// encode도... location 한글 깨짐 위해.
 			U.title4web = function (title) {
-				return title.trim().replace(/\s+/g, '-');
+				return $window.encodeURI(title.trim().replace(/\s+/g, '-'), 'utf-8');
 			}
 			
 			

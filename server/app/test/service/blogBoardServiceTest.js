@@ -75,8 +75,6 @@ describe('blogBoardService', function () {
 			.then(function dataFn(e_post) {
 //				console.log(e_post)
 				should.equal(e_post.num, post.num);
-//				console.log(e_post.answers)
-				should.equal(e_post.answers.pop().num, 1);
 			})
 			.then(function(){nextTest()})
 			.catch(H.testCatch1(nextTest))

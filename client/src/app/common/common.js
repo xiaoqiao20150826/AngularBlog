@@ -15,6 +15,7 @@
 	       	  , 'common/provider/inspectLoggerProvider'
 	       	  
 	       	  , 'common/directive/treeExplorerDirective'
+	       	  , 'common/directive/elementBindDirective'
 	       	  ]
 	,function ( 
 				util 
@@ -26,7 +27,9 @@
 			  
 			  , inspectLoggerProvider
 			  
-			  , treeExplorerDirective //directive
+			  //directive
+			  , treeExplorerDirective 
+			  , elementBindDirective 
 			  
 	){
 		
@@ -41,7 +44,8 @@
 		       
 		       .provider(moduleName + '.inspectLogger' 	, inspectLoggerProvider)		//이름주의.
 		       
-		       .directive('treeExplorer', treeExplorerDirective)
+		       .directive(moduleName + 'TreeExplorer', treeExplorerDirective)
+		       .directive(moduleName + 'ElementBind' , elementBindDirective)
 		
 		return moduleName;
 	})
