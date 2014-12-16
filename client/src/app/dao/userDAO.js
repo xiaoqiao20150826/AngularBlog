@@ -12,6 +12,11 @@
 			
 			//----------------------
 			var userDAO = {}
+			userDAO.getUser = function (params) {
+				return     $http.get('/json/user', {params:params})
+								.catch(U.catch)
+								.then(U.notifyAndDoneIfFail)
+			}
 			userDAO.update = function (user) {
 				return    $http.post('/json/user/update', user)
 							   .catch(U.catch)

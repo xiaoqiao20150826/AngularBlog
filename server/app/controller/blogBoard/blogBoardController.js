@@ -28,7 +28,7 @@ var blogBoardController = module.exports = {}
 blogBoardController.mapUrlToResponse = function(app) {
 		// json. 
 		app.get('/json/blogBoard/list'		, this.sendBlogBoardList)
-		app.get('/json/blogBoard/detail'	, this.sendBlogBoardDetail)
+		app.get('/json/blogBoard/detail'	, this.sendPostAndIncreaseReadCount)
 		app.post('/json/blogBoard/insert'   , this.insertBlogBoardData)
 		app.post('/json/blogBoard/update'   , this.updateBlogBoardData)
 		app.post('/json/blogBoard/delete'   , this.deleteBlogBoardData)
@@ -98,7 +98,7 @@ blogBoardController.sendPost = function (req, res) {
 		   })
 		   .catch(jsonRes.catch())
 }
-blogBoardController.sendBlogBoardDetail = function (req, res) {
+blogBoardController.sendPostAndIncreaseReadCount = function (req, res) {
 	var jsonRes 	= new JsonResponse(res)
 	  , authReq 	= new AuthRequest(req)
 	
@@ -106,15 +106,16 @@ blogBoardController.sendBlogBoardDetail = function (req, res) {
 	  , postNum 	= rawData.postNum
 	  , cookie 		= new Cookie(req, res);
 	
+	if(_.isEmpty(postNum)) return jsonRes.sendFail(postNum + ': postNum is not exist')
+	
 	Q.all([
 	        blogBoardService.increaseReadCount( postNum, cookie)
 	      , blogBoardService.getJoinedPost( postNum)
 	])
 	 .then(function dataFn(args) {
-		 var joinedPost = args[1]
-		 var detail 	= { post : joinedPost}
-		 
-		 return jsonRes.send(detail)
+		 var post = args[1]
+		 if(_.isEmpty(post)) return jsonRes.sendFail(postNum + ' : not found post') 
+		 else return jsonRes.send(post)
 	 })
 	  .catch(jsonRes.catch())
 }

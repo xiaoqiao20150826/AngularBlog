@@ -19,16 +19,22 @@
 	
 	//
 	function AppController($rootScope, U, Tree, authDAO, categoryDAO , currentUser, rootOfCategory) {
-		// 전역 이름
+		// ------ 전역 데이터
+		// 유틸
 		$rootScope._  = _
 		$rootScope.U  = U
 		
+		// 객체
 		$rootScope.currentUser 	      = currentUser
-		$rootScope.rootOfCategory     = rootOfCategory
-		$rootScope.categoryTree		  = new Tree(rootOfCategory, 'categories', 'id')		
-		// app로접근.
 		
+		$rootScope.rootOfCategory     = rootOfCategory
+		$rootScope.categoryTree		  = new Tree(rootOfCategory, 'categories', 'id')
+		
+		$rootScope.selectedPostNum    = null //글 선택시...
+		$rootScope.selectedCategoryId = null //카테고리 선택시.
 
+		
+		//------ 전역 함수
 		// login view modal
 		$rootScope.showLoginView = authDAO.showLoginView
 		$rootScope.resetCategory = function() {
@@ -37,9 +43,8 @@
 					   			  	$rootScope.rootOfCategory = rootOfCategory
 					   		  })
 		}
-//		this.loginUser = loginUser
 		
-		window.$root = $rootScope
+//		window.$root = $rootScope
 	}
 	
 })(define, _)

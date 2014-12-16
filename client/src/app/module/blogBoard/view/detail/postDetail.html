@@ -34,7 +34,7 @@
 			<div class="row-fluid">
 				<div class='pull-left'>
 					<img ng-src='{{post.user.photo }}' class="img-circle" alt='img' style="width: 20px">
-						 by <a ui-sref="app.user.detail">{{post.user.name}}</a>
+						 by <a ui-sref="app.user.detail({userId:post.user._id})">{{post.user.name}}</a>
 						  | <i class="icon-calendar"></i>
 						 {{U.date(post.created)}}
 				</div>

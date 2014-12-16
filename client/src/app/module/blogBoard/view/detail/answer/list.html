@@ -11,14 +11,14 @@
 		<div class ='row' ng-if='$deep > 0'>
 			<div ng-if="_.isEmpty(answer.writer)" class="pull-left" href="#"> 
 				<img class="media-object" ng-src="{{ answer.user.photo }}" style="width:30px">
-				<span class="name"><a ui-sref="app.user.detail">{{answer.user.name }}</a></span>
+				<span class="name"><a ui-sref="app.user.detail({userId:answer.user._id})">{{answer.user.name }}</a></span>
 			</div>
 			
 			<span ng-if="!_.isEmpty(answer.writer)" class="name"><b>{{ answer.writer }}</b></span>
 			
 			<span class="date">{{ U.date(answer.created) }}</span>	
 			<a ng-click='answerCtrl.toggleNestedUpsertView(answer, true)' href="javascript:">
-				answer
+				reply
 			</a>
 			
 			<span ng-if="!_.isEmpty(answer.writer) || ($root.currentUser._id === answer.user._id) ">
@@ -50,7 +50,7 @@
 	</div>
 	<div common-element-bind to="{{answer.num}}" context="answerCtrl.nestedLocs"
 	     ng-if='$deep > 0'></div>
-	<hr ng-if='$deep > 0'>
+	<br ng-if='$deep > 0'>
 </div>
 
 <!--  row end -->

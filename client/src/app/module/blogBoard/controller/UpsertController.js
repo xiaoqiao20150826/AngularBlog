@@ -63,7 +63,7 @@
 			function _resetCategoryAndGoDetail(postNum, title) {
 				var param = {}
 				param.postNum =	postNum
-				param.title   = U.title4web(title)
+				param.title   = U.title4url(title)
 				$root.resetCategory()
 					 .then(function() {
 						 $state.go("app.blogBoard.detailEx", param) 

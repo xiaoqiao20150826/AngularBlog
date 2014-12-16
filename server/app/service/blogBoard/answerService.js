@@ -98,6 +98,8 @@ answerService.insertAnswerAndIncreasePostCount = function(answer) {
 				 ])
 				 .then(function(args){
 				 	 var insertedAnswer = args[0];
+				 	 
+				 	 insertedAnswer.password = null; //없에야..
 				   	 return insertedAnswer;
 				 })
 };

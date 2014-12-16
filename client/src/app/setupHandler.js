@@ -14,6 +14,7 @@
 		return [
 		         '$rootScope'
 		       , '$state'
+		       , '$location'
 		       , 'common.util'
 		       , 'common.redirector'
 		       , 'app.authDAO'
@@ -24,9 +25,29 @@
 //			 같은동작.. 따로 제외하고 싶은데 
 //	auth/admin/wirter 의'선' false, '후' true 설정을 어찌처리해야할지.
 	
-	function setupHandler($rootScope, $state, U, redirector,  authDAO) {
+	function setupHandler($rootScope, $state, $location, U, redirector,  authDAO) {
 		
-		// auth.. url에 따른 선 확인.
+		// -------------url 한글 디코딩.... ㅡㅡ 
+		// TODO: 올바르지 않다. (북마크한)한글주소로 직접 들어가면 아래함수호출안됨.
+		//       그리고. 이렇게 함수를 직접 다루는 방식....좋지 않아....
+		// 		 hashChange를 알아보면될것같은데.
+		var origin$$compose = $location.$$compose
+		$location.$$compose = function() {
+//			console.log(window.location.href)
+			origin$$compose.apply($location, arguments)
+			
+			$location.$$url = decodeURI($location.$$url)
+			$location.$$absUrl = decodeURI($location.$$absUrl)
+//			console.log(window.location.href)
+			
+		}
+//		var originUrl = $browser.url
+//		$browser.url = function(url) {
+//			arguments[0] = decodeURI(url)
+//			return originUrl.apply($browser, arguments)
+//		}		
+		
+		// ------ auth,admin 등 state에 부여한 기본 규칙으로.. 검증.
 	    $rootScope.$on("$stateChangeStart", function(event, toState, toParams, fromState, fromParams){
 	    	//0. 상태 저장.    이거 고민좀해봐야겠다..옳은가?
 	    	redirector.setState($state.current)

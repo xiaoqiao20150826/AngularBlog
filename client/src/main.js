@@ -10,16 +10,19 @@
 	_paths.jQuery = "../../bower_components/jquery/dist/jquery.min";
 	_paths.twitterBootstrap = "../../bower_components/bootstrap/dist/js/bootstrap.min";
 	
-	_paths.angular = "../../bower_components/angular/angular";
-	_paths.uiRouter = "../../bower_components/angular-ui-router/release/angular-ui-router";
-	_paths.ngStorage= "../../bower_components/ngstorage/ngStorage";
-	
+	_paths.angular     = "../../bower_components/angular/angular";
+	_paths.uiRouter    = "../../bower_components/angular-ui-router/release/angular-ui-router";
+	_paths.ngStorage   = "../../bower_components/ngstorage/ngStorage";
+	_paths.loadingBar = "../../bower_components/angular-loading-bar/build/loading-bar";
+//	_paths.loadingBarCss = "css!../../bower_components/angular-loading-bar/build/loading-bar.css";
 	
 	
 	var _shim = {}
 	_shim.twitterBootstrap = ['jQuery']
-	_shim.uiRouter = ['angular']
-	_shim.ngStorage = ['angular']
+	_shim.uiRouter    	   = ['angular'];
+	_shim.ngStorage   	   = ['angular'];
+	_shim.loadingBar 	   = ['angular'];
+//	_shim.loadingBar 	   = ['angular','loadingBarCss'];
 	
 	// 1. setup && 필수 의존성 선로딩
 	

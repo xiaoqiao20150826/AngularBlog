@@ -6,31 +6,31 @@
         <tbody>
             <tr>
                 <td>Id</td>
-                <td>{{currentUser._id }}</td>
+                <td>{{user._id }}</td>
             </tr>
             <tr>
                 <td>Name</td>
-                <td>{{currentUser.name }}</td>
+                <td>{{user.name }}</td>
             </tr>
             <tr>
                 <td>Photo</td>
-                <td><img src = "{{ currentUser.photo }}" style='width:50px'> </td>
+                <td><img src = "{{ user.photo }}" style='width:50px'> </td>
             </tr>
             <tr>
                 <td>Email</td>
-                <td>{{currentUser.email }}</td>
+                <td>{{user.email }}</td>
             </tr>
             <tr>
                 <td>Visit Count</td>
-                <td>{{currentUser.visitCount }}</td>
+                <td>{{user.visitCount }}</td>
             </tr>
             <tr>
                 <td>Created</td>
-                <td>{{ U.date(currentUser.created)}}</td>
+                <td>{{ U.date(user.created)}}</td>
             </tr>
         </tbody>
     	</table>
-    	<div ng-if="currentUser.isLogin">
+    	<div ng-if="currentUser.isLogin && (currentUser._id == user._id)">
 			<div class='pull-right'>
 				<a ng-click='userCtrl.delete(currentUser._id)' class='btn btn-default'>leave</a>
 			</div>

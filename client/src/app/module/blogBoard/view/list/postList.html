@@ -3,7 +3,9 @@
 	<meta charset="utf-8">
 	<!-- list  -->
 	<div ng-repeat="post in posts"  
-	     class="col-xs-12  col-sm-12 blogBoard-row" data-num="{{post.num}}">
+	     class="col-xs-12  col-sm-12 blogBoard-row" data-num="{{post.num}}"
+	     ng-class = "{'bg-info': (post.num == $root.selectedPostNum)}"
+	     >
 	     
 		<div class="col-xs-2 col-sm-2" style="padding:9px 0">
 			<div >Votes <B>{{post.vote}}</B></div>
@@ -15,24 +17,25 @@
 				<a class='blogBoard-detailView' 
 				   ui-sref="app.blogBoard.detailEx({ 
 				   								     postNum	:'{{ post.num }}'
-											       , title		:'{{ U.title4web(post.title) }}'
+											       , title		:'{{ U.title4url(post.title) }}'
 											       })"> 
 					<H2>{{post.title }}</H2>
 				</a>
 			</div>
 			<div class='row'>
-				<span class='pull-left'>
+				<span class='pull-left'
+				      ng-class = "{'bg-success': (post.categoryId === $root.selectedCategoryId)}"
+				>
 					<a class="blogCategory" ui-sref="app.blogBoard.list({categoryId:post.categoryId, pageNum:1})">
 						{{list.titleByCategoryId(post.categoryId)}}
 				    </a>
 				</span>
 				<div class='pull-right'>
-					<img src='{{post.user.photo }}' class="img-circle" alt='img' style="width:20px">
-					<span class="name"><a ui-sref="app.user.detail">{{post.user.name }}</a></span>
+					<img ng-src='{{post.user.photo }}' class="img-circle" alt='img' style="width:20px">
+					<span class="name"><a ui-sref="app.user.detail({userId: post.user._id})">{{post.user.name }}</a></span>
 					<span class="date">{{ U.date(post.created)}}</span>
 				</div>
 			</div>
 		</div>
 	</div>	
 </div>
-

@@ -14,7 +14,7 @@
 			
 			blogBoardDAO.getListData = function (params) {
 				params = params || {};
-				console.log(params)
+//				console.log(params)
 				return $http.get('/json/blogBoard/list', {params:params})
 							.catch(U.catch)
 							.then(U.notifyAndDoneIfFail)
@@ -25,16 +25,16 @@
 							.catch(U.catch)
 							.then(U.notifyAndRedirectIfFail)
 			}
+			//분리해도되겠네.
+			blogBoardDAO.getPostAndIncreaseReadCount = function (postNum) {
+				return $http.get('/json/blogBoard/detail', {params: {'postNum':postNum} })
+							.catch(U.catch)
+							.then(U.notifyAndDoneIfFail)
+			}
 			blogBoardDAO.getHistory = function () {
 				return $http.get('/json/blogBoard/history')
 				.catch(U.catch)
 				.then(U.notifyAndRedirectIfFail)
-			}
-			blogBoardDAO.getDetailData = function (params) {
-				params = params || {};
-				return $http.get('/json/blogBoard/detail', {params:params})
-							.catch(U.catch)
-							.then(U.notifyAndDoneIfFail)
 			}
 			blogBoardDAO.insertPost = function (post) {
 				return $http.post('/json/blogBoard/insert', post)

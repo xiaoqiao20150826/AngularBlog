@@ -13,10 +13,10 @@
 			</button>
 		</div>
 		
-		<div class="collapse navbar-collapse" id="bs-navbar-collapse-1">
+		<div class="collapse navbar-collapse" id="bs-navbar-collapse-1" >
 			<div class="row">
 				<div ng-if="currentUser.isLogin" class='row col-xs-12 col-sm-2  pull-right'>
-					<a ui-sref="app.user.detail" >
+					<a ui-sref="app.user.detail({userId:currentUser._id})" >
 						<strong>{{ currentUser.name }}</strong>
 	      				<img ng-src="{{ currentUser.photo }}" class="img-circle" alt='img' style="width:30px">
 	    			</a>
@@ -30,7 +30,16 @@
 					        <div class="input-group col-xs-12">
 					            <input type="text" name = 'searcher' ng-model='searcher' class="form-control" placeholder="Search">
 					            <div class="input-group-btn">
-					                <button class="btn btn-primary"  data-toggle="collapse" data-target="#bs-navbar-collapse-1" type="submit"
+					                <button class="btn btn-primary hidden-xs" type="submit"
+			                                 ui-sref='app.blogBoard.list({
+			                   								 sorter    : ""
+			                   							   , pageNum   : 1
+			                   							   , categoryId: ""
+			                   							   , searcher  : searcher 
+			                   							   })'
+					                >
+					                Search</button>
+					                <button class="btn btn-primary visible-xs"  data-toggle="collapse" data-target="#bs-navbar-collapse-1" type="submit"
 			                                 ui-sref='app.blogBoard.list({
 			                   								 sorter    : ""
 			                   							   , pageNum   : 1

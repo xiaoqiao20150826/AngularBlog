@@ -8,6 +8,9 @@
 		return [  '$scope'
 		        , '$sce'
 		        , '$compile'
+		        , '$state'
+		        , '$stateParams'
+		        
 		        , 'common.util'
 		        , 'common.Tree'
 		        , 'app.blogBoard.answerDAO'
@@ -15,7 +18,8 @@
 		        , AnswerController];
 	})
 	
-	function AnswerController($scope, $sce, $compile, U, Tree, answerDAO, rootOfAnswer) {
+	function AnswerController( $scope, $sce, $compile, $state, $stateParams
+		                      ,U ,Tree ,answerDAO ,rootOfAnswer) {
 		$scope.trustAsHtml = $sce.trustAsHtml
 		
 		// data 관련은 이쪽에.. 바로사용할수있도록.
@@ -31,6 +35,7 @@
 		//댓글 기본 값
 		$scope.answer  	  	= { answerNum:0, userId : $root.currentUser._id , postNum:postNum, content : ""}; 
 
+//		console.log(rootOfAnswer)
 		/***
 		 *    CRUD.. view 포함.
 		 */
@@ -42,9 +47,11 @@
 		var clonedUpsertView;
 		
 		answerCtrl.toggleNestedUpsertView = function (answer, isInsert) {
+			
+			
 			var upsertView  = clonedUpsertView ? clonedUpsertView : answerCtrl.upsertView.clone()
-			  , nestedLoc   = answerCtrl.nestedLocs[answer.num]
-			  , row   		= answerCtrl.rows[answer.num];
+			  , nestedLoc   = answerCtrl.nestedLocs[answer.num || answer.answerNum]
+			  , row   		= answerCtrl.rows[answer.num  || answer.answerNum];
 			
 			if(_isCancle(nestedLoc)) { return _doCancle(nestedLoc, row, isInsert)}
 			
@@ -52,7 +59,7 @@
 			  , newAnswer   = _.clone(answer);
 			
 			if(isInsert) _answerToInsert(newAnswer) //insert일때만 변해.
-			else		 row.hide()				//update
+			else		 _answerToUpdate(newAnswer, row)
 			
 			newScope.answer = newAnswer
 				
@@ -61,44 +68,72 @@
 			
 			function _answerToInsert (answer) {
 				answer.answerNum = answer.num;
-				answer.num		 = null;
+				answer.userId    = $root.currentUser._id;
 				answer.content   =  '';
+				answer.writer    =  '';
+				answer.num  	 =  null;
+				answer.created	 =  null
+				answer._id  = null; // insert시 에러나고 사용도안하니.
+				answer.user  = null; // insert시 에러나고 사용도안하니.
+			}
+			function _answerToUpdate(answer , row) {
+				row.hide()
+				var text = answer.content;
+				answer.content = text.replace(/<br>/gi,'\r\n')
+									 .replace(/<br>/gi,'\n')
+									 .replace(/&nbsp;/gi,' ');
 			}
 			//취소해야되는지.
 			function _isCancle(nestedLoc) {
+				if(!nestedLoc) return true; // 최상단.
 				if(nestedLoc.children().length > 0) return true;
 				else return false;
 			}
-			function _doCancle(nestedLoc, row, isInsert) {
-				nestedLoc.html("")
-				//row toggle
-				row.toggle()
+			function _doCancle(nestedLoc, row) {
+				if(nestedLoc) nestedLoc.html("")
+				if(row) row.show()
 			}
 		}
 		
-		answerCtrl.upsert = function (answer) {
+		answerCtrl.upsert = function (originAnswer) {
+			var answer = _.clone(originAnswer)          //잠깐보이는.. replace바뀌는 내용이 걸리적.
+			var isInsert = answer.num ? false : true
+					
 			var text     = answer.content
 			if(_.isEmpty(text)) return alert('content not exist');
 			if(!$root.currentUser.isLogin) {
 				if(_.isEmpty(answer.writer)) return alert('writer not exist')
 				if(_.isEmpty(answer.password)) return alert('password not exist')
 			}
-			
 			answer.content = text.replace(/\r\n/gi,'<br>')
 								 .replace(/\n/gi,'<br>')
 								 .replace(/[ ]/gi,'&nbsp;');
-			answerDAO.insert(answer)
-					 .then(function(insertedAnswer) {
-						 alert('insert')
-						 insertedAnswer.user = _.clone($root.currentUser)
-						 var parentNode = answerTree.first(answer.answerNum) //부모
-						 
-						 var nestedLocs = answerCtrl.nestedLocs[answer.answerNum]
-						 if(nestedLocs) nestedLocs.html("")
-						 answer.content = ""
+			
+			if(isInsert) {
+				answerDAO.insert(answer)
+				.then(function(insertedAnswer) {
+					alert('insert')
+					var parentNode = answerTree.first(answer.answerNum) //부모
+					
+					insertedAnswer.user = _.clone($root.currentUser)
+					answerTree.addChild(parentNode, insertedAnswer)
+					
+					//초기화
+					originAnswer.content  = ""; 
+					originAnswer.password = "";
+					answerCtrl.toggleNestedUpsertView(originAnswer);
+				})
+			} else {
+				answerDAO.update(answer)
+						 .then(function(message) {
+							 alert(message)
+							 var answerNode = answerTree.first(answer.num)
 							 
-						 answerTree.addChild(parentNode, insertedAnswer)
-					 })
+							 answerNode.content = answer.content
+							 answerNode.writer  = answer.writer
+							 answerCtrl.toggleNestedUpsertView(answer);
+						 })
+			}
 					 
 		}
 		//delete
@@ -112,12 +147,17 @@
 			answerDAO.delete(answer)
 					 .then(function(message) {
 						 alert(message)
-						 if(_.isEmpty(answer.answers)) return answerTree.drop(answer.num)
-						 else answer.content = deletedContent;
+//						$state.transitionTo($state.current, $stateParams, { reload: true, inherit: true, notify: true });
+						 //TODO: detail을 불러올필요는없는데말이야.....으
+						 //      부분적으로 새로고침을 하고싶은데. 어찌해야할지를 모르겠네.
+						 //      그러면 upsert부분도..새로고침으로 바꾸고말이야.
+						 $state.transitionTo('app.blogBoard.detailEx', $stateParams, { reload: true, inherit: false, notify: true });
+//						return $state.transitionTo('app.blogBoard.detail', null, { reload: true});
+//						 if(_.isEmpty(answer.answers)) return answerTree.drop(answer.num)
+//						 else answer.content = deletedContent;
 						   
 					 })
 		}
-		
 		//etc
 	}
 	

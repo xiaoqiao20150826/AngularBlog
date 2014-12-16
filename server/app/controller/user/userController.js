@@ -26,12 +26,12 @@ var categoryService = require('../../service/blogBoard/categoryService')
 var userController = module.exports = {}
 userController.mapUrlToResponse = function(app) {
 	app.get('/json/user/loginUser', this.getLoginUser)
+	app.get('/json/user', this.getUser);//
 	app.post('/json/user/update', this.update)
 
 	app.post('/json/user/delete', this.delete)
 //	app.get('/user/me', this.loginUserView);// 순서주의
 //	
-//	app.get('/user/:userId', this.userView);//
 //	app.get('/user/:userId/updateView', this.updateView)
 //	
 	///////
@@ -48,6 +48,21 @@ userController.getLoginUser = function (req, res) {
 		loginUser.isLogin = true;
 	
 	return jsonRes.send(loginUser);
+}
+userController.getUser = function (req, res) {
+	var jsonRes = new JsonResponse(res)
+	  , authReq = new AuthRequest(req)
+	
+	var rawData = authReq.getRawData(req)
+	  , userId = rawData.userId
+	  
+	return userDAO.findById(userId)
+				  .then(function(user) {
+					  return jsonRes.send(user);				  
+				  })
+				  .catch(jsonRes.catch())
+	
+	
 }
 
 userController.update = function (req,res) {
@@ -69,7 +84,7 @@ userController.update = function (req,res) {
 	 })
 	 .then(function (user) {
 		 if(!user) return jsonRes.sendFail('user update fail')
-		 
+		 user.isLogin = true;
 		 authReq.setLoginUser(user) //session 의 유저 업뎃
 		 return jsonRes.send(user)
 	 })

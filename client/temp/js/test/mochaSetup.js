@@ -1,5 +1,0 @@
-/**
- * 
- */
-
-mocha.setup('bdd');

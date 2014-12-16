@@ -18,7 +18,7 @@
  *        
  *        // wrap 보다는 decorate가 명확할 것 같아서. 이 이름.사용.
  *        // filter는 wrapFn에 전달되는 인자를 필터링하여 wrapFn을 동작시킬지 여부를 결정.
- *        od.decorate('함수이름', wrapFn, filter)  // default -> before
+ *        od.decorate('함수이름', wrapFn, filter)  		   // default -> before
  *        od.decorate('함수이름:before', wrapFn, filter)  // before -> args에 대한 동작  추가.
  *        od.decorate('함수이름:after', wrapFn, filter)  // after ->returnValue에 대한 동작  추가.
  *        
@@ -48,7 +48,7 @@
 	ObjectDecorator.prototype.decorate = function (nameAndLoc, wrapFn, filter) {
 		var nameAndLoc = this._divideNameAndLocation(nameAndLoc)
 		  , methodName = nameAndLoc.name
-		  , location   = nameAndLoc.location
+		  , location   = nameAndLoc.location    // before , after 의 위치.
 		  , wrapFn	   = _makeFilteredWrapFn(wrapFn, filter)
 		  
 		  

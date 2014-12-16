@@ -2,20 +2,20 @@
 
 # 해야할 것.
 
- - editor 이미지 삽입시. 맨뒤로가네? 현재 커서위치가아니라.
-
   -  Joiner, Transaction..이거 위치가 서비스여야 할듯. ?
     ;  클라이언트에서 데이터를 조립하려면 위치가 클라로..
-
-  - 한글 파라미터를 sref나 $state.go...로 주면 encode가된 이상한 URI가 됨. decoedURI를하면 복구되지만. 
-    제대로된 한글 URI를 이용하려면 무엇을 고쳐야할까.
 
    - _.reduce..... 사용해서 순차 비동기 호출하는로직.
     호출자체는 올바르나. 인자전달시 올바르지 않음( list값이 하나일경우 안됨)
     -> 로직을 수정하면됨.   deleteFiles  로직참고.  // statuses.shift() 이부분이 치명적이었는데 수정했으니..좀나중에..
 
- - answer...writer, password를 user와 따로하지 않고. 함께할껄.
+ - answer. 데이터구조....writer, password를 user와 따로하지 않고. 함께할껄.
 
+  - 한글 파라미터를 sref나 $state.go...로 주면 encode가된 이상한 URI가 됨. decoedURI를하면 복구되지만. 
+    제대로된 한글 URI를 이용하려면 무엇을 고쳐야할까.
+   ; hashChange...url decoding.
+
+ - 코드 더럽. state도, 컨트롤러도...... 컨트롤러..부모..관계...음..
  - setupState, setupHandler, setupLog 
   ; mean stack 으로 stateProvider 검색하니(github에서) 뭔가 좀 나온다.
   ; 어찌 분리를 해야하는데. 일단 격리는 되었으니.. 필요한  기능부터만들자.
@@ -36,6 +36,11 @@
 		angular.module(applicationModuleName).requires.push(moduleName);
 	};
 
+ - editor 이미지 삽입시. 맨뒤로가네? 현재 커서위치가아니라.
+  ; 에디터를 지금 손보지 말자. 길어진다..또.
+
+
+ - angular. .. . . 스크롤, 키보드방향키. 왜 먹통이 ㅡㅡ(가끔)
 
 # 보안.
  - 세션을 사용하는것은 좋아. 그런데 delete, update...등에서 insert마저도.  

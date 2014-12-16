@@ -8,7 +8,7 @@
 		<div class="row">
 			<div ng-if="$root.currentUser.isLogin" class="col-sm-1">
 				<div class="media-object">
-					<a href="/#/user">{{$root.currentUser.name }}</a>
+					<a ui-sref="app.user.detail({userId: $root.currentUser._id})">{{$root.currentUser.name }}</a>
 				</div>
 				<div class="media-object pull-left">
 					<div><img ng-src='{{$root.currentUser.photo }}' alt='img' style="width:70px;padding:10px 0 0 0"></div>
@@ -34,6 +34,6 @@
 	<div class="row">
 		<button ng-click="answerCtrl.upsert(answer)" class="col-sm-offset-4 btn btn-warn" >submit</button>
 		<span class="col-sm-offset-2"></span>
-		<button ng-if="answer.answerNum != 0" ng-click="answerCtrl.toggleNestedUpsertView(answer)"  class="btn btn-warn">cancel</button>	
+		<button ng-if="answer.num != null || answer.answerNum > 0" ng-click="answerCtrl.toggleNestedUpsertView(answer)"  class="btn btn-warn">cancel</button>	
 	</div>
 </div>

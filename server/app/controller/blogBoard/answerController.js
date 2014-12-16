@@ -57,7 +57,7 @@ answerController.insertAnswer = function(req, res) {
 	if(answer.isAnnoymous() ) {//작성자가 answer는 필수데이터 가져야해.
 		if(answer.hasNotData4annoymous()) return jsonRes.sendFail('annoymous user should have password and writer');
 	} else {
-		if(loginUser.isNotEqualById(answer.userId)) return jsonRes.sendFail(userId + ' is not loginUser')
+		if(loginUser.isNotEqualById(answer.userId)) return jsonRes.sendFail(answer.userId + ' is not loginUser')
 	}  
 	
 	
@@ -110,8 +110,8 @@ answerController.deleteAnswer = function(req, res) {
 	if(H.notExist(postNum)) return jsonRes.sendFail('not exist postNum for answer list ')  
 	if(answer.isAnnoymous() ) {//작성자가 answer는 필수데이터 가져야해.
 		if(answer.hasNotData4annoymous()) return jsonRes.sendFail('annoymous user should have password and writer');
-	} else {
-		if(loginUser.isNotEqualById(answer.userId)) return jsonRes.sendFail(userId + ' is not loginUser')
+	} else { // loginsUser일경우.
+		if(loginUser.isNotEqualById(answer.userId)) return jsonRes.sendFail(answer.userId + ' is not loginUser')
 	}
 	
 	answerService.deleteAnswer(answer) 

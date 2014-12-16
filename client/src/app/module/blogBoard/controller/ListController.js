@@ -18,6 +18,7 @@
 		
 		// data 관련은 이쪽에.. 바로사용할수있도록.
 		var $root 	    = $scope.$root
+		$root.selectedCategoryId = $stateParams.categoryId
 		
 		$scope.posts 	= listData.posts
 		$scope.pager 	= listData.pager

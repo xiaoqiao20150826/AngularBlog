@@ -16,12 +16,14 @@
 				node-name 			= "category"
 				
 			 class="row col-sm-offset-1  collapse category-{{$parentNode.id}}"
-			 ng-class="{'in' : ($deep < 3) }"
+			 ng-class="{'in' 	 : ($deep < 3)}"
 		>
-				<a href="javascrip:">		
+				<a href="javascrip:"
+				 >		
 				<h6>
 					<a class="blogCategory" 
 					   ui-sref="app.blogBoard.list({categoryId:category.id, pageNum:1})"
+					   ng-class = "{'bg-success': (category.id === $root.selectedCategoryId)}"
 					>
 					    {{U.repeatString('&nbsp;&nbsp;&nbsp;', $deep)}}
 						{{ category.title }}

@@ -8,7 +8,7 @@
 		return [  '$scope'
 		        , '$sce'
 		        , '$state'
-		        , 'detailData'
+		        , 'post'
 		        , 'app.authDAO'
 		        , 'app.blogBoard.blogBoardDAO'
 		        , '$stateParams'
@@ -16,16 +16,19 @@
 	})
 	
 	// sce..?
-	function DetailController($scope, $sce, $state, detailData, authDAO, blogBoardDAO, $stateParams) {
+	function DetailController($scope, $sce, $state, post, authDAO, blogBoardDAO, $stateParams) {
 		$scope.trustAsHtml = $sce.trustAsHtml
 		
 		// data 관련은 이쪽에.. 바로사용할수있도록.
 		var $root 				= $scope.$root
-		$scope.post 			= detailData.post
 		
+		$scope.post 			= post
 		
-		//초기화 후에 answer상태로 이동(뷰만 로딩함).
-		$state.go('.answer', $stateParams)
+		$root.selectedPostNum   = post.num
+		
+		//TODO; 참...애매핟.
+		//초기화 후에 answer상태로 이동(뷰만 로딩함).비동기.
+//		$state.go('.answer', $stateParams)
 		
 		// this.. as detail
 		this.increaseVote = function (postNum) {

@@ -10,7 +10,7 @@ var config 			= require('./app/config')
 (function bootstrap() {
 	//1. *** node 환경변수에 적합한 mode의 config 설정
 	
-	config.mode = process.env.NODE_ENV || undefined
+	config.mode = process.env.NODE_ENV || 'test'
 	
 	if(config.mode == 'production') 					 config.productionMode();
 	if(config.mode == 'development') 					 config.developementMode();

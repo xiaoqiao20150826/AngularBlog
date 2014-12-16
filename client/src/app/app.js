@@ -6,6 +6,7 @@
 			// outer dependencies	       
 	         'uiRouter'
 	       , 'ngStorage'
+	       , 'loadingBar'
 			// user modules	       
 	       , 'common/common'
 	       , 'module/nav/nav'
@@ -31,6 +32,7 @@
 			// outer modules
 			  noUse
 			, noUse2
+			, noUse3
 			// user modules
 			, common
 			, nav
@@ -57,12 +59,13 @@
 		  , modules    =   [ 
 		                     'ui.router'
 		                   , 'ngStorage'
+		                   , 'angular-loading-bar'
 		                   , common
 		                   , nav
 		                   , blogBoard
 		                   ]; 
 		angular.module(		moduleName				  		, modules)
-			   .constant(  'ANGULAR_ENV' 					, 'null')  //log활동
+			   .constant(  'ANGULAR_LOG' 					, false)  	//log활동
 		
 			   .service(	moduleName+'.userDAO' 			, userDAO)
 			   .service(	moduleName+'.authDAO' 			, authDAO)

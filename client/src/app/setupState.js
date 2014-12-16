@@ -137,26 +137,36 @@
 		})
 		.state(USER+'.detail' 
 		,{
-			   url 		: ''
-		     , auth		: true
+			   url 		: '/:userId'
 			 , views	:
 				{
 					'center@app' : 
 					{
 						templateUrl : _curdir + 'view/user/detail.html'
 					  , controller 	: APP + '.UserController as userCtrl'
+					  , resolve		: {
+						  				user : ['app.userDAO'
+						  				       ,'$stateParams'
+						  				       ,function (userDAO, $stateParams) {
+//						  				    	   console.log($stateParams)
+						  				    	   return userDAO.getUser($stateParams)
+						  				    	   
+						  				}]
+					  				  }		
 					}
 				}	
 		})
 		.state(USER+'.update' 
 	    ,{
-		         auth : true 
+			  	auth : true 
 			  ,	views :
 				{
 					'center@app' : 
 					{
 						templateUrl  : _curdir + 'view/user/update.html'
 					  , controller 	 : APP + '.UserController as userCtrl'
+					  // 같은컨트롤러사용하니까 쓰던것은 없에야지.
+					  , resolve		 :{user: function(){return null}} 
 					}
 				}	
 		})

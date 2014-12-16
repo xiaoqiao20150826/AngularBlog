@@ -55,11 +55,10 @@
 			    	[ 
 			    	  '$stateParams', BLOG_BOARD+'.blogBoardDAO'
 				      ,function($stateParams, blogBoardDAO) {
-			    		  if(!$stateParams.postNum) return null;
-			    		  else return blogBoardDAO.getPost($stateParams.postNum);
+			    		  if(_.isEmpty($stateParams.postNum)) return null //insert상황
+			    		  return blogBoardDAO.getPost($stateParams.postNum);
 				    }]
 			    }  
-		 		 
 		  	}
 		  , 'categorySelector@app.blogBoard.insert' : { templateUrl : _appdir + 'view/part/categorySelector.html'	}
 		  , 'categorySelector@app.blogBoard.update' : { templateUrl : _appdir + 'view/part/categorySelector.html'	}
@@ -97,11 +96,11 @@
 			    , controller	: BLOG_BOARD + '.DetailController as detail'
 			    , resolve 	: 
 			    {
-			    	detailData : 
+			    	post :  
 			    	[ 
 			    	  '$stateParams', BLOG_BOARD+'.blogBoardDAO'
 				      ,function($stateParams, blogBoardDAO) {
-				    	  return blogBoardDAO.getDetailData($stateParams)
+			    		  return blogBoardDAO.getPostAndIncreaseReadCount($stateParams.postNum);
 				    }]
 				  
 			    }  
@@ -110,6 +109,33 @@
 		  , 'postDetail@app.blogBoard.detailEx' : {templateUrl : _curdir + 'view/detail/postDetail.html'}
 												   
 		}
+		// answer
+		_.extend(detailViews, _getAnswerView('detail'))
+		_.extend(detailViews, _getAnswerView('detailEx'))
+		function _getAnswerView(detailName) {
+			var detailView  = BLOG_BOARD +'.' +detailName
+			  , answerView  = BLOG_BOARD +'.' +detailName // 이름주의.. ㅅㅂ
+			  , answerViews = {};
+			
+			answerViews['answer@'+detailView] = 
+			{templateUrl : _curdir + 'view/detail/answer/layout.html'
+					,controller  : BLOG_BOARD + '.AnswerController as answerCtrl'
+					, resolve	 : {
+						rootOfAnswer : 
+							[
+							 '$stateParams'
+							 ,BLOG_BOARD+'.answerDAO'
+							 ,function($stateParams, answerDAO) {
+								 var postNum = $stateParams.postNum
+								 return answerDAO.getRootOfAnswer(postNum)
+							 }]
+					  }
+			}
+			answerViews['answerUpsert@'+answerView] = {templateUrl : _curdir + 'view/detail/answer/upsert.html'}
+			answerViews['answerList@'+answerView]   = {templateUrl : _curdir + 'view/detail/answer/list.html'}
+			return answerViews
+		}
+		
 		// [0-9]가 숫자는 맞는데.. 자릿수 표시안하면 기본 한자리 ㅡㅡ 그래서 transionTo가 동작안했던거.
 		// detailEx는 title을 보여주기 위한것.
 		$stateProvider
@@ -135,30 +161,6 @@
 //		  			 }		
 		  , views : detailViews	
 		})
-
-		// TODO: detail에 대해서도 해야함.
-		// answer     
-		var answerViews = 
-		{
-			    'answer@app.blogBoard.detailEx' : 
-			    	{templateUrl : _curdir + 'view/detail/answer/layout.html'
-					,controller  : BLOG_BOARD + '.AnswerController as answerCtrl'
-					, resolve	 : {
-						rootOfAnswer : 
-							[
-							 '$stateParams'
-							 ,BLOG_BOARD+'.answerDAO'
-							 ,function($stateParams, answerDAO) {
-								 var postNum = $stateParams.postNum
-								 return answerDAO.getRootOfAnswer(postNum)
-							 }]
-					  }
-				   }
-			  , 'answerInsert@app.blogBoard.detailEx.answer' : {templateUrl : _curdir + 'view/detail/answer/upsert.html'}
-			  , 'answerList@app.blogBoard.detailEx.answer' : {  templateUrl : _curdir + 'view/detail/answer/list.html'}
-		}
-		$stateProvider
-		.state(BLOG_BOARD+'.detailEx.answer' ,{ views : answerViews })  
 		
 		//  history
 		$stateProvider
