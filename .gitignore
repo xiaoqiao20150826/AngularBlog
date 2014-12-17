@@ -31,7 +31,7 @@ externalToolBuilders
 settings
 
 #etc
-tempFilesDir
+tempFiles
 static/img
 
 *.project

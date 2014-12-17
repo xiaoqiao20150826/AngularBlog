@@ -27,7 +27,7 @@ var config = module.exports = (function(){
 	
 	commonConfig.resourceDir = _path.join(__dirname, '../../client')
 	commonConfig.staticDir = commonConfig.resourceDir +'/static'
-	commonConfig.tempFilesDir = '../tempFilesDir'  //local에서 multer를 위한장소. 파일 임시 저장폴더.
+	commonConfig.tempFilesDir = './tempFiles'  //local에서 multer를 위한장소. 파일 임시 저장폴더.
 	commonConfig.imgDir = '' // use cloudinary ..local은 하단에서 따로.
 	//mongolab
 	commonConfig.mongolabId = _env.MONGOLAB_ID
@@ -55,11 +55,11 @@ var config = module.exports = (function(){
 ///// mode별 설정 현재는 testmode(로컬)말고는 별차이없음.
 config.productionMode = function () {
 	config.db = 'mongodb://'+config.mongolabId+':'+config.mongolabPw+'@ds039550.mongolab.com:39550/nodeblog'
-	config.host = 'http://elfmagic86.herokuapp.com';
+	config.host = 'http://elfmagic2.herokuapp.com';
 }
 config.developementMode = function () {
 	config.db = 'mongodb://'+config.mongolabId+':'+config.mongolabPw+'@ds039550.mongolab.com:39550/nodeblog'
-	config.host = 'http://elfmagic86.herokuapp.com';
+	config.host = 'http://elfmagic2.herokuapp.com';
 }
 config.testMode = function () {
 	config.db = 'mongodb://localhost/test';
