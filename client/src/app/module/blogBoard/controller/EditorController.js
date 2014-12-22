@@ -9,7 +9,7 @@
 		return ['$scope', '$window',  'app.blogBoard.blogBoardDAO',makeEditorController]
 	})
 	function makeEditorController ($scope, $window, blogBoardDAO) {
-		console.log('editorContr')
+//		console.log('editorContr')
 		var $parent 	= $scope.$parent
 		  , post		= $parent.post
 		  , contentText = post.content || '';

@@ -13,7 +13,6 @@
 	        , 'module/blogBoard/dao/blogBoardDAO'
 	        , 'module/blogBoard/dao/answerDAO'
 	        
-	        , 'module/blogBoard/setupState' 
 	        ]
 	,function( ListController
 			 , DetailController
@@ -25,7 +24,6 @@
 			 , blogBoardDAO
 			 , answerDAO
 			 
-			 , setupState
 			 ){
 		
 		var moduleName = 'app.blogBoard'
@@ -41,10 +39,8 @@
 			   
 			   .service(	moduleName+'.blogBoardDAO', blogBoardDAO)
 			   .service(	moduleName+'.answerDAO', answerDAO)
-			   
-			   .config(		setupState)
 		
-			
+		console.log('lazyload blogBoard')			
 		return moduleName
 	})
 })(define, angular)

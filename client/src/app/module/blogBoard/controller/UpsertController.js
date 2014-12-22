@@ -15,7 +15,7 @@
 	})
 	
 	function UpsertController($scope, $state, post, U, blogBoardDAO, categoryDAO) {
-		console.log('upsertControlelr')
+//		console.log('upsertControlelr')
 		var $root = $scope.$root
 		// post르 insert/update 맞게 초기화
 		

@@ -28,24 +28,13 @@
 	function setupHandler($rootScope, $state, $location, U, redirector,  authDAO) {
 		
 		// -------------url 한글 디코딩.... ㅡㅡ 
-		// TODO: 올바르지 않다. (북마크한)한글주소로 직접 들어가면 아래함수호출안됨.
-		//       그리고. 이렇게 함수를 직접 다루는 방식....좋지 않아....
-		// 		 hashChange를 알아보면될것같은데.
+		// 이렇게 private 함수를 직접 다루는 방식....좋지 않아....
 		var origin$$compose = $location.$$compose
 		$location.$$compose = function() {
-//			console.log(window.location.href)
 			origin$$compose.apply($location, arguments)
-			
 			$location.$$url = decodeURI($location.$$url)
 			$location.$$absUrl = decodeURI($location.$$absUrl)
-//			console.log(window.location.href)
-			
 		}
-//		var originUrl = $browser.url
-//		$browser.url = function(url) {
-//			arguments[0] = decodeURI(url)
-//			return originUrl.apply($browser, arguments)
-//		}		
 		
 		// ------ auth,admin 등 state에 부여한 기본 규칙으로.. 검증.
 	    $rootScope.$on("$stateChangeStart", function(event, toState, toParams, fromState, fromParams){

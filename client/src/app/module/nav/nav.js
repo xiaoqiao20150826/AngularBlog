@@ -10,7 +10,7 @@
 			angular.module(moduleName, dependencies)
 				   .controller('nav.NavController', NavController)
 		
-			
+	    console.log('lazyload nav')			
 		return moduleName
 	})
 })(define, angular)

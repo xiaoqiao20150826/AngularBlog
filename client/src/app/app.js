@@ -1,16 +1,11 @@
 
 (function(define, angular) {
 	
-	
 	define([ 
 			// outer dependencies	       
-	         'uiRouter'
-	       , 'ngStorage'
-	       , 'loadingBar'
+	         'ngStorage'
 			// user modules	       
 	       , 'common/common'
-	       , 'module/nav/nav'
-	       , 'module/blogBoard/blogBoard'
 	       // services
 	       , 'dao/userDAO'
 	       , 'dao/authDAO'
@@ -24,19 +19,14 @@
 	       , 'controller/CategoryController'
 	       , 'controller/SideController'
 	       // config setup & after run
-	       , 'setupState'
 	       , 'setupHandler'
 	       , 'setupLog'
 	],
 	function(
 			// outer modules
 			  noUse
-			, noUse2
-			, noUse3
 			// user modules
 			, common
-			, nav
-			, blogBoard
 			// services & controller
 			, userDAO
 			, authDAO
@@ -50,22 +40,16 @@
 			, CategoryController
 			, SideController
 			// config setup & after run 
-			, setupState
 			, setupHandler
 			, setupLog
 			) {
 		
 		var moduleName =  'app'
 		  , modules    =   [ 
-		                     'ui.router'
-		                   , 'ngStorage'
-		                   , 'angular-loading-bar'
+		                    'ngStorage'
 		                   , common
-		                   , nav
-		                   , blogBoard
 		                   ]; 
 		angular.module(		moduleName				  		, modules)
-			   .constant(  'ANGULAR_LOG' 					, false)  	//log활동
 		
 			   .service(	moduleName+'.userDAO' 			, userDAO)
 			   .service(	moduleName+'.authDAO' 			, authDAO)
@@ -79,17 +63,12 @@
 			   .controller(	moduleName+'.CategoryController', CategoryController)
 			   .controller(	moduleName+'.SideController'    , SideController)
 			   
-			   .config(		setupState)
+			   .constant(  'ANGULAR_LOG' 					, false)  	//log활동
 			   .config(		setupLog.config)
-			   
-			   .run(		setupHandler)		
 			   .run(		setupLog.run)
-			   .run([ 	'$rootScope', '$state' 
-			   ,function($rootScope ,  $state ) {
-//				   $state.go('app.blogBoard.list')
-				}])
-			
-		
+			   .run(		setupHandler)		 //state, url 핸들러.
+			   
+		console.log('lazyLoad app')
 		return moduleName;
 	});
 })(define, angular)

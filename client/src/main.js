@@ -14,7 +14,7 @@
 	_paths.uiRouter    = "../../bower_components/angular-ui-router/release/angular-ui-router";
 	_paths.ngStorage   = "../../bower_components/ngstorage/ngStorage";
 	_paths.loadingBar = "../../bower_components/angular-loading-bar/build/loading-bar";
-//	_paths.loadingBarCss = "css!../../bower_components/angular-loading-bar/build/loading-bar.css";
+	_paths.ocLazyLoad = "../../bower_components/oclazyload/dist/ocLazyLoad";
 	
 	
 	var _shim = {}
@@ -22,7 +22,7 @@
 	_shim.uiRouter    	   = ['angular'];
 	_shim.ngStorage   	   = ['angular'];
 	_shim.loadingBar 	   = ['angular'];
-//	_shim.loadingBar 	   = ['angular','loadingBarCss'];
+	_shim.ocLazyLoad 	   = ['angular'];
 	
 	// 1. setup && 필수 의존성 선로딩
 	
@@ -36,7 +36,7 @@
 	var _deps = Object.keys(_paths)
 	require(_deps, function () {
 		require(['../bootstrap'], function () {
-			console.log('start angular...')
+			console.log('angular bootstrap...')
 		})
 	})
 })(require)	

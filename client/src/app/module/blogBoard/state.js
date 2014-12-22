@@ -20,6 +20,13 @@
 		.state(BLOG_BOARD, { 
 			url   		 : '/blog'    //   url: / + ''
 		  , abstract 	 : true
+		  , resolve      :
+			 {
+				loadMyModlue: ['$ocLazyLoad', function($ocLazyLoad) {
+		            return $ocLazyLoad.load('app.blogBoard');
+		          }]
+			 }
+		 
 		})
 		.state(BLOG_BOARD+'.list', { 
 				url   : '?pageNum&sorter&categoryId&searcher'

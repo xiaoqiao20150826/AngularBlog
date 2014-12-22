@@ -24,6 +24,7 @@
     "fontawesome": "~4.2.0",
     "requirejs": "~2.1.15",
     "angular-ui-router": "~0.2.11",
-    "ngstorage": "~0.3.0"
+    "ngstorage": "~0.3.0",
+    "oclazyload": "~0.5.1"
   }
 }

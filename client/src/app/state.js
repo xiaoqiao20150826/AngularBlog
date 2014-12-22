@@ -38,7 +38,7 @@
 	   $urlRouterProvider		
 				       .when('', '/blog')     //   localhost:3000 -> /#/blog  애만 /#/아님 주의.
 				       .when('/', '/blog')    // localhost:3000/#/ -> /#/blog
-//				       .otherwise('/')  	  //
+				       .otherwise('/')  	  //
 				       
 		var _curdir = '/resource/src/app/' 
 	      , APP 	  = 'app'
@@ -72,10 +72,17 @@
 									   					  } 
 									  }
 		
-				  , 'top@app' 		   : {templateUrl : _curdir + 'module/nav/nav.html'}
-//				  , 'center'	:  //이건 다른것들이 변경함. 
+				  , 'top@app' 		   : {templateUrl : _curdir + 'module/nav/nav.html'
+					  					 ,resolve     :
+					  						 {
+						  						loadMyModlue: ['$ocLazyLoad', function($ocLazyLoad) {
+						  				            return $ocLazyLoad.load('app.nav');
+						  				          }]
+					  						 }
+					  					 }
 				  , 'center.right@app' : {templateUrl : _curdir + 'view/sideLayout.html'
 					  					 ,controller  : APP + '.SideController as side'
+					  					 
 					  					 }
 				  , 'bottom@app' 	   : {templateUrl : _curdir + 'view/footer.html'}
 				  , 'part@app' 		   : {templateUrl : _curdir + 'view/part/login.html'}

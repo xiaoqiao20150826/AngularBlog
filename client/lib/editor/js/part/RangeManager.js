@@ -79,7 +79,7 @@ $$namespace.include(function (require, module) {
 		var carets = this._getCachedCaretsOrCurrentCarets(),
 			sCaret = carets.sCaret,
 			eCaret = carets.eCaret;
-		console.log("de"+sCaret +","+ eCaret);
+//		console.log("de"+sCaret +","+ eCaret);
 		if(sCaret) sCaret.parentNode.removeChild(sCaret);
 		if(eCaret) eCaret.parentNode.removeChild(eCaret);
 		this._cachedCarets = null;
@@ -94,7 +94,7 @@ $$namespace.include(function (require, module) {
 			eCaret = __insertCaret(eNode, E_CARET_ID);
 		}
 		this._cachedCarets = {sCaret:sCaret, eCaret:eCaret};
-		console.log("in"+sCaret +","+ eCaret);
+//		console.log("in"+sCaret +","+ eCaret);
 		
 		function __insertCaret(refNode, id) {
 			var result = document.createElement("span");
