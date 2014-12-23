@@ -5,8 +5,8 @@
 
 (function(define, _) {
 	// 선로딩...
-	define(['/resource/lib/editor/lib/namespace/$$namespace.js'
-	       ,'/resource/lib/editor/editorModules.js'
+	define(['../../lib/editor/lib/namespace/$$namespace'
+	       ,'../../lib/editor/editorModules'
 	       ]
 	, function() {
 		return ['$scope', '$window',  'app.blogBoard.blogBoardDAO',makeEditorController]
