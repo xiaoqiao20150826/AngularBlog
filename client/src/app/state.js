@@ -36,9 +36,9 @@
    function setupState(   $stateProvider ,  $urlRouterProvider) {
 		// 주의할것이 /#/ 기준이야.  
 	   $urlRouterProvider		
-				       .when('', '/blog')     //   localhost:3000 -> /#/blog  애만 /#/아님 주의.
+	   				   .when('', '/blog')     //   localhost:3000 -> /#/blog  애만 /#/아님 주의.
 				       .when('/', '/blog')    // localhost:3000/#/ -> /#/blog
-				       .otherwise('/')  	  //
+				       .otherwise('/');  	  //
 				       
 		var _curdir = '/resource/src/app/' 
 	      , APP 	  = 'app'

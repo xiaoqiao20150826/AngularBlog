@@ -8,15 +8,15 @@
  - 학습, 포트폴리오, 그리고 실제 사용을 목표로 시작한 프로젝트.
 
 **현재**
- - angularjs 적용중.
+ - angularjs 적용.
 
 ---
 
 # Demo
  * This App should run by chrome because I have not test other browser
- + [Homepage](http://elfmagic86.herokuapp.com/)
- + Log in testUser url :  /test
- + Admin page related category  :  /admin
+ + [Homepage](http://elfmagic2.herokuapp.com/)
+ + [Log in testUser](http://elfmagic2.herokuapp.com/test)
+ + [Admin page after login testUser](http://elfmagic2.herokuapp.com/#/admin)
 
 ---
 

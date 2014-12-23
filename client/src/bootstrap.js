@@ -63,7 +63,10 @@
 				$urlRouter.listen();
 			}]);
 			
-		
+			// facebook auth #_=_제거를 위해... angular 모듈 시작전에 제거해줘야함.
+			if (window.location.hash && window.location.hash == '#_=_') {
+		        window.location.hash = '';
+		    }
 			// angular 기본 모듈을 미리 실행시킴.
 			angular.bootstrap( document, [ 'bootstrap' ]);
 	})

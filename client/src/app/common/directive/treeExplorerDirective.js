@@ -174,8 +174,11 @@
 				var elementInfoMap = params.elementInfoMap  || {}
 				
 				return function _treeEach(node, parentNode, deep, hasChild) {
-							
+		
+					// 아래에서 사용되는 element는 jqlite객체임.
+					// $clone이 가끔 'dom element'가 전달 되어 에러가남.
 					$transclude(function ngRepeatTransclude($clone, scope) {
+						$clone = angular.element($clone)
 						
 						__setScope(scope, nodeName, node, parentNode, deep, hasChild)
 						__setNodeListener(scope, params)
