@@ -10,8 +10,9 @@
     -> 리다이렉트 주소에 붙는것인데. angular 시작전에 저런 해쉬가 붙으면 지워주면됨.
 
  - treeExplorerDirective... 뭔가 타이밍이 안맞나? 로그인후..같은 긴시간 후에 카테고리가 없어서 오류남.
-   ; 문제는 $transclude(funciton ($clone.... 여기서 $clone가 가끔 jqlite가 아닌 'dom element'가 전달되어 에러난것임
-  -> angular.element($clone)로 모두 jqlite객체로 사용하기로...
+   ; 문제는 $transclude(funciton ($clone.... 이게 타이밍에 따라서. 세가지로  jquery 객체, jqlite, dom(?이건가끔인데 왜그러지)
+				 //angular.element... jQuery가 있을경우와 없을경우가 달라서..ㄱ.ㅡ려
+  -> 그냥 dom element로 사용하기로... 변경.
 
 # 해야할것 
  

@@ -175,10 +175,9 @@
 				
 				return function _treeEach(node, parentNode, deep, hasChild) {
 		
-					// 아래에서 사용되는 element는 jqlite객체임.
-					// $clone이 가끔 'dom element'가 전달 되어 에러가남.
+					// $clone.. dom element, jquery, jqlite... 이 세가지 경우가 생길수있어.
 					$transclude(function ngRepeatTransclude($clone, scope) {
-						$clone = angular.element($clone)
+						$clone = _.isElement($clone) ? $clone : $clone[0]   // dom element로..
 						
 						__setScope(scope, nodeName, node, parentNode, deep, hasChild)
 						__setNodeListener(scope, params)
@@ -187,7 +186,10 @@
 						//처음은 $parentElement로 이후에는 ..elementInfoMap이용.
 						var parentId			= parentNode ? parentNode[idKey] : null
 						var parentElementInfo   = parentId   ? elementInfoMap[ parentId ] 
-												  			 : {el : $parentElement, nextLoc : 0 , parentEl : null}
+												  			 : { el : _.isElement($parentElement) ? $parentElement : $parentElement[0]  
+												  			   , nextLoc : 0 
+												  			   , parentEl : null
+												  			   }
 						var parentElement 		= parentElementInfo.el 
 						  , parentNextLoc		= parentElementInfo.nextLoc; 
 								 			      	  
@@ -217,19 +219,20 @@
 			
 			function __appendNested(element, parentElement) {
 //				console.log('Nested');
-				return element.appendTo(parentElement) ; 
+				return parentElement.appendChild(element); 
 			}
 			
 			function __appendFlatten(element, parentElement, parentNextLoc) {
 //				console.log('Flatten')
 				var currentElement = parentElement 
+				  , parentElement  = currentElement.parentElement 
 				// 이건 부모에대한 자식의 index만큼 이동시킨 후 삽입해야 올바른 위치로 감.
-				if(currentElement.next().length != 0) {
+				if(currentElement.nextElementSibling != null) {
 					for(var i = 0; i< parentNextLoc; ++i) { //
-						currentElement = currentElement.next()
+						currentElement = currentElement.nextElementSibling
 					}
 				}
-				element.insertAfter(currentElement);
+				parentElement.insertBefore(element, currentElement.nextElementSibling);
 			}
 			
 			function __setScope(scope, nodeName, node, parentNode, deep, hasChild) {
