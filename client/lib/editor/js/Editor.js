@@ -8,9 +8,10 @@ $$namespace.include(function(require, module) {
 	/*
 	 * private static field
 	 */
-	
-	var DEFAULT_ID = "editor",
-		DEFAULT_FRAME_ID = "editorContent";
+
+	var DEFAULT_ID = "editor"
+	  , DEFAULT_FRAME_ID = "editorContent"
+	  , DEFAULT_CONTENT_BODY_ID = "wysiwyg";
 	/**
 	 * constructor , instance fields
 	 */ 
@@ -42,7 +43,11 @@ $$namespace.include(function(require, module) {
 	//TODO : 리펙토링 - 각 작업 분리해야지.
 	Editor.prototype._init = function _init(contentText) {
 		if(contentText == null || contentText == undefined || contentText == '') contentText = '<p>&#8203</p>'
-		this.getContentBody().innerHTML = contentText
+		
+		var contentBody = this.getContentBody();	
+		contentBody.innerHTML = contentText
+		contentBody.setAttribute('id', DEFAULT_CONTENT_BODY_ID)
+		contentBody.setAttribute('contenteditable', true)
 		
 		this._btnManager.assignEvent()
 		var node = this._contentDoc.getElementsByTagName('p')[0];

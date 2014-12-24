@@ -23,6 +23,8 @@
 	
 	var _shim = {}
 	_shim.twitterBootstrap = ['jQuery']
+	
+	_shim.angular 		   = ['jQuery']
 	_shim.uiRouter    	   = ['angular'];
 	_shim.ngStorage   	   = ['angular'];
 	_shim.loadingBar 	   = ['angular'];
