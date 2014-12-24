@@ -28,6 +28,8 @@
 	_shim.loadingBar 	   = ['angular'];
 	_shim.ocLazyLoad 	   = ['angular'];
 	
+	_shim.namespace 	   = ['jQuery'];
+	
 	// 1. setup && 필수 의존성 선로딩
 	
 	require.config({
