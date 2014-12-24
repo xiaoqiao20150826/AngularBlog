@@ -71,9 +71,19 @@
 		  , 'categorySelector@app.blogBoard.update' : { templateUrl : _appdir + 'view/part/categorySelector.html'	}
 		  , 'editor@app.blogBoard.insert' : { templateUrl : _libdir + 'editor/editor.html'	
 			  								, controller  : BLOG_BOARD + '.EditorController as upsert'
+			  								, resolve 	  : 
+			  								  {
+			  									templateCacheKey : 
+			  									  [function(){return _libdir + 'editor/editor.html'}]
+			  								  }
 			  								}
 		  , 'editor@app.blogBoard.update' : { templateUrl : _libdir + 'editor/editor.html'
 			  								, controller  : BLOG_BOARD + '.EditorController as upsert'
+			  								, resolve 	  :
+			  								  {
+			  									templateCacheKey : 
+			  									  [function(){return _libdir + 'editor/editor.html'}]
+			  								  }
 		  									}
 				
 		}
@@ -154,18 +164,6 @@
 		.state(BLOG_BOARD+'.detailEx' 
 		,{
 			url : '/{postNum:[0-9]*}/:title'
-//		  , params : {
-//			  			title: {
-//			  					 decode : function(title) {
-//			  						 console.log('de',title)
-//			  						 return $window.decodeURI(title)
-//			  					 }
-//							    ,encode : function(title) {
-//			  						 console.log('en',title)
-//			  						 return $window.decodeURI(title)							    	 
-//							     }
-//			  				   }
-//		  			 }		
 		  , views : detailViews	
 		})
 		

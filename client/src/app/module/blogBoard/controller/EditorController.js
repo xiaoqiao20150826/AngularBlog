@@ -7,10 +7,14 @@
 	// 선로딩...
 	define([]
 	, function() {
-		return ['$scope', '$window',  'app.blogBoard.blogBoardDAO',makeEditorController]
+		return ['$scope'
+		       ,'$window'
+		       ,'$templateCache'
+		       ,'templateCacheKey'
+		       ,'app.blogBoard.blogBoardDAO'
+		       ,makeEditorController]
 	})
-	function makeEditorController ($scope, $window, blogBoardDAO) {
-//		console.log('editorContr')
+	function makeEditorController ($scope, $window, $templateCache, templateCacheKey, blogBoardDAO) {
 		var $parent 	= $scope.$parent
 		  , post		= $parent.post
 		  , contentText = post.content || '';
@@ -18,6 +22,9 @@
 		var $$editorModules = $window.$$editorModules
 		  , $$namespace		= $window.$$namespace;
 
+		//editor template를 항상 다시 로딩 하기위해. 캐쉬제거
+		$templateCache.remove(templateCacheKey)
+		
 		//editor.html로 window에 할당된 $$namespace , $$editorModules
 		$$namespace.load($$editorModules, function(require) {
 			var Editor = require('/js/Editor')
