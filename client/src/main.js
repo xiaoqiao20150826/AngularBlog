@@ -16,6 +16,10 @@
 	_paths.loadingBar = "../../bower_components/angular-loading-bar/build/loading-bar";
 	_paths.ocLazyLoad = "../../bower_components/oclazyload/dist/ocLazyLoad";
 	
+	//lib
+	_paths.editorModules = "../../lib/editor/editorModules";
+	_paths.namespace     = "../../lib/editor/lib/namespace/$$namespace";
+	
 	
 	var _shim = {}
 	_shim.twitterBootstrap = ['jQuery']

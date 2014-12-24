@@ -71,19 +71,9 @@
 		  , 'categorySelector@app.blogBoard.update' : { templateUrl : _appdir + 'view/part/categorySelector.html'	}
 		  , 'editor@app.blogBoard.insert' : { templateUrl : _libdir + 'editor/editor.html'	
 			  								, controller  : BLOG_BOARD + '.EditorController as upsert'
-			  								, resolve 	  : 
-			  								  {
-			  									templateCacheKey : 
-			  									  [function(){return _libdir + 'editor/editor.html'}]
-			  								  }
 			  								}
 		  , 'editor@app.blogBoard.update' : { templateUrl : _libdir + 'editor/editor.html'
 			  								, controller  : BLOG_BOARD + '.EditorController as upsert'
-			  								, resolve 	  :
-			  								  {
-			  									templateCacheKey : 
-			  									  [function(){return _libdir + 'editor/editor.html'}]
-			  								  }
 		  									}
 				
 		}
