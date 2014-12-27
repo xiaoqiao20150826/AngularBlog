@@ -38,8 +38,12 @@
  1. git clone https://github.com/elfmagic86/AngularBlog
  2. cd AngularBlog
  3. npm install
- 4. node server/bootstrap.js
+ 4. run server
+  1. start mongodb server (default port)
+  2. node server/bootstrap.js
  5. [http://localhost:3000](http://localhost:3000)
+
+- you can only login [testUser](http://localhost:3000/test) because not included configs
 
 ---
 
