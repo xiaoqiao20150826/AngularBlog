@@ -34,7 +34,7 @@
 	){
 		
 		var moduleName = 'common'          //얘는 app에 속하지않네.
-		angular.module(moduleName, [])
+		angular.module(moduleName, ['ui.router'])
 		       .factory( moduleName + '.util', util)
 		       
 		       .factory( moduleName + '.ObjectDecorator', ObjectDecorator)

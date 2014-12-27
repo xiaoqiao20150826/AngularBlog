@@ -39,7 +39,7 @@
 	onOffKarmaLoaded() 
 	require.config({
 				     'baseUrl' : "base/src/app"   			//karma 서버 기본 디렉토리가 base
-				    	 // spect에서 사용될 의존성의 '이름'
+				    	 // spec에서 사용될 의존성의 '이름'
 				   , 'paths' : _paths					// 
 				   , 'deps' : _deps
 				   , 'callback' : loadTestSpecsAndRun

@@ -8,7 +8,7 @@
 		  , dependencies = [];
 		
 			angular.module(moduleName, dependencies)
-				   .controller('nav.NavController', NavController)
+				   .controller(moduleName+'.NavController', NavController)
 		
 	    console.log('lazyload nav')			
 		return moduleName

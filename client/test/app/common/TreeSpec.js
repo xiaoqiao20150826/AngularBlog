@@ -2,12 +2,12 @@
  * 얼추된것같은데.
  */
 
-define(['app'], function (app) {
+define(['common/common'], function (common) {
 	describe('Tree', function () {
 		var Tree, names, root
 		var tree
 		beforeEach(function() {
-			angular.mock.module(app)
+			angular.mock.module(common)
 			angular.mock.inject(function ($injector) {
 				Tree = $injector.get('common.Tree');
 			})

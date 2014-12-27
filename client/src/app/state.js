@@ -73,16 +73,10 @@
 									  }
 		
 				  , 'top@app' 		   : {templateUrl : _curdir + 'module/nav/nav.html'
-					  					 ,resolve     :
-					  						 {
-						  						loadMyModlue: ['$ocLazyLoad', function($ocLazyLoad) {
-						  				            return $ocLazyLoad.load('app.nav');
-						  				          }]
-					  						 }
-					  					 }
+						  				 ,controller  : APP+'.nav.NavController as navCtrl'
+										 }
 				  , 'center.right@app' : {templateUrl : _curdir + 'view/sideLayout.html'
 					  					 ,controller  : APP + '.SideController as side'
-					  					 
 					  					 }
 				  , 'bottom@app' 	   : {templateUrl : _curdir + 'view/footer.html'}
 				  , 'part@app' 		   : {templateUrl : _curdir + 'view/part/login.html'}
@@ -94,7 +88,6 @@
 		})
 		
 		// --------------------  app.login
-		//이건 url 바인딩 용.
 		$stateProvider
 		.state(APP+'.login'
 		,{

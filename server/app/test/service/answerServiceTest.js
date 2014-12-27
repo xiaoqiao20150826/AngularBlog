@@ -37,9 +37,9 @@ describe('answerService', function () {
 			.then(function dataFn(root) {
 				var answers = root.answers
 				debug('joinedAnswers :', answers)
-				should.equal(answers[0].user, answers[0].answers.pop().user)
-				var lowAnswer = answers[0].answers[0]
-				should.equal(lowAnswer.num,4)
+				should.equal(answers[1].user, answers[1].answers.pop().user)
+				var lowAnswer = answers[1].answers[0]
+				should.equal(lowAnswer.num,3)
 				should.equal(lowAnswer.answerNum, 2 )
 			})
 			.then(function(){nextTest()})

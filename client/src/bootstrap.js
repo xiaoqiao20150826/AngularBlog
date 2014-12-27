@@ -50,8 +50,8 @@
 				$urlRouterProvider.deferIntercept();
 			}])
 			.run(['$ocLazyLoad', '$urlRouter','$location', function($ocLazyLoad, $urlRouter,$location) {
-				// 모듈 지연로딩과 url 리스너 지연 실행
-				$ocLazyLoad.load('app')
+				// angular 실행후 모듈로딩과 url 리스너 지연 실행
+				$ocLazyLoad.load(['app', 'app.nav', 'app.blogBoard'])
 						   .then(function() {
 							   console.log('start app')
 							   $urlRouter.sync();

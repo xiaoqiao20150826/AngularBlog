@@ -45,12 +45,12 @@ answerService.getRootOfAnswerTree = function (postNum) {
 			})
 }
 // 조인한 후, 트리화 시킨다.
-//includedNums 안해도될듯?
+//includedNums 이용하여 자식도 모두 삭제에서 -> 자식있으면 제거안되는 방식으로 바꿈.
 function _answersToTree (joinedAnswers) {
     var answerJoiner = new Joiner(joinedAnswers, 'answerNum', 'answers')
 //	answerJoiner.setKey4aggregateToParent('num', ',', 'includedNums') //부모로모아. 포함된(나 + 자식) num을.
     return answerJoiner.treeTo(Answer.makeRoot(), 'num', function(node) {
-    	node.password = undefined
+    	node.password = undefined // 데이터 송신 전 password안보이게.
     });
 }
 function _joinUsersToAnswers(answers, users) {

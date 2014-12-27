@@ -1,4 +1,5 @@
 /**
+ *   TODO: 현재 사용안함. deprecated
  *   app의 임시 저장공간으로 window.sessionStorage 사용 중.
  */
 

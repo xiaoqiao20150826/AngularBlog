@@ -63,7 +63,7 @@
 			   .controller(	moduleName+'.CategoryController', CategoryController)
 			   .controller(	moduleName+'.SideController'    , SideController)
 			   
-			   .constant(  'ANGULAR_LOG' 					, false)  	//log활동
+			   .constant(  'ANGULAR_LOG' 					, true)  	//log활동
 			   .config(		setupLog.config)
 			   .run(		setupLog.run)
 			   .run(		setupHandler)		 //state, url 핸들러.
