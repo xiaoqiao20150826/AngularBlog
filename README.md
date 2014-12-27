@@ -1,5 +1,5 @@
 ﻿
-# 소 개
+# 소 개 #
 
 **무엇**
  - Blog
@@ -12,7 +12,7 @@
 
 ---
 
-# Demo
+# Demo #
  * This App should run by chrome because I have not test other browser
  + [Homepage](http://elfmagic2.herokuapp.com/)
  + [Log in testUser](http://elfmagic2.herokuapp.com/test)
@@ -20,40 +20,46 @@
 
 ---
 
-# Features
+# Features #
  + Blog board (CRUD, search)
  + Blog board comments
- + Blog category
- + Blog history
- + Blog ordering by tabs
- + Blog pagination
+ + Blog board category
+ + Blog board history
+ + Blog board ordering by tabs
+ + Blog board pagination
  + File upload and download(using cloudinary. some slow.)
  + Social login( github, twitter, facebook, linkedin, google)
  + Javascript loader and editor
 
 ---
 
-# How to test in local
- 1. git clone https://github.com/elfmagic86/NodeBlog
- 2. cd NodeBlog
+# How to test in local #
+
+ 1. git clone https://github.com/elfmagic86/AngularBlog
+ 2. cd AngularBlog
  3. npm install
- 4. node app
- 5. [open page](http://localhost:3000/)
-   * should be used chrome for right run
+ 4. node server/bootstrap.js
+ 5. [http://localhost:3000](http://localhost:3000)
 
 ---
 
-# Development Environment
- - OS : windows7
- - AppServer : nodejs
- - DbServer : mongodb
- - DbClient : mongoose
- - Browser : chrome
- - WebFramework : express(view: ejs)
- - UI : BootStrap
- - Test framework : mocha (+shouldjs)
- - IDE : eclipse(use only code editor)
- - DebugingTool : node-inspector + chrome browser
+# Development Environment #
+  + ***Common*** 
+   - OS : windows7
+   - Browser(user-agent) : chrome
+   - CodeEditor : eclipse 
+
+  + ***Back-End***
+   - AppServer : nodejs + express
+   - DBServer  : mongodb + mongoose
+   - Test framework : mocha +shouldjs
+   - Debugging tool : node-inspector + chrome
+
+  + ***Front-End***
+   - AppFramework : angularjs , bootstrap
+   - Test Runner : karma , chrome
+   - Test framework : jasmine
+   - Debugging tool : chrome
 
 ---
 

@@ -7,10 +7,11 @@
     ; editor.html 안의 <script .. 가 재로그인 후 로딩이 되지 않는다.
     -> 템플릿캐쉬를 지워봤지만..소용없고..html안에서 빼버리고 스크립트 따로 로딩.
     ; ui-router... 이전 기록의 ui-view 가 남는다.   (ex : center변경중인데 center.right가 남음.
-     -> 로컬에서는 angular.element가 jquery로 변경되어있어 괜찮은데. 서버에서는 jqlite라서....에러가났던것.
-         미리 angular.element를 jquery로 변경해야겠다.
+     -> 로컬에서는 angular.element가 jquery로 변경되어있어 괜찮은데. 서버에서는 jqlite라서....에러가났던것.(비동기로딩때문)
+         미리 angular.element를 jquery로 변경해야겠다.(jquery 선로딩)
+
     ; iframe안의 내용... 이것도 템플릿으로 가져와서 그런가....? 'body'의 contenteditable 속성이 없어졌다.
-     -> 그냥. editor init시 속성...재 설정으로.
+     -> 그냥. editor init시 속성...재 설정으로. 그런데 왜그러지???
 
 # 해야할것 
   - /#/admin..왜안되냐. 

@@ -33,8 +33,8 @@
 			  
 	){
 		
-		var moduleName = 'common'          //얘는 app에 속하지않네.
-		angular.module(moduleName, ['ui.router'])
+		var moduleName = 'common'          		  //얘는 app에 속하지않네 .
+		angular.module(moduleName, ['ui.router']) //common만 별도로 test시에 uiRouter모듈 필요..
 		       .factory( moduleName + '.util', util)
 		       
 		       .factory( moduleName + '.ObjectDecorator', ObjectDecorator)

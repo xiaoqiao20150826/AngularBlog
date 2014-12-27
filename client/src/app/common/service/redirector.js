@@ -1,5 +1,6 @@
 /**
- * 
+ *  setupHanlder에서 goBefore 하는 경우외에는
+ *  $state로 직접 처리했으므로. 그 부분만 수정하면 없어져도 됨. 
  */
 
 
