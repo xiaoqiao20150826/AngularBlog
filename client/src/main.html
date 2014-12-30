@@ -22,12 +22,12 @@ CTYPE html>
 	<!--     angular-loading-bar css -->
     <link href="/resource/bower_components/angular-loading-bar/build/loading-bar.css" rel="stylesheet">
     <!-- Placed at the end of the document so the pages load faster -->
-	
+	<script src = "/resource/bower_components/spinjs/spin.js"></script>
 	<script data-main="/resource/src/main.js" src="/resource/bower_components/requirejs/require.js"></script>
   </head>
   
   <body>
-  
-    <div ui-view></div>
+    <div id ='spinner' ui-view>
+  	</div>
   </body>
 </html>

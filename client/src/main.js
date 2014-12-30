@@ -4,6 +4,9 @@
  * 
  */
 (function(require){
+	//0. spin
+	_spin()
+	
 	// min으로 나중에 바꾸자. 
 	var _paths = {}
 	_paths.underscore = "../../bower_components/underscore/underscore-min";
@@ -45,6 +48,34 @@
 	require(_deps, function () {
 		require(['../bootstrap'], function () {
 			console.log('angular bootstrap...')
+//			_toggleLoadingBar()
 		})
 	})
+	
+	/// etc
+	// 지금은 첫로딩에서만 간단히 사용함. ui-view에 할당했기에.. 템플릿 로딩되면 자동 없어짐.
+	function _spin(){ 
+		var Spinner = window.Spinner || console.error('not exist Spinner') 
+		var opts = {
+			  lines: 13, // The number of lines to draw
+			  length: 20, // The length of each line
+			  width: 10, // The line thickness
+			  radius: 30, // The radius of the inner circle
+			  corners: 1, // Corner roundness (0..1)
+			  rotate: 0, // The rotation offset
+			  direction: 1, // 1: clockwise, -1: counterclockwise
+			  color: '#000', // #rgb or #rrggbb or array of colors
+			  speed: 1, // Rounds per second
+			  trail: 60, // Afterglow percentage
+			  shadow: false, // Whether to render a shadow
+			  hwaccel: false, // Whether to use hardware acceleration
+			  className: 'spinner', // The CSS class to assign to the spinner
+			  zIndex: 2e9, // The z-index (defaults to 2000000000)
+			  top: '30%', // Top position relative to parent
+			  left: '50%' // Left position relative to parent
+			};
+			var target = document.getElementById('spinner');
+			var spinner = new Spinner(opts).spin(target);
+	}
+	
 })(require)	
