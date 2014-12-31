@@ -1,56 +1,26 @@
-
 /***
  * 	main
  * 
  */
 (function(require){
-	//0. spin
+	//1. start spinner
 	_spin()
-	
-	// min으로 나중에 바꾸자. 
-	var _paths = {}
-	_paths.underscore = "../../bower_components/underscore/underscore-min";
-	_paths.jQuery = "../../bower_components/jquery/dist/jquery.min";
-	_paths.twitterBootstrap = "../../bower_components/bootstrap/dist/js/bootstrap.min";
-	
-	_paths.angular     = "../../bower_components/angular/angular";
-	_paths.uiRouter    = "../../bower_components/angular-ui-router/release/angular-ui-router";
-	_paths.ngStorage   = "../../bower_components/ngstorage/ngStorage";
-	_paths.loadingBar = "../../bower_components/angular-loading-bar/build/loading-bar";
-	_paths.ocLazyLoad = "../../bower_components/oclazyload/dist/ocLazyLoad";
-	
-	//lib
-	_paths.editorModules = "../../lib/editor/editorModules";
-	_paths.namespace     = "../../lib/editor/lib/namespace/$$namespace";
-	
-	
-	var _shim = {}
-	_shim.twitterBootstrap = ['jQuery']
-	
-	_shim.angular 		   = ['jQuery']
-	_shim.uiRouter    	   = ['angular'];
-	_shim.ngStorage   	   = ['angular'];
-	_shim.loadingBar 	   = ['angular'];
-	_shim.ocLazyLoad 	   = ['angular'];
-	
-	_shim.namespace 	   = ['jQuery'];
-	
-	// 1. setup && 필수 의존성 선로딩
-	
+
+	//2. require 사용시 기본 패스만 설정
 	require.config({
 				     'baseUrl' : "/resource/src/app"
-				   , 'paths' : _paths					// 로딩위치+이름
-				   , 'shim'  : _shim					// 의존성
 	});
 	
-	//2. 의존성 선 로딩(paths에 등록된것) 후 bootstrap
-	var _deps = Object.keys(_paths)
-	require(_deps, function () {
-		require(['../bootstrap'], function () {
-			console.log('angular bootstrap...')
-//			_toggleLoadingBar()
-		})
-	})
+	//3. 여기서 초기 로딩에 필수인 앙귤러의 모듈을 미리 로드함. 단순히 성능향상 목적.
+	//   requirejs가 재호출시 캐쉬를 이용하고 
+	//   angular.module 등록은 별개로 해도 상관없기에 이렇게 함. 
+	require(['app', 'module/nav/nav', 'module/blogBoard/blogBoard'])
+	
+	//4. bootstrap 후 필수 모듈 지연 등록.
+	require(['../bootstrap'], function () {
+		console.log('angular bootstrap...')
+	})	
+	
 	
 	/// etc
 	// 지금은 첫로딩에서만 간단히 사용함. ui-view에 할당했기에.. 템플릿 로딩되면 자동 없어짐.

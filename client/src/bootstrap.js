@@ -8,18 +8,15 @@
 	define([
 	        'state'
 	       ,'module/blogBoard/state'
-	       
-	       ,'ocLazyLoad'		
-	       ,'uiRouter'
-	       ,'loadingBar'
 	],
 	function (appState, blogBoardState) {
 		
+		// - url 이벤트 지연 실행(모든 지연 모듈 등록 후 )
 		// - bootstrap 모듈 실행 후  oclazyload로 필요 모듈 로딩.
-		// - app.nav, app.blogBoard는 state의 변화에 의해 로딩됨.
-		//TODO: state의 등록은 이 시점에 해야함. 지연 모듈에 등록하면 동작하지않음. 왜그런지는...
-		//     추측컨데, angular-loading-bar도 동작안했던것 보니. 
-		//     지연모듈에 의존성모듈을 등록하면 올바르게 동작하지 않은가보다.
+		//   ; app 모듈 등을 지연 등록시키는 이유는 
+		//  그냥하면 배포시에 얘네들 로딩하는동안 angular.bootstrap전에 타임아웃걸려서
+		//  로컬에서는 안걸리는데..?항상걸리는것이 아니네
+		
 		angular.module('bootstrap', ['oc.lazyLoad', 'ui.router', 'angular-loading-bar'])
 		   .config(['$ocLazyLoadProvider'
 		           ,function($ocLazyLoadProvider) {
@@ -54,21 +51,23 @@
 				$ocLazyLoad.load(['app', 'app.nav', 'app.blogBoard'])
 						   .then(function() {
 							   console.log('start app')
-							   $urlRouter.sync();
 							   
 							   //한글디코딩(url변화시)
 							   $location.$$url = decodeURI($location.$$url)
 							   $location.$$absUrl = decodeURI($location.$$absUrl)
+							   // 지연된 url 동작
+							   $urlRouter.sync();
 						   })
 				$urlRouter.listen();
 			}]);
-			
-			// facebook auth #_=_제거를 위해... angular 모듈 시작전에 제거해줘야함.
-			if (window.location.hash && window.location.hash == '#_=_') {
-		        window.location.hash = '';
-		    }
-			// angular 기본 모듈을 미리 실행시킴.
-			angular.bootstrap( document, [ 'bootstrap' ]);
+		
+		
+		// facebook auth시 URL의 #_=_제거를 위해... angular 모듈 시작전에 제거해줘야함.
+		if (window.location.hash && window.location.hash == '#_=_') {
+	        window.location.hash = '';
+	    }
+		// angular 기본 모듈을 미리 실행시킴.
+		angular.bootstrap( document, [ 'bootstrap' ]);
 	})
 	
 })(define, angular, require)

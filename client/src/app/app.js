@@ -2,10 +2,8 @@
 (function(define, angular) {
 	
 	define([ 
-			// outer dependencies	       
-	         'ngStorage'
 			// user modules	       
-	       , 'common/common'
+	        'common/common'
 	       // services
 	       , 'dao/userDAO'
 	       , 'dao/authDAO'
@@ -23,10 +21,8 @@
 	       , 'setupLog'
 	],
 	function(
-			// outer modules
-			  noUse
 			// user modules
-			, common
+			  common
 			// services & controller
 			, userDAO
 			, authDAO

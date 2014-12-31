@@ -3,15 +3,25 @@
  * 
  */
 
-(function(define, _) {
-	// 선로딩...
-	define(['editorModules', 'namespace']
+(function(define, _, require) {
+	define([]
 	, function() {
 		return ['$scope'
 		       ,'$window'
 		       ,'app.blogBoard.blogBoardDAO'
-		       ,makeEditorController]
+		       ,makeEditorControllerWrap]
 	})
+	function makeEditorControllerWrap () {
+		var self = this
+		  , args = arguments;
+		  
+		require([ "../../lib/editor/editorModules"
+		         ,"../../lib/editor/lib/namespace/$$namespace"
+		         ], function() {
+			makeEditorController.apply(self, args)
+		})
+	}
+	
 	function makeEditorController ($scope, $window, blogBoardDAO) {
 		var $parent 	= $scope.$parent
 		  , post		= $parent.post
@@ -52,4 +62,4 @@
 		}); 
 	}
 	
-})(define, _)
+})(define, _, require)
