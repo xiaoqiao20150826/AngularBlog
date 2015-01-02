@@ -68,7 +68,7 @@ $$namespace.include(function (require, module) {
 	function _isToDoBackspace(editor) {
 		var $lines = editor.get$lines()
 		if($lines.length < 1) throw 'someting wrong..';
-		if($lines.length > 2) return true;
+		if($lines.length >= 2) return true;
 		
 			
 		var firstLine = $lines[0]

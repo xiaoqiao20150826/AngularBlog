@@ -46,7 +46,8 @@ $$namespace.include(function (require, module) {
 	//------------------------------------------------------
 	
 	//------------------getxxx method--------------
-	RangeManager.prototype.getTemperalyCaretedContent = function () {//임시적으로 캐럿된 컨텐츠
+	// 히스토리위해서 임시적으로 캐럿된 컨텐츠
+	RangeManager.prototype.getTemperalyCaretedContent = function () {
 		this.insertCarets(); //before
 		var htmlData = this._editor.getContentBody().innerHTML;
 		var rangeData = this.getCaretedRange();

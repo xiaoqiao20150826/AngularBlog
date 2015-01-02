@@ -11,7 +11,6 @@ $$namespace.include(function(require, module) {
 
 	var DEFAULT_ID = "editor"
 	  , DEFAULT_FRAME_ID = "editorContent"
-	  , DEFAULT_CONTENT_BODY_ID = "wysiwyg";
 	/**
 	 * constructor , instance fields
 	 */ 
@@ -22,44 +21,64 @@ $$namespace.include(function(require, module) {
 	  , ButtonManager = require('event/ButtonManager')
 	
 	var Editor = module.exports = function Editor(contentText, imageUploadCallback) {
-		this._imageUploadCallback = imageUploadCallback || function(){}
-		
+		// 1.editor 대상이 될 프레임.
 		this._id = DEFAULT_ID;
 		this._frameId = DEFAULT_FRAME_ID;
 		this._contentFrame = document.getElementById(this._frameId);
 		if(!(this._contentFrame)) throw id+" must be id of frame";
-		
 		this._contentDoc = this._contentFrame.contentDocument;
+
+		this._initContent(contentText);
 		this._contentBody = this._contentDoc.body;
 		
-		this._decorator = nodeDecorator;
+		//3. 의존성 모듈 초기화.
+		this._initDepedencies(imageUploadCallback)
 		
+		//4. 포커스
+		this.lastFocus();
+	};
+	Editor.prototype._initDepedencies = function (imageUploadCallback) {
+		this._imageUploadCallback = imageUploadCallback || function(){}
+		
+		this._decorator = nodeDecorator;
 		this._history = new History(this);
 		this._rangeManager = new RangeManager(this);
-		this._btnManager = new ButtonManager(this); //TODO: 일관성. 생성시 누구는 new누구는 그냥이라니.
+		this._btnManager = new ButtonManager(this);
 		
-		this._init(contentText);
-	};
-	//TODO : 리펙토링 - 각 작업 분리해야지.
-	Editor.prototype._init = function _init(contentText) {
-		if(contentText == null || contentText == undefined || contentText == '') contentText = '<p>&#8203</p>'
+		this._btnManager.assignEvent(); //이건 분리해놓을필요있나.
+	}
+	Editor.prototype._initContent = function _init(contentText) {
+		if(contentText == null || contentText == undefined || contentText == '') contentText = '<p></p>'
 		
-		var contentBody = this.getContentBody();	
-		contentBody.innerHTML = contentText
-		contentBody.setAttribute('id', DEFAULT_CONTENT_BODY_ID)
-		contentBody.setAttribute('contenteditable', true)
-		
-		this._btnManager.assignEvent()
-		var node = this._contentDoc.getElementsByTagName('p')[0];
-		var range =this._rangeManager.getDefaultRange(node);
-		this._rangeManager.updateRange(range);
-		
-		this.focus();
+		var wysiwygHTML = '<html lang="ko"><head>'
+				+ '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">'
+				+ '<link rel="stylesheet" href="/resource/lib/editor/css/editorContent.css">'
+				+ '<title>Wygiwyg Panel</title>'
+				+ '</head>'
+				+ '<body id="wysiwyg" contenteditable="true">'
+				+ contentText
+				+ '</body></html>';	
+			
+		this._contentDoc.write(wysiwygHTML);
+		this._contentDoc.close(); 			//close 호출되야함.  왜?? 없어도 되던데.
 	};
 
 	//	public method function
 	Editor.prototype.focus = function() {
 		this._contentBody.focus();
+	};
+	Editor.prototype.lastFocus = function() {
+		var lastLine = this._contentBody.lastElementChild
+		  , newSpan  = document.createElement('span');
+		
+		newSpan.innerHTML = "&#8203;";   
+		lastLine.appendChild(newSpan);
+		
+		var range =this._rangeManager.getDefaultRange(newSpan);
+		range.isSingleCaret = true;
+		
+		this._rangeManager.updateRange(range);
+		this.focus();
 	};
 	//-------------update selectedNode ----------------
 		// 줄 단위로 가운데, 왼쪽..등 이동할때 사용하네.

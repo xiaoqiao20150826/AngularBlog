@@ -2,8 +2,6 @@
 	
 	// 
 	var modules = [
-	                  "/resource/lib/editor/js/iframeContent.js",
-
 	                  "/resource/lib/editor/js/util/helper.js",
 	                  
 	                  "/resource/lib/editor/js/part/treeSearcher.js",
