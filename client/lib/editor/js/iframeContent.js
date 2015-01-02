@@ -21,3 +21,6 @@
 	contentBody.focus();
 	contentDoc.close(); //close 호출되야함. 
 })();
+
+
+//@ sourceURL=editor/iframeContent.js
