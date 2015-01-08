@@ -55,7 +55,7 @@ $$namespace.include(function (require, module) {
 		} else {
 			sum = (oldValue.number*1) + (newValue.number*1); 
 		}
-		var unit = newValue.unit || oldValue.unit;
+		var unit = newValue.unit || oldValue.unit || 0;
 		return sum + unit;
 		function __valueIfminus(newValue) {
 			var number = newValue.number;
