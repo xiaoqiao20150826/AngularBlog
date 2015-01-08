@@ -1,10 +1,6 @@
 /**
  * 
  */
-
-/**
- * 
- */
 $$namespace.include(function (require, module) {
 	var	LINEHEIGHT = ".lineHeight-btn",
 		HEIGHT = "height",
@@ -73,3 +69,4 @@ $$namespace.include(function (require, module) {
 			}
 	};
 });
+//@ sourceURL=editor/event/button/lineHeight.js
