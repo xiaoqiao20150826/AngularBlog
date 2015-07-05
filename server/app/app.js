@@ -77,6 +77,7 @@ app._runServer = function (callback) {
 	return http.createServer(expressApp).listen(config.port, function() {
 		
 		console.log('Express server listening on port ' + config.port);
+		console.log('connet DB : ' + config.db);
 		
 		mongoose.connect(config.db, callback);
 	});

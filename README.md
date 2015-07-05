@@ -13,7 +13,6 @@
 ---
 
 # Demo #
- * This App should run by chrome because I have not test other browser
  + [Homepage](http://elfmagic2.herokuapp.com/)
  + [Log in testUser](http://elfmagic2.herokuapp.com/test)
  + [Admin page after login testUser](http://elfmagic2.herokuapp.com/#/admin)
