@@ -55,11 +55,11 @@ var config = module.exports = (function(){
 ///// mode별 설정 현재는 testmode(로컬)말고는 별차이없음.
 // @ds039550.mongolab.com:39550/nodeblog
 config.productionMode = function () {
-	config.db = 'mongodb://'+config.mongolabId+':'+config.mongolabPw+'@ds049558.mongolab.com:49558/nodeblog2'
+	config.db = 'mongodb://'+config.mongolabId+':'+config.mongolabPw+'@ds039550.mongolab.com:39550/nodeblog'
 	config.host = 'http://elfmagic2.herokuapp.com';
 }
 config.developementMode = function () {
-	config.db = 'mongodb://'+config.mongolabId+':'+config.mongolabPw+'@ds049558.mongolab.com:49558/nodeblog2'
+	config.db = 'mongodb://'+config.mongolabId+':'+config.mongolabPw+'@ds039550.mongolab.com:39550/nodeblog'
 	config.host = 'http://elfmagic2.herokuapp.com';
 }
 config.testMode = function () {

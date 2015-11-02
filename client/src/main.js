@@ -4,7 +4,7 @@
  */
 (function(require){
 	//1. start spinner
-	_spin()
+	var spinner = _spin();
 
 	//2. require 사용시 기본 패스만 설정
 	require.config({
@@ -18,7 +18,8 @@
 	
 	//4. bootstrap 후 필수 모듈 지연 등록.
 	require(['../bootstrap'], function () {
-		console.log('angular bootstrap...')
+		console.log('angular bootstrap...');
+		spinner.stop();
 	})	
 	
 	
@@ -44,8 +45,11 @@
 			  top: '30%', // Top position relative to parent
 			  left: '50%' // Left position relative to parent
 			};
-			var target = document.getElementById('spinner');
-			var spinner = new Spinner(opts).spin(target);
+		var target = document.getElementById('spinner');
+		var spinner = new Spinner(opts);
+		spinner.spin(target);
+
+		return spinner;
 	}
 	
 })(require)	

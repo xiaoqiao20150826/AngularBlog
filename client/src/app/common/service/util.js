@@ -107,7 +107,7 @@
 				  ,	error		 = (obj && obj.error) ? obj.error  : obj 
 				  , message      = error.message || error
 				  
-			    	alert(message)
+			    	// alert(message)
 			    	console.error(message , error)
 			}
 			

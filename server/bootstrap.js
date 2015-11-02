@@ -20,20 +20,20 @@ var config 			= require('./app/config')
 	
 	//2.  *** server start
 	app.start(function(err, data) {
-		if(err) return console.error('mongo err : ', err)
-		
-		console.log(':::::::  db is '+ config.db)
-		
-		initDataCreater.create()
-		 .then(function dataFn () {
-			    console.log('::::: init data create success')	
-			 	console.log('--------- start success ----------')
-		 })
-		 .catch(function(err) {
-			 console.log('----init data create fail-----')
-			 console.error(err)
-		 })
+		if(err) {
+		}else {
+
+			initDataCreater.create()
+			 .then(function dataFn () {
+				    console.log('::::: init data create success')	
+				 	console.log('--------- start success ----------')
+			 })
+			 .catch(function(err) {
+				 console.error('----init data create fail-----')
+				 console.error(err)
+			 })
+			
+		}
 	});
-	
 })()
 

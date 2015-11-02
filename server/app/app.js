@@ -11,11 +11,65 @@ var config 		= require('./config.js')
 var app = module.exports = {}
 
 app.start = function (callback) {
-	this._setUp();
-	this._openedServer = this._runServer(callback);
+	var self = this;
+	//db연결. 혹은 다른것들.. 실패와 성공으로 나눔.
+	self._openedDbServer = self._runDbServer(function(dbError) {
+		//에러유무에다른 웹서버설정.
+		dbError = !dbError ? undefined : { message :"[DB ERROR] : " + dbError.message };
+
+		self._webServerSetup(dbError);
+		//웹서버 시작.
+		self._openedWebServer = self._runWebServer(callback);
+	});
 }
 
-app._setUp = function () {
+/**
+ * run
+ */
+app._runDbServer = function (callback) {
+	return mongoose.connect(config.db, function(err) {
+		//db연결 등록한 기본라우팅을 주소를 변경하여 클라이언트에게 연결시패알려줌.
+		if(err){
+			console.error('mongo error : ', err);
+		}else{
+			console.log(':::::: run DB server : ' + config.db);
+		}
+		//에러와상관없이 콜백동작..
+		callback(err);
+	});	
+}
+app._runWebServer = function (callback) {
+	//4. 서버 열고 디비 연결
+	var	http = require('http')
+	return http.createServer(expressApp).listen(config.port, function(error) {
+		if(error){
+			console.error('web server error' + config.port, error);
+		}else{
+			console.log('::::::: run web server ' + config.port);
+		}
+
+		callback(error);
+	});
+}
+/**
+ * setup
+ */
+app._webServerSetup = function (error) {
+	if(error){
+		this._failWebServerSetup(error);
+	}else{
+		this._nomalWebServerSetUp();
+	}	
+}
+app._failWebServerSetup = function (error) {
+	expressApp.get('/', function(req, res) {
+		res.send(error.message);
+	});
+	expressApp.get('/blog', function(req, res) {
+		res.send(error.message);
+	});		
+}
+app._nomalWebServerSetUp = function () {
 	
 	var cookieParser 	= require('cookie-parser')
 	  , bodyParser 		= require('body-parser')
@@ -71,17 +125,7 @@ app._setUp = function () {
 	}
 	
 }
-app._runServer = function (callback) {
-	//4. 서버 열고 디비 연결
-	var	http = require('http')
-	return http.createServer(expressApp).listen(config.port, function() {
-		
-		console.log('Express server listening on port ' + config.port);
-		console.log('connet DB : ' + config.db);
-		
-		mongoose.connect(config.db, callback);
-	});
-}
+
 
 // 임시] 
 app.closeDb = function () {

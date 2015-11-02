@@ -40,7 +40,8 @@
   </head>
   
   <body>
-    <div id ='spinner' ui-view>
-  	</div>
+    <!-- ui-view로 만들면 엘리먼트가 달려저서 stop을사용할수가없음. -->
+    <div id ='spinner' />
+    <div ui-view />
   </body>
 </html>
